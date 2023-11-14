@@ -2188,7 +2188,7 @@ __metadata:
     jquery-ujs: ^1.2.2
     jquery.scrollbar: ^0.2.11
     mini-css-extract-plugin: ^2.0.0
-    npm-install-webpack-plugin: ^4.0.4
+    npm-install-webpack-plugin: ^4.0.5
     postcss-loader: ^7.3.3
     sass: ^1.0.0
     sass-loader: ~10.2.0
@@ -4195,7 +4195,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"npm-install-webpack-plugin@npm:^4.0.4":
+"npm-install-webpack-plugin@npm:^4.0.5":
   version: 4.0.5
   resolution: "npm-install-webpack-plugin@npm:4.0.5"
   dependencies:

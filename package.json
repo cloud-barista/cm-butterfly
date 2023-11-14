@@ -39,7 +39,7 @@
     "glob": "^7.2.0",
     "gopherjs-loader": "^0.0.1",
     "mini-css-extract-plugin": "^2.0.0",
-    "npm-install-webpack-plugin": "^4.0.4",
+    "npm-install-webpack-plugin": "^4.0.5",
     "postcss-loader": "^7.3.3",
     "sass": "^1.0.0",
     "sass-loader": "~10.2.0",
