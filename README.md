@@ -2,7 +2,11 @@
 ###
 ```
 [NOTE]
-
+cm-butterfly is currently under development.
+So, we do not recommend using the current release in production.
+Please note that the functionalities of cm-butterfly are not stable and secure yet.
+If you have any difficulties in using cm-butterfly, please let us know.
+(Open an issue or Join the Cloud-Migrator Slack)
 ```
 # Overview
 ## 클라우드 마이그레이션 통합 플랫폼 포털이란
@@ -27,14 +31,14 @@
 #### 1. 실행 환경
 
 - ##### 공식환경
-  - OS: -
-  - Build: -
-  - Container: -
+  - OS: Ubuntu 20.04
+  - Build: Go 1.19
+  - Container: v19.03
 
 - ##### 시험환경
-  - OS: -
-  - Build: -
-  - Container: -
+  - OS: Ubuntu 20.04
+  - Build: Go 1.21
+  - Container: v19.03
 
 #### 2. 실행 방법
 
