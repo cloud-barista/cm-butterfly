@@ -1,0 +1,84 @@
+{{define "WorkflowEditor"}}
+
+<!-- Info -->
+<div class="dashboard dashboard_cont" id="workflow_info_box">
+
+	<div class="d_box box_m box_w100">
+		<div class="titbox">
+			<div class="tit initial"><strong>Workflow Info</strong> <span class="stxt" id="workflow_info_txt">[]</span></div>
+			<div class="top_info">
+				<ul>
+                    <li><a href="javascript:void(0);"><img src="/assets/img/common/icon_question.png" alt="" /></a></li>
+                </ul>
+			</div>
+		</div>
+
+		<div class="ds_cont">
+            <div class="register_box">
+
+                <div class="top_ipbox">
+                    <div class="ipbox ipbox1">
+                        <ul>
+                            <li class="reg_1">
+                                <label>Target Model</label>
+                                <select class="selectbox white pline sel_1" name="targetModel"
+                                    id="targetModel" onchange="setTargetModel(this)">
+                                    <option value="" selected>Select a Target Model</option>
+                                    <option value="tm01">Web Server</option>
+                                    <option value="tm02">DB Server</option>
+                                </select>
+                            </li>
+                            <li class="reg_1">
+                                <label>Workflow Template</label>
+                                <select class="selectbox white pline sel_1" name="workflowTemplate"
+                                    id="selWorkflowTemplate" onchange="setWorkflowTemplate(this)">
+                                    <option value="" selected>Select a Workflow Template</option>
+                                    <!-- 
+                                        <option value="wft01">DynamicMcisTemplate</option>
+                                        <option value="wft02">DynamicMcksTemplate</option>
+                                     -->
+                                </select>
+                            </li>
+                        </ul>
+                    </div>
+                            
+                    <div class="ipbox ipbox2">
+                        <ul>
+                            <li class="reg_1">
+                                <label><span class="ch">*</span>Name</label>
+                                <span class="sbox">
+                                    <input type="text" id="workflowName" name="workflowName"
+                                        value="" placeholder=""
+                                        class="pline" title="" />
+                                </span>
+                                <input type="hidden" id="workflowId" name="workflowId"/>
+                            </li>
+                            <li class="reg_1">
+                                <label>Description</label>
+                                <textarea id="workflowDescription" name="workflowDescription" cols="" rows=""
+                                    placeholder="Description" class="pline" title=""></textarea>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- workflow canvas area start -->
+                <div id="workflowplaceholder" style="height:670px"></div>
+                <!-- workflow canvas area end -->
+                
+                <div class="btnbox">
+                    <div class="btn_center">
+                        <button name="" value="" class="btn_co btn_cr_g w135 btn_ok" onclick="saveWorkflow()">Save</button>
+                    </div>
+                </div>
+            </div>
+		</div>
+        
+	</div>
+    
+</div>
+<!-- //Info -->
+
+
+{{end}}
