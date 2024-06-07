@@ -1,0 +1,202 @@
+/* internal */
+.sqd-theme-dark .sqd-toolbox {
+  background: #3f3f3f;
+  box-shadow: none;
+  border-radius: 10px;
+}
+.sqd-theme-dark .sqd-toolbox-header-title {
+  color: #fff;
+}
+.sqd-theme-dark .sqd-toolbox-filter {
+  background: #242424;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+}
+.sqd-theme-dark .sqd-toolbox-filter:focus {
+  border-color: #939393;
+}
+.sqd-theme-dark .sqd-toolbox-group-title {
+  color: #fff;
+  background: #242424;
+  border-radius: 10px;
+}
+
+.sqd-theme-dark .sqd-toolbox-item {
+  color: #000;
+  border: none;
+  box-shadow: none;
+  background: #c6c6c6;
+  border-radius: 5px;
+}
+.sqd-theme-dark .sqd-toolbox-item:hover {
+  border-color: none;
+  background: #d3d3d3;
+}
+.sqd-theme-dark .sqd-toolbox-item .sqd-toolbox-item-icon.sqd-no-icon {
+  background: #c6c6c6;
+  border-radius: 4px;
+}
+
+.sqd-theme-dark .sqd-control-bar {
+  background: #3f3f3f;
+  box-shadow: none;
+  border-radius: 10px;
+}
+.sqd-theme-dark .sqd-control-bar-button {
+  border: none;
+  background: #c6c6c6;
+  border-radius: 5px;
+}
+.sqd-theme-dark .sqd-control-bar-button:hover {
+  border-color: #939393;
+  background: #d3d3d3;
+}
+.sqd-theme-dark .sqd-control-bar-button .sqd-icon-path {
+  fill: #000;
+}
+.sqd-theme-dark .sqd-control-bar-button.sqd-delete .sqd-icon-path {
+  fill: #e01a24;
+}
+
+.sqd-theme-dark .sqd-smart-editor {
+  background: #3f3f3f;
+  box-shadow: none;
+}
+.sqd-theme-dark .sqd-smart-editor-toggle {
+  background: #6f6f6f;
+  box-shadow: none;
+}
+
+.sqd-theme-dark.sqd-context-menu {
+  background: #3f3f3f;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.sqd-theme-dark .sqd-context-menu-group {
+  color: #ccc;
+}
+
+.sqd-theme-dark .sqd-context-menu-item {
+  color: #fff;
+  border-radius: 4px;
+}
+
+.sqd-theme-dark .sqd-context-menu-item:hover {
+  background: #525252;
+}
+
+.sqd-theme-dark.sqd-designer {
+  background: #1f1f1f;
+}
+
+.sqd-theme-dark .sqd-line-grid-path {
+  stroke: #2a2a2a;
+  stroke-width: 1;
+}
+
+.sqd-theme-dark .sqd-join {
+  stroke-width: 2;
+  stroke: #707070;
+}
+
+.sqd-theme-dark .sqd-region {
+  stroke: #434343;
+  stroke-width: 2;
+  stroke-dasharray: 3;
+}
+.sqd-theme-dark .sqd-region.sqd-selected {
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-dasharray: 0;
+}
+
+.sqd-theme-dark .sqd-placeholder .sqd-placeholder-rect {
+  fill: #0e0e0e;
+  stroke: #6a6a6a;
+  stroke-width: 1;
+  stroke-dasharray: 3;
+}
+.sqd-theme-dark .sqd-placeholder.sqd-hover .sqd-placeholder-rect {
+  fill: #ed4800;
+}
+.sqd-theme-dark .sqd-placeholder-icon-path {
+  fill: #2b2b2b;
+}
+.sqd-theme-dark .sqd-placeholder.sqd-hover .sqd-placeholder-icon-path {
+  fill: #fff;
+}
+
+.sqd-theme-dark .sqd-validation-error {
+  fill: #ffa200;
+}
+.sqd-theme-dark .sqd-validation-error-icon-path {
+  fill: #000;
+}
+
+.sqd-theme-dark .sqd-root-start-stop-circle {
+  fill: #2c18df;
+}
+.sqd-theme-dark .sqd-root-start-stop-icon {
+  fill: #fff;
+}
+
+.sqd-theme-dark .sqd-step-task .sqd-step-task-rect {
+  fill: #c6c6c6;
+  stroke-width: 1;
+  stroke: none;
+  filter: drop-shadow(0 1.5px 1.5px rgba(0, 0, 0, 0.15));
+}
+.sqd-theme-dark .sqd-step-task .sqd-step-task-rect.sqd-selected {
+  stroke: #fff;
+  stroke-width: 2;
+}
+.sqd-theme-dark .sqd-step-task .sqd-step-task-text {
+  fill: #000;
+}
+.sqd-theme-dark .sqd-step-task .sqd-step-task-empty-icon {
+  fill: #c6c6c6;
+}
+.sqd-theme-dark .sqd-step-task .sqd-input {
+  fill: #c6c6c6;
+  stroke-width: 2;
+  stroke: #707070;
+}
+.sqd-theme-dark .sqd-step-task .sqd-output {
+  fill: #707070;
+  stroke-width: 0;
+}
+
+.sqd-theme-dark .sqd-step-switch > .sqd-label-primary > .sqd-label-text {
+  fill: #fff;
+}
+.sqd-theme-dark .sqd-step-switch > .sqd-label-primary > .sqd-label-rect {
+  fill: #2411db;
+  stroke-width: 0;
+}
+.sqd-theme-dark .sqd-step-switch > .sqd-label-secondary > .sqd-label-rect {
+  fill: #000;
+  stroke-width: 0;
+}
+.sqd-theme-dark .sqd-step-switch > .sqd-label-secondary > .sqd-label-text {
+  fill: #fff;
+}
+.sqd-theme-dark .sqd-step-switch > g > .sqd-input {
+  fill: #c6c6c6;
+  stroke-width: 2;
+  stroke: #707070;
+}
+
+.sqd-theme-dark .sqd-step-container > .sqd-label > .sqd-label-text {
+  fill: #fff;
+}
+.sqd-theme-dark .sqd-step-container > .sqd-label > .sqd-label-rect {
+  fill: #2411db;
+  stroke-width: 0;
+}
+.sqd-theme-dark .sqd-step-container > g > .sqd-input {
+  fill: #c6c6c6;
+  stroke-width: 2;
+  stroke: #707070;
+}

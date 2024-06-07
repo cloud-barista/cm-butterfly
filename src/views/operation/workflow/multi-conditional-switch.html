@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+		<title>🌵 Multi-Conditional Switch Example - Sequential Workflow Designer</title>
+		<meta property="og:title" content="🌵 Multi-Conditional Switch Example - Sequential Workflow Designer">
+		<meta name="description" content="How to use Sequential Workflow Designer to create a multi-conditional switch.">
+		<meta property="og:description" content="How to use Sequential Workflow Designer to create a multi-conditional switch.">
+		<meta property="og:image" content="https://nocode-js.com/img/social-card.png">
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:image" content="https://nocode-js.com/img/social-card.png">
+
+		<link rel="icon" href="/assets/js/sequential-workflow-designer/favicon.ico">
+	
+		<!-- 필수요소 -->
+		<script src="/assets/js/sequential-workflow-designer/dist/index.umd.js"></script>
+		<link rel="stylesheet" href="/assets/js/sequential-workflow-designer/css/common.css">
+		<link rel="stylesheet" href="/assets/js/sequential-workflow-designer/css/designer.css">
+		<link rel="stylesheet" href="/assets/js/sequential-workflow-designer/css/designer-light.css">
+		<link rel="stylesheet" href="/assets/js/sequential-workflow-designer/css/designer-dark.css">
+		<style>
+			html,
+			body {
+				width: 100vw;
+				height: 100vh;
+				overflow: hidden;
+			}
+			body {
+				display: flex;
+				flex-direction: column;
+			}
+			.main {
+				flex: 1;
+				position: relative;
+			}
+			#designer {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+			}
+
+			.sqd-editor {
+				padding: 10px;
+			}
+			.sqd-editor h2 {
+				margin: 10px 0 20px;
+				padding: 0;
+				line-height: 1.1em;
+			}
+			.sqd-editor p {
+				line-height: 1.3em;
+			}
+			.sqd-editor button {
+				border: 0;
+				padding: 5px 8px;
+				background: #222;
+				color: #fff;
+				cursor: pointer;
+				border-radius: 5px;
+			}
+			.sqd-editor button:hover {
+				background: #444;
+			}
+			.sqd-editor input[type='text'] {
+				width: 100%;
+				margin: 0 0 5px;
+				box-sizing: border-box;
+				padding: 5px;
+				border: 1px solid #ddd;
+				border-radius: 5px;
+			}
+			.sqd-editor .switch-branch {
+				padding: 10px;
+				border: 1px solid #ddd;
+				margin: 10px 0;
+				border-radius: 5px;
+			}
+			.sqd-editor .switch-branch h4 {
+				margin: 0;
+				font-size: 14px;
+				background: #ddd;
+				padding: 5px;
+				border-radius: 5px;
+			}
+			.sqd-editor .switch-branch label {
+				display: block;
+				padding: 5px 0;
+			}
+		</style>
+	</head>
+	<body>
+		<header class="title-bar">
+			<div class="column">
+				<h1>🌵 Multi-Conditional Switch Example</h1>
+			</div>
+			<div class="column text-end flex-1">
+				<a href="https://github.com/nocode-js/sequential-workflow-designer" target="_blank">GitHub</a>
+			</div>
+		</header>
+
+		<div class="main">
+			<div id="designer"></div>
+		</div>
+
+
+		<script src="/assets/js/sequential-workflow-designer/js/multi-conditional-switch.js"></script>
+	</body>
+</html>
