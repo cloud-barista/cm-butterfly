@@ -13,8 +13,8 @@ type WorkflowInfo struct {
 	WorkflowName string `json:"name"`
 	WorkflowData Data `json:"data"`
 
-	CreatedAt Data `json:"created_at"`
-	UpdatedAt Data `json:"updated_at"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 	
 	// Description string `json:"description"`
 	// TaskGroups []TaskGroup `json:"task_groups"`

@@ -327,12 +327,12 @@ function defineTaskGroupStep(id, name, taskGroupProperties){
 		var tasks = taskGroupProperties.tasks;
 		for(var k in tasks){
 			console.log("task ", tasks[k])
-			var taskId = tasks[k].id ? "" : "temp_wf_task_" + k;// taskId가 없으면 readonly이기 때문에 임시 taskId를 넣음.
+			var taskId = tasks[k].id ? tasks[k].id : "temp_wf_task_" + k;// taskId가 없으면 readonly이기 때문에 임시 taskId를 넣음.
 			var taskComponent = tasks[k].task_component;
 			//console.log("taskId ", taskId)
 			//console.log("taskComponent ", taskComponent)
 			if( taskComponent == "beetle_task_infra_migration"){
-				var taskName = tasks[k].id ? "" : "tem-mig01"
+				var taskName = tasks[k].name ? tasks[k].name : "tem-mig01"
 				// json객체로 한번 더 형변환 : "request_body": "{\n   \"name\": \"recommended-infra01\", 형태임
 				var request_body_str = tasks[k].request_body
 				const requestBody = JSON.parse(request_body_str);

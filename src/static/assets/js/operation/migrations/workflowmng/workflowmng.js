@@ -193,6 +193,9 @@ function getWorkflowList(sort_type) {
 function addWorkflowRow(item, index) {
     console.log("addWorkflowRow " + index);
     console.log(item)
+    var createdAt = formatYyyyMmDdHh24MiSs(item.created_at);
+    var updatedAt = formatYyyyMmDdHh24MiSs(item.updated_at);
+
     var html = ""
     html += '<tr onclick="showWorkflowInfo(\'' + item.id + '\');">'
         + '<td class="overlay hidden column-50px" data-th="">'
@@ -200,8 +203,8 @@ function addWorkflowRow(item, index) {
         + '<input type="checkbox" name="chk" value="' + item.id + '" id="raw_' + index + '" title="" /><label for="td_ch1"></label> <span class="ov off"></span>'
         + '</td>'
         + '<td class="btn_mtd ovm" data-th="name">' + item.name + '<span class="ov"></span></td>'
-        + '<td class="btn_mtd ovm" data-th="name">tergetModel<span class="ov"></span></td>'
-        + '<td class="btn_mtd ovm" data-th="name">description<span class="ov"></span></td>'
+        + '<td class="btn_mtd ovm" data-th="createdAt">' + createdAt + '</td>'
+        + '<td class="btn_mtd ovm" data-th="updatedAt">' + updatedAt + '</td>'
         + '</tr>'
     return html;
 }
@@ -285,14 +288,17 @@ function showWorkflowInfo(workflowId) {
         console.log("Show workflowInfo : ", workflowInfo);
 
         var workflowId = workflowInfo.id;
+        var workflowCreatedAt = workflowInfo.created_at;
+        var workflowUpdatedAt = workflowInfo.updated_at;
+        var workflowName = workflowInfo.data.name;        
         var workspaceDescription = workflowInfo.data.description
         $("#workflow_info_txt").empty();
         $("#dtlDescription").empty();
         
-        $("#workflow_info_txt").text(workflowId);
+        $("#workflow_info_txt").text(workflowName);
         $("#dtlDescription").val(workspaceDescription);
 
-        // 가져온 정보에서 designer
+        // 최상위는 taskGroup의 sequence임.
         var sequenceList = [];// 
         var cicadaTaskGroups = workflowInfo.data.task_groups;
         cicadaTaskGroups.forEach(aCicadaTaskGroup => {
@@ -301,19 +307,15 @@ function showWorkflowInfo(workflowId) {
         })
         console.log("after sequenceList ", sequenceList)
         
-        // var taskGroup = taskGroupArr[0];
-        // var taskGroupId = taskGroup.id
-        // var taskArr = taskGroup.tasks;
-        // var task0 = taskArr[0];
-        // var taskId = task0.id;
-        // var taskName = task0.id;
-        // var taskComponent = task0.task_component;
-        // var taskProperties = {body: task0.request_body};
-        
-        //workflowplaceholder
+        var workflowProperty = {}
+        workflowProperty.workflowId = workflowId;
+        workflowProperty.name = workflowName;
+        workflowProperty.created_at = workflowCreatedAt
+        workflowProperty.updated_at = workflowUpdatedAt;
+        workflowProperty.description = workspaceDescription;
             
         var templateDefinition = {
-            properties: {},
+            properties: workflowProperty,
             sequence: sequenceList,
             //sequence: [
                 // templateId가 없으면 edit 불가하므로 taskId 까지 입력한다.

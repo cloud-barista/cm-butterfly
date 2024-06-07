@@ -84,67 +84,6 @@ function refreshValidationStatus() {
 }
 
 
-// // workflowId로 조회
-// TODO : onload시 체크. workflowId를 받으면 해당 workflowId를 조회하여 canvas에 표시한다.
-// function loadState(workflowId) {
-//     alert("get workflow ", workflowId)
-// 	const state = localStorage[localStorageKey];
-// 	// if (state) {
-// 	// 	return JSON.parse(state);
-// 	// }
-// 	// return {
-// 	// 	definition: getStartDefinition()
-// 	// }
-
-    
-//     // 불러온 definition set.
-//     console.log("DOMContentLoaded ")
-//     const definition = {
-//     properties: {
-//         'myProperty': 'my-value',
-//         // root properties...
-//     },
-//     sequence: [
-//         // steps...
-//     ]
-//     };
-//     console.log("workflow definition ")
-
-//     // const configuration = {
-//     // theme: 'light', // optional, default: 'light'
-//     // isReadonly: false, // optional, default: false
-//     // undoStackSize: 10, // optional, default: 0 - disabled, 1+ - enabled
-
-//     // 
-
-//     // validator: {
-//     //     // all validators are optional
-
-//     //     step: (step, parentSequence, definition) => {
-//     //     return /^[a-z]+$/.test(step.name);
-//     //     },
-//     //     root: (definition) => {
-//     //     return definition.properties['memory'] > 256;
-//     //     }
-//     // },
-
-
-
-//     // controlBar: true,
-//     // contextMenu: true,
-//     // };
-//     console.log("workflow configuration ")
-    
-//     designer.onDefinitionChanged.subscribe((newDefinition) => {
-//         console.log("workflow designer.onDefinitionChanged ")
-//     // ...
-//     });
-
-//     console.log("workflow designer created ")    
-// }
-
-
-
 document.addEventListener('DOMContentLoaded', function() {    //     
     console.log("Dom Loaded")
     console.log("confState.definition", confState.definition)
@@ -283,6 +222,11 @@ function convertToDiagram(workflowData){
 	
 }
 
+// 선택한 Target Model 정보를 set
+// Task에서 필요시 참고하기 위한 용도.
+function setTargetModel(selectedOption){
+    
+}
 
 // workflow template 선택시 해당 workflow template 정보를 canvas에 그린다.
 function setWorkflowTemplate(selectedOption){    
@@ -370,7 +314,13 @@ function getWorkflowTemplateList(){
         if(!isEmpty(workflowTemplateList) && workflowTemplateList.length > 0 ){
             
             for(var i in workflowTemplateList){                
-                addWorkflowTemplate +='<option value="'+workflowTemplateList[i].id+'">'+workflowTemplateList[i].id + '</option>';
+                var workflowName = "";
+                if (workflowTemplateList[i].data.name != undefined){
+                    worflowName = workflowTemplateList[i].name
+                }else{
+                    workflowName = workflowTemplateList[i].id
+                }
+                addWorkflowTemplate +='<option value="'+workflowTemplateList[i].id+'">'+workflowTemplateList[i].data.name + '</option>';
             }
             $("#selWorkflowTemplate").empty()
             $("#selWorkflowTemplate").append(addWorkflowTemplate)

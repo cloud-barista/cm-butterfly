@@ -1602,3 +1602,22 @@ function CommonTableRowNodata(colspanCount) {
     return html
 }
 
+// 날짜 형태를 yyyy-mm-dd hh24:mi:ss 형태로 변경
+function formatYyyyMmDdHh24MiSs(dateString) {
+    // 주어진 문자열로부터 Date 객체 생성
+    const date = new Date(dateString);
+    
+    // YYYY-MM-DD 포맷
+    const year = date.getFullYear();
+    // getMonth()는 0에서 시작하므로 1을 더해줌
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    
+    // HH:MI:SS 포맷
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    
+    // 최종 포맷된 문자열 반환
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
