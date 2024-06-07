@@ -29,27 +29,6 @@ let designer;
 
 let workflowTemplateList = [];//
 
-// sequencial designer 설정
-
-// function initDesigner() {
-//     console.log("initDesigner")
-// 	if (designer) {
-//         console.log("designer.destroy() ")
-// 		designer.destroy();
-// 	}
-//     console.log("destroyed ", designer)
-//     //const definition = getStartDefinition();
-//     const definition = confState.definition
-//     const configuration = confState.configuration
-//     designer = sequentialWorkflowDesigner.Designer.create(placeholder, definition, configuration);
-//     designer.onDefinitionChanged.subscribe((newDefinition) => {
-//         refreshValidationStatus();
-//         saveState();
-//         console.log('the definition has changed 11111 ', newDefinition);
-//     });
-//     console.log("created")
-// }
-
 // designer를 다시 설정할 때
 // 기존에 designer가 정의되어 있으면 destroy 후 새로 set.
 function resetDesigner(definition, configuration) {
@@ -76,13 +55,11 @@ function resetDesigner(definition, configuration) {
     console.log("created")
 }
 
-
 // validation 결과 표시
 function refreshValidationStatus() {
     console.log("refreshValidationStatus called ")
 	//validationStatusText.innerText = designer.isValid() ? 'Definition is valid' : 'Definition is invalid';
 }
-
 
 document.addEventListener('DOMContentLoaded', function() {    //     
     console.log("Dom Loaded")
@@ -106,9 +83,6 @@ document.addEventListener('DOMContentLoaded', function() {    //
 function reloadChangeReadonlyButtonText() {
 	changeReadonlyButton.innerText = 'Readonly: ' + (designer.isReadonly() ? 'ON' : 'OFF');
 }
-
-
-
 
 /////////////
 
@@ -180,62 +154,20 @@ function convertToDiagram(workflowData){
 	var sequenceTaskGroupMap = new Map();// 가장 바깥의 TaskGroup들의 sequence로 key는 index, value는 taskGroup
 	
 	
-	// taskGroupMap.set("_root_", {sequence:[]});
-	// // task group 추출	
-	// if( dagJson.task_groups ){
-	// 	dagJson.task_groups.map(function(taskGroup) {
-	// 		//console.log(taskGroup);
-	// 		taskGroupMap.set(taskGroup.task_group_name, { name: taskGroup.task_group_name, sequence:[]} );
-	// 	});
-	// }
-
-	// for( var i = 0; i < dagJson.tasks.length; i++){
-	// 	var aTask = dagJson.tasks[i];
-		
-	// 	// task group 
-	// 	var aTaskGroup = taskGroupMap.get(aTask.task_group_name)
-	// 		console.log(aTaskGroup)
-	// 	if(aTaskGroup){
-	// 		aTaskGroup.sequence.push(aTask)
-	// 	}else{
-	// 		var rootTaskGroup = taskGroupMap.get("_root_")			
-	// 		rootTaskGroup.sequence.push(aTask)			
-	// 	}		
-	// }// task group 별로 모든 task가 들어 감.
-
-	// // task group 내 dependency set.
-	// console.log("before ", taskGroupMap)
-	// for (var [tgKey, tg] of taskGroupMap) {
-	// 	console.log("tgKey ", tgKey)
-	// 	console.log(tg)
-	// 	if( tg.sequence){
-			
-	// 		var sortedSequenceList = sortTasksByDependencies(tg.sequence)
-	// 		tg.sequence = sortedSequenceList;
-	// 		continue;
-	// 	}
-		
-	// 	// dependency 
-	// }
-	
-	// console.log("after ", taskGroupMap)
 	
 }
 
 // 선택한 Target Model 정보를 set
 // Task에서 필요시 참고하기 위한 용도.
 function setTargetModel(selectedOption){
-    
+    console.log("TargetModel ", selectedOption)
 }
 
 // workflow template 선택시 해당 workflow template 정보를 canvas에 그린다.
 function setWorkflowTemplate(selectedOption){    
     
     var templateId = selectedOption.value;
-    // switch (templateId) {
-    //     case 'wft01': 
-    //         break;        
-    // }
+
     if(templateId){
         console.log("templateId", templateId)
         var workflowSequence = []// 전체( taskGroup의 array)
@@ -254,26 +186,6 @@ function setWorkflowTemplate(selectedOption){
                         taskGroupProperties.tasks = aTaskGroup.tasks;
                         workflowSequence.push(defineTaskGroupStep(aTaskGroup.id, aTaskGroup.name, taskGroupProperties ))
 
-                        /// task group 아래에서 처리하도록 수정
-                        //console.log("templateTaskGroups ", templateData.task_groups[j])
-                        // var tasks = templateData.task_groups[j].tasks;
-
-                        // for(var k in tasks){
-                        //     //console.log("task ", tasks[k])
-                        //     var taskId = tasks[k].id ? "" : "temp_wf_task_" + k;// taskId가 없으면 readonly이기 때문에 임시 taskId를 넣음.
-                        //     var taskComponent = tasks[k].task_component;
-                        //     //console.log("taskId ", taskId)
-                        //     //console.log("taskComponent ", taskComponent)
-                        //     if( taskComponent == "beetle_task_infra_migration"){
-                        //         var taskName = "tem-mig01"
-                        //         // json객체로 한번 더 형변환 : "request_body": "{\n   \"name\": \"recommended-infra01\", 형태임
-                        //         var request_body_str = tasks[k].request_body
-                        //         const requestBody = JSON.parse(request_body_str);
-                        //         var taskProperties = {body: requestBody};
-                                
-                        //         taskSequence.push(defineTaskStepInfraMigration(taskId, taskName, taskProperties ));
-                        //     }
-                        // }
                     }
                     break;//task component set
                 }
