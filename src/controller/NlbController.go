@@ -6,17 +6,17 @@ import (
 	"log"
 	"net/http"
 
-	// model "github.com/cloud-barista/cb-webtool/src/model"
-	"github.com/cloud-barista/cb-webtool/src/model"
+	// model "github.com/cloud-barista/cm-butterfly/src/model"
+	"github.com/cloud-barista/cm-butterfly/src/model"
 
-	// spider "github.com/cloud-barista/cb-webtool/src/model/spider"
-	// "github.com/cloud-barista/cb-webtool/src/model/tumblebug"
-	// tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
-	// tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	tbmcis "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	// spider "github.com/cloud-barista/cm-butterfly/src/model/spider"
+	// "github.com/cloud-barista/cm-butterfly/src/model/tumblebug"
+	// tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
+	// tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	tbmcis "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	service "github.com/cloud-barista/cb-webtool/src/service"
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	service "github.com/cloud-barista/cm-butterfly/src/service"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 
 	echotemplate "github.com/foolin/echo-template"
 	echosession "github.com/go-session/echo-session"

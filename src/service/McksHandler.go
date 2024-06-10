@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
+	tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
 	"github.com/labstack/echo"
 
 	// "io"
@@ -12,13 +12,13 @@ import (
 	"net/http"
 
 	// "os"
-	// model "github.com/cloud-barista/cb-webtool/src/model"
-	"github.com/cloud-barista/cb-webtool/src/model"
-	// spider "github.com/cloud-barista/cb-webtool/src/model/spider"
-	"github.com/cloud-barista/cb-webtool/src/model/ladybug"
-	// "github.com/cloud-barista/cb-webtool/src/model/tumblebug"
+	// model "github.com/cloud-barista/cm-butterfly/src/model"
+	"github.com/cloud-barista/cm-butterfly/src/model"
+	// spider "github.com/cloud-barista/cm-butterfly/src/model/spider"
+	"github.com/cloud-barista/cm-butterfly/src/model/ladybug"
+	// "github.com/cloud-barista/cm-butterfly/src/model/tumblebug"
 
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 )
 
 // Health Check

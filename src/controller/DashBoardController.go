@@ -8,16 +8,16 @@ import (
 
 	// "sync"
 
-	// model "github.com/cloud-barista/cb-webtool/src/model"
-	// "github.com/cloud-barista/cb-webtool/src/model/tumblebug"
-	// tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
-	// tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	// tbmcis "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	// model "github.com/cloud-barista/cm-butterfly/src/model"
+	// "github.com/cloud-barista/cm-butterfly/src/model/tumblebug"
+	// tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
+	// tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	// tbmcis "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	webtool "github.com/cloud-barista/cb-webtool/src/model/webtool"
+	webtool "github.com/cloud-barista/cm-butterfly/src/model/webtool"
 
-	"github.com/cloud-barista/cb-webtool/src/service"
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	"github.com/cloud-barista/cm-butterfly/src/service"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 	"github.com/labstack/echo"
 
 	echotemplate "github.com/foolin/echo-template"

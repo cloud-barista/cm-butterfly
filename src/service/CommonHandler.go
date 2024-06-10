@@ -15,11 +15,11 @@ import (
 	echosession "github.com/go-session/echo-session"
 	"github.com/labstack/echo"
 
-	"github.com/cloud-barista/cb-webtool/src/model"
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	"github.com/cloud-barista/cm-butterfly/src/model"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 
-	cicada_common "github.com/cloud-barista/cb-webtool/src/model/cicada/common"
-	//cicada "github.com/cloud-barista/cb-webtool/src/model/cicada/workflow"
+	cicada_common "github.com/cloud-barista/cm-butterfly/src/model/cicada/common"
+	//cicada "github.com/cloud-barista/cm-butterfly/src/model/cicada/workflow"
 )
 
 var SpiderURL = os.Getenv("SPIDER_URL")

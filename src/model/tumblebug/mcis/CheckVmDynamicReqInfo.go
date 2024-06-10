@@ -1,8 +1,8 @@
 package mcis
 
 import (
-	tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
-	tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
+	tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
+	tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
 )
 
 type CheckVmDynamicReqInfo struct {

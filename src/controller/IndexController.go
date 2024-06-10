@@ -23,9 +23,9 @@ import (
 
 	"github.com/labstack/echo"
 
-	"github.com/cloud-barista/cb-webtool/src/model"
-	"github.com/cloud-barista/cb-webtool/src/service"
-	"github.com/cloud-barista/cb-webtool/src/util"
+	"github.com/cloud-barista/cm-butterfly/src/model"
+	"github.com/cloud-barista/cm-butterfly/src/service"
+	"github.com/cloud-barista/cm-butterfly/src/util"
 )
 
 type TokenDetails struct {

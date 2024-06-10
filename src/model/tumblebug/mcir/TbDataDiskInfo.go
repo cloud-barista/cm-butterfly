@@ -1,6 +1,6 @@
 package mcir
 
-import tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
+import tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
 
 type TbDataDiskInfo struct {
 	AssociatedObjectList           []string `json:"associatedObjectList"`

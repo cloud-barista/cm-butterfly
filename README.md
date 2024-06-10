@@ -60,7 +60,7 @@ cb-webtool은 내부적으로 cb-tumblebug & cb-spider & cb-dragonfly의 개방�
  - cb-webtool 설치
    - `$ mkdir -p ~/go/src/github.com/cloud-barista`
    - `$ cd ~/go/src/github.com/cloud-barista`
-   - `$ git clone https://github.com/cloud-barista/cb-webtool.git`
+   - `$ git clone https://github.com/cloud-barista/cm-butterfly.git`
    - `$ cd cb-webtool`
    - `$ go mod download`
    - `$ go mod verify`
@@ -84,7 +84,7 @@ cb-webtool은 내부적으로 cb-tumblebug & cb-spider & cb-dragonfly의 개방�
 
 ## [cb-webtool 실행]
   - 일반 실행 
-    - `$ cd ~/go/src/github.com/cloud-barista/cb-webtool`
+    - `$ cd ~/go/src/github.com/cloud-barista/cm-butterfly`
     - `$ source ./conf/setup.env`
     - `$ go run main.go`
   
@@ -95,6 +95,6 @@ reflex를 이용한 static 파일의 자동 변경 감지및 Reload
   - reflex 설치
     - `$ go get github.com/cespare/reflex`
   - cb-webtool 실행
-    - `$ cd ~/go/src/github.com/cloud-barista/cb-webtool`
+    - `$ cd ~/go/src/github.com/cloud-barista/cm-butterfly`
     - `$ source ./conf/setup.env`
     - `$ reflex -r '\.(html|go|js)' -s go run main.go`

@@ -1,6 +1,6 @@
 FROM golang:1.19-alpine AS builder
 
-WORKDIR /go/src/github.com/cloud-barista/cb-webtool 
+WORKDIR /go/src/github.com/cloud-barista/cm-butterfly 
 COPY . .
 
 #RUN apk update && apk add git

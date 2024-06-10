@@ -3,18 +3,18 @@ package controller
 import (
 	// "encoding/json"
 	"fmt"
-	"github.com/cloud-barista/cb-webtool/src/util"
+	"github.com/cloud-barista/cm-butterfly/src/util"
 	"log"
 	"net/http"
 
-	// model "github.com/cloud-barista/cb-webtool/src/model"
-	// "github.com/cloud-barista/cb-webtool/src/model/dragonfly"
-	// "github.com/cloud-barista/cb-webtool/src/model/tumblebug"
+	// model "github.com/cloud-barista/cm-butterfly/src/model"
+	// "github.com/cloud-barista/cm-butterfly/src/model/dragonfly"
+	// "github.com/cloud-barista/cm-butterfly/src/model/tumblebug"
 
-	"github.com/cloud-barista/cb-webtool/src/model/dragonfly"
-	service "github.com/cloud-barista/cb-webtool/src/service"
+	"github.com/cloud-barista/cm-butterfly/src/model/dragonfly"
+	service "github.com/cloud-barista/cm-butterfly/src/service"
 
-	// util "github.com/cloud-barista/cb-webtool/src/util"
+	// util "github.com/cloud-barista/cm-butterfly/src/util"
 
 	echotemplate "github.com/foolin/echo-template"
 	// echosession "github.com/go-session/echo-session"

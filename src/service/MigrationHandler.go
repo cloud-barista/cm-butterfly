@@ -4,29 +4,29 @@ import (
 	"encoding/json"
 	"fmt"
 
-	//"github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	//tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	//"github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	//"github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	//tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	//"github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	//tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
+	//tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
 	//"io"
 	//"log"
 	"net/http"
 
 	// "github.com/davecgh/go-spew/spew"
 
-	model "github.com/cloud-barista/cb-webtool/src/model"
+	model "github.com/cloud-barista/cm-butterfly/src/model"
 	
 	
-	beetle "github.com/cloud-barista/cb-webtool/src/model/beetle/migrate"
-	beecommon "github.com/cloud-barista/cb-webtool/src/model/beetle/common"
+	beetle "github.com/cloud-barista/cm-butterfly/src/model/beetle/migrate"
+	beecommon "github.com/cloud-barista/cm-butterfly/src/model/beetle/common"
 
-	//webtool "github.com/cloud-barista/cb-webtool/src/model/webtool"
+	//webtool "github.com/cloud-barista/cm-butterfly/src/model/webtool"
 
 	// "github.com/go-session/echo-session"
 
 	
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 )
 
 func GetInfrastructureList(infraID string) ([]beetle.MigrateInfraInfo, model.WebStatus) {
@@ -36,7 +36,7 @@ func GetInfrastructureList(infraID string) ([]beetle.MigrateInfraInfo, model.Web
 	paramMapper["{infraId}"] = infraID
 	urlParam := util.MappingUrlParameter(originalUrl, paramMapper)
 
-	url := util.TUMBLEBUG + urlParam
+	url := util.BEETLE + urlParam
 	
 	resp, err := util.CommonHttp(url, nil, http.MethodGet)
 	

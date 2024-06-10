@@ -7,8 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	//"github.com/cloud-barista/cb-webtool/src/controller"
-	"github.com/cloud-barista/cb-webtool/src/controller"
+	"github.com/cloud-barista/cm-butterfly/src/controller"
 	echotemplate "github.com/foolin/echo-template"
 	echosession "github.com/go-session/echo-session"
 	"github.com/labstack/echo"
@@ -1029,6 +1028,11 @@ func main() {
 	e.GET("/operation/migrations/workflowmng/taskcomponent", controller.GetTaskComponentList)
 	e.GET("/operation/migrations/workflowmng/taskcomponent/id/:taskcomponentID", controller.GetTaskComponentData)
 	
+	
+	e.POST("/operation/migrations/migration/infra", controller.MigrationInfraRegProc)
+	e.GET("/operation/migrations/migration/infra", controller.GetMigrationInfraList)
+	e.GET("/operation/migrations/migration/infra/{infraId}", controller.GetMigrationInfraData)
+	e.DELETE("/operation/migrations/migration/infra/{infraID}", controller.MigrationInfraDelProc)
 	
 	////// readyz
 	e.GET("/readyz", controller.GetReadyz)
