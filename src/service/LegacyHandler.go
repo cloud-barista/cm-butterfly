@@ -18,7 +18,7 @@ import (
 HoneyBee Api Manage Handler - 2024.06.05
 */
 
-func GetConnectionInfoDataById(connectionId string) ([]honeybeesourcegroup.ConnectionInfo, model.WebStatus) {
+func GetSourceConnectionInfoDataById(connectionId string) ([]honeybeesourcegroup.SourceConnectionInfo, model.WebStatus) {
 	var originalUrl = "/connection_info/{connId}"
 
 	var paramMapper = make(map[string]string)
@@ -36,7 +36,7 @@ func GetConnectionInfoDataById(connectionId string) ([]honeybeesourcegroup.Conne
 
 	respBody := resp.Body
 	respStatus := resp.StatusCode
-	connectionInfo := []honeybeesourcegroup.ConnectionInfo{}
+	connectionInfo := []honeybeesourcegroup.SourceConnectionInfo{}
 
 	returnStatus := model.WebStatus{}
 
@@ -58,7 +58,7 @@ func GetConnectionInfoDataById(connectionId string) ([]honeybeesourcegroup.Conne
 	return connectionInfo, returnStatus
 }
 
-func GetConnectionInfoListBySourceId(sourceGroupId string) (*[]honeybeesourcegroup.ConnectionInfo, model.WebStatus) {
+func GetSourceConnectionInfoListBySourceId(sourceGroupId string) (*[]honeybeesourcegroup.SourceConnectionInfo, model.WebStatus) {
 	var originalUrl = "/source_group/{sgId}/connection_info"
 
 	var paramMapper = make(map[string]string)
@@ -76,7 +76,7 @@ func GetConnectionInfoListBySourceId(sourceGroupId string) (*[]honeybeesourcegro
 
 	respBody := resp.Body
 	respStatus := resp.StatusCode
-	connectionInfoList := &[]honeybeesourcegroup.ConnectionInfo{}
+	connectionInfoList := &[]honeybeesourcegroup.SourceConnectionInfo{}
 
 	returnStatus := model.WebStatus{}
 
@@ -95,7 +95,7 @@ func GetConnectionInfoListBySourceId(sourceGroupId string) (*[]honeybeesourcegro
 	return connectionInfoList, returnStatus
 }
 
-func RegConnectionInfo(sourceGroupId string, connectionInfo *honeybeesourcegroup.ConnectionInfoReq) (*honeybeesourcegroup.ConnectionInfo, model.WebStatus) {
+func RegSourceConnectionInfo(sourceGroupId string, connectionInfo *honeybeesourcegroup.SourceConnectionInfoReq) (*honeybeesourcegroup.SourceConnectionInfo, model.WebStatus) {
 	var originalUrl = "/source_group/{sgId}/connection_info"
 
 	var paramMapper = make(map[string]string)
@@ -107,7 +107,7 @@ func RegConnectionInfo(sourceGroupId string, connectionInfo *honeybeesourcegroup
 	pbytes, _ := json.Marshal(connectionInfo)
 	resp, err := util.CommonHttp(url, pbytes, http.MethodPost)
 
-	returnConnectionInfo := honeybeesourcegroup.ConnectionInfo{}
+	returnConnectionInfo := honeybeesourcegroup.SourceConnectionInfo{}
 	returnStatus := model.WebStatus{}
 
 	respBody := resp.Body
@@ -132,7 +132,7 @@ func RegConnectionInfo(sourceGroupId string, connectionInfo *honeybeesourcegroup
 	return &returnConnectionInfo, returnStatus
 }
 
-func GetConnectionDataBysgIdAndconnId(sourceGroupId string, connectionId string) (*honeybeesourcegroup.ConnectionInfo, model.WebStatus) {
+func GetSourceConnectionDataBysgIdAndconnId(sourceGroupId string, connectionId string) (*honeybeesourcegroup.SourceConnectionInfo, model.WebStatus) {
 	var originalUrl = "/source_group/{sgId}/connection_info/{connId}"
 
 	var paramMapper = make(map[string]string)	
@@ -151,7 +151,7 @@ func GetConnectionDataBysgIdAndconnId(sourceGroupId string, connectionId string)
 
 	respBody := resp.Body
 	respStatus := resp.StatusCode
-	connectionInfo := &honeybeesourcegroup.ConnectionInfo{}
+	connectionInfo := &honeybeesourcegroup.SourceConnectionInfo{}
 
 	returnStatus := model.WebStatus{}
 
@@ -171,7 +171,7 @@ func GetConnectionDataBysgIdAndconnId(sourceGroupId string, connectionId string)
 }
 
 // put /honeybee/source_group/{sgId}/connection_info/{connId}
-func UpdateLegacyConnectionInfo(connectionId string, sourceGroupId string, connectionInfo honeybeesourcegroup.ConnectionInfoReq) (*honeybeesourcegroup.ConnectionInfo, model.WebStatus) {
+func UpdateLegacySourceConnectionInfo(connectionId string, sourceGroupId string, connectionInfo honeybeesourcegroup.SourceConnectionInfoReq) (*honeybeesourcegroup.SourceConnectionInfo, model.WebStatus) {
 	var originalUrl = "/source_group/{sgId}/connection_info/{connId}"
 
 	var paramMapper = make(map[string]string)
@@ -190,7 +190,7 @@ func UpdateLegacyConnectionInfo(connectionId string, sourceGroupId string, conne
 
 	respBody := resp.Body
 	respStatus := resp.StatusCode
-	returnConnectionInfo := &honeybeesourcegroup.ConnectionInfo{}
+	returnConnectionInfo := &honeybeesourcegroup.SourceConnectionInfo{}
 
 	returnStatus := model.WebStatus{}
 
@@ -210,7 +210,7 @@ func UpdateLegacyConnectionInfo(connectionId string, sourceGroupId string, conne
 }
 
 // put /honeybee/source_group/{sgId}/connection_info/{connId}
-func DeleteLegacyConnectionInfo(connectionId string, sourceGroupId string) (*common.SimpleMsg, model.WebStatus) {
+func DeleteLegacySourceConnectionInfo(connectionId string, sourceGroupId string) (*common.SimpleMsg, model.WebStatus) {
 	var originalUrl = "/source_group/{sgId}/connection_info/{connId}"
 
 	var paramMapper = make(map[string]string)
@@ -474,7 +474,7 @@ func DeleteLegacySourceGroupData(sourceGroupId string) (*common.SimpleMsg, model
 }
 
 // /honeybee/source_group/{sgId}/connection_check get
-func CheckLegacySourceGroupConnection(sourceGroupId string) ([]honeybeesourcegroup.ConnectionInfo, model.WebStatus) {
+func CheckLegacySourceGroupConnection(sourceGroupId string) ([]honeybeesourcegroup.SourceConnectionInfo, model.WebStatus) {
 	var originalUrl = "/source_group/{sgId}/connection_check"
 
 	var paramMapper = make(map[string]string)
@@ -491,7 +491,7 @@ func CheckLegacySourceGroupConnection(sourceGroupId string) ([]honeybeesourcegro
 
 	respBody := resp.Body
 	respStatus := resp.StatusCode
-	sourceGroupConnectionInfo := []honeybeesourcegroup.ConnectionInfo{}
+	sourceGroupConnectionInfo := []honeybeesourcegroup.SourceConnectionInfo{}
 
 	returnStatus := model.WebStatus{}
 

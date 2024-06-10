@@ -31,45 +31,24 @@ import (
 
 func WorkflowRegForm(c echo.Context) error {
 
-	loginInfo := service.CallLoginInfo(c)
-	if loginInfo.UserID == "" {
-		return c.Redirect(http.StatusTemporaryRedirect, "/login")
-	}
-	defaultNameSpaceID := loginInfo.DefaultNameSpaceID
-
-	// namespacelist 가져오기
-	// nsList, _ := service.GetNameSpaceList()
-	nsList, _ := service.GetStoredNameSpaceList(c)
-	log.Println(" nsList  ", nsList)
-
 	taskComponentList, _ := service.GetTaskComponentList()
 	//workflowList, _ := service.GetWorkflowList(defaultNameSpaceID)
 
 	return echotemplate.Render(c, http.StatusOK,
-		"operation/migrations/workflowmng/WorkflowCreate", // 파일명
+		"migration/workflow/workflowmng/WorkflowCreate", // 파일명
 		map[string]interface{}{
-			"DefaultNameSpaceID": defaultNameSpaceID,
-			"NameSpaceList":      nsList,
-
 			"TaskComponentList": taskComponentList,
 		})
 }
 
 // 
 func WorkflowMngForm(c echo.Context) error {
-	loginInfo := service.CallLoginInfo(c)
-	if loginInfo.UserID == "" {
-		return c.Redirect(http.StatusTemporaryRedirect, "/login")
-	}
-
-	//defaultNameSpaceID := loginInfo.DefaultNameSpaceID
-
+	
 	//workflowList, _ := service.GetWorkflowList(defaultNameSpaceID, "", "", "")
 	return echotemplate.Render(c, http.StatusOK,
-		"operation/migrations/workflowmng/WorkflowMng", // 파일명
+		"migration/workflow/workflowmng/WorkflowMng", // 파일명
 		
 		map[string]interface{}{
-			"LoginInfo": loginInfo,
 			//"WorkflowList": workflowList,
 		})
 }

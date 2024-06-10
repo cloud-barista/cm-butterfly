@@ -498,7 +498,7 @@ func main() {
 		DisableCache: true,
 	})
 
-	legacyConnectionMngTemplate := echotemplate.NewMiddleware(echotemplate.TemplateConfig{
+	legacySourceConnectionMngTemplate := echotemplate.NewMiddleware(echotemplate.TemplateConfig{
 		Root:      "src/views",
 		Extension: ".html",
 		// Master:    "operation/mcis/mcismng",
@@ -511,9 +511,9 @@ func main() {
 			"templates/MenuLeft",
 			"templates/Footer",
 
-			"/migration/legacy/LegacyConnectionList",
-			"/migration/legacy/LegacyConnectionInfo",
-			"/migration/legacy/LegacyConnectionCreate",
+			"/migration/legacy/sourceconnectionmng/LegacySourceConnectionList",
+			"/migration/legacy/sourceconnectionmng/LegacySourceConnectionInfo",
+			"/migration/legacy/sourceconnectionmng/LegacySourceConnectionCreate",
 
 		},
 		DisableCache: true,
@@ -630,9 +630,9 @@ func main() {
 			"templates/MenuLeft",
 			"templates/Footer",
 
-			"operation/migrations/workflowmng/WorkflowList",
-			"operation/migrations/workflowmng/WorkflowInfo",
-			"operation/migrations/workflowmng/WorkflowViewer",
+			"migration/workflow/workflowmng/WorkflowList",
+			"migration/workflow/workflowmng/WorkflowInfo",
+			"migration/workflow/workflowmng/WorkflowViewer",
 			
 		},
 		DisableCache: true,
@@ -651,8 +651,8 @@ func main() {
 			"templates/Header",
 			"templates/MenuLeft",
 			"templates/Footer",
-			"operation/migrations/workflowmng/WorkflowInfo",
-			"operation/migrations/workflowmng/WorkflowEditor",
+			"migration/workflow/workflowmng/WorkflowInfo",
+			"migration/workflow/workflowmng/WorkflowEditor",
 		},
 		DisableCache: true,
 	})
@@ -1040,28 +1040,28 @@ func main() {
 	legacySourceGroupMngGroup := e.Group("/migration/legacy/sourcegroup/mngform", legacySourceGroupMngTemplate)
 	legacySourceGroupMngGroup.GET("", controller.LegacySourceGroupMngForm)
 
-	legacyConnectionMngGroup := e.Group("/migration/legacy/connection/mngform", legacyConnectionMngTemplate)
-	legacyConnectionMngGroup.GET("", controller.LegacyConnectionMngForm)
+	legacySourceConnectionMngGroup := e.Group("/migration/legacy/sourceconnection/mngform", legacySourceConnectionMngTemplate)
+	legacySourceConnectionMngGroup.GET("", controller.LegacySourceConnectionMngForm)
 
 	
-	e.POST("/migration/legacymng/gourcegroup", controller.LegacySourceGroupRegProc)
-	e.GET("/migration/legacymng/gourcegroup", controller.GetLegacySourceGroupList)
-	e.GET("/migration/legacymng/gourcegroup/:sgID", controller.GetLegacySourceGroupData)
-	e.PUT("/migration/legacymng/gourcegroup/:sgID", controller.LegacySourceGroupUpdateProc)
-	e.DELETE("/migration/legacymng/gourcegroup/:sgID", controller.LegacySourceGroupDelProc)
-	e.GET("/migration/legacymng/gourcegroup/:sgID/connectioncheck", controller.GetLegacySourceGroupConnectionCheck)
+	e.POST("/migration/legacy/sourcegroup", controller.LegacySourceGroupRegProc)
+	e.GET("/migration/legacy/sourcegroup", controller.GetLegacySourceGroupList)
+	e.GET("/migration/legacy/sourcegroup/:sgID", controller.GetLegacySourceGroupData)
+	e.PUT("/migration/legacy/sourcegroup/:sgID", controller.LegacySourceGroupUpdateProc)
+	e.DELETE("/migration/legacy/sourcegroup/:sgID", controller.LegacySourceGroupDelProc)
+	e.GET("/migration/legacy/sourcegroup/:sgID/connectioncheck", controller.GetLegacySourceGroupConnectionCheck)
 	
-	e.POST("/migration/legacymng/sourcegroup/:sgID/connection", controller.LegacyConnectionRegProc)
-	e.GET("/migration/legacymng/connection/:connectionID", controller.GetLegacyConnectionDataByID)
-	e.GET("/migration/legacymng/sourcegroup/:sgID/connection", controller.GetLegacyConnectionList)
-	e.GET("/migration/legacymng/sourcegroup/:sgID/connection/:connectionID", controller.GetLegacyConnectionData)
-	e.PUT("/migration/legacymng/sourcegroup/:sgID/connection/:connectionID", controller.LegacyConnectionUpdateProc)
-	e.DELETE("/migration/legacymng/sourcegroup/:sgID/connection/:connectionID", controller.LegacyConnectionDelProc)
+	e.POST("/migration/legacy/sourcegroup/:sgID/connection", controller.LegacySourceConnectionRegProc)
+	e.GET("/migration/legacy/connection/:connectionID", controller.GetLegacySourceConnectionDataByID)
+	e.GET("/migration/legacy/sourcegroup/:sgID/connection", controller.GetLegacySourceConnectionList)
+	e.GET("/migration/legacy/sourcegroup/:sgID/connection/:connectionID", controller.GetLegacySourceConnectionData)
+	e.PUT("/migration/legacy/sourcegroup/:sgID/connection/:connectionID", controller.LegacySourceConnectionUpdateProc)
+	e.DELETE("/migration/legacy/sourcegroup/:sgID/connection/:connectionID", controller.LegacySourceConnectionDelProc)
 
-	e.GET("/migration/legacymng/sourcegroup/:sgID/connection/:connectionID/infra", controller.GetLegacySourceInfraInfo)
-	e.GET("/migration/legacymng/sourcegroup/:sgID/connection/:connectionID/software", controller.GetLegacySourceSoftwareInfo)	
-	e.GET("/migration/legacymng/sourcegroup/:sgID/connection/:connectionID/import/infra", controller.ImportLegacySourceInfraInfo)
-	e.GET("/migration/legacymng/sourcegroup/:sgID/connection/:connectionID/import/software", controller.ImportLegacySourceSoftwareInfo)
+	e.GET("/migration/legacy/sourcegroup/:sgID/connection/:connectionID/infra", controller.GetLegacySourceInfraInfo)
+	e.GET("/migration/legacy/sourcegroup/:sgID/connection/:connectionID/software", controller.GetLegacySourceSoftwareInfo)	
+	e.GET("/migration/legacy/sourcegroup/:sgID/connection/:connectionID/import/infra", controller.ImportLegacySourceInfraInfo)
+	e.GET("/migration/legacy/sourcegroup/:sgID/connection/:connectionID/import/software", controller.ImportLegacySourceSoftwareInfo)
 	
 
 	sourceModelRegGroup := e.Group("/migration/sourcemodel/regform", sourceModelRegTemplate)
@@ -1076,10 +1076,10 @@ func main() {
 	targetModelMngGroup := e.Group("/migration/targetmodel/mngform", targetModelMngTemplate)
 	targetModelMngGroup.GET("", controller.TargetModelMngForm)
 
-	workflowRegGroup := e.Group("/migration/workflow/regform", workflowRegTemplate)
+	workflowRegGroup := e.Group("/migration/workflowmng/workflow/regform", workflowRegTemplate)
 	workflowRegGroup.GET("", controller.WorkflowRegForm)
 
-	workflowMngGroup := e.Group("/migration/workflow/mngform", workflowMngTemplate)
+	workflowMngGroup := e.Group("/migration/workflowmng/workflow/mngform", workflowMngTemplate)
 	workflowMngGroup.GET("", controller.WorkflowMngForm)
 
 	e.POST("/migration/workflowmng/workflow", controller.WorkflowRegProc)

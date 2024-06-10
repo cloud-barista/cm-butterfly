@@ -228,11 +228,11 @@ function getWorkflowTemplateList(){
             for(var i in workflowTemplateList){                
                 var workflowName = "";
                 if (workflowTemplateList[i].data.name != undefined){
-                    worflowName = workflowTemplateList[i].name
+                    workflowName = workflowTemplateList[i].data.name
                 }else{
                     workflowName = workflowTemplateList[i].id
                 }
-                addWorkflowTemplate +='<option value="'+workflowTemplateList[i].id+'">'+workflowTemplateList[i].data.name + '</option>';
+                addWorkflowTemplate +='<option value="'+workflowTemplateList[i].id+'">'+ workflowName + '</option>';
             }
             $("#selWorkflowTemplate").empty()
             $("#selWorkflowTemplate").append(addWorkflowTemplate)

@@ -1,6 +1,6 @@
 package sourcegroup
 
-type ConnectionInfo struct {
+type SourceConnectionInfo struct {
 	Description   string `json:"description"`
 	FailedMessage string `json:"failed_message"`
 	Id            string `json:"id"`
@@ -15,4 +15,4 @@ type ConnectionInfo struct {
 	User          string `json:"user"`
 }
 
-type ConnectionInfos []ConnectionInfo
+type SourceConnectionInfos []SourceConnectionInfo

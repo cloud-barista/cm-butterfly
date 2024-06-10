@@ -26,11 +26,11 @@ func LegacySourceGroupMngForm(c echo.Context) error {
 		})
 }
 
-func LegacyConnectionMngForm(c echo.Context) error {
-	fmt.Println("LegacyConnectionMngForm ************ : ")
+func LegacySourceConnectionMngForm(c echo.Context) error {
+	fmt.Println("LegacySourceConnectionMngForm ************ : ")
 
 	return echotemplate.Render(c, http.StatusOK,
-		"migration/legacy/connectionmng/LegacyConnectionMng", // 파일명
+		"migration/legacy/sourceconnectionmng/LegacySourceConnectionMng", // 파일명
 		map[string]interface{}{
 			
 		})
@@ -38,11 +38,11 @@ func LegacyConnectionMngForm(c echo.Context) error {
 
 
 // Connection 조회. connection은 sourceGroup 아래에 있으나 sourceGroup 무관하게 connectionID로 조회.
-func GetLegacyConnectionDataByID(c echo.Context) error {
+func GetLegacySourceConnectionDataByID(c echo.Context) error {
 
 	connectionId := c.Param("connId")
 
-	connectionInfo, respStatus := service.GetConnectionInfoDataById(connectionId)
+	connectionInfo, respStatus := service.GetSourceConnectionInfoDataById(connectionId)
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message":        "success",
 		"status":         respStatus,
@@ -51,11 +51,11 @@ func GetLegacyConnectionDataByID(c echo.Context) error {
 }
 
 // Legacy Connection 목록 조회
-func GetLegacyConnectionList(c echo.Context) error {
+func GetLegacySourceConnectionList(c echo.Context) error {
 
 	sourceGroupId := c.Param("sgID")
 
-	connectionInfo, respStatus := service.GetConnectionInfoListBySourceId(sourceGroupId)
+	connectionInfo, respStatus := service.GetSourceConnectionInfoListBySourceId(sourceGroupId)
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message":        "success",
 		"status":         respStatus,
@@ -64,11 +64,11 @@ func GetLegacyConnectionList(c echo.Context) error {
 }
 
 // Legacy Connection 등록
-func LegacyConnectionRegProc(c echo.Context) error {
+func LegacySourceConnectionRegProc(c echo.Context) error {
 
 	sourceGroupId := c.Param("sgId")
 
-	connectionInfoReq := &honeybeesourcegroup.ConnectionInfoReq{}
+	connectionInfoReq := &honeybeesourcegroup.SourceConnectionInfoReq{}
 	if err := c.Bind(connectionInfoReq); err != nil {
 		log.Println(err)
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
@@ -78,7 +78,7 @@ func LegacyConnectionRegProc(c echo.Context) error {
 	}
 	log.Println(connectionInfoReq)
 
-	connectionInfo, respStatus := service.RegConnectionInfo(sourceGroupId, connectionInfoReq)
+	connectionInfo, respStatus := service.RegSourceConnectionInfo(sourceGroupId, connectionInfoReq)
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message":        "success",
 		"status":         respStatus,
@@ -87,12 +87,12 @@ func LegacyConnectionRegProc(c echo.Context) error {
 }
 
 // Legacy Connection 단건 조회
-func GetLegacyConnectionData(c echo.Context) error {
+func GetLegacySourceConnectionData(c echo.Context) error {
 
 	sourceGroupId := c.Param("sgID")
 	connectionId := c.Param("connectionID")
 
-	connectionInfo, respStatus := service.GetConnectionDataBysgIdAndconnId(sourceGroupId, connectionId)
+	connectionInfo, respStatus := service.GetSourceConnectionDataBysgIdAndconnId(sourceGroupId, connectionId)
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message":        "success",
 		"status":         respStatus,
@@ -101,12 +101,12 @@ func GetLegacyConnectionData(c echo.Context) error {
 }
 
 // Legacy Connection update
-func LegacyConnectionUpdateProc(c echo.Context) error {
+func LegacySourceConnectionUpdateProc(c echo.Context) error {
 
 	sourceGroupId := c.Param("sgID")
 	connectionId := c.Param("connectionID")
 
-	connectionInfoReq := &honeybeesourcegroup.ConnectionInfoReq{}
+	connectionInfoReq := &honeybeesourcegroup.SourceConnectionInfoReq{}
 	if err := c.Bind(connectionInfoReq); err != nil {
 		log.Println(err)
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
@@ -115,25 +115,25 @@ func LegacyConnectionUpdateProc(c echo.Context) error {
 		})
 	}
 
-	connectionInfo, respStatus := service.UpdateLegacyConnectionInfo(connectionId, sourceGroupId, *connectionInfoReq)
+	connectionInfo, respStatus := service.UpdateLegacySourceConnectionInfo(connectionId, sourceGroupId, *connectionInfoReq)
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message":        "success",
 		"status":         respStatus,
-		"connectionInfo": connectionInfo,
+		"sourceConnectionInfo": connectionInfo,
 	})
 }
 
-// Legacy Connection delete
-func LegacyConnectionDelProc(c echo.Context) error {
+// Legacy SourceConnection delete
+func LegacySourceConnectionDelProc(c echo.Context) error {
 
 	sourceGroupId := c.Param("sgID")
 	connectionId := c.Param("connectionID")
 
-	connectionInfo, respStatus := service.DeleteLegacyConnectionInfo(sourceGroupId, connectionId)
+	connectionInfo, respStatus := service.DeleteLegacySourceConnectionInfo(sourceGroupId, connectionId)
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message":        "success",
 		"status":         respStatus,
-		"connectionInfo": connectionInfo,
+		"sourceConnectionInfo": connectionInfo,
 	})
 }
 
