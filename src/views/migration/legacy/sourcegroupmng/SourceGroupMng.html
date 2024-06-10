@@ -1,0 +1,58 @@
+
+{{ template "OperationTop" .}}
+<!-- 
+// workflow 관리화면
+// workflow 목록 table
+// workflow 상세 : viewer
+//      task viewer 
+-->
+<div id="lnb">
+			
+	<div class="bg"></div>
+		
+	<div class="m_box">
+		
+		{{template "TopBox" .}}
+
+		{{template "LNBPopup" .}}
+
+		{{template "MenuLeft" .}}
+		
+	</div>
+	
+	<div class="bottom"></div>
+    <link rel="icon" href="/assets/js/sequential-workflow-designer/favicon.ico">
+	
+	<a href="javascript:;" id="m_close"></a>
+	
+</div>
+{{template "Header" .}}
+{{template "Modal" .}}
+
+				
+				<!-- contents -->
+				<div class="contbox">
+					
+					<div class="titlebox">
+						<div class="tit"><img src="/assets/img/common/icon_cont.png" alt=""/>Migration / <strong>Source Group</strong></div>
+						<div class="location">Home  <span>></span>  Migration  <span>></span>  <strong>Source Group</strong></div>
+					</div>
+					
+					<!-- list -->
+					{{template "SourceGroupList" .}}
+					<!-- list -->
+					
+					<!-- Info -->
+					{{template "SourceGroupInfo" .}}
+					<!-- Info -->
+
+					<!-- Create -->
+					{{template "SourceGroupCreate" .}}
+					<!-- Creaet -->
+				</div>
+				<!-- //contents -->
+
+<script type="text/javascript" src="/assets/js/migration/migrationmng/inframigrationmng.js"></script>
+
+{{template "Footer" .}}
+

@@ -1,0 +1,39 @@
+{{ template "OperationTop" .}}
+<div id="lnb">
+			
+	<div class="bg"></div>
+		
+	<div class="m_box">
+		
+		{{template "TopBox" .}}
+
+		{{template "LNBPopup" .}}
+
+		{{template "MenuLeft" .}}
+		
+	</div>
+	
+	<div class="bottom"></div>
+	<a href="javascript:;" id="m_close"></a>
+	
+</div>
+{{template "Header" .}}
+{{template "Modal" .}}
+
+				
+				<!-- contents -->
+				<div class="contbox">
+					
+					<div class="titlebox">
+						<div class="tit"><img src="/assets/img/common/icon_cont.png" alt=""/>Migration / <strong>Source Model</strong></div>
+						<div class="location">Home  <span>></span>  Operation  <span>></span>  Migration  <span>></span>  <strong>Source Model</strong></div>
+					</div>
+					
+					<!-- partial이 필요한 경우 main.go의 template에 정의 추가-->
+				
+					<!-- source model 등록 form -->
+					
+				</div>
+				<!-- //contents -->
+<script type="text/javascript" src="/assets/js/migration/sourcemodelmng/sourcemodelcreate.js"></script>
+{{template "Footer" .}}

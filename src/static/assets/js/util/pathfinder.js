@@ -79,12 +79,12 @@ function getWebToolUrl(controllerKeyName) {
             ["NlbMngForm", "/operation/services/nlb/mngform"],
             ["NlbRegForm", "/operation/services/nlb/regform"],
 
-            ["SourceModelMngForm", "/operation/migrations/sourcemodel/mngform"],
-            ["SourceModelRegForm", "/operation/migrations/sourcemodel/regform"],
-            ["TargetModelMngForm", "/operation/migrations/targetmodel/mngform"],
-            ["TargetModelRegForm", "/operation/migrations/targetmodel/regform"],
-            ["WorkflowMngForm", "/operation/migrations/workflow/mngform"],
-            ["WorkflowRegForm", "/operation/migrations/workflow/regform"],
+            ["SourceModelMngForm", "/migration/sourcemodel/mngform"],
+            ["SourceModelRegForm", "/migration/sourcemodel/regform"],
+            ["TargetModelMngForm", "/migration/targetmodel/mngform"],
+            ["TargetModelRegForm", "/migration/targetmodel/regform"],
+            ["WorkflowMngForm", "/migration/workflow/mngform"],
+            ["WorkflowRegForm", "/migration/workflow/regform"],
 
 
             ["WorkflowDefaultMngForm", "/operation/workflow/default/mngform"],

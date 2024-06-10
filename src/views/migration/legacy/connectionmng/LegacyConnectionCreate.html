@@ -1,0 +1,74 @@
+{{define "LegacyConnectionCreate"}}
+
+<!-- 추가 form -->
+<div class="dashboard dashboard_cont register_cont" id="legacyConnectionCreateBox">
+
+	<div class="d_box box_m box_w100">
+		<div class="titbox_n">
+			<div class="tit initial cg"><strong>Create Connection</strong></div>
+		</div>
+
+		<div class="ds_cont">
+			<div class="register_box reg">
+
+				<div class="top_ipbox">
+					<div class="ipbox ipbox1 ipbox3">
+						<ul>
+							<li>
+								<label><span class="ch">*</span>VPC Name</label>
+								<input type="text" id="regVpcName" name="reg_vpcName" value=""
+									placeholder="Input VPC Name" class="pline" title="" />
+							</li>
+							<li class="ta_1">
+								<label>Description</label>
+								<textarea id="regDescription" name="reg_description" cols="" rows=""
+									placeholder="Description" class="pline" title=""></textarea>
+							</li>
+						</ul>
+					</div>
+					<div class="ipbox ipbox2 ipbox4">
+						<ul>
+							<li>
+								<label>Cloud Provider</label>
+								<select class="selectbox white pline w3" id="provider" name="ProvideName"
+									onchange="getConnectionListForSelectbox(this.value, 'regConnectionName')">
+									<option selected>Select Cloud Provider</option>
+									
+									<option value="MOCK">MOCK</option> <!-- 임시로 MOCK 추가-->
+								</select>
+							</li>
+							<li>
+								<label><span class="ch">*</span>Connection</label>
+								<select class="selectbox white pline w3" id="regConnectionName"
+									name="reg_connectionName">
+									<option selected>Selected ConnectionName</option>
+								</select>
+							</li>
+							<li>
+								<label><span class="ch">*</span>CIDR Block</label>
+								<input type="text" id="regCidrBlock" name="reg_cidrBlock" value=""
+									placeholder="ex) 10.0.0.0/24" class="pline ip_w1" title="" />
+							</li>
+							
+						</ul>
+					</div>
+				</div>
+
+				<div class="btnbox">
+					<div class="btn_center">
+						<button name="" value="" class="btn_co btn_cr_b w135 btn_cancel"
+							onclick="displayLegacyConnectionInfo('CLOSE')">Cancel</button>
+						<button name="" value="" class="btn_co btn_cr_g w135 btn_ok"
+							onclick="createLegacyConnection()">Ok</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+
+</div>
+
+<script src="/assets/js/operation/manages/mcismng/vmconfigureexpress.js"></script>
+{{LegacyConnectionCreate}}
