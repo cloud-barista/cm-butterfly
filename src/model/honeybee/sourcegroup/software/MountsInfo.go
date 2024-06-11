@@ -1,6 +1,6 @@
 package software
 
-type Mounts struct {
+type MountPointInfo struct {
 	Destination string `json:"destination"`
 	Driver      string `json:"driver"`
 	Mode        string `json:"mode"`
@@ -10,3 +10,5 @@ type Mounts struct {
 	Source      string `json:"source"`
 	Type        string `json:"type"`
 }
+
+type MountPointInfos []MountPointInfo

@@ -1,12 +1,9 @@
 package software
 
 type SoftwareInfo struct {
-	Deb    []Deb `json:"deb"`
-	Docker struct {
-		Containers []Containers `json:"containers"`
-	}
-	Podman struct {
-		Containers []Containers `json:"containers"`
-	} `json:"podman"`
-	Rpm []Rpm `json:"rpm"`
+	Deb    []DebInfo `json:"deb"`
+	Docker DockerInfo `json:"docker"`
+	Podman PodmanInfo `json:"podman"`
+	Rpm []RpmInfo `json:"rpm"`
 }
+

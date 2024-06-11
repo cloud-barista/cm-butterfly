@@ -34,7 +34,7 @@
 						<div class="tit"><img src="/assets/img/common/icon_cont.png" alt=""/>Migration / <strong>Infra</strong></div>
 						<div class="location">Home  <span>></span>  Migration  <span>></span> <strong>Infra</strong></div>
 					</div>
-					
+					<input type="hidden" id="slectedSourceGroupId" value='{{ .sourceGroupId }}'/>
 					<!-- list -->
 					{{template "LegacySourceConnectionList" .}}
 					<!-- list -->
@@ -50,7 +50,7 @@
 				</div>
 				<!-- //contents -->
 
-<script type="text/javascript" src="/assets/js/migration/legacy/legacyconnectionmng.js"></script>
+<script type="text/javascript" src="/assets/js/migration/legacy/sourceconnectionmng/sourceconnectionmng.js"></script>
 
 {{template "Footer" .}}
 

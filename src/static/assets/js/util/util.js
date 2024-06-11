@@ -252,6 +252,11 @@ function commonConfirmOpen(targetAction, caller) {
             ["DeletePmks", "Are you sure to delete this PMKS? "],
             ["AddNewNodeGroupOfPmks", "Would you like to add a new NodeGroup to this PMKS ?"],
             ["DeleteNodeGroupOfPmks", "Would you like to delete a NodeGroup of this PMKS ?"],
+
+            ["DeleteSourceGroup", "Are you sure to delete this SourceGroup? "],
+            ["DeleteSourceConnection", "Are you sure to delete this SourceConnection? "],
+            
+            
         ]
     );
     console.log(confirmModalTextMap.get(targetAction));
@@ -505,6 +510,11 @@ function commonConfirmOk() {
         changePage("PmksNodeGroupRegForm");
     } else if (targetAction == "DeleteNodeGroupOfPmks") {
         deleteNodeGroupOfPmks();
+    } else if (targetAction == "DeleteSourceGroup") {        
+        deleteSourceGroup();
+    } else if (targetAction == "DeleteSourceConnection") {        
+        deleteSourceConnection();
+        
     } else {
         alert("수행할 function 정의되지 않음 " + targetAction);
     }

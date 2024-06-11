@@ -13,14 +13,11 @@
 							<div class="box">
 								<ul>
 									<li><a href="javascript:void(0);"
-											onclick="commonPromptOpen('RsFltVPCName', 'vpcListTable')">VPC Name</a>
+											onclick="commonPromptOpen('RsFltSourceConnectionName', 'sourceConnectionListTable')">Connection Name</a>
 									</li>
-									<li><a href="javascript:void(0);"
-											onclick="commonPromptOpen('RsFltCIDRBlock', 'vpcListTable')">CIDR
-											Block</a></li>
 									<li class="divider"></li>
 									<li><a href="javascript:void(0);" data-toggle="modal" data-target="#RegistBox"
-											onClick="getVpcList()">Clear</a></li>
+											onClick="getSourceConnectionList()">Clear</a></li>
 
 								</ul>
 							</div>
@@ -32,9 +29,7 @@
 							<div class="box">
 								<ul>
 									<li><a href="javascript:void(0);"
-											onclick="tableSort('vpcListTable', 'VPC Name')">VPC Name</a></li>
-									<li><a href="javascript:void(0);"
-											onclick="tableSort('vpcListTable', 'CIDR Block')">CIDR Block</a></li>
+											onclick="tableSort('sourceConnectionListTable', 'Name')">VPC Name</a></li>									
 								</ul>
 							</div>
 						</div>
@@ -45,9 +40,9 @@
 							<div class="box">
 								<ul>
 									<li><a href="javascript:void(0);" data-toggle="modal" data-target="#RegistBox"
-											onClick="displayVNetInfo('REG')">Add</a></li>
+											onClick="displaySourceConnectionInfo('REG')">Add</a></li>
 									<li><a href="javascript:void(0);" data-toggle="modal" data-target="#UnRegist"
-											onClick="commonConfirmOpen('DeleteVpc')">Delete</a></li>
+											onClick="commonConfirmOpen('DeleteSourceConnection')">Delete</a></li>
 								</ul>
 							</div>
 						</div>
@@ -61,19 +56,21 @@
 		<div class="ds_cont">
 
 			<div class="dataTable status_list">
-				<table cellpadding="0" cellspacing="0" border="1" summary="" id="legacyConnectionListTable">
+				<table cellpadding="0" cellspacing="0" border="1" summary="" id="sourceConnectionListTable">
 
 					<thead>
 						<tr>
 							<th class="column-50px"><input type="checkbox" name="" value="" id="th_chall"
 									title="" /><label for="th_chall"></label></td>
-							<th>VPC Name</th>
-							<th>CIDR Block</th>
-							<th>Description</th>
-							<!-- <th class="column-60px"></th> -->
+							<th>Source Group</th>
+							<th>Name</th>
+							
+							<th>IP Address</th>
+							<th>SSH Port</th>
+							<th>Status</th>
 						</tr>
 					</thead>
-					<tbody id="legacyConnectionList">
+					<tbody id="sourceConnectionList">
 						
 						<tr>
 							<td class="overlay hidden" data-th="" colspan="5">No Data</td>

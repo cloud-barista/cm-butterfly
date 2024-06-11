@@ -1,6 +1,6 @@
 package software
 
-type Rpm struct {
+type RpmInfo struct {
 	Arch      string   `json:"arch"`
 	License   string   `json:"license"`
 	Name      string   `json:"name"`
@@ -12,3 +12,5 @@ type Rpm struct {
 	Vendor    string   `json:"vendor"`
 	Version   string   `json:"version"`
 }
+
+type RpmInfos []RpmInfo

@@ -1,5 +1,5 @@
 package software
 
-type PodmanInfo struct {
+type DockerInfo struct {
 	Containers []ContainerInfo `json:"containers"`
 }

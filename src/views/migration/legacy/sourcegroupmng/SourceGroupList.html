@@ -13,11 +13,8 @@
 							<div class="box">
 								<ul>
 									<li><a href="javascript:void(0);"
-											onclick="commonPromptOpen('RsFltVPCName', 'vpcListTable')">VPC Name</a>
+											onclick="commonPromptOpen('RsFltSourceGroupName', 'sourceGroupListTable')">Name</a>
 									</li>
-									<li><a href="javascript:void(0);"
-											onclick="commonPromptOpen('RsFltCIDRBlock', 'vpcListTable')">CIDR
-											Block</a></li>
 									<li class="divider"></li>
 									<li><a href="javascript:void(0);" data-toggle="modal" data-target="#RegistBox"
 											onClick="getVpcList()">Clear</a></li>
@@ -32,13 +29,7 @@
 							<div class="box">
 								<ul>
 									<li><a href="javascript:void(0);"
-											onclick="tableSort('vpcListTable', 'VPC Name')">VPC Name</a></li>
-									<li><a href="javascript:void(0);"
-											onclick="tableSort('vpcListTable', 'CIDR Block')">CIDR Block</a></li>
-									<!--
-													<li><a href="javascript:void(0);" onclick="getVpcList('name')">VPC Name</a></li>
-													<li><a href="javascript:void(0);" onclick="getVpcList('cidrBlock')">CIDR Block</a></li>
-													-->
+											onclick="tableSort('sourceGroupListTable', 'Name')">Name</a></li>									
 								</ul>
 							</div>
 						</div>
@@ -49,9 +40,9 @@
 							<div class="box">
 								<ul>
 									<li><a href="javascript:void(0);" data-toggle="modal" data-target="#RegistBox"
-											onClick="displayVNetInfo('REG')">Add</a></li>
+											onClick="displaySourceGroupInfo('REG')">Add</a></li>
 									<li><a href="javascript:void(0);" data-toggle="modal" data-target="#UnRegist"
-											onClick="commonConfirmOpen('DeleteVpc')">Delete</a></li>
+											onClick="commonConfirmOpen('DeleteSourceGroup')">Delete</a></li>
 								</ul>
 							</div>
 						</div>
@@ -70,12 +61,12 @@
 						<tr>
 							<th class="column-50px"><input type="checkbox" name="" value="" id="th_chall"
 									title="" /><label for="th_chall"></label></td>
-							<th>VPC Name</th>
-							<th>CIDR Block</th>
+							<th>Name</th>
+							<th>ID</th>
 							<th>Description</th>
 						</tr>
 					</thead>
-					<tbody id="vpcList">
+					<tbody id="sourceGroupList">
 						
 						<tr>
 							<td class="overlay hidden" data-th="" colspan="5">No Data</td>

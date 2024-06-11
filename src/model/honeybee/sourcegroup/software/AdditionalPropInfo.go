@@ -1,6 +1,6 @@
 package software
 
-type AdditionalProp struct {
+type AdditionalPropInfo struct {
 	Aliases             []string   `json:"aliases"`
 	Dnsnames            []string   `json:"dnsnames"`
 	DriverOpts          DriverOpts `json:"driverOpts"`
@@ -15,16 +15,4 @@ type AdditionalProp struct {
 	Links               []string   `json:"links"`
 	MacAddress          string     `json:"macAddress"`
 	NetworkID           string     `json:"networkID"`
-}
-
-type DriverOpts struct {
-	AdditionalProp1 string `json:"additionalProp1"`
-	AdditionalProp2 string `json:"additionalProp2"`
-	AdditionalProp3 string `json:"additionalProp3"`
-}
-
-type Ipamconfig struct {
-	Ipv4Address  string   `json:"ipv4Address"`
-	Ipv6Address  string   `json:"ipv6Address"`
-	LinkLocalIPs []string `json:"linkLocalIPs"`
 }

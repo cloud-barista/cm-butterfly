@@ -1,6 +1,6 @@
 package software
 
-type Deb struct {
+type DebInfo struct {
 	Architecture  string   `json:"architecture"`
 	Conffiles     []string `json:"conffiles"`
 	Depends       string   `json:"depends"`
@@ -17,3 +17,5 @@ type Deb struct {
 	Status        string   `json:"status"`
 	Version       string   `json:"version"`
 }
+
+type DebInfos []DebInfo

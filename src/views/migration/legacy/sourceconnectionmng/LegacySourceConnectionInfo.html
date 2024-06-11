@@ -1,10 +1,10 @@
 {{define "LegacySourceConnectionInfo"}}
 <!-- Info -->
-<div class="dashboard dashboard_cont server_status" id="legacyConnectionInfoBox">
+<div class="dashboard dashboard_cont server_status" id="sourceConnectionInfoBox">
 
 	<div class="d_box box_m box_w100">
 		<div class="titbox_n">
-			<div class="tit initial"><strong>Connection Info</strong> [ <span class="stxt" id="connectionName"></span>
+			<div class="tit initial"><strong>Connection Info</strong> [ <span class="stxt" id="sourceConnectionName"></span>
 				] </div>
 		</div>
 
@@ -15,10 +15,11 @@
 					<div class="ipbox ipbox1">
 						<ul>
 							<li>
-								<label>VPC Name</label>
+								<label>Name</label>
 								<span class="sbox">
-									<input type="text" id="dtlVpcName" name="dtlVpcName" value="" placeholder=""
+									<input type="text" id="dtlName" name="dtlName" value="" placeholder=""
 										class="gray" title="" disabled />
+									<input type="hidden" id="dtlId" name="dtlId"/>
 								</span>
 							</li>
 							<li>
@@ -30,35 +31,70 @@
 							</li>
 						</ul>
 					</div>
+
 					<div class="ipbox ipbox2">
 						<ul>
 							<li>
-								<label>Cloud Provider</label>
-								<input type="text" id="dtlProvider" name="dtlProvider" value="" placeholder=""
+								<label>IP Address</label>
+								<input type="text" id="dtlIpAddress" name="dtlIpAddress" value="" placeholder=""
 									class="gray" title="" readonly />
 							</li>
 							<li>
-								<label>Connection Name</label>
-								<input type="text" id="dtlConnectionName" name="dtlConnectionName" value=""
+								<label>SSH Port</label>
+								<input type="text" id="dtlSshPort" name="dtlSshPort" value=""
 									placeholder="" class="gray" title="" readonly />
 							</li>
 							<li>
-								<label>CidrBlock</label>
-								<input type="text" id="dtlCidrBlock" name="dtlCidrBlock" value="" placeholder=""
+								<label>User</label>
+								<input type="text" id="dtlUser" name="dtlUser" value="" placeholder=""
 									class="gray" title="" readonly />
 							</li>
 							<li>
-								<label>Subnet</label>
+								<label>Password</label>
+								<input type="text" id="dtlPassword" name="dtlPassword" value="" placeholder=""
+									class="gray" title="" readonly />								
+							</li>
+							<li>
+								<label>Public Key</label>
+								<input type="text" id="dtlPublicKey" name="dtlPublicKey" value="" placeholder=""
+									class="gray" title="" readonly />								
+							</li>
+							<li>
+								<label>Private Key</label>
+								<input type="text" id="dtlPrivateKey" name="dtlPrivateKey" value="" placeholder=""
+									class="gray" title="" readonly />								
+							</li>
+							<li>
+								<label>Status</label>
+								<input type="text" id="dtlStatus" name="dtlStatus" value="" placeholder=""
+									class="ip_w1 gray noline" title="" readonly />
+							</li>
+							<li>
+								<label>View</label>
 								<span class="sbox">
-									<input type="text" id="dtlSubnet" name="dtlSubnet" value="" placeholder=""
-										class="gray" title="" readonly />
-									
+									<button name="" value="" class="btn_edit btn_register"
+										onClick="viewSourceInfra()">Infra</button>
+									<button name="" value="" class="btn_edit btn_register"
+										onClick="viewSourceSoftware()">Software</button>
 								</span>
+							</li>
+							<li>
+								<label>Collect</label>
+								<span class="sbox">
+									<button name="" value="" class="btn_edit btn_register"
+										onClick="collectSourceInfra()">Infra</button>
+									<button name="" value="" class="btn_edit btn_register"
+										onClick="collectSourceSoftware()">Software</button>
+								</span>
+							</li>
+							<li>
+								<label>Failed Message</label>
+								<input type="text" id="dtlFailedMessage" name="dtlFailedMessage" value="" placeholder=""
+									class="gray" title="" readonly />								
 							</li>
 						</ul>
 					</div>
-				</div>
-				
+				</div>				
 			</div>
 		</div>
 

@@ -18,6 +18,265 @@ import (
 HoneyBee Api Manage Handler - 2024.06.05
 */
 
+// /honeybee/readyz move to Commonhandler
+// func CheckReadyHoneybee() (*common.SimpleMsg, model.WebStatus) {
+// 	var originalUrl = "/readyz"
+
+// 	url := util.HONEYBEE + originalUrl
+
+// 	resp, err := util.CommonHttp(url, nil, http.MethodGet)
+
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
+// 	}
+
+// 	respBody := resp.Body
+// 	respStatus := resp.StatusCode
+
+// 	returnStatus := model.WebStatus{}
+// 	returnModel := common.SimpleMsg{}
+// 	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
+// 		failResultInfo := honeybeecommon.SimpleMsg{}
+// 		json.NewDecoder(respBody).Decode(&failResultInfo)
+// 		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
+// 	}
+// 	json.NewDecoder(respBody).Decode(&returnModel)
+// 	fmt.Println(returnModel)
+
+// 	returnStatus.StatusCode = respStatus
+// 	log.Println(respBody)
+// 	util.DisplayResponse(resp) // 수신내용 확인
+
+// 	return &returnModel, returnStatus
+// }
+
+// //////////////////////////////////////SourceGroup
+// /honeybee/source_group get
+func GetLegacySourceGroupList() ([]honeybeesourcegroup.SourceGroupInfo, model.WebStatus) {
+	var originalUrl = "/source_group"
+
+	url := util.HONEYBEE + originalUrl
+
+	resp, err := util.CommonHttp(url, nil, http.MethodGet)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
+	}
+
+	respBody := resp.Body
+	respStatus := resp.StatusCode
+	sourceGroupInfoList := []honeybeesourcegroup.SourceGroupInfo{}
+
+	returnStatus := model.WebStatus{}
+
+	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
+		json.NewDecoder(respBody).Decode(&failResultInfo)
+		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
+	}
+	fmt.Println(respBody)
+	decordErr := json.NewDecoder(respBody).Decode(&sourceGroupInfoList)
+	if decordErr != nil {
+		fmt.Println("Decode Error : ", decordErr)
+	}
+
+	
+
+	returnStatus.StatusCode = respStatus
+	log.Println(respBody)
+	util.DisplayResponse(resp) // 수신내용 확인
+
+	return sourceGroupInfoList, returnStatus
+}
+
+// /honeybee/source_group post
+func RegLegacySourceGroup(sourceGroupReq honeybeesourcegroup.SourceGroupReq) (*honeybeesourcegroup.SourceGroupInfo, model.WebStatus) {
+	var originalUrl = "/source_group"
+
+	url := util.HONEYBEE + originalUrl
+	pbytes, _ := json.Marshal(sourceGroupReq)
+	resp, err := util.CommonHttp(url, pbytes, http.MethodPost)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
+	}
+
+	respBody := resp.Body
+	respStatus := resp.StatusCode
+	sourceGroupInfo := &honeybeesourcegroup.SourceGroupInfo{}
+
+	returnStatus := model.WebStatus{}
+
+	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
+		json.NewDecoder(respBody).Decode(&failResultInfo)
+		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
+	}
+	json.NewDecoder(respBody).Decode(&sourceGroupInfo)
+	fmt.Println(sourceGroupInfo)
+
+	returnStatus.StatusCode = respStatus
+	log.Println(respBody)
+	util.DisplayResponse(resp) // 수신내용 확인
+
+	return sourceGroupInfo, returnStatus
+}
+
+// /honeybee/source_group/{sgId} get
+func GetLegacySourceGroupDataById(sourceGroupId string) (*honeybeesourcegroup.SourceGroupInfo, model.WebStatus) {
+	var originalUrl = "/source_group/{sgId}"
+
+	var paramMapper = make(map[string]string)
+	paramMapper["{sgId}"] = sourceGroupId
+	urlParam := util.MappingUrlParameter(originalUrl, paramMapper)
+
+	url := util.HONEYBEE + urlParam
+
+	resp, err := util.CommonHttp(url, nil, http.MethodGet)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
+	}
+
+	respBody := resp.Body
+	respStatus := resp.StatusCode
+	sourceGroupInfo := &honeybeesourcegroup.SourceGroupInfo{}
+
+	returnStatus := model.WebStatus{}
+
+	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
+		json.NewDecoder(respBody).Decode(&failResultInfo)
+		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
+	}
+	json.NewDecoder(respBody).Decode(&sourceGroupInfo)
+	fmt.Println(sourceGroupInfo)
+
+	returnStatus.StatusCode = respStatus
+	log.Println(respBody)
+	util.DisplayResponse(resp) // 수신내용 확인
+
+	return sourceGroupInfo, returnStatus
+}
+
+
+func UpdateLegacySourceGroupData(sourceGroupId string, updateSourceGroupInfo honeybeesourcegroup.SourceGroupReq) (*honeybeesourcegroup.SourceGroupInfo, model.WebStatus) {
+	var originalUrl = "/source_group/{sgId}"
+
+	var paramMapper = make(map[string]string)
+	paramMapper["{sgId}"] = sourceGroupId
+	urlParam := util.MappingUrlParameter(originalUrl, paramMapper)
+
+	url := util.HONEYBEE + urlParam
+
+	pbytes, _ := json.Marshal(updateSourceGroupInfo)
+	resp, err := util.CommonHttp(url, pbytes, http.MethodPut)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
+	}
+
+	respBody := resp.Body
+	respStatus := resp.StatusCode
+	sourceGroupInfo := &honeybeesourcegroup.SourceGroupInfo{}
+
+	returnStatus := model.WebStatus{}
+
+	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
+		json.NewDecoder(respBody).Decode(&failResultInfo)
+		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
+	}
+	json.NewDecoder(respBody).Decode(&sourceGroupInfo)
+	fmt.Println(sourceGroupInfo)
+
+	returnStatus.StatusCode = respStatus
+	log.Println(respBody)
+	util.DisplayResponse(resp) // 수신내용 확인
+
+	return sourceGroupInfo, returnStatus
+}
+
+// /honeybee/source_group/{sgId} delete
+func DeleteLegacySourceGroupData(sourceGroupId string) (*common.SimpleMsg, model.WebStatus) {
+	var originalUrl = "/source_group/{sgId}"
+
+	var paramMapper = make(map[string]string)
+	paramMapper["{sgId}"] = sourceGroupId
+	urlParam := util.MappingUrlParameter(originalUrl, paramMapper)
+
+	url := util.HONEYBEE + urlParam
+
+	resp, err := util.CommonHttp(url, nil, http.MethodDelete)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
+	}
+
+	respBody := resp.Body
+	respStatus := resp.StatusCode
+	message := &common.SimpleMsg{}
+
+	returnStatus := model.WebStatus{}
+
+	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
+		json.NewDecoder(respBody).Decode(&failResultInfo)
+		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
+	}
+	json.NewDecoder(respBody).Decode(&message)
+	fmt.Println(message)
+
+	returnStatus.StatusCode = respStatus
+	log.Println(respBody)
+	util.DisplayResponse(resp) // 수신내용 확인
+
+	return message, returnStatus
+}
+
+// /honeybee/source_group/{sgId}/connection_check get
+func CheckLegacySourceGroupConnection(sourceGroupId string) ([]honeybeesourcegroup.SourceConnectionInfo, model.WebStatus) {
+	var originalUrl = "/source_group/{sgId}/connection_check"
+
+	var paramMapper = make(map[string]string)
+	paramMapper["{sgId}"] = sourceGroupId
+	urlParam := util.MappingUrlParameter(originalUrl, paramMapper)
+
+	url := util.HONEYBEE + urlParam
+	resp, err := util.CommonHttp(url, nil, http.MethodGet)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
+	}
+
+	respBody := resp.Body
+	respStatus := resp.StatusCode
+	sourceGroupConnectionInfo := []honeybeesourcegroup.SourceConnectionInfo{}
+
+	returnStatus := model.WebStatus{}
+
+	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
+		json.NewDecoder(respBody).Decode(&failResultInfo)
+		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
+	}
+	json.NewDecoder(respBody).Decode(&sourceGroupConnectionInfo)
+	fmt.Println(sourceGroupConnectionInfo)
+
+	returnStatus.StatusCode = respStatus
+	log.Println(respBody)
+	util.DisplayResponse(resp) // 수신내용 확인
+
+	return sourceGroupConnectionInfo, returnStatus
+}
+
 func GetSourceConnectionInfoDataById(connectionId string) ([]honeybeesourcegroup.SourceConnectionInfo, model.WebStatus) {
 	var originalUrl = "/connection_info/{connId}"
 
@@ -41,9 +300,9 @@ func GetSourceConnectionInfoDataById(connectionId string) ([]honeybeesourcegroup
 	returnStatus := model.WebStatus{}
 
 	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
 		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
+		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
 	}
 	decordErr := json.NewDecoder(respBody).Decode(&connectionInfo)
 	if decordErr != nil {
@@ -58,7 +317,7 @@ func GetSourceConnectionInfoDataById(connectionId string) ([]honeybeesourcegroup
 	return connectionInfo, returnStatus
 }
 
-func GetSourceConnectionInfoListBySourceId(sourceGroupId string) (*[]honeybeesourcegroup.SourceConnectionInfo, model.WebStatus) {
+func GetSourceConnectionInfoListBySourcGroupId(sourceGroupId string) (*[]honeybeesourcegroup.SourceConnectionInfo, model.WebStatus) {
 	var originalUrl = "/source_group/{sgId}/connection_info"
 
 	var paramMapper = make(map[string]string)
@@ -81,9 +340,9 @@ func GetSourceConnectionInfoListBySourceId(sourceGroupId string) (*[]honeybeesou
 	returnStatus := model.WebStatus{}
 
 	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
 		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
+		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
 	}
 	json.NewDecoder(respBody).Decode(&connectionInfoList)
 	fmt.Println(connectionInfoList)
@@ -103,7 +362,7 @@ func RegSourceConnectionInfo(sourceGroupId string, connectionInfo *honeybeesourc
 	urlParam := util.MappingUrlParameter(originalUrl, paramMapper)
 
 	url := util.HONEYBEE + urlParam
-
+	
 	pbytes, _ := json.Marshal(connectionInfo)
 	resp, err := util.CommonHttp(url, pbytes, http.MethodPost)
 
@@ -112,20 +371,23 @@ func RegSourceConnectionInfo(sourceGroupId string, connectionInfo *honeybeesourc
 
 	respBody := resp.Body
 	respStatus := resp.StatusCode
-
+	
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("CommonHttp err ", err)
 		return &returnConnectionInfo, model.WebStatus{StatusCode: 500, Message: err.Error()}
 	}
 
 	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
 		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return &returnConnectionInfo, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
+		return &returnConnectionInfo, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
+
+		// failResultInfo := honeybeecommon.SimpleMsg{}
+		// json.NewDecoder(respBody).Decode(&failResultInfo)
+		// return &returnConnectionInfo, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
 	}
 
 	json.NewDecoder(respBody).Decode(&returnConnectionInfo)
-	fmt.Println(returnConnectionInfo)
 
 	returnStatus.StatusCode = respStatus
 
@@ -195,9 +457,10 @@ func UpdateLegacySourceConnectionInfo(connectionId string, sourceGroupId string,
 	returnStatus := model.WebStatus{}
 
 	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
+		log.Println(respBody)
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
 		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
+		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
 	}
 	json.NewDecoder(respBody).Decode(&returnConnectionInfo)
 	fmt.Println(returnConnectionInfo)
@@ -235,9 +498,9 @@ func DeleteLegacySourceConnectionInfo(connectionId string, sourceGroupId string)
 	returnStatus := model.WebStatus{}
 
 	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
 		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
+		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
 	}
 	json.NewDecoder(respBody).Decode(&message)
 	fmt.Println(message)
@@ -247,272 +510,9 @@ func DeleteLegacySourceConnectionInfo(connectionId string, sourceGroupId string)
 	util.DisplayResponse(resp) // 수신내용 확인
 
 	return message, returnStatus
-}
-
-// /honeybee/readyz move to Commonhandler
-// func CheckReadyHoneybee() (*common.SimpleMsg, model.WebStatus) {
-// 	var originalUrl = "/readyz"
-
-// 	url := util.HONEYBEE + originalUrl
-
-// 	resp, err := util.CommonHttp(url, nil, http.MethodGet)
-
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
-// 	}
-
-// 	respBody := resp.Body
-// 	respStatus := resp.StatusCode
-
-// 	returnStatus := model.WebStatus{}
-// 	returnModel := common.SimpleMsg{}
-// 	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-// 		failResultInfo := honeybeecommon.SimpleMsg{}
-// 		json.NewDecoder(respBody).Decode(&failResultInfo)
-// 		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
-// 	}
-// 	json.NewDecoder(respBody).Decode(&returnModel)
-// 	fmt.Println(returnModel)
-
-// 	returnStatus.StatusCode = respStatus
-// 	log.Println(respBody)
-// 	util.DisplayResponse(resp) // 수신내용 확인
-
-// 	return &returnModel, returnStatus
-// }
-
-// //////////////////////////////////////SourceGroup
-// /honeybee/source_group get
-func GetLegacySourceGroupList() ([]honeybeesourcegroup.SourceGroupInfo, model.WebStatus) {
-	var originalUrl = "/source_group"
-
-	url := util.HONEYBEE + originalUrl
-
-	resp, err := util.CommonHttp(url, nil, http.MethodGet)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
-	}
-
-	respBody := resp.Body
-	respStatus := resp.StatusCode
-	sourceGroupInfoList := []honeybeesourcegroup.SourceGroupInfo{}
-
-	returnStatus := model.WebStatus{}
-
-	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
-		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
-	}
-	fmt.Println(respBody)
-	decordErr := json.NewDecoder(respBody).Decode(&sourceGroupInfoList)
-	if decordErr != nil {
-		fmt.Println("Decode Error : ", decordErr)
-	}
-
-	fmt.Println("sourceGroupInfoList")
-	fmt.Println(sourceGroupInfoList)
-	fmt.Println("sourceGroupInfoList end")
-
-	returnStatus.StatusCode = respStatus
-	log.Println(respBody)
-	util.DisplayResponse(resp) // 수신내용 확인
-
-	return sourceGroupInfoList, returnStatus
-}
-
-// /honeybee/source_group post
-func RegLegacySourceGroup(sourceGroupReq honeybeesourcegroup.SourceGroupReq) (*honeybeesourcegroup.SourceGroupInfo, model.WebStatus) {
-	var originalUrl = "/source_group"
-
-	url := util.HONEYBEE + originalUrl
-	pbytes, _ := json.Marshal(sourceGroupReq)
-	resp, err := util.CommonHttp(url, pbytes, http.MethodPost)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
-	}
-
-	respBody := resp.Body
-	respStatus := resp.StatusCode
-	sourceGroupInfo := &honeybeesourcegroup.SourceGroupInfo{}
-
-	returnStatus := model.WebStatus{}
-
-	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
-		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
-	}
-	json.NewDecoder(respBody).Decode(&sourceGroupInfo)
-	fmt.Println(sourceGroupInfo)
-
-	returnStatus.StatusCode = respStatus
-	log.Println(respBody)
-	util.DisplayResponse(resp) // 수신내용 확인
-
-	return sourceGroupInfo, returnStatus
-}
-
-// /honeybee/source_group/{sgId} get
-func GetLegacySourceGroupDataById(sourceGroupId string) (*honeybeesourcegroup.SourceGroupInfo, model.WebStatus) {
-	var originalUrl = "/source_group/{sgId}"
-
-	var paramMapper = make(map[string]string)
-	paramMapper["{sgId}"] = sourceGroupId
-	urlParam := util.MappingUrlParameter(originalUrl, paramMapper)
-
-	url := util.HONEYBEE + urlParam
-
-	resp, err := util.CommonHttp(url, nil, http.MethodGet)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
-	}
-
-	respBody := resp.Body
-	respStatus := resp.StatusCode
-	sourceGroupInfo := &honeybeesourcegroup.SourceGroupInfo{}
-
-	returnStatus := model.WebStatus{}
-
-	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
-		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
-	}
-	json.NewDecoder(respBody).Decode(&sourceGroupInfo)
-	fmt.Println(sourceGroupInfo)
-
-	returnStatus.StatusCode = respStatus
-	log.Println(respBody)
-	util.DisplayResponse(resp) // 수신내용 확인
-
-	return sourceGroupInfo, returnStatus
-}
-
-
-func UpdateLegacySourceGroupData(sourceGroupId string, updateSourceGroupInfo honeybeesourcegroup.SourceGroupReq) (*honeybeesourcegroup.SourceGroupInfo, model.WebStatus) {
-	var originalUrl = "/source_group/{sgId}"
-
-	var paramMapper = make(map[string]string)
-	paramMapper["{sgId}"] = sourceGroupId
-	urlParam := util.MappingUrlParameter(originalUrl, paramMapper)
-
-	url := util.HONEYBEE + urlParam
-
-	pbytes, _ := json.Marshal(updateSourceGroupInfo)
-	resp, err := util.CommonHttp(url, pbytes, http.MethodPut)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
-	}
-
-	respBody := resp.Body
-	respStatus := resp.StatusCode
-	sourceGroupInfo := &honeybeesourcegroup.SourceGroupInfo{}
-
-	returnStatus := model.WebStatus{}
-
-	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
-		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
-	}
-	json.NewDecoder(respBody).Decode(&sourceGroupInfo)
-	fmt.Println(sourceGroupInfo)
-
-	returnStatus.StatusCode = respStatus
-	log.Println(respBody)
-	util.DisplayResponse(resp) // 수신내용 확인
-
-	return sourceGroupInfo, returnStatus
-}
-
-// /honeybee/source_group/{sgId} delete
-func DeleteLegacySourceGroupData(sourceGroupId string) (*common.SimpleMsg, model.WebStatus) {
-	var originalUrl = "/source_group/{sgId}"
-
-	var paramMapper = make(map[string]string)
-	paramMapper["{sgId}"] = sourceGroupId
-	urlParam := util.MappingUrlParameter(originalUrl, paramMapper)
-
-	url := util.HONEYBEE + urlParam
-
-	resp, err := util.CommonHttp(url, nil, http.MethodDelete)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
-	}
-
-	respBody := resp.Body
-	respStatus := resp.StatusCode
-	message := &common.SimpleMsg{}
-
-	returnStatus := model.WebStatus{}
-
-	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
-		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
-	}
-	json.NewDecoder(respBody).Decode(&message)
-	fmt.Println(message)
-
-	returnStatus.StatusCode = respStatus
-	log.Println(respBody)
-	util.DisplayResponse(resp) // 수신내용 확인
-
-	return message, returnStatus
-}
-
-// /honeybee/source_group/{sgId}/connection_check get
-func CheckLegacySourceGroupConnection(sourceGroupId string) ([]honeybeesourcegroup.SourceConnectionInfo, model.WebStatus) {
-	var originalUrl = "/source_group/{sgId}/connection_check"
-
-	var paramMapper = make(map[string]string)
-	paramMapper["{sgId}"] = sourceGroupId
-	urlParam := util.MappingUrlParameter(originalUrl, paramMapper)
-
-	url := util.HONEYBEE + urlParam
-	resp, err := util.CommonHttp(url, nil, http.MethodGet)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
-	}
-
-	respBody := resp.Body
-	respStatus := resp.StatusCode
-	sourceGroupConnectionInfo := []honeybeesourcegroup.SourceConnectionInfo{}
-
-	returnStatus := model.WebStatus{}
-
-	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
-		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
-	}
-	json.NewDecoder(respBody).Decode(&sourceGroupConnectionInfo)
-	fmt.Println(sourceGroupConnectionInfo)
-
-	returnStatus.StatusCode = respStatus
-	log.Println(respBody)
-	util.DisplayResponse(resp) // 수신내용 확인
-
-	return sourceGroupConnectionInfo, returnStatus
 }
 
 //[Import] Import source info
-
-
 func GetImportLegacyInfraInfoBySourceIdAndConnId(sourceGroupId string, connectionId string) (*honeybeesourcegroup.SavedInfraInfo, model.WebStatus) {
 	var originalUrl = "/source_group/{sgId}/connection_info/{connId}/import/infra"
 
@@ -538,9 +538,9 @@ func GetImportLegacyInfraInfoBySourceIdAndConnId(sourceGroupId string, connectio
 	returnStatus := model.WebStatus{}
 
 	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
 		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
+		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
 	}
 	decodeErr := json.NewDecoder(respBody).Decode(&saveInfraInfo)
 	if decodeErr != nil {
@@ -558,7 +558,7 @@ func GetImportLegacyInfraInfoBySourceIdAndConnId(sourceGroupId string, connectio
 
 
 func GetImportLegacySoftwareInfoBySourceIdAndConnId(sourceGroupId string, connectionId string ) (*honeybeesourcegroup.SavedSoftwareInfo, model.WebStatus) {
-	var originalUrl = "/source_group/{sgId}/connection_info/{connId}/import/infra"
+	var originalUrl = "/source_group/{sgId}/connection_info/{connId}/import/software"
 
 	var paramMapper = make(map[string]string)
 	paramMapper["{sgId}"] = sourceGroupId
@@ -582,9 +582,9 @@ func GetImportLegacySoftwareInfoBySourceIdAndConnId(sourceGroupId string, connec
 	returnStatus := model.WebStatus{}
 
 	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
 		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
+		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
 	}
 	json.NewDecoder(respBody).Decode(&softwareInfraInfo)
 	fmt.Println(softwareInfraInfo)
@@ -623,9 +623,9 @@ func GetLegacyInfraInfoBySourceIdAndConnId(sourceGroupId string, connectionId st
 	returnStatus := model.WebStatus{}
 
 	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
 		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return honeybeeinfra.InfraInfo{}, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
+		return infraInfo, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
 	}
 
 	decodeErr := json.NewDecoder(respBody).Decode(&infraInfo)
@@ -642,9 +642,11 @@ func GetLegacyInfraInfoBySourceIdAndConnId(sourceGroupId string, connectionId st
 	return infraInfo, returnStatus
 }
 
-func GetLegacySoftwareInfoBySourceIdAndConnId(sourceGroupId string, connectionId string)  (*honeybeesoftware.SoftwareInfo, model.WebStatus) {
+func GetLegacySoftwareInfoBySourceIdAndConnId(sourceGroupId string, connectionId string)  (honeybeesoftware.SoftwareInfo, model.WebStatus) {
 	var originalUrl = "/source_group/{sgId}/connection_info/{connId}/software"
 
+	softwareInfo := honeybeesoftware.SoftwareInfo{}	
+	
 	var paramMapper = make(map[string]string)
 	paramMapper["{sgId}"] = sourceGroupId
 	paramMapper["{connId}"] = connectionId
@@ -657,19 +659,20 @@ func GetLegacySoftwareInfoBySourceIdAndConnId(sourceGroupId string, connectionId
 
 	if err != nil {
 		fmt.Println(err)
-		return nil, model.WebStatus{StatusCode: 500, Message: err.Error()}
+		return softwareInfo, model.WebStatus{StatusCode: 500, Message: err.Error()}
 	}
 
 	respBody := resp.Body
 	respStatus := resp.StatusCode
 
-	softwareInfo := &honeybeesoftware.SoftwareInfo{}	
+	softwareInfo := honeybeesoftware.SoftwareInfo{}	
+	//softwareInfoList := []honeybeesoftware.SoftwareInfo{}
 	returnStatus := model.WebStatus{}
 
 	if respStatus != 200 && respStatus != 201 { // 호출은 정상이나, 가져온 결과값이 200, 201아닌 경우 message에 담겨있는 것을 WebStatus에 set
-		failResultInfo := honeybeecommon.SimpleMsg{}
+		failResultInfo := honeybeecommon.HoneyBeeErr{}
 		json.NewDecoder(respBody).Decode(&failResultInfo)
-		return nil, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Message}
+		return softwareInfo, model.WebStatus{StatusCode: respStatus, Message: failResultInfo.Error}
 	}
 	decodeErr := json.NewDecoder(respBody).Decode(&softwareInfo)
 	if decodeErr != nil {

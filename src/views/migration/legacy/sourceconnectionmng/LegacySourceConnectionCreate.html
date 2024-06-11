@@ -1,7 +1,7 @@
 {{define "LegacySourceConnectionCreate"}}
 
 <!-- 추가 form -->
-<div class="dashboard dashboard_cont register_cont" id="legacyConnectionCreateBox">
+<div class="dashboard dashboard_cont register_cont" id="sourceConnectionCreateBox">
 
 	<div class="d_box box_m box_w100">
 		<div class="titbox_n">
@@ -15,9 +15,9 @@
 					<div class="ipbox ipbox1 ipbox3">
 						<ul>
 							<li>
-								<label><span class="ch">*</span>VPC Name</label>
-								<input type="text" id="regVpcName" name="reg_vpcName" value=""
-									placeholder="Input VPC Name" class="pline" title="" />
+								<label><span class="ch">*</span>Name</label>
+								<input type="text" id="regName" name="reg_name" value=""
+									placeholder="Input Name" class="pline" title="" />
 							</li>
 							<li class="ta_1">
 								<label>Description</label>
@@ -29,27 +29,35 @@
 					<div class="ipbox ipbox2 ipbox4">
 						<ul>
 							<li>
-								<label>Cloud Provider</label>
-								<select class="selectbox white pline w3" id="provider" name="ProvideName"
-									onchange="getConnectionListForSelectbox(this.value, 'regConnectionName')">
-									<option selected>Select Cloud Provider</option>
-									
-									<option value="MOCK">MOCK</option> <!-- 임시로 MOCK 추가-->
-								</select>
+								<label>IP Address</label>
+								<input type="text" id="regIpAddress" name="reg_ipAddress" value=""
+									placeholder="ex) 10.0.0.0" class="pline ip_w1" title="" />
 							</li>
 							<li>
-								<label><span class="ch">*</span>Connection</label>
-								<select class="selectbox white pline w3" id="regConnectionName"
-									name="reg_connectionName">
-									<option selected>Selected ConnectionName</option>
-								</select>
+								<label><span class="ch">*</span>SSH Port</label>
+								<input type="text" id="regSshPort" name="reg_sshPort" value="23"
+									placeholder="ex) 23" class="pline ip_w1" title="" />
 							</li>
 							<li>
-								<label><span class="ch">*</span>CIDR Block</label>
-								<input type="text" id="regCidrBlock" name="reg_cidrBlock" value=""
-									placeholder="ex) 10.0.0.0/24" class="pline ip_w1" title="" />
+								<label><span class="ch">*</span>User</label>
+								<input type="text" id="regUser" name="reg_user" value=""
+									placeholder="ex) root" class="pline ip_w1" title="" />
 							</li>
-							
+							<li>
+								<label><span class="ch">*</span>Password</label>
+								<input type="text" id="regPassword" name="reg_password" value=""
+									class="pline ip_w1" title="" />
+							</li>
+							<li>
+								<label>Public Key</label>
+								<input type="text" id="regPublicKey" name="reg_publicKey" value=""
+									class="pline ip_w1" title="" />
+							</li>
+							<li>
+								<label>Private Key</label>
+								<input type="text" id="regPrivateKey" name="reg_privateKey" value=""
+									class="pline ip_w1" title="" />
+							</li>
 						</ul>
 					</div>
 				</div>
@@ -57,9 +65,9 @@
 				<div class="btnbox">
 					<div class="btn_center">
 						<button name="" value="" class="btn_co btn_cr_b w135 btn_cancel"
-							onclick="displayLegacyConnectionInfo('CLOSE')">Cancel</button>
+							onclick="displaySourceConnectionInfo('CLOSE')">Cancel</button>
 						<button name="" value="" class="btn_co btn_cr_g w135 btn_ok"
-							onclick="createLegacyConnection()">Ok</button>
+							onclick="createSourceConnection()">Ok</button>
 					</div>
 				</div>
 
