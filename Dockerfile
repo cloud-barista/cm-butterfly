@@ -20,8 +20,12 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=builder /go/src/github.com/cloud-barista/cm-butterfly/src /app/src
+COPY --from=builder /go/src/github.com/cloud-barista/cm-butterfly/conf /app/conf
 COPY --from=builder /go/src/github.com/cloud-barista/cm-butterfly/butterfly /app/butterfly
+COPY --from=builder /go/src/github.com/cloud-barista/cm-butterfly/docker_entrypoint.sh /app/docker_entrypoint.sh
+
+RUN chmod +x docker_entrypoint.sh butterfly
 
 EXPOSE 1234
 
-ENTRYPOINT ["./butterfly"]
+ENTRYPOINT ["./docker_entrypoint.sh"]
