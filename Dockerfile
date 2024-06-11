@@ -1,19 +1,27 @@
+# Stage1: Build butterfly binary
 FROM golang:1.19-alpine AS builder
 
-WORKDIR /go/src/github.com/cloud-barista/cm-butterfly 
-COPY . .
-
-#RUN apk update && apk add git
-#RUN apk add --no-cache bash
 RUN apk update
 RUN apk add --no-cache bash git gcc
 
-#RUN go get -u -v github.com/go-session/echo-session
-#RUN go get -u github.com/labstack/echo/...
-#RUN go get -u github.com/davecgh/go-spew/spew
-ENV GO111MODULE on
-RUN go get github.com/cespare/reflex
+
+WORKDIR /go/src/github.com/cloud-barista/cm-butterfly 
+COPY go.mod go.sum ./
+
+RUN go mod download
+
+COPY . .
+
+RUN go build -o butterfly main.go
+
+# Stage2: Execution butterfly binary
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=builder /go/src/github.com/cloud-barista/cm-butterfly/src /app/src
+COPY --from=builder /go/src/github.com/cloud-barista/cm-butterfly/butterfly /app/butterfly
 
 EXPOSE 1234
 
-CMD reflex -r '\.(html|go)' -s go run main.go
+ENTRYPOINT ["./butterfly"]
