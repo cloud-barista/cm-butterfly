@@ -1,18 +1,74 @@
-version: '3.1'
+version: '3.8'
 
 services: 
-    webtool:
-        build: .
-        image: cb-webtool-docker-compose
-        ports:
-            - 1234:1234
-        container_name: cb-webtool
-        environment:
-            - API_GW=http://localhost:8000
-            - SPIDER_URL=http://localhost:8000/spider
-            - TUMBLE_URL=http://localhost:8000/tumblebug
-            - DRAGONFLY_URL=http://localhost:8000/dragonfly
-            - LADYBUG_URL=http://localhost:8000/ladybug
-            - CICADA_URL=http://localhost:8000/cicada
+  cb-spider:
+    image: cloudbaristaorg/cb-spider:0.8.19
+    container_name: cb-spider
+    platform: linux/amd64
+    ports:
+      - "0.0.0.0:1024:1024"
+      - "0.0.0.0:2048:2048"
+    networks:
+      - spider_net
+    environment:
+      - PLUGIN_SW=OFF
+      # if you leave these values empty, REST Auth will be disabled.
+      - API_USERNAME=
+      - API_PASSWORD=
+      - SPIDER_LOG_LEVEL=info
 
 
+  # CB-Tumblebug
+  cb-tumblebug:
+    image: cloudbaristaorg/cb-tumblebug:0.8.13
+    container_name: cb-tumblebug
+    platform: linux/amd64
+    ports:
+      - "0.0.0.0:1323:1323"
+    networks:
+      - spider_net
+      - default
+    depends_on:
+      - cb-spider
+    volumes:
+      - ./data/cb-tumblebug/meta_db/:/app/meta_db/
+      - ./data/cb-tumblebug/log/:/app/log/
+    environment:
+      - SPIDER_REST_URL=http://cb-spider:1024/spider
+      - API_USERNAME=default
+      - API_PASSWORD=default
+
+  cm-beetle:
+    image: cloudbaristaorg/cm-beetle:0.1.2
+    container_name: cm-beetle
+    platform: linux/amd64
+    ports:
+      - "8056:8056"
+    depends_on:
+      - cb-tumblebug
+    environment:
+      - API_AUTH_ENABLED=true
+      - API_USERNAME=default
+      - API_PASSWORD=default
+      - LOGLEVEL=info
+      - BEETLE_ROOT=/app
+      - TUMBLEBUG_REST_URL=http://cb-tumblebug:1323/tumblebug
+      - SELF_ENDPOINT=http://cm-beetle:8056
+
+  cm-butterfly:
+    build: .
+    ports:
+        - 1234:1234
+    container_name: cm-butterfly
+    depends_on:
+      - cm-beetle
+    environment:
+      # - API_GW=http://localhost:8000
+      - SPIDER_URL=http://cb-spider:1024/spider
+      - TUMBLE_URL=http://cb-tumblebug:1323/tumblebug
+      - BEETLE_URL=http://cm-beetle:8056/beetle
+      # - CICADA_URL=http://localhost:8000/cicada
+
+
+networks:
+  spider_net: #Network for cb-spider isolation
