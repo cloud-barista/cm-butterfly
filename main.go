@@ -514,6 +514,7 @@ func main() {
 			"/migration/legacy/sourceconnectionmng/LegacySourceConnectionList",
 			"/migration/legacy/sourceconnectionmng/LegacySourceConnectionInfo",
 			"/migration/legacy/sourceconnectionmng/LegacySourceConnectionCreate",
+			"/migration/legacy/sourcegroupmng/SourceGroupListModal",			
 
 		},
 		DisableCache: true,
@@ -1076,10 +1077,13 @@ func main() {
 	targetModelMngGroup := e.Group("/migration/targetmodel/mngform", targetModelMngTemplate)
 	targetModelMngGroup.GET("", controller.TargetModelMngForm)
 
-	workflowRegGroup := e.Group("/migration/workflowmng/workflow/regform", workflowRegTemplate)
+	//workflowRegGroup := e.Group("/migration/workflowmng/workflow/regform", workflowRegTemplate)
+	workflowRegGroup := e.Group("/migration/workflow/workflowmng/regform", workflowRegTemplate)
 	workflowRegGroup.GET("", controller.WorkflowRegForm)
 
-	workflowMngGroup := e.Group("/migration/workflowmng/workflow/mngform", workflowMngTemplate)
+	workflowMngGroup := e.Group("/migration/workflow/workflowmng/mngform", workflowMngTemplate)
+	
+	//workflowMngGroup := e.Group("/migration/workflowmng/workflow/mngform", workflowMngTemplate)
 	workflowMngGroup.GET("", controller.WorkflowMngForm)
 
 	e.POST("/migration/workflowmng/workflow", controller.WorkflowRegProc)

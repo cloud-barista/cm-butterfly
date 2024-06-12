@@ -357,26 +357,25 @@ function lnb_on() {
 	// console.log('target2=' + target2)
 	console.log('target3=' + target3)
 	if (target1 == undefined || target1 == "main") {
-		target1 = "operation";
+		target1 = "migration";
 	}
 
 	$("#tab_" + target1).addClass("active")
 
-	// menu의 첫번째 단계인 operation, setting 은 common.css 에 id로 style이 적용되어있어 변경이 어려움.
+	// // menu의 첫번째 단계인 operation, setting 은 common.css 에 id로 style이 적용되어있어 변경이 어려움.
 	$("#" + target1).addClass("active")
 	$("#" + target1).addClass("on")
 	$("#" + target1).addClass("show")
 	//show active
 
-	// $("#"+target1).addClass("active")
-
+	
 	// $("#" + target1) // Setting
 	$("#menu_level2_" + target2).addClass("active")
 	$("#menu_level3_" + target3).addClass("on")
 
-	$(".leftmenu .tab-content ul > li").each(function () {
+	// $(".leftmenu .tab-content ul > li").each(function () {
 
-	})
+	// })
 
 }
 //webmoa common

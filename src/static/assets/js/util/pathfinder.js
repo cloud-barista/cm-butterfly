@@ -86,8 +86,10 @@ function getWebToolUrl(controllerKeyName) {
             ["SourceModelRegForm", "/migration/sourcemodel/regform"],
             ["TargetModelMngForm", "/migration/targetmodel/mngform"],
             ["TargetModelRegForm", "/migration/targetmodel/regform"],
-            ["WorkflowMngForm", "/migration/workflowmng/workflow/mngform"],
-            ["WorkflowRegForm", "/migration/workflowmng/workflow/regform"],
+            //["WorkflowMngForm", "/migration/workflowmng/workflow/mngform"],
+            ["WorkflowMngForm", "/migration/workflow/workflowmng/mngform"],
+            ["WorkflowRegForm", "/migration/workflow/workflowmng/regform"],
+            //["WorkflowRegForm", "/migration/workflowmng/workflow/regform"],
 
 
             ["WorkflowDefaultMngForm", "/operation/workflow/default/mngform"],
