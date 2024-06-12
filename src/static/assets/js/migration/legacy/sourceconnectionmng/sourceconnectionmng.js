@@ -23,11 +23,74 @@ $(document).ready(function () {
         setTableHeightForScroll('sourceConnectionListTable', 300);
     });
 
-    selectedSourceGroupId = $("#slectedSourceGroupId").val();
+    selectedSourceGroupId = $("#selectedSourceGroupId").val();
 
-    getSourceConnectionList()
+    if (selectedSourceGroupId == ""){
+        getSourceGroupList()        
+    }else{
+        getSourceConnectionList()
+    }    
 });
 
+function getSourceGroupList() {
+    console.log("getSourceGroupList");
+  
+    var url = "/migration/legacy/sourcegroup";
+    axios.get(url, {
+        headers: {
+            'Content-Type': "application/json"
+        }
+    }).then(result => {
+        console.log("get SourceGroup List : ", result.data);
+        
+        var data = result.data.sourceGroupList;
+
+        var html = ""
+        var cnt = 0;
+
+        if (data == null) {
+            commonAlert("등록된 sourceGroup가 없습니다. 등록화면으로 이동합니다.")
+            return;
+            // 등록된 sourceGroup가 없습니다. 등록화면으로 이동합니다.
+
+        } else {
+            if (data.length) {
+                data.map((item, index) => (
+                    html += '<div class="list" onclick="selectSourceGroup(\'' + item.id + '\');">'
+                        + '<div class="stit">' + item.name + '</div>'
+                        + '<div class="stit">' + item.description + '</div>'
+                        + '</div>'
+                ))            
+
+                $("#sourceGroupList").empty()
+                $("#sourceGroupList").append(html)
+
+                sourceGroupModal();
+            }
+        }
+
+
+    }).catch((error) => {
+        console.warn(error);
+        console.log(error.response)
+        var errorMessage = error.response.data.error;
+        var statusCode = error.response.status;
+        commonErrorAlert(statusCode, errorMessage);
+    });
+}
+
+// source group 값만 설정(조회는 OK 되면)
+function selectSourceGroup(sourceGroupId){
+    console.log("selectSourceGroup 1 ", sourceGroupId)
+    $("#selectedSourceGroupId").val(sourceGroupId);    
+}
+
+// source group이 선택되었으면 connection 조회
+function selectSourceGroupSetOK(){
+    selectedSourceGroupId = $("#selectedSourceGroupId").val();
+    console.log("selectedSourceGroupId 2 ", selectedSourceGroupId)
+    getSourceConnectionList();
+}
 
 // Source Group 삭제
 function deleteSourceConnection() {
@@ -76,8 +139,10 @@ function deleteSourceConnection() {
 }
 
 function getSourceConnectionList(sort_type) {
+    console.log("selectedSourceGroupId ", selectedSourceGroupId)
     if( selectedSourceGroupId == ""){
         commonAlert("Please select SourceConnection first. ")
+        sourceGroupModal();
         return;
     }
 
@@ -510,3 +575,33 @@ function viewSourceSoftware(){
         commonErrorAlert(statusCode, errorMessage);
     });
 }
+
+
+//////// source group popup
+// namespace 선택modal
+function sourceGroupModal() {
+    console.log("sourceGroupModal called");
+    $("#popSourceGroupList").modal("toggle");
+    
+    $(".popboxNS .cloudlist .list").each(function () {
+      console.log("sourceGroupModal foreach ~ing");
+      $(this).on("click", function () {
+        var $list = $(this);
+        var $ok = $(".btn_ok"); // --class 말고 id로
+        //var $ok = $("#select_ns_ok_btn");
+        $ok.fadeIn();
+        $list.addClass("selected");
+        $list.siblings().removeClass("selected");
+        $list.off("click").on("click", function () {
+          if ($(this).hasClass("selected")) {
+            $ok.stop().fadeOut();
+            $list.removeClass("selected");
+          } else {
+            $ok.stop().fadeIn();
+            $list.addClass("selected");
+            $list.siblings().removeClass("selected");
+          }
+        });
+      });
+    });
+  }

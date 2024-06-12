@@ -34,7 +34,7 @@
 						<div class="tit"><img src="/assets/img/common/icon_cont.png" alt=""/>Migration / <strong>Infra</strong></div>
 						<div class="location">Home  <span>></span>  Migration  <span>></span> <strong>Infra</strong></div>
 					</div>
-					<input type="hidden" id="slectedSourceGroupId" value='{{ .sourceGroupId }}'/>
+					<input type="hidden" id="selectedSourceGroupId" value='{{ .sourceGroupId }}'/>
 					<!-- list -->
 					{{template "LegacySourceConnectionList" .}}
 					<!-- list -->
@@ -47,9 +47,14 @@
 					{{template "LegacySourceConnectionCreate" .}}
 					<!-- Create -->
 					
+					<!-- // SelectNamespace Modal-->
+
 				</div>
 				<!-- //contents -->
 
+				<div id="sourceGroupListModal">
+					{{template "SourceGroupListModal" .}}
+				</div>
 <script type="text/javascript" src="/assets/js/migration/legacy/sourceconnectionmng/sourceconnectionmng.js"></script>
 
 {{template "Footer" .}}
