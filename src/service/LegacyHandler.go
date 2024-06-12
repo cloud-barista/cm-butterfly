@@ -646,7 +646,7 @@ func GetLegacySoftwareInfoBySourceIdAndConnId(sourceGroupId string, connectionId
 	var originalUrl = "/source_group/{sgId}/connection_info/{connId}/software"
 
 	softwareInfo := honeybeesoftware.SoftwareInfo{}	
-	
+
 	var paramMapper = make(map[string]string)
 	paramMapper["{sgId}"] = sourceGroupId
 	paramMapper["{connId}"] = connectionId
@@ -665,7 +665,6 @@ func GetLegacySoftwareInfoBySourceIdAndConnId(sourceGroupId string, connectionId
 	respBody := resp.Body
 	respStatus := resp.StatusCode
 
-	softwareInfo := honeybeesoftware.SoftwareInfo{}	
 	//softwareInfoList := []honeybeesoftware.SoftwareInfo{}
 	returnStatus := model.WebStatus{}
 
