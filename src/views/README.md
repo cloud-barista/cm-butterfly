@@ -4,26 +4,12 @@ View template files
 
 - auth : 인증, Main화면
 - templates : 화면구성에 필요한 template 요소 파일
-- settings
+- migration
 
-  - connections
-  - namespaces
-  - resources
-    - network
-    - security group
-    - ssh key
-    - image
-    - spec
-
-- operations
-  - dashboards
-  - manages
-    - mcismng
-    - mcksmng
-  - monitorings
-    - mcismonitoring
-    - mcksmonitoring
-  - policies
-    - monitoring
-    - placement
-    - threshold
+  - legacy
+    - source group
+    - source connection
+  - source model
+  - target model
+  - workflow
+    - workflowd
