@@ -1,10 +1,10 @@
 
 {{ template "OperationTop" .}}
-<!-- 
+<!--
 // workflow 관리화면
 // workflow 목록 table
 // workflow 상세 : viewer
-//      task viewer 
+//      task viewer
 -->
 <div id="lnb">
 			
@@ -13,9 +13,7 @@
 	<div class="m_box">
 		
 		{{template "TopBox" .}}
-
 		{{template "LNBPopup" .}}
-
 		{{template "MenuLeft" .}}
 		
 	</div>
@@ -26,36 +24,38 @@
 {{template "Header" .}}
 {{template "Modal" .}}
 
-				
-				<!-- contents -->
-				<div class="contbox">
-					
-					<div class="titlebox">
-						<div class="tit"><img src="/assets/img/common/icon_cont.png" alt=""/>Migration / <strong>Infra</strong></div>
-						<div class="location">Home  <span>></span>  Migration  <span>></span> <strong>Infra</strong></div>
-					</div>
-					<input type="hidden" id="selectedSourceGroupId" value='{{ .sourceGroupId }}'/>
-					<!-- list -->
-					{{template "LegacySourceConnectionList" .}}
-					<!-- list -->
-					
-					<!-- Info -->
-					{{template "LegacySourceConnectionInfo" .}}
-					<!-- Info -->
+<!-- contents -->
+<div class="contbox">
+	
+	<div class="titlebox">
+		<div class="tit"><img src="/assets/img/common/icon_cont.png" alt=""/>Migration / <strong>Infra</strong></div>
+		<div class="location">Home  <span>></span>  Migration  <span>></span> <strong>Infra</strong></div>
+	</div>
+	<input type="hidden" id="selectedSourceGroupId" value='{{ .sourceGroupId }}'/>
+	<!-- list -->
+	{{template "LegacySourceConnectionList" .}}
+	<!-- list -->
+	
+	<!-- Info -->
+	{{template "LegacySourceConnectionInfo" .}}
+	<!-- Info -->
 
-					<!-- Create -->
-					{{template "LegacySourceConnectionCreate" .}}
-					<!-- Create -->
-					
-					<!-- // SelectNamespace Modal-->
+	<!-- Create -->
+	{{template "LegacySourceConnectionCreate" .}}
+	<!-- Create -->
+	
+	<!-- // SelectNamespace Modal-->
 
-				</div>
-				<!-- //contents -->
+</div>
+<!-- //contents -->
 
-				<div id="sourceGroupListModal">
-					{{template "SourceGroupListModal" .}}
-				</div>
+
+<div id="sourceGroupListModal">
+	{{template "SourceGroupListModal" .}}
+</div>
+
 <script type="text/javascript" src="/assets/js/migration/legacy/sourceconnectionmng/sourceconnectionmng.js"></script>
+
 
 {{template "Footer" .}}
 

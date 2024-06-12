@@ -26,15 +26,15 @@ $(document).ready(function () {
     selectedSourceGroupId = $("#selectedSourceGroupId").val();
 
     if (selectedSourceGroupId == ""){
-        getSourceGroupList()        
+        getSourceGroupList()
     }else{
         getSourceConnectionList()
-    }    
+    }
 });
 
 function getSourceGroupList() {
     console.log("getSourceGroupList");
-  
+
     var url = "/migration/legacy/sourcegroup";
     axios.get(url, {
         headers: {
@@ -57,10 +57,10 @@ function getSourceGroupList() {
             if (data.length) {
                 data.map((item, index) => (
                     html += '<div class="list" onclick="selectSourceGroup(\'' + item.id + '\');">'
-                        + '<div class="stit">' + item.name + '</div>'
-                        + '<div class="stit">' + item.description + '</div>'
+                            + '<div class="stit">' + item.name + '</div>'
+                            + '<div class="stxt">' + item.description + '</div>'
                         + '</div>'
-                ))            
+                ))
 
                 $("#sourceGroupList").empty()
                 $("#sourceGroupList").append(html)
@@ -82,7 +82,7 @@ function getSourceGroupList() {
 // source group 값만 설정(조회는 OK 되면)
 function selectSourceGroup(sourceGroupId){
     console.log("selectSourceGroup 1 ", sourceGroupId)
-    $("#selectedSourceGroupId").val(sourceGroupId);    
+    $("#selectedSourceGroupId").val(sourceGroupId);
 }
 
 // source group이 선택되었으면 connection 조회
@@ -172,11 +172,11 @@ function getSourceConnectionList(sort_type) {
                     cnt++;
                     console.log("check : ", sort_type);
                     data.filter(list => list.Name !== "").sort((a, b) => (a[sort_type] < b[sort_type] ? - 1 : a[sort_type] > b[sort_type] ? 1 : 0)).map((item, index) => (
-                        html += addSourceConnectionRow(item, index)                       
+                        html += addSourceConnectionRow(item, index)
                     ))
                 } else {
                     data.filter((list) => list.Name !== "").map((item, index) => (
-                        html += addSourceConnectionRow(item, index)                        
+                        html += addSourceConnectionRow(item, index)
                     ))
                 }
 
@@ -399,7 +399,7 @@ function createSourceConnection() {
 
 // 선택한 SourceConnection의 상세정보 : 이미 가져왔는데 다시 가져올 필요있나??
 function showSourceConnectionInfo(sourceConnectionId) {
-    console.log("showSourceConnectionInfo : ", sourceConnectionId);    
+    console.log("showSourceConnectionInfo : ", sourceConnectionId);
     
     var url = "/migration/legacy/sourcegroup/" + selectedSourceGroupId + "/connection/" + sourceConnectionId;
 
@@ -408,7 +408,6 @@ function showSourceConnectionInfo(sourceConnectionId) {
         // }
     }).then(result => {
         console.log(result);
-       
         var data = result.data.sourceConnectionInfo
         
         var dtlId = data.id;
@@ -461,7 +460,7 @@ function collectSourceInfra(){
         return;
     }
 
-    var sourceConnectionId = $("#dtlId").val();    
+    var sourceConnectionId = $("#dtlId").val();
     var url = "/migration/legacy/sourcegroup/" + selectedSourceGroupId + "/connection/" + sourceConnectionId + "/import/infra" ;
     axios.get(url, {
         headers: {
@@ -490,7 +489,7 @@ function collectSourceSoftware(){
         return;
     }
 
-    var sourceConnectionId = $("#dtlId").val();    
+    var sourceConnectionId = $("#dtlId").val();
     var url = "/migration/legacy/sourcegroup/" + selectedSourceGroupId + "/connection/" + sourceConnectionId + "/import/software" ;
     axios.get(url, {
         headers: {
@@ -584,8 +583,8 @@ function sourceGroupModal() {
     $("#popSourceGroupList").modal("toggle");
     
     $(".popboxNS .cloudlist .list").each(function () {
-      console.log("sourceGroupModal foreach ~ing");
-      $(this).on("click", function () {
+    console.log("sourceGroupModal foreach ~ing");
+    $(this).on("click", function () {
         var $list = $(this);
         var $ok = $(".btn_ok"); // --class 말고 id로
         //var $ok = $("#select_ns_ok_btn");
@@ -593,15 +592,15 @@ function sourceGroupModal() {
         $list.addClass("selected");
         $list.siblings().removeClass("selected");
         $list.off("click").on("click", function () {
-          if ($(this).hasClass("selected")) {
+        if ($(this).hasClass("selected")) {
             $ok.stop().fadeOut();
             $list.removeClass("selected");
-          } else {
+        } else {
             $ok.stop().fadeIn();
             $list.addClass("selected");
             $list.siblings().removeClass("selected");
-          }
-        });
-      });
+        }
     });
-  }
+    });
+});
+}
