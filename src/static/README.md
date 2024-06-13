@@ -15,7 +15,7 @@ main.go 에 호출 경로가 있으며
 axio 호출 url 은 메뉴구조를 맞춰야 한다.
 templates/MenuLeft.html
 
-menu level1 = operation or settings
+menu level1 = migration (ex. operation or settings)
 menu level2 = 1단계 밑의 folder명 ex) menu_level2_dashboards
 menu level3 = 2단계 밑의 folder명 또는 파일명 ex) menu_level3_dashboardnamespace
 

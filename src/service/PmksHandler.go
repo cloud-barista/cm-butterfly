@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
+	tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
 	"github.com/labstack/echo"
 
 	// "io"
@@ -13,10 +13,10 @@ import (
 	"net/http"
 
 	// "os"
-	"github.com/cloud-barista/cb-webtool/src/model"
-	spider "github.com/cloud-barista/cb-webtool/src/model/spider"
+	"github.com/cloud-barista/cm-butterfly/src/model"
+	spider "github.com/cloud-barista/cm-butterfly/src/model/spider"
 
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 )
 
 // 해당 namespace의 모든 pmks 목록 조회

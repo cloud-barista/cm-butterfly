@@ -1,0 +1,82 @@
+{{define "LegacySourceConnectionCreate"}}
+
+<!-- 추가 form -->
+<div class="dashboard dashboard_cont register_cont" id="sourceConnectionCreateBox">
+
+	<div class="d_box box_m box_w100">
+		<div class="titbox_n">
+			<div class="tit initial cg"><strong>Create Connection</strong></div>
+		</div>
+
+		<div class="ds_cont">
+			<div class="register_box reg">
+
+				<div class="top_ipbox">
+					<div class="ipbox ipbox1 ipbox3">
+						<ul>
+							<li>
+								<label><span class="ch">*</span>Name</label>
+								<input type="text" id="regName" name="reg_name" value=""
+									placeholder="Input Name" class="pline" title="" />
+							</li>
+							<li class="ta_1">
+								<label>Description</label>
+								<textarea id="regDescription" name="reg_description" cols="" rows=""
+									placeholder="Description" class="pline" title=""></textarea>
+							</li>
+						</ul>
+					</div>
+					<div class="ipbox ipbox2 ipbox4">
+						<ul>
+							<li>
+								<label>IP Address</label>
+								<input type="text" id="regIpAddress" name="reg_ipAddress" value=""
+									placeholder="ex) 10.0.0.0" class="pline ip_w1" title="" />
+							</li>
+							<li>
+								<label><span class="ch">*</span>SSH Port</label>
+								<input type="text" id="regSshPort" name="reg_sshPort" value="23"
+									placeholder="ex) 23" class="pline ip_w1" title="" />
+							</li>
+							<li>
+								<label><span class="ch">*</span>User</label>
+								<input type="text" id="regUser" name="reg_user" value=""
+									placeholder="ex) root" class="pline ip_w1" title="" />
+							</li>
+							<li>
+								<label><span class="ch">*</span>Password</label>
+								<input type="text" id="regPassword" name="reg_password" value=""
+									class="pline ip_w1" title="" />
+							</li>
+							<li>
+								<label>Public Key</label>
+								<input type="text" id="regPublicKey" name="reg_publicKey" value=""
+									class="pline ip_w1" title="" />
+							</li>
+							<li>
+								<label>Private Key</label>
+								<input type="text" id="regPrivateKey" name="reg_privateKey" value=""
+									class="pline ip_w1" title="" />
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="btnbox">
+					<div class="btn_center">
+						<button name="" value="" class="btn_co btn_cr_b w135 btn_cancel"
+							onclick="displaySourceConnectionInfo('CLOSE')">Cancel</button>
+						<button name="" value="" class="btn_co btn_cr_g w135 btn_ok"
+							onclick="createSourceConnection()">Ok</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+
+</div>
+
+<script src="/assets/js/operation/manages/mcismng/vmconfigureexpress.js"></script>
+{{end}}

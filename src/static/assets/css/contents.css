@@ -197,7 +197,7 @@
 		font-size: 18px;
 	}
 
-	.layerpopup. modal-content .btnbox {
+	.layerpopup .modal-content .btnbox {
 		margin: 25px 0 0 0;
 	}
 
@@ -1930,6 +1930,71 @@ table tbody tr {
 	background-color: #06a9b7;
 }
 
+#popSourceGroupList .modal-content .popbox .cloudlist {
+	margin: 20px 0 0 0;
+	padding: 9px 10px 10px 10px;
+	background-color: #d5d9df;
+	border-radius: 6px;
+}
+
+#popSourceGroupList .modal-content .popbox .cloudlist .listbox {
+	max-height: 128px;
+	overflow: auto;
+}
+
+#popSourceGroupList .modal-content .popbox .cloudlist .listbox .list {
+	cursor: pointer;
+	margin: 6px 0 0 0;
+	height: 61px;
+	background: linear-gradient(to bottom, #fff 70%, #eee);
+	box-shadow: 3px 3px 3px 3px #cbcfd5;
+	border-radius: 8px;
+}
+
+#popSourceGroupList .modal-content .popbox .cloudlist .listbox .list:nth-of-type(1) {
+	margin: 0;
+}
+
+#popSourceGroupList .modal-content .popbox .cloudlist .listbox .list .stit {
+	padding: 12px 0 0 28px;
+	color: #5e636c;
+	font-size: 18px;
+	line-height: 18px;
+	font-weight: 500;
+}
+
+#popSourceGroupList .modal-content .popbox .cloudlist .listbox .list .stxt {
+	padding: 5px 0 0 28px;
+	color: #8c929c;
+	font-size: 14px;
+	line-height: 14px;
+	font-weight: 300;
+}
+
+#popSourceGroupList .modal-content .popbox .cloudlist .listbox .list.selected {
+	background: linear-gradient(to bottom, #e3f2f4, #d6e4e6);
+}
+
+#popSourceGroupList .modal-content .popbox .addbox {
+	margin: 22px 0 0 0;
+	text-align: right;
+}
+
+#popSourceGroupList .modal-content button.btn_ok {
+	display: inline-block;
+	vertical-align: middle;
+	cursor: pointer;
+	width: 70px;
+	padding: 10px 0;
+	line-height: 12px;
+	border: none;
+	font-size: 12px;
+	font-weight: 600;
+	color: #fff;
+	outline: none;
+	border-radius: 5px;
+	background-color: #06a9b7;
+}
 
 @media screen and (max-width:1785px) {
 	.dashboard .d_box.box_1 {
@@ -6234,7 +6299,6 @@ table tbody tr {
 	width: 28%;
 }
 
-,
 .dashboard .register_box .graybox .g_ipbox1 textarea,
 .dashboard .register_box .graybox .g_ipbox1 .sel_w1 {
 	width: 62%;
@@ -6917,7 +6981,7 @@ table tbody tr {
 		padding: 0 0 0 15px;
 	}
 
-	,
+
 	.dashboard .register_box .graybox .g_ipbox1 textarea,
 	.dashboard .register_box .graybox .g_ipbox1 .sel_w1 {
 		width: 58%;
@@ -7240,7 +7304,6 @@ table tbody tr {
 		left: 50%;
 		bottom: -7px;
 		margin-left: -5px;
-		translatey(0);
 		width: 10px;
 		height: 10px;
 		background: url(../img/contents/icon_down_sel.png) center center no-repeat;
@@ -7587,7 +7650,7 @@ table tbody tr {
 		left: 50%;
 		bottom: -7px;
 		margin-left: -5px;
-		translatey(0);
+		translatey:(0);
 		width: 10px;
 		height: 10px;
 		background: url(../img/contents/icon_down_sel.png) center center no-repeat;
@@ -7769,10 +7832,6 @@ table tbody tr {
 	.dashboard .register_box .graybox .g_ipbox1 .sel_w1,
 	.dashboard .register_box .graybox .g_ipbox2 .sel_w1 {
 		width: 100%;
-	}
-
-		{
-		width: calc(100% - 30px) !important;
 	}
 
 	.dashboard .register_box .graybox .g_ipbox2 span.sbox input[type="text"] {

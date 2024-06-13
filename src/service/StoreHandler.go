@@ -12,13 +12,13 @@ import (
 	echosession "github.com/go-session/echo-session"
 	"github.com/labstack/echo"
 
-	"github.com/cloud-barista/cb-webtool/src/model"
-	"github.com/cloud-barista/cb-webtool/src/model/spider"
-	// "github.com/cloud-barista/cb-webtool/src/model/tumblebug"
-	tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
-	// tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	// tbmcis "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	"github.com/cloud-barista/cm-butterfly/src/model"
+	"github.com/cloud-barista/cm-butterfly/src/model/spider"
+	// "github.com/cloud-barista/cm-butterfly/src/model/tumblebug"
+	tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
+	// tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	// tbmcis "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 )
 
 // 로그인할 때, NameSpace 저장(Create, Delete, Update) 외에는 이 funtion 사용

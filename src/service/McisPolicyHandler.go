@@ -8,14 +8,14 @@ import (
 	"net/http"
 
 	// "os"
-	model "github.com/cloud-barista/cb-webtool/src/model"
-	// "github.com/cloud-barista/cb-webtool/src/model/spider"
+	model "github.com/cloud-barista/cm-butterfly/src/model"
+	// "github.com/cloud-barista/cm-butterfly/src/model/spider"
 
-	tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
-	// tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	tbmcis "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
+	// tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	tbmcis "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 )
 
 // List all MCIS Policys

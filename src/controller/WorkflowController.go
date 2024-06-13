@@ -6,18 +6,18 @@ import (
 	"log"
 	"net/http"
 
-	//"github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	//"github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	// model "github.com/cloud-barista/cb-webtool/src/model"
-	//"github.com/cloud-barista/cb-webtool/src/model"
-	//"github.com/cloud-barista/cb-webtool/src/model/dragonfly"
-	workflow "github.com/cloud-barista/cb-webtool/src/model/cicada/workflow"
+	// model "github.com/cloud-barista/cm-butterfly/src/model"
+	//"github.com/cloud-barista/cm-butterfly/src/model"
+	//"github.com/cloud-barista/cm-butterfly/src/model/dragonfly"
+	workflow "github.com/cloud-barista/cm-butterfly/src/model/cicada/workflow"
 
 	
-	//webtool "github.com/cloud-barista/cb-webtool/src/model/webtool"
+	//webtool "github.com/cloud-barista/cm-butterfly/src/model/webtool"
 
-	service "github.com/cloud-barista/cb-webtool/src/service"
-	//util "github.com/cloud-barista/cb-webtool/src/util"
+	service "github.com/cloud-barista/cm-butterfly/src/service"
+	//util "github.com/cloud-barista/cm-butterfly/src/util"
 
 	
 	echotemplate "github.com/foolin/echo-template"
@@ -31,45 +31,24 @@ import (
 
 func WorkflowRegForm(c echo.Context) error {
 
-	loginInfo := service.CallLoginInfo(c)
-	if loginInfo.UserID == "" {
-		return c.Redirect(http.StatusTemporaryRedirect, "/login")
-	}
-	defaultNameSpaceID := loginInfo.DefaultNameSpaceID
-
-	// namespacelist 가져오기
-	// nsList, _ := service.GetNameSpaceList()
-	nsList, _ := service.GetStoredNameSpaceList(c)
-	log.Println(" nsList  ", nsList)
-
 	taskComponentList, _ := service.GetTaskComponentList()
 	//workflowList, _ := service.GetWorkflowList(defaultNameSpaceID)
 
 	return echotemplate.Render(c, http.StatusOK,
-		"operation/migrations/workflowmng/WorkflowCreate", // 파일명
+		"migration/workflow/workflowmng/WorkflowCreate", // 파일명
 		map[string]interface{}{
-			"DefaultNameSpaceID": defaultNameSpaceID,
-			"NameSpaceList":      nsList,
-
 			"TaskComponentList": taskComponentList,
 		})
 }
 
 // 
 func WorkflowMngForm(c echo.Context) error {
-	loginInfo := service.CallLoginInfo(c)
-	if loginInfo.UserID == "" {
-		return c.Redirect(http.StatusTemporaryRedirect, "/login")
-	}
-
-	//defaultNameSpaceID := loginInfo.DefaultNameSpaceID
-
+	
 	//workflowList, _ := service.GetWorkflowList(defaultNameSpaceID, "", "", "")
 	return echotemplate.Render(c, http.StatusOK,
-		"operation/migrations/workflowmng/WorkflowMng", // 파일명
+		"migration/workflow/workflowmng/WorkflowMng", // 파일명
 		
 		map[string]interface{}{
-			"LoginInfo": loginInfo,
 			//"WorkflowList": workflowList,
 		})
 }

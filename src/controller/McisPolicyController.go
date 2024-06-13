@@ -5,12 +5,12 @@ import (
 	"log"
 	"net/http"
 
-	// "github.com/cloud-barista/cb-webtool/src/model/tumblebug"
-	// tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
-	// tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	tbmcis "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	// "github.com/cloud-barista/cm-butterfly/src/model/tumblebug"
+	// tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
+	// tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	tbmcis "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	service "github.com/cloud-barista/cb-webtool/src/service"
+	service "github.com/cloud-barista/cm-butterfly/src/service"
 	"github.com/labstack/echo"
 
 	echotemplate "github.com/foolin/echo-template"

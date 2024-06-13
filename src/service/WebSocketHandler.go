@@ -1,15 +1,15 @@
 package service
 
 import (
-	//"github.com/cloud-barista/cb-webtool/src/model"
-	//tbmcis "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	//"github.com/cloud-barista/cm-butterfly/src/model"
+	//tbmcis "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 	"log"
 	"time"
 
 	echosession "github.com/go-session/echo-session"
 	"github.com/labstack/echo"
 
-	modelsocket "github.com/cloud-barista/cb-webtool/src/model/websocket"
+	modelsocket "github.com/cloud-barista/cm-butterfly/src/model/websocket"
 )
 
 // WebSocket에 전달할 Message Set

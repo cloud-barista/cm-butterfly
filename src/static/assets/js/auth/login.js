@@ -28,8 +28,6 @@ $(document).ready(function () {
                         console.log("get result Data : ", result.data.LoginInfo);
                         tokenSuccess(result.data.LoginInfo)
 
-                        // var targetUrl = "/operation/migrations/workflow/mngform"
-                        // changePage(targetUrl)
                         changePage("WorkflowMngForm")
 
                     } else {

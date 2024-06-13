@@ -11,16 +11,16 @@ import (
 	"net/http"
 
 	// "os"
-	// model "github.com/cloud-barista/cb-webtool/src/model"
-	"github.com/cloud-barista/cb-webtool/src/model"
-	// spider "github.com/cloud-barista/cb-webtool/src/model/spider"	
-	cicada_common "github.com/cloud-barista/cb-webtool/src/model/cicada/common"
-	workflow "github.com/cloud-barista/cb-webtool/src/model/cicada/workflow"
+	// model "github.com/cloud-barista/cm-butterfly/src/model"
+	"github.com/cloud-barista/cm-butterfly/src/model"
+	// spider "github.com/cloud-barista/cm-butterfly/src/model/spider"	
+	cicada_common "github.com/cloud-barista/cm-butterfly/src/model/cicada/common"
+	workflow "github.com/cloud-barista/cm-butterfly/src/model/cicada/workflow"
 
-	//butterfly "github.com/cloud-barista/cb-webtool/src/model/butterfly"
-	// "github.com/cloud-barista/cb-webtool/src/model/tumblebug"
+	//butterfly "github.com/cloud-barista/cm-butterfly/src/model/butterfly"
+	// "github.com/cloud-barista/cm-butterfly/src/model/tumblebug"
 
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 )
 
 

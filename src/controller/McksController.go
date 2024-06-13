@@ -6,12 +6,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/cloud-barista/cb-webtool/src/model/ladybug"
-	// "github.com/cloud-barista/cb-webtool/src/model/dragonfly"
-	// "github.com/cloud-barista/cb-webtool/src/model/tumblebug"
+	"github.com/cloud-barista/cm-butterfly/src/model/ladybug"
+	// "github.com/cloud-barista/cm-butterfly/src/model/dragonfly"
+	// "github.com/cloud-barista/cm-butterfly/src/model/tumblebug"
 
-	service "github.com/cloud-barista/cb-webtool/src/service"
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	service "github.com/cloud-barista/cm-butterfly/src/service"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 
 	echotemplate "github.com/foolin/echo-template"
 	// echosession "github.com/go-session/echo-session"

@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"strings"
 
-	spider "github.com/cloud-barista/cb-webtool/src/model/spider"
+	spider "github.com/cloud-barista/cm-butterfly/src/model/spider"
 
-	service "github.com/cloud-barista/cb-webtool/src/service"
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	service "github.com/cloud-barista/cm-butterfly/src/service"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 
 	echotemplate "github.com/foolin/echo-template"
 	"github.com/labstack/echo"

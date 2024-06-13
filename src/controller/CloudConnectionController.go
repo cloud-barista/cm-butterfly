@@ -5,19 +5,19 @@ import (
 	"log"
 	"net/http"
 
-	// "github.com/cloud-barista/cb-webtool/src/model"
+	// "github.com/cloud-barista/cm-butterfly/src/model"
 
-	// dragonfly "github.com/cloud-barista/cb-webtool/src/model/dragonfly"
-	// ladybug "github.com/cloud-barista/cb-webtool/src/model/ladybug"
-	spider "github.com/cloud-barista/cb-webtool/src/model/spider"
-	// tumblebug "github.com/cloud-barista/cb-webtool/src/model/tumblebug"
-	tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
-	// tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	// tbmcis "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	// dragonfly "github.com/cloud-barista/cm-butterfly/src/model/dragonfly"
+	// ladybug "github.com/cloud-barista/cm-butterfly/src/model/ladybug"
+	spider "github.com/cloud-barista/cm-butterfly/src/model/spider"
+	// tumblebug "github.com/cloud-barista/cm-butterfly/src/model/tumblebug"
+	tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
+	// tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	// tbmcis "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	service "github.com/cloud-barista/cb-webtool/src/service"
+	service "github.com/cloud-barista/cm-butterfly/src/service"
 
-	"github.com/cloud-barista/cb-webtool/src/util"
+	"github.com/cloud-barista/cm-butterfly/src/util"
 	"github.com/labstack/echo"
 
 	//"github.com/davecgh/go-spew/spew"

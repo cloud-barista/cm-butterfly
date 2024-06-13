@@ -4,17 +4,17 @@ import (
 	// "encoding/json"
 	"fmt"
 
-	// "github.com/cloud-barista/cb-webtool/src/model/tumblebug"
-	"github.com/cloud-barista/cb-webtool/src/model"
-	tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
-	tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	webtool "github.com/cloud-barista/cb-webtool/src/model/webtool"
+	// "github.com/cloud-barista/cm-butterfly/src/model/tumblebug"
+	"github.com/cloud-barista/cm-butterfly/src/model"
+	tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
+	tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	webtool "github.com/cloud-barista/cm-butterfly/src/model/webtool"
 
-	// tbmcis "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	// tbmcis "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	service "github.com/cloud-barista/cb-webtool/src/service"
+	service "github.com/cloud-barista/cm-butterfly/src/service"
 
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 
 	"github.com/labstack/echo"
 	// "io/ioutil"

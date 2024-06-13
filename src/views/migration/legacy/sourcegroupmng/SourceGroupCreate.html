@@ -1,0 +1,46 @@
+{{define "SourceGroupCreate"}}
+
+<!-- server 추가 form -->
+<div class="dashboard dashboard_cont register_cont" id="sourceGroupCreateBox">
+
+	<div class="d_box box_m box_w100">
+		<div class="titbox_n">
+			<div class="tit initial cg"><strong>Create SourceGroup</strong></div>
+		</div>
+
+		<div class="ds_cont">
+			<div class="register_box reg">
+
+				<div class="top_ipbox">
+					<div class="ipbox ipbox1 ipbox3">
+						<ul>
+							<li>
+								<label><span class="ch">*</span>Name</label>
+								<input type="text" id="regName" name="reg_Name" value=""
+									placeholder="Input Name" class="pline" title="" />
+							</li>
+							<li class="ta_1">
+								<label>Description</label>
+								<textarea id="regDescription" name="reg_description" cols="" rows=""
+									placeholder="Description" class="pline" title=""></textarea>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="btnbox">
+					<div class="btn_center">
+						<button name="" value="" class="btn_co btn_cr_b w135 btn_cancel"
+							onclick="displaySourceGroupInfo('CLOSE')">Cancel</button>
+						<button name="" value="" class="btn_co btn_cr_g w135 btn_ok"
+							onclick="createSourceGroup()">Ok</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+
+</div>
+{{end}}

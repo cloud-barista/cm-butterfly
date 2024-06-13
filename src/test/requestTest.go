@@ -3,7 +3,7 @@
 // import (
 // 	"fmt"
 
-// 	service "github.com/cloud-barista/cb-webtool/src/service"
+// 	service "github.com/cloud-barista/cm-butterfly/src/service"
 // )
 
 // func main() {

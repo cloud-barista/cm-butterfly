@@ -6,23 +6,23 @@ import (
 	"log"
 	"net/http"
 
-	tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	"github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	"github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	// model "github.com/cloud-barista/cb-webtool/src/model"
-	"github.com/cloud-barista/cb-webtool/src/model"
-	"github.com/cloud-barista/cb-webtool/src/model/dragonfly"
+	// model "github.com/cloud-barista/cm-butterfly/src/model"
+	"github.com/cloud-barista/cm-butterfly/src/model"
+	"github.com/cloud-barista/cm-butterfly/src/model/dragonfly"
 
-	// spider "github.com/cloud-barista/cb-webtool/src/model/spider"
-	// "github.com/cloud-barista/cb-webtool/src/model/tumblebug"
-	// tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
-	// tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	tbmcis "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	// spider "github.com/cloud-barista/cm-butterfly/src/model/spider"
+	// "github.com/cloud-barista/cm-butterfly/src/model/tumblebug"
+	// tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
+	// tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	tbmcis "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	webtool "github.com/cloud-barista/cb-webtool/src/model/webtool"
+	webtool "github.com/cloud-barista/cm-butterfly/src/model/webtool"
 
-	service "github.com/cloud-barista/cb-webtool/src/service"
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	service "github.com/cloud-barista/cm-butterfly/src/service"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 
 	echotemplate "github.com/foolin/echo-template"
 	"github.com/labstack/echo"

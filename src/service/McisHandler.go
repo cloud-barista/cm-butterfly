@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	"github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	"github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	"github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	//tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
+	//tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
 	"io"
 	"log"
 	"net/http"
@@ -16,23 +16,23 @@ import (
 	// "github.com/davecgh/go-spew/spew"
 
 	// "os"
-	// model "github.com/cloud-barista/cb-webtool/src/model"
-	"github.com/cloud-barista/cb-webtool/src/model"
-	// spider "github.com/cloud-barista/cb-webtool/src/model/spider"
-	// "github.com/cloud-barista/cb-webtool/src/model/tumblebug"
+	// model "github.com/cloud-barista/cm-butterfly/src/model"
+	"github.com/cloud-barista/cm-butterfly/src/model"
+	// spider "github.com/cloud-barista/cm-butterfly/src/model/spider"
+	// "github.com/cloud-barista/cm-butterfly/src/model/tumblebug"
 
-	tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
-	// tbmcir "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcir"
-	tbmcis "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
+	// tbmcir "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcir"
+	tbmcis "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	webtool "github.com/cloud-barista/cb-webtool/src/model/webtool"
+	webtool "github.com/cloud-barista/cm-butterfly/src/model/webtool"
 
 	// "github.com/go-session/echo-session"
 
 	// echosession "github.com/go-session/echo-session"
 	"github.com/labstack/echo"
 
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 )
 
 //var MCISUrl = "http://15.165.16.67:1323"

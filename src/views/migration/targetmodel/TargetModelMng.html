@@ -1,0 +1,44 @@
+{{ template "OperationTop" .}}
+<div id="lnb">
+			
+	<div class="bg"></div>
+		
+	<div class="m_box">
+		
+		{{template "TopBox" .}}
+
+		{{template "LNBPopup" .}}
+
+		{{template "MenuLeft" .}}
+		
+	</div>
+	
+	<div class="bottom"></div>
+	<a href="javascript:;" id="m_close"></a>
+	
+</div>
+{{template "Header" .}}
+{{template "Modal" .}}
+
+				
+				<!-- contents -->
+				<div class="contbox">
+					
+					<div class="titlebox">
+						<div class="tit"><img src="/assets/img/common/icon_cont.png" alt=""/>Migration / <strong>Target Model</strong></div>
+						<div class="location">Home  <span>></span>  Operation  <span>></span>  Migration  <span>></span>  <strong>Target Model</strong></div>
+					</div>
+					
+					<!-- list -->
+					{{template "TargetModelList" .}}
+					<!-- //list -->
+					
+					<!-- Info -->
+					{{template "TargetModelInfo" .}}
+					<!-- //Info -->
+				
+					
+				</div>
+				<!-- //contents -->
+<script type="text/javascript" src="/assets/js/migration/targetmodelmng/targetmodelmng.js"></script>
+{{template "Footer" .}}

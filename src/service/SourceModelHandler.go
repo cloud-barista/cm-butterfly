@@ -7,12 +7,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/cloud-barista/cb-webtool/src/model"
+	"github.com/cloud-barista/cm-butterfly/src/model"
 	
-	tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
-	tbmcis "github.com/cloud-barista/cb-webtool/src/model/tumblebug/mcis"
+	tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
+	tbmcis "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/mcis"
 
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 )
 
 func GetSourceModelList(nameSpaceID string, optionParam string) ([]tbmcis.TbMcisInfo, model.WebStatus) {

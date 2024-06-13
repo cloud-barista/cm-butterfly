@@ -7,8 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	//"github.com/cloud-barista/cb-webtool/src/controller"
-	"github.com/cloud-barista/cb-webtool/src/controller"
+	"github.com/cloud-barista/cm-butterfly/src/controller"
 	echotemplate "github.com/foolin/echo-template"
 	echosession "github.com/go-session/echo-session"
 	"github.com/labstack/echo"
@@ -499,6 +498,49 @@ func main() {
 		DisableCache: true,
 	})
 
+	legacySourceConnectionMngTemplate := echotemplate.NewMiddleware(echotemplate.TemplateConfig{
+		Root:      "src/views",
+		Extension: ".html",
+		// Master:    "operation/mcis/mcismng",
+		Partials: []string{
+			"templates/OperationTop", // 불러오는 css, javascript 가 setting 과 다름
+			"templates/TopBox",
+			"templates/LNBPopup",
+			"templates/Modal",
+			"templates/Header",
+			"templates/MenuLeft",
+			"templates/Footer",
+
+			"/migration/legacy/sourceconnectionmng/LegacySourceConnectionList",
+			"/migration/legacy/sourceconnectionmng/LegacySourceConnectionInfo",
+			"/migration/legacy/sourceconnectionmng/LegacySourceConnectionCreate",
+			"/migration/legacy/sourcegroupmng/SourceGroupListModal",			
+
+		},
+		DisableCache: true,
+	})
+
+	legacySourceGroupMngTemplate := echotemplate.NewMiddleware(echotemplate.TemplateConfig{
+		Root:      "src/views",
+		Extension: ".html",
+		// Master:    "operation/mcis/mcismng",
+		Partials: []string{
+			"templates/OperationTop", // 불러오는 css, javascript 가 setting 과 다름
+			"templates/TopBox",
+			"templates/LNBPopup",
+			"templates/Modal",
+			"templates/Header",
+			"templates/MenuLeft",
+			"templates/Footer",
+
+			"/migration/legacy/sourcegroupmng/SourceGroupList",
+			"/migration/legacy/sourcegroupmng/SourceGroupInfo",
+			"/migration/legacy/sourcegroupmng/SourceGroupCreate",
+
+		},
+		DisableCache: true,
+	})
+
 	// SourceModel 목록 form Template
 	sourceModelMngTemplate := echotemplate.NewMiddleware(echotemplate.TemplateConfig{
 		Root:      "src/views",
@@ -589,9 +631,9 @@ func main() {
 			"templates/MenuLeft",
 			"templates/Footer",
 
-			"operation/migrations/workflowmng/WorkflowList",
-			"operation/migrations/workflowmng/WorkflowInfo",
-			"operation/migrations/workflowmng/WorkflowViewer",
+			"migration/workflow/workflowmng/WorkflowList",
+			"migration/workflow/workflowmng/WorkflowInfo",
+			"migration/workflow/workflowmng/WorkflowViewer",
 			
 		},
 		DisableCache: true,
@@ -610,8 +652,8 @@ func main() {
 			"templates/Header",
 			"templates/MenuLeft",
 			"templates/Footer",
-			"operation/migrations/workflowmng/WorkflowInfo",
-			"operation/migrations/workflowmng/WorkflowEditor",
+			"migration/workflow/workflowmng/WorkflowInfo",
+			"migration/workflow/workflowmng/WorkflowEditor",
 		},
 		DisableCache: true,
 	})
@@ -995,96 +1037,76 @@ func main() {
 	e.DELETE("/operation/manages/pmks/:clusterID/nodegroup/:nodeGroupID", controller.PmksNodeGroupDelProc)
 	e.PUT("/operation/manages/pmks/:clusterID/nodegroup/:nodeGroupID", controller.PmksNodeGroupUpdateProc)
 
-	// e.GET("/operation/policies/monitoring/list", controller.GetPolicyMonitoringList)
-	// e.POST("/operation/policies/monitoring/reg/proc", controller.PolicyMonitoringRegProc)
+	///
+	legacySourceGroupMngGroup := e.Group("/migration/legacy/sourcegroup/mngform", legacySourceGroupMngTemplate)
+	legacySourceGroupMngGroup.GET("", controller.LegacySourceGroupMngForm)
 
-	sourceModelRegGroup := e.Group("/operation/migrations/sourcemodel/regform", sourceModelRegTemplate)
+	legacySourceConnectionMngGroup := e.Group("/migration/legacy/sourceconnection/mngform", legacySourceConnectionMngTemplate)
+	legacySourceConnectionMngGroup.GET("", controller.LegacySourceConnectionMngForm)
+
+	
+	e.POST("/migration/legacy/sourcegroup", controller.LegacySourceGroupRegProc)
+	e.GET("/migration/legacy/sourcegroup", controller.GetLegacySourceGroupList)
+	e.GET("/migration/legacy/sourcegroup/:sgID", controller.GetLegacySourceGroupData)
+	e.PUT("/migration/legacy/sourcegroup/:sgID", controller.LegacySourceGroupUpdateProc)
+	e.DELETE("/migration/legacy/sourcegroup/:sgID", controller.LegacySourceGroupDelProc)
+	e.GET("/migration/legacy/sourcegroup/:sgID/connectioncheck", controller.GetLegacySourceGroupConnectionCheck)
+	
+	e.POST("/migration/legacy/sourcegroup/:sgID/connection", controller.LegacySourceConnectionRegProc)
+	e.GET("/migration/legacy/connection/:connectionID", controller.GetLegacySourceConnectionDataByID)
+	e.GET("/migration/legacy/sourcegroup/:sgID/connection", controller.GetLegacySourceConnectionList)
+	e.GET("/migration/legacy/sourcegroup/:sgID/connection/:connectionID", controller.GetLegacySourceConnectionData)
+	e.PUT("/migration/legacy/sourcegroup/:sgID/connection/:connectionID", controller.LegacySourceConnectionUpdateProc)
+	e.DELETE("/migration/legacy/sourcegroup/:sgID/connection/:connectionID", controller.LegacySourceConnectionDelProc)
+
+	e.GET("/migration/legacy/sourcegroup/:sgID/connection/:connectionID/infra", controller.GetLegacySourceInfraInfo)
+	e.GET("/migration/legacy/sourcegroup/:sgID/connection/:connectionID/software", controller.GetLegacySourceSoftwareInfo)	
+	e.GET("/migration/legacy/sourcegroup/:sgID/connection/:connectionID/import/infra", controller.ImportLegacySourceInfraInfo)
+	e.GET("/migration/legacy/sourcegroup/:sgID/connection/:connectionID/import/software", controller.ImportLegacySourceSoftwareInfo)
+	
+
+	sourceModelRegGroup := e.Group("/migration/sourcemodel/regform", sourceModelRegTemplate)
 	sourceModelRegGroup.GET("", controller.SourceModelRegForm)
 
-	sourceModelMngGroup := e.Group("/operation/migrations/sourcemodel/mngform", sourceModelMngTemplate)
+	sourceModelMngGroup := e.Group("/migration/sourcemodel/mngform", sourceModelMngTemplate)
 	sourceModelMngGroup.GET("", controller.SourceModelMngForm)
 
-	targetModelRegGroup := e.Group("/operation/migrations/targetmodel/regform", targetModelRegTemplate)
+	targetModelRegGroup := e.Group("/migration/targetmodel/regform", targetModelRegTemplate)
 	targetModelRegGroup.GET("", controller.TargetModelRegForm)
 
-	targetModelMngGroup := e.Group("/operation/migrations/targetmodel/mngform", targetModelMngTemplate)
+	targetModelMngGroup := e.Group("/migration/targetmodel/mngform", targetModelMngTemplate)
 	targetModelMngGroup.GET("", controller.TargetModelMngForm)
 
-	workflowRegGroup := e.Group("/operation/migrations/workflow/regform", workflowRegTemplate)
+	//workflowRegGroup := e.Group("/migration/workflowmng/workflow/regform", workflowRegTemplate)
+	workflowRegGroup := e.Group("/migration/workflow/workflowmng/regform", workflowRegTemplate)
 	workflowRegGroup.GET("", controller.WorkflowRegForm)
 
-	workflowMngGroup := e.Group("/operation/migrations/workflow/mngform", workflowMngTemplate)
+	workflowMngGroup := e.Group("/migration/workflow/workflowmng/mngform", workflowMngTemplate)
+	
+	//workflowMngGroup := e.Group("/migration/workflowmng/workflow/mngform", workflowMngTemplate)
 	workflowMngGroup.GET("", controller.WorkflowMngForm)
 
-	e.POST("/operation/migrations/workflowmng/workflow", controller.WorkflowRegProc)
-	e.POST("/operation/migrations/workflowmng/workflow/run/:workflowID", controller.WorkflowExecute)
-	e.GET("/operation/migrations/workflowmng/workflow/list", controller.GetWorkflowList)
-	e.GET("/operation/migrations/workflowmng/workflow/id/:workflowID", controller.GetWorkflowInfoData)
-	e.PUT("/operation/migrations/workflowmng/workflow/put/:workflowID", controller.WorkflowUpdateProc)
-	e.DELETE("/operation/migrations/workflowmng/workflow/del/:workflowID", controller.WorkflowDelProc)
+	e.POST("/migration/workflowmng/workflow", controller.WorkflowRegProc)
+	e.POST("/migration/workflowmng/workflow/run/:workflowID", controller.WorkflowExecute)
+	e.GET("/migration/workflowmng/workflow/list", controller.GetWorkflowList)
+	e.GET("/migration/workflowmng/workflow/id/:workflowID", controller.GetWorkflowInfoData)
+	e.PUT("/migration/workflowmng/workflow/put/:workflowID", controller.WorkflowUpdateProc)
+	e.DELETE("/migration/workflowmng/workflow/del/:workflowID", controller.WorkflowDelProc)
 	
-	e.GET("/operation/migrations/workflowmng/workflowtemplate", controller.GetWorkflowTemplateList)
-	e.GET("/operation/migrations/workflowmng/workflowtemplate/id/:workflowTemplateID", controller.GetWorkflowTemplateData)
+	e.GET("/migration/workflowmng/workflowtemplate", controller.GetWorkflowTemplateList)
+	e.GET("/migration/workflowmng/workflowtemplate/id/:workflowTemplateID", controller.GetWorkflowTemplateData)
 
-	e.GET("/operation/migrations/workflowmng/taskcomponent", controller.GetTaskComponentList)
-	e.GET("/operation/migrations/workflowmng/taskcomponent/id/:taskcomponentID", controller.GetTaskComponentData)
+	e.GET("/migration/workflowmng/taskcomponent", controller.GetTaskComponentList)
+	e.GET("/migration/workflowmng/taskcomponent/id/:taskcomponentID", controller.GetTaskComponentData)
 	
+	
+	e.POST("/migration/migration/infra", controller.MigrationInfraRegProc)
+	e.GET("/migration/migration/infra", controller.GetMigrationInfraList)
+	e.GET("/migration/migration/infra/{infraId}", controller.GetMigrationInfraData)
+	e.DELETE("/migration/migration/infra/{infraID}", controller.MigrationInfraDelProc)
 	
 	////// readyz
 	e.GET("/readyz", controller.GetReadyz)
-
-	
-	
-
-	/////////////////////////////////////
-
-	// e.GET("/SecurityGroup/list", controller.SecurityGroupListForm)
-	// e.GET("/SecurityGroup/reg", controller.SecurityGroupRegForm)
-
-	// // 웹툴에서 처리할 Connection
-	// e.GET("/Cloud/Connection/list", controller.ConnectionListForm)
-	// e.GET("/Cloud/Connection/reg", controller.ConnectionRegForm)
-	// e.POST("/Cloud/Connection/reg/proc", controller.NsRegController)
-
-	// // 웹툴에서 처리할 Region
-	// e.GET("/Region/list", controller.RegionListForm)
-	// e.GET("/Region/reg", controller.RegionRegForm)
-	// e.POST("/Region/reg/proc", controller.NsRegController)
-
-	// // 웹툴에서 처리할 Credential
-	// e.GET("/Credential/list", controller.CredertialListForm)
-	// e.GET("/Credential/reg", controller.CredertialRegForm)
-
-	// // 웹툴에서 처리할 Image
-	// e.GET("/Image/list", controller.ImageListForm)
-	// e.GET("/Image/reg", controller.ImageRegForm)
-
-	// // 웹툴에서 처리할 VPC
-	// e.GET("/Vpc/list", controller.VpcListForm)
-	// e.GET("/Vpc/reg", controller.VpcRegForm)
-
-	// // 웹툴에서 처리할 SecurityGroup
-	// e.GET("/SecurityGroup/list", controller.SecurityGroupListForm)
-	// e.GET("/SecurityGroup/reg", controller.SecurityGroupRegForm)
-
-	// // 웹툴에서 처리할 Driver
-	// e.GET("/Driver/list", controller.DriverListForm)
-	// e.GET("/Driver/reg", controller.DriverRegForm)
-
-	// // 웹툴에서 처리할 sshkey
-	// e.GET("/SSH/list", controller.SSHListForm)
-	// e.GET("/SSH/reg", controller.SSHRegForm)
-
-	// // 웹툴에서 처리할 spec
-	// e.GET("/Spec/list", controller.SpecListForm)
-	// e.GET("/Spec/reg", controller.SpecRegForm)
-
-	// // 웹툴에서 Select Pop
-	// e.GET("/Pop/spec", controller.PopSpec)
-
-	// // MAP Test
-	// e.GET("/map", controller.Map)
-	// e.GET("/map/geo/:mcis_id", controller.GeoInfo)
 
 	e.Logger.Fatal(e.Start(":1234"))
 

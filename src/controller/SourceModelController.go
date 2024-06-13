@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	service "github.com/cloud-barista/cb-webtool/src/service"
+	service "github.com/cloud-barista/cm-butterfly/src/service"
 	
 	echotemplate "github.com/foolin/echo-template"
 	"github.com/labstack/echo"

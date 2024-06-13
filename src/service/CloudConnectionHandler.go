@@ -16,13 +16,13 @@ import (
 	//"io/ioutil"
 	//"github.com/davecgh/go-spew/spew"
 
-	"github.com/cloud-barista/cb-webtool/src/model"
-	// spider "github.com/cloud-barista/cb-webtool/src/model/spider"
-	"github.com/cloud-barista/cb-webtool/src/model/spider"
+	"github.com/cloud-barista/cm-butterfly/src/model"
+	// spider "github.com/cloud-barista/cm-butterfly/src/model/spider"
+	"github.com/cloud-barista/cm-butterfly/src/model/spider"
 
-	tbcommon "github.com/cloud-barista/cb-webtool/src/model/tumblebug/common"
+	tbcommon "github.com/cloud-barista/cm-butterfly/src/model/tumblebug/common"
 
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 )
 
 //var CloudConnectionUrl = "http://15.165.16.67:1024"

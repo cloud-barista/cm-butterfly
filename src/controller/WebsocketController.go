@@ -19,12 +19,12 @@ import (
 	"github.com/gorilla/websocket"
 	// "golang.org/x/net/websocket"
 
-	// "github.com/cloud-barista/cb-webtool/src/service"
+	// "github.com/cloud-barista/cm-butterfly/src/service"
 	echotemplate "github.com/foolin/echo-template"
 
-	service "github.com/cloud-barista/cb-webtool/src/service"
+	service "github.com/cloud-barista/cm-butterfly/src/service"
 
-	util "github.com/cloud-barista/cb-webtool/src/util"
+	util "github.com/cloud-barista/cm-butterfly/src/util"
 )
 
 var SpiderURL = os.Getenv("SPIDER_IP_PORT")

@@ -3,15 +3,70 @@
 <div class="leftmenu">
 
 	<ul class="nav">
+		<!-- 
 		<li class="nav-item"><a class="nav-link " data-toggle="tab" href="#operation" id="tab_operation">Operation</a>
 		</li>
 		<li class="nav-item"><a class="nav-link " data-toggle="tab" href="#setting" id="tab_setting">Setting</a></li>
+		 -->
+		<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#migration" id="tab_migration">Migration</a>
 	</ul>
 
 	<div class="tab-content">
+		<div class="tab-pane" id="migration">
+			<ul class="menu">
+				<li id="menu_level2_legacy">
+					<a href="javascript:void(0);">Legacy</a>
+					<ul>
+						<li id="menu_level3_sourcegroup"><a href="javascript:void(0);"
+							onclick="changePage('LegacySourceGroupMngForm')">Source Group</a></li>
+						<li id="menu_level3_sourceconnection"><a href="javascript:void(0);"
+							onclick="changePage('LegacySourceConnectionMngForm')">Source Connection</a></li>						
+					</ul>
+				</li>
+				<li id="menu_level2_sourcemodel">
+					<a href="javascript:void(0);">SourceModel</a>
+					<ul>
+						<!-- 						
+						<li id="menu_level3_sourcemodel"><a href="javascript:void(0);"
+									onclick="changePage('SourceModelMngForm')">SourceModel</a></li>
+						 -->
+					</ul>
+				</li>
+				<li id="menu_level2_targetmodel">
+					<a href="javascript:void(0);">TargetModel</a>
+					<ul>
+						<!-- 						
+						<li id="menu_level3_targetmodel"><a href="javascript:void(0);"
+									onclick="changePage('TargetModelMngForm')">TargetModel</a></li>
+						 -->
+					</ul>
+				</li>
+				<li id="menu_level2_workflow">
+					<a href="javascript:void(0);">Workflow</a>
+					<ul>						
+						<li id="menu_level3_workflowmng"><a href="javascript:void(0);"
+							onclick="changePage('WorkflowMngForm')">Workflow</a></li>
+						<li id="menu_level3_defaultworkflow"><a href="javascript:void(0);"
+							onclick="changePage('WorkflowDefaultMngForm')">sample_Default</a></li>
+						<li id="menu_level3_fullscreenworkflow"><a href="javascript:void(0);"
+									onclick="changePage('WorkflowFullscreenMngForm')">sample_Fullscreen</a></li>
+						<li id="menu_level3_sequencialworkflowdesigner"><a href="javascript:void(0);"
+							onclick="changePage('SequentialWorkflowDesigner')">sample2_Fullscreen</a></li>
+					</ul>
+				</li>
+				<li id="menu_level2_about">
+					<a href="javascript:void(0);">About</a>
+					<ul>
+						<li id="menu_level3_about"><a href="AboutForm">About</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+
+	<!-- 		
 		<div class="tab-pane fade" id="operation">
 			<ul class="menu">
-			<!-- 				
+			
 				<li id="menu_level2_dashboards">
 					<a href="javascript:void(0);">Dashboard</a>
 					<ul>
@@ -58,25 +113,8 @@
 
 					</ul>
 				</li> 
-			-->
 
-				<li id="menu_level2_migrations">
-					<a href="javascript:void(0);">Migration</a>
-					<ul>
-						<li id="menu_level3_sourcemodel"><a href="javascript:void(0);"
-									onclick="changePage('SourceModelMngForm')">SourceModel</a></li>
-						<li id="menu_level3_targetmodel"><a href="javascript:void(0);"
-									onclick="changePage('TargetModelMngForm')">TargetModel</a></li>
-						<li id="menu_level3_workflow"><a href="javascript:void(0);"
-							onclick="changePage('WorkflowMngForm')">Workflow</a></li>
-						<li id="menu_level3_defaultworkflow"><a href="javascript:void(0);"
-							onclick="changePage('WorkflowDefaultMngForm')">Default</a></li>
-						<li id="menu_level3_fullscreenworkflow"><a href="javascript:void(0);"
-									onclick="changePage('WorkflowFullscreenMngForm')">Fullscreen</a></li>
-						<li id="menu_level3_sequencialworkflowdesigner"><a href="javascript:void(0);"
-							onclick="changePage('SequentialWorkflowDesigner')">Fullscreen</a></li>
-					</ul>
-				</li>
+				
 				<li id="menu_level2_about">
 					<a href="javascript:void(0);">About</a>
 					<ul>
@@ -84,7 +122,9 @@
 					</ul>
 				</li>
 			</ul>
-		</div>
+		</div> 
+	-->
+
 	<!-- 
 		<div class="tab-pane fade" id="setting">
 			<ul class="menu">

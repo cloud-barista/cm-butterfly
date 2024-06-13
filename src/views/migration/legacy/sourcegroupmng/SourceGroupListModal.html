@@ -1,0 +1,32 @@
+{{define "SourceGroupListModal"}}
+<div class="modal fade" id="popSourceGroupList" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body scrollbar-inner">
+                <div class="popbox">
+
+                    <div class="titlebox">
+                        <div class="tit"><span>Select Source Group</span></div>
+                        <div class="txt">Please select a source group</div>
+                    </div>
+                        
+                    <!-- list -->
+                    <div class="cloudlist">
+                        <div class="listbox scrollbar-inner" id="sourceGroupList">
+
+                        </div>
+                    </div>
+
+                    <div class="addbox">
+                        <button id="select_sourcegroup_ok_btn" class="btn_ok" data-dismiss="modal" onclick="selectSourceGroupSetOK();">OK</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- //Cloud Connection / Select NS (NameSpace) input -->
+{{end}}
+

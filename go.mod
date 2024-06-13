@@ -1,4 +1,4 @@
-module github.com/cloud-barista/cb-webtool
+module github.com/cloud-barista/cm-butterfly
 
 go 1.19
 

@@ -24,7 +24,7 @@ import (
 	// "io/ioutil"
 	// echosession "github.com/go-session/echo-session"
 	// "github.com/labstack/echo"
-	// "github.com/cloud-barista/cb-webtool/src/model"
+	// "github.com/cloud-barista/cm-butterfly/src/model"
 )
 
 type KeepZero float64
