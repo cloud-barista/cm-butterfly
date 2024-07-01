@@ -4,3 +4,4 @@ CONTRIBUTING.md
 README.md
 .git
 .idea
+bin/*
