@@ -22,3 +22,5 @@ conf/setup.env
 !conf/setup.sample.env
 
 data/*
+
+bin/*
