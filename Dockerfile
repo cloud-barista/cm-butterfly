@@ -15,7 +15,7 @@ COPY . .
 RUN go build -o butterfly main.go
 
 # Stage2: Execution butterfly binary
-FROM alpine:latest
+FROM alpine:latest as prod
 
 WORKDIR /app
 
