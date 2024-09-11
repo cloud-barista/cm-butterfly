@@ -13,8 +13,8 @@ RUN wget https://github.com/gobuffalo/cli/releases/download/v0.18.14/buffalo_0.1
 ENV GOPROXY http://proxy.golang.org
 ENV CGO_ENABLED=1
 
-RUN mkdir -p /src/mc-web-console-api
-WORKDIR /src/mc-web-console-api
+RUN mkdir -p /src/api
+WORKDIR /src/api
 ADD . .
 
 RUN go mod download
@@ -25,12 +25,10 @@ FROM debian:buster-slim as deploy
 
 WORKDIR /app/
 COPY --from=build /bin/api .
-COPY --from=build /src/mc-web-console-api/conf /app/conf
+COPY --from=build /src/api/conf /app/conf
 
 ENV API_ADDR 0.0.0.0
 ENV API_PORT 3000
-
-ENV MCIAM_USE=true
 
 EXPOSE 3000
 CMD bash -c 'until /app/api migrate; do echo "Migration failed. Retrying in 10 seconds..."; sleep 10; done; /app/api > /app/api.log 2>&1 &  tail -f /app/api.log & wait'

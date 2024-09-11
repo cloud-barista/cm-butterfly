@@ -1,12 +1,6 @@
 #!/bin/bash
 FILE="./api.yaml"
-
-read -p "MCIAM USE? (y/n): " MCIAM_USE 
-
-case "$MCIAM_USE" in
-    y|Y ) URL="https://raw.githubusercontent.com/m-cmp/mc-admin-cli/main/conf/api.yaml";; # m-cmp/mc-admin-cli
-    n|N ) URL="https://raw.githubusercontent.com/cloud-barista/cm-mayfly/main/conf/api.yaml";; # cloud-barista/cm-mayfly
-esac
+URL="https://raw.githubusercontent.com/cloud-barista/cm-mayfly/main/conf/api.yaml"
 
 if [ -f "$FILE" ]; then
     echo "api.yaml already exists."

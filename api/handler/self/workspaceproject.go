@@ -63,7 +63,6 @@ func PostNs(c buffalo.Context, commonRequest *handler.CommonRequest) (*Project, 
 
 // /ns
 func GetAllNs(c buffalo.Context) (*Projects, error) {
-
 	operationId := strings.ToLower("GetAllNs")
 	commonResponse, err := handler.AnyCaller(c, operationId, &handler.CommonRequest{}, true)
 	if err != nil {

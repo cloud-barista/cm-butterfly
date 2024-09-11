@@ -10,7 +10,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -45,13 +44,6 @@ var (
 )
 
 func init() {
-	MCIAM_USE, _ := strconv.ParseBool(os.Getenv("MCIAM_USE"))
-	if !MCIAM_USE {
-		initCmigAuth()
-	}
-}
-
-func initCmigAuth() {
 	data, err := os.ReadFile(conffilename)
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -254,7 +246,7 @@ func RefreshAccessToken(refreshToken string) (*UserLoginResponse, error) {
 	}
 }
 
-func GetCmigTokenClaims(tokenString string) (*CmigAccesstokenClaims, error) {
+func GetTokenClaims(tokenString string) (*CmigAccesstokenClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &CmigAccesstokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

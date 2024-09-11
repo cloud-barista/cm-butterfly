@@ -11,11 +11,11 @@ import (
 	"github.com/gobuffalo/pop/v6"
 )
 
-func DefaultMiddleware(next buffalo.Handler) buffalo.Handler {
+func SetContextMiddleware(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		fmt.Println("@@@@@DefaultMiddleware ")
 		accessToken := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer ")
-		claims, err := self.GetCmigTokenClaims(accessToken)
+		claims, err := self.GetTokenClaims(accessToken)
 		if err != nil {
 			app.Logger.Error(err.Error())
 			return c.Render(http.StatusUnauthorized, render.JSON(map[string]interface{}{"error": "Unauthorized"}))

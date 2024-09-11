@@ -14,7 +14,6 @@ import (
 	i18n "github.com/gobuffalo/mw-i18n/v2"
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
 
-	"api/handler/mciammanager"
 	"api/handler/self"
 	"api/models"
 )
@@ -38,76 +37,49 @@ func App() *buffalo.App {
 			SessionName: "mc_web_console",
 			Addr:        os.Getenv("API_ADDR") + ":" + os.Getenv("API_PORT"),
 		})
+
 		app.Use(paramlogger.ParameterLogger)
 		app.Use(contenttype.Set("application/json"))
 		app.Use(popmw.Transaction(models.DB))
+		app.Use(SetContextMiddleware)
 
-		if MCIAM_USE { // MCIAM USE True
-			app.Use(mciammanager.DefaultMiddleware)
-			app.Middleware.Skip(mciammanager.DefaultMiddleware, readyz)
+		app.Middleware.Skip(SetContextMiddleware, readyz)
+		app.ANY("/readyz", readyz)
 
-			app.ANY("/readyz", readyz)
+		apiPath := "/api"
 
-			apiPath := "/api"
+		auth := app.Group(apiPath + "/auth")
+		auth.Middleware.Skip(SetContextMiddleware, AuthLogin)
+		auth.POST("/login", AuthLogin)
+		auth.POST("/refresh", AuthLoginRefresh)
+		auth.POST("/validate", AuthValidate)
+		auth.POST("/logout", AuthLogout)
+		auth.POST("/userinfo", AuthUserinfo)
 
-			auth := app.Group(apiPath + "/auth")
-			auth.Middleware.Skip(mciammanager.DefaultMiddleware, AuthMCIAMLogin)
-			auth.POST("/login", AuthMCIAMLogin)
-			auth.POST("/refresh", AuthMCIAMLoginRefresh)
-			auth.POST("/validate", AuthMCIAMValidate)
-			auth.POST("/logout", AuthMCIAMLogout)
-			auth.POST("/userinfo", AuthMCIAMUserinfo)
+		api := app.Group(apiPath)
+		api.POST("/disklookup", self.DiskLookup)
+		api.POST("/availabledisktypebyproviderregion", self.AvailableDiskTypeByProviderRegion)
+		api.POST("/getmenutree", GetmenuTree)
 
-			api := app.Group(apiPath)
-			api.Use(mciammanager.SelfApiMiddleware)
-			api.POST("/disklookup", self.DiskLookup)
-			api.POST("/availabledisktypebyproviderregion", self.AvailableDiskTypeByProviderRegion)
-			api.POST("/createmenuresources", CreateMCIAMMenuResources)
-			api.POST("/getmenutree", GetMCIAMmenuTree)
+		// Projects Manage
+		api.POST("/createproject", CreateProject)
+		api.POST("/getprojectlist", GetProjectList)
+		api.POST("/getprojectbyid", GetProjectById)
+		api.POST("/updateprojectbyid", UpdateProjectById)
+		api.POST("/deleteprojectbyid", DeleteProjectById)
 
-			api.Middleware.Skip(mciammanager.SelfApiMiddleware, AnyController)
-			api.POST("/{operationId}", mciammanager.ApiMiddleware(AnyController))
+		// Projects and Workspace Get
+		api.POST("/getwpmappinglistbyworkspaceid", GetWPmappingListByWorkspaceId)
+		api.POST("/getworkspaceuserrolemappinglistbyuserid", GetWorkspaceUserRoleMappingListByUserId)
 
-		} else { // MCIAM USE False
+		api.POST("/{operationId}", AnyController)
 
-			app.Use(DefaultMiddleware)
-			app.Middleware.Skip(DefaultMiddleware, readyz)
-
-			app.ANY("/readyz", readyz)
-
-			apiPath := "/api"
-
-			auth := app.Group(apiPath + "/auth")
-			auth.Middleware.Skip(DefaultMiddleware, AuthLogin)
-			auth.POST("/login", AuthLogin)
-			auth.POST("/refresh", AuthLoginRefresh)
-			auth.POST("/validate", AuthValidate)
-			auth.POST("/logout", AuthLogout)
-			auth.POST("/userinfo", AuthUserinfo)
-
-			api := app.Group(apiPath)
-			api.POST("/disklookup", self.DiskLookup)
-			api.POST("/availabledisktypebyproviderregion", self.AvailableDiskTypeByProviderRegion)
-			api.POST("/getmenutree", GetmenuTree)
-
-			// Projects Manage
-			api.POST("/createproject", CreateProject)
-			api.POST("/getprojectlist", GetProjectList)
-			api.POST("/getprojectbyid", GetProjectById)
-			api.POST("/updateprojectbyid", UpdateProjectById)
-			api.POST("/deleteprojectbyid", DeleteProjectById)
-
-			// Projects and Workspace Get
-			api.POST("/getwpmappinglistbyworkspaceid", GetWPmappingListByWorkspaceId)
-			api.POST("/getworkspaceuserrolemappinglistbyuserid", GetWorkspaceUserRoleMappingListByUserId)
-
-			api.POST("/{operationId}", AnyController)
-		}
 	})
 
 	return app
+
 }
 
 func readyz(c buffalo.Context) error {
-	return c.Render(200, r.JSON(map[string]interface{}{"status": "OK", "MCIAM_USE": MCIAM_USE}))
+	return c.Render(200, r.JSON(map[string]interface{}{"status": "OK"}))
 }
