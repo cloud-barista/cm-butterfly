@@ -7,7 +7,6 @@ toolchain go1.23.0
 require (
 	github.com/gobuffalo/buffalo v1.1.0
 	github.com/gobuffalo/buffalo-pop/v3 v3.0.7
-	github.com/gobuffalo/envy v1.10.2
 	github.com/gobuffalo/grift v1.5.2
 	github.com/gobuffalo/mw-contenttype v1.0.2
 	github.com/gobuffalo/mw-i18n/v2 v2.0.3
@@ -17,7 +16,6 @@ require (
 	github.com/gobuffalo/x v0.1.0
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/golang-jwt/jwt/v5 v5.2.1
-	github.com/m-cmp/mc-iam-manager v0.2.10
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/rs/cors v1.11.0
 	github.com/spf13/viper v1.19.0
@@ -30,13 +28,13 @@ require (
 	github.com/BurntSushi/toml v1.4.0 // indirect
 	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
-	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
+	github.com/gobuffalo/envy v1.10.2 // indirect
 	github.com/gobuffalo/events v1.4.3 // indirect
 	github.com/gobuffalo/fizz v1.14.4 // indirect
 	github.com/gobuffalo/flect v1.0.2 // indirect
@@ -48,7 +46,6 @@ require (
 	github.com/gobuffalo/plush/v4 v4.1.20 // indirect
 	github.com/gobuffalo/refresh v1.13.3 // indirect
 	github.com/gobuffalo/tags/v3 v3.1.4 // indirect
-	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/handlers v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
@@ -67,12 +64,6 @@ require (
 	github.com/jmoiron/sqlx v1.3.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/lestrrat-go/backoff/v2 v2.0.8 // indirect
-	github.com/lestrrat-go/blackmagic v1.0.2 // indirect
-	github.com/lestrrat-go/httpcc v1.0.1 // indirect
-	github.com/lestrrat-go/iter v1.0.2 // indirect
-	github.com/lestrrat-go/jwx v1.2.30 // indirect
-	github.com/lestrrat-go/option v1.0.1 // indirect
 	github.com/luna-duclos/instrumentedsql v1.1.3 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
