@@ -1,10 +1,12 @@
 package mciammanager
 
 import (
+	"api/handler"
 	"fmt"
 	"log"
-	"mc_web_console_api/handler"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gobuffalo/buffalo"
@@ -15,11 +17,15 @@ import (
 )
 
 func init() {
-	certEndPoint := getCertsEndpoint()
-	err := iamtokenvalidator.GetPubkeyIamManager(certEndPoint)
-	if err != nil {
-		panic("Get jwks fail :" + err.Error())
+	MCIAM_USE, _ := strconv.ParseBool(os.Getenv("MCIAM_USE"))
+	if MCIAM_USE {
+		certEndPoint := getCertsEndpoint()
+		err := iamtokenvalidator.GetPubkeyIamManager(certEndPoint)
+		if err != nil {
+			panic("Get jwks fail :" + err.Error())
+		}
 	}
+
 }
 
 func getCertsEndpoint() string {
@@ -42,7 +48,7 @@ func DefaultMiddleware(next buffalo.Handler) buffalo.Handler {
 		err := iamtokenvalidator.IsTokenValid(accessToken)
 		if err != nil {
 			log.Println(err.Error())
-			return c.Render(http.StatusInternalServerError, render.JSON(map[string]interface{}{"error": err.Error()}))
+			return c.Render(http.StatusUnauthorized, render.JSON(map[string]interface{}{"error": err.Error()}))
 		}
 		claims, err := iamtokenvalidator.GetTokenClaimsByIamManagerClaims(accessToken)
 		if err != nil {
@@ -54,8 +60,6 @@ func DefaultMiddleware(next buffalo.Handler) buffalo.Handler {
 		c.Set("UserId", claims.UserId)           // need jwtprofile
 		c.Set("UserName", claims.UserName)       // need jwtprofile
 		c.Set("Roles", claims.RealmAccess.Roles) // need jwtprofile
-
-		// c.Set("Email", claims.Email)             // need jwtprofile
 
 		return next(c)
 	}

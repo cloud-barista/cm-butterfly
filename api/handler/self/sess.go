@@ -1,8 +1,8 @@
 package self
 
 import (
-	"mc_web_console_api/handler"
-	"mc_web_console_api/models"
+	"api/handler"
+	"api/models"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/opentracing/opentracing-go/log"

@@ -1,7 +1,7 @@
 package grifts
 
 import (
-	"mc_web_console_api/actions"
+	"api/actions"
 
 	"github.com/gobuffalo/buffalo"
 )

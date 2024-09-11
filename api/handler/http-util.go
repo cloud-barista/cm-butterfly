@@ -69,7 +69,7 @@ var (
 func init() {
 	viper.SetConfigName("api")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("conf")
+	viper.AddConfigPath("../conf")
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error reading actions/conf/api.yaml file: %s", err))
@@ -253,6 +253,17 @@ func CommonResponseStatusOK(responseData interface{}) *CommonResponse {
 	webStatus := WebStatus{
 		StatusCode: http.StatusOK,
 		Message:    http.StatusText(http.StatusOK),
+	}
+	return &CommonResponse{
+		ResponseData: responseData,
+		Status:       webStatus,
+	}
+}
+
+func CommonResponseStatusNoContent(responseData interface{}) *CommonResponse {
+	webStatus := WebStatus{
+		StatusCode: http.StatusNoContent,
+		Message:    http.StatusText(http.StatusNoContent),
 	}
 	return &CommonResponse{
 		ResponseData: responseData,

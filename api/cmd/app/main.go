@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"mc_web_console_api/actions"
+	"api/actions"
 )
 
 // main is the starting point for your Buffalo application.

@@ -1,7 +1,7 @@
 package self
 
 import (
-	"mc_web_console_api/handler"
+	"api/handler"
 	"strings"
 
 	"github.com/gobuffalo/buffalo"

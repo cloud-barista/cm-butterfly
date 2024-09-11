@@ -1,8 +1,8 @@
 package actions
 
 import (
+	"api/handler"
 	"log"
-	"mc_web_console_api/handler"
 	"strings"
 
 	"github.com/gobuffalo/buffalo"
