@@ -17,7 +17,6 @@ func AuthLogin(c buffalo.Context) error {
 		commonResponse := handler.CommonResponseStatusBadRequest(err)
 		return c.Render(commonResponse.Status.StatusCode, r.JSON(commonResponse))
 	}
-
 	id := commonRequest.Request.(map[string]interface{})["id"].(string)
 	password := commonRequest.Request.(map[string]interface{})["password"].(string)
 
@@ -30,7 +29,7 @@ func AuthLogin(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	userSess := &models.Usersess{
 		UserID:           id,
-		AccessToken:      tokenSet.Accresstoken,
+		AccessToken:      tokenSet.Accesstoken,
 		ExpiresIn:        float64(tokenSet.ExpiresIn),
 		RefreshToken:     tokenSet.RefreshToken,
 		RefreshExpiresIn: float64(tokenSet.RefreshExpiresIn),
@@ -62,9 +61,9 @@ func AuthLoginRefresh(c buffalo.Context) error {
 		return c.Render(commonResponse.Status.StatusCode, r.JSON(commonResponse))
 	}
 
-	sess.AccessToken = tokenSet.Accresstoken
+	sess.AccessToken = tokenSet.Accesstoken
 	sess.ExpiresIn = float64(tokenSet.ExpiresIn)
-	sess.RefreshToken = tokenSet.Accresstoken
+	sess.RefreshToken = tokenSet.Accesstoken
 	sess.RefreshExpiresIn = float64(tokenSet.RefreshExpiresIn)
 
 	_, err = handler.UpdateUserSess(tx, sess)
@@ -93,10 +92,12 @@ func AuthLogout(c buffalo.Context) error {
 
 func AuthUserinfo(c buffalo.Context) error {
 	commonResponse := handler.CommonResponseStatusOK(map[string]interface{}{
-		"userid":   c.Value("UserId").(string),
-		"username": c.Value("UserName").(string),
-		"email":    c.Value("Email").(string),
-		"role":     c.Value("Role").(string),
+		"userid":      c.Value("UserId").(string),
+		"username":    c.Value("UserName").(string),
+		"roles":       c.Value("Roles").([]string),
+		"email":       c.Value("Email").(string),
+		"description": c.Value("Description").(string),
+		"company":     c.Value("Company").(string),
 	})
 	return c.Render(commonResponse.Status.StatusCode, r.JSON(commonResponse))
 }
