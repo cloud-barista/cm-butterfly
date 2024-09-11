@@ -9,12 +9,16 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var (
+	MENU_CONF_DATA_PATH = os.Getenv("MENU_CONF_DATA_PATH")
+)
+
 func init() {
 	err := createMenuResource()
 	if err != nil {
 		log.Fatal("create menu fail : ", err.Error())
 	}
-	log.Println("Self Menu init success")
+	log.Println("Menu init success")
 }
 
 type Menu struct {
@@ -44,9 +48,7 @@ func buildMenuTree(menus Menus, parentID string) Menus {
 }
 
 func createMenuResource() error {
-	yamlFile := "../conf/selfiammenu.yaml"
-
-	data, err := os.ReadFile(yamlFile)
+	data, err := os.ReadFile(MENU_CONF_DATA_PATH)
 	if err != nil {
 		return err
 	}

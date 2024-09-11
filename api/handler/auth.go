@@ -18,36 +18,64 @@ import (
 )
 
 type CmigAuthSetting struct {
-	Setting Setting `yaml:"setting"`
-	User    User    `yaml:"user"`
+	Setting CmigSetting `yaml:"setting"`
+	User    CmigUser    `yaml:"user"`
 }
 
-type Setting struct {
+type CmigSetting struct {
 	Encryptionkey string `yaml:"encryptionkey"`
 }
 
-type User struct {
-	Id        string `yaml:"id"`
-	Password  string `yaml:"password"`
-	FirstName string `yaml:"firstName"`
-	LastName  string `yaml:"lastName"`
-	Role      string `yaml:"role"`
-	Email     string `yaml:"email"`
+type CmigUser struct {
+	Id          string   `yaml:"id"`
+	Password    string   `yaml:"password"`
+	FirstName   string   `yaml:"firstName"`
+	LastName    string   `yaml:"lastName"`
+	Roles       []string `yaml:"roles"`
+	Email       string   `yaml:"email"`
+	Description string   `yaml:"description"`
+	Company     string   `yaml:"company"`
+}
+
+type CmigUserLoginResponse struct {
+	Accesstoken      string `json:"access_token"`
+	ExpiresIn        int64  `json:"expires_in"`
+	RefreshToken     string `json:"refresh_token"`
+	RefreshExpiresIn int64  `json:"refresh_expires_in"`
+}
+
+type CmigAccesstokenClaims struct {
+	*jwt.MapClaims
+	Upn         string
+	Name        string
+	Email       string
+	Roles       []string
+	Exp         int64
+	Description string
+	Company     string
+}
+
+type CmigRefreshtokenClaims struct {
+	*jwt.MapClaims
+	Upn string
+	Exp int64
 }
 
 var (
-	CmigUser        *User
-	cmigAuthSetting CmigAuthSetting
-	encryptionKey   []byte
-	datfilename     = "../conf/selfiamuser.dat"
-	conffilename    = "../conf/selfiamauthsetting.yaml"
+	user                *CmigUser
+	cmigAuthSetting     CmigAuthSetting
+	encryptionKey       []byte
+	USER_AUTH_CONF_PATH = os.Getenv("USER_AUTH_CONF_PATH")
+	USER_AUTH_DATA_PATH = os.Getenv("USER_AUTH_DATA_PATH")
 )
 
 func init() {
-	data, err := os.ReadFile(conffilename)
+	data, err := os.ReadFile(USER_AUTH_CONF_PATH)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
+	log.Printf("Load User confing from USER_AUTH_CONF_PATH ")
+
 	err = yaml.Unmarshal(data, &cmigAuthSetting)
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -60,20 +88,22 @@ func init() {
 	hash.Write([]byte(cmigAuthSetting.Setting.Encryptionkey))
 	encryptionKey = hash.Sum(nil)
 
-	CmigUser, err = loadUserFromEncryptedFile()
+	user, err = loadUserFromEncryptedFile()
 	if err != nil {
 		log.Printf("Load User From Encrypted File Fail : %v\n", err)
-		log.Printf("Trying to init user from %v\n", conffilename)
+		log.Printf("Trying to init user from %v\n", USER_AUTH_CONF_PATH)
 
 		password := cmigAuthSetting.User.Password
 		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-		user := &User{
-			Id:        cmigAuthSetting.User.Id,
-			Password:  string(hashedPassword),
-			FirstName: cmigAuthSetting.User.FirstName,
-			LastName:  cmigAuthSetting.User.LastName,
-			Role:      cmigAuthSetting.User.Role,
-			Email:     cmigAuthSetting.User.Email,
+		user := &CmigUser{
+			Id:          cmigAuthSetting.User.Id,
+			Password:    string(hashedPassword),
+			FirstName:   cmigAuthSetting.User.FirstName,
+			LastName:    cmigAuthSetting.User.LastName,
+			Roles:       cmigAuthSetting.User.Roles,
+			Email:       cmigAuthSetting.User.Email,
+			Description: cmigAuthSetting.User.Description,
+			Company:     cmigAuthSetting.User.Company,
 		}
 
 		err := saveUserToEncryptedFile(user)
@@ -81,7 +111,7 @@ func init() {
 			log.Fatalf("Error saving user: %v\n", err)
 		}
 
-		CmigUser, err = loadUserFromEncryptedFile()
+		user, err = loadUserFromEncryptedFile()
 		if err != nil {
 			log.Fatalf("Load User From Encrypted File Fail : %v\n", err)
 		}
@@ -89,11 +119,11 @@ func init() {
 		log.Println("User create success")
 	}
 
-	log.Println("Self User init success")
+	log.Println("User init success")
 }
 
-func loadUserFromEncryptedFile() (*User, error) {
-	encryptedData, err := os.ReadFile(datfilename)
+func loadUserFromEncryptedFile() (*CmigUser, error) {
+	encryptedData, err := os.ReadFile(USER_AUTH_DATA_PATH)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +146,7 @@ func loadUserFromEncryptedFile() (*User, error) {
 		return nil, err
 	}
 
-	var user User
+	var user CmigUser
 	err = json.Unmarshal(decryptedData, &user)
 	if err != nil {
 		return nil, err
@@ -125,7 +155,7 @@ func loadUserFromEncryptedFile() (*User, error) {
 	return &user, nil
 }
 
-func saveUserToEncryptedFile(user *User) error {
+func saveUserToEncryptedFile(user *CmigUser) error {
 	userData, err := json.Marshal(user)
 	if err != nil {
 		return err
@@ -148,42 +178,22 @@ func saveUserToEncryptedFile(user *User) error {
 
 	encryptedData := gcm.Seal(nonce, nonce, userData, nil)
 
-	return os.WriteFile(datfilename, encryptedData, 0644)
+	return os.WriteFile(USER_AUTH_DATA_PATH, encryptedData, 0644)
 }
 
-type UserLoginResponse struct {
-	Accresstoken     string `json:"access_token"`
-	ExpiresIn        int64  `json:"expires_in"`
-	RefreshToken     string `json:"refresh_token"`
-	RefreshExpiresIn int64  `json:"refresh_expires_in"`
-}
-
-type CmigAccesstokenClaims struct {
-	*jwt.MapClaims
-	Upn   string
-	Name  string
-	Email string
-	Role  string
-	Exp   int64
-}
-
-type CmigRefreshtokenClaims struct {
-	*jwt.MapClaims
-	Upn string
-	Exp int64
-}
-
-func generateJWT() (*UserLoginResponse, error) {
-	UserLoginRes := &UserLoginResponse{}
+func generateJWT() (*CmigUserLoginResponse, error) {
+	UserLoginRes := &CmigUserLoginResponse{}
 
 	exp := time.Now().Add(time.Minute * 10).Unix()
 
 	claims := CmigAccesstokenClaims{
-		Upn:   CmigUser.Id,
-		Name:  CmigUser.LastName + " " + CmigUser.FirstName,
-		Role:  CmigUser.Role,
-		Email: CmigUser.Email,
-		Exp:   exp,
+		Upn:         user.Id,
+		Name:        user.LastName + " " + user.FirstName,
+		Roles:       user.Roles,
+		Email:       user.Email,
+		Description: user.Description,
+		Company:     user.Company,
+		Exp:         exp,
 		MapClaims: &jwt.MapClaims{
 			"exp": exp,
 		},
@@ -194,7 +204,7 @@ func generateJWT() (*UserLoginResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	UserLoginRes.Accresstoken = signedToken
+	UserLoginRes.Accesstoken = signedToken
 	UserLoginRes.ExpiresIn = exp
 
 	refreshExp := time.Now().Add(time.Minute * 30).Unix()
@@ -215,9 +225,9 @@ func generateJWT() (*UserLoginResponse, error) {
 	return UserLoginRes, nil
 }
 
-func GetUserToken(id string, password string) (*UserLoginResponse, error) {
-	if CmigUser.Id == id {
-		err := bcrypt.CompareHashAndPassword([]byte(CmigUser.Password), []byte(password))
+func GetUserToken(id string, password string) (*CmigUserLoginResponse, error) {
+	if user.Id == id {
+		err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 		if err != nil {
 			return nil, fmt.Errorf("unauthorized")
 		}
@@ -226,7 +236,7 @@ func GetUserToken(id string, password string) (*UserLoginResponse, error) {
 	return nil, fmt.Errorf("unauthorized")
 }
 
-func RefreshAccessToken(refreshToken string) (*UserLoginResponse, error) {
+func RefreshAccessToken(refreshToken string) (*CmigUserLoginResponse, error) {
 	token, err := jwt.ParseWithClaims(refreshToken, &CmigAccesstokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

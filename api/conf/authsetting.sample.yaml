@@ -1,0 +1,13 @@
+setting:
+  encryptionkey: iam-secret-key # CHANGE ME
+
+user:
+  id: cmiguser
+  password: cmiguserPassword! # CHANGE ME
+  roles: 
+    - platformAdmin
+  firstName: cmig
+  lastName: user
+  email: cmiguser@user.changeme
+  description: this is cmig user
+  company: cmigcompany
