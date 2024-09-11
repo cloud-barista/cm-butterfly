@@ -2,7 +2,6 @@ package actions
 
 import (
 	"api/handler"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -13,7 +12,6 @@ import (
 
 func SetContextMiddleware(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		fmt.Println("@@@@@DefaultMiddleware ")
 		accessToken := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer ")
 		claims, err := handler.GetTokenClaims(accessToken)
 		if err != nil {
@@ -28,10 +26,13 @@ func SetContextMiddleware(next buffalo.Handler) buffalo.Handler {
 		}
 
 		c.Set("Authorization", c.Request().Header.Get("Authorization"))
+
 		c.Set("UserId", claims.Upn)
 		c.Set("UserName", claims.Name)
+		c.Set("Roles", claims.Roles)
 		c.Set("Email", claims.Email)
-		c.Set("Role", claims.Role)
+		c.Set("Description", claims.Description)
+		c.Set("Company", claims.Company)
 
 		return next(c)
 	}
