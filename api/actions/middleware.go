@@ -1,7 +1,7 @@
 package actions
 
 import (
-	"api/handler/self"
+	"api/handler"
 	"fmt"
 	"net/http"
 	"strings"
@@ -15,14 +15,14 @@ func SetContextMiddleware(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		fmt.Println("@@@@@DefaultMiddleware ")
 		accessToken := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer ")
-		claims, err := self.GetTokenClaims(accessToken)
+		claims, err := handler.GetTokenClaims(accessToken)
 		if err != nil {
 			app.Logger.Error(err.Error())
 			return c.Render(http.StatusUnauthorized, render.JSON(map[string]interface{}{"error": "Unauthorized"}))
 		}
 		tx := c.Value("tx").(*pop.Connection)
 
-		isUser, err := self.IsUserSessExistByUserId(tx, claims.Upn)
+		isUser, err := handler.IsUserSessExistByUserId(tx, claims.Upn)
 		if err != nil || !isUser {
 			return c.Render(http.StatusUnauthorized, render.JSON(map[string]interface{}{"error": "Unauthorized"}))
 		}

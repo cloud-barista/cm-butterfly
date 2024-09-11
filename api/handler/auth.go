@@ -1,4 +1,4 @@
-package self
+package handler
 
 import (
 	"crypto/aes"

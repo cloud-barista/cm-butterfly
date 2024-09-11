@@ -1,7 +1,6 @@
-package self
+package handler
 
 import (
-	"api/handler"
 	"strings"
 
 	"github.com/gobuffalo/buffalo"
@@ -10,9 +9,9 @@ import (
 // Disk 정보 조회
 // Provider, connection 에서 사용가능한 DiskType 조회
 // 현재 : spider의 cloudos_meta.yaml 값 사용
-// func DiskLookup(providerId string, connectionName string) ([]handler.LookupDiskInfo, error) {
-func DiskLookup(c buffalo.Context) error {
-	commonRequest := &handler.CommonRequest{}
+// func DiskLookup(providerId string, connectionName string) ([]LookupDiskInfo, error) {
+func DiskLookup(c buffalo.Context) ([]LookupDiskInfo, error) {
+	commonRequest := &CommonRequest{}
 	c.Bind(commonRequest)
 
 	providerId := strings.ToUpper(commonRequest.QueryParams["provider"])
@@ -80,18 +79,14 @@ func DiskLookup(c buffalo.Context) error {
 		// getConnection 에서 Provider 가져옴
 	}
 
-	commonResponse := &handler.CommonResponse{}
-	commonResponse.Status.Message = "success"
-	commonResponse.Status.StatusCode = 200
-	commonResponse.ResponseData = dataDiskInfoList
-	return c.Render(commonResponse.Status.StatusCode, r.JSON(commonResponse))
+	return dataDiskInfoList, nil
 }
 
 // Provider, Region 에서 사용가능한 DiskType 조회
 // 현재 : spider의 cloudos_meta.yaml 값 사용
-// Region 값에 따라 달라지는게 있으면 추가할 것.c buffalo.Context, commonRequest *handler.CommonRequest
-func AvailableDiskTypeByProviderRegion(c buffalo.Context) error {
-	commonRequest := &handler.CommonRequest{}
+// Region 값에 따라 달라지는게 있으면 추가할 것.c buffalo.Context, commonRequest *CommonRequest
+func AvailableDiskTypeByProviderRegion(c buffalo.Context) ([]AvailableDiskType, error) {
+	commonRequest := &CommonRequest{}
 	c.Bind(commonRequest)
 
 	providerId := strings.ToUpper(commonRequest.QueryParams["provider"])
@@ -153,6 +148,5 @@ func AvailableDiskTypeByProviderRegion(c buffalo.Context) error {
 		dataDiskInfoList = append(dataDiskInfoList, providerDisk)
 	}
 
-	commonResponse := handler.CommonResponseStatusOK(dataDiskInfoList)
-	return c.Render(commonResponse.Status.StatusCode, r.JSON(commonResponse))
+	return dataDiskInfoList, nil
 }

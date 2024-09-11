@@ -2,7 +2,6 @@ package actions
 
 import (
 	"api/handler"
-	"api/handler/self"
 	"api/models"
 	"net/http"
 
@@ -22,7 +21,7 @@ func AuthLogin(c buffalo.Context) error {
 	id := commonRequest.Request.(map[string]interface{})["id"].(string)
 	password := commonRequest.Request.(map[string]interface{})["password"].(string)
 
-	tokenSet, err := self.GetUserToken(id, password)
+	tokenSet, err := handler.GetUserToken(id, password)
 	if err != nil {
 		commonResponse := handler.CommonResponseStatusBadRequest(err)
 		return c.Render(commonResponse.Status.StatusCode, r.JSON(commonResponse))
@@ -36,7 +35,7 @@ func AuthLogin(c buffalo.Context) error {
 		RefreshToken:     tokenSet.RefreshToken,
 		RefreshExpiresIn: float64(tokenSet.RefreshExpiresIn),
 	}
-	_, err = self.CreateUserSess(tx, userSess)
+	_, err = handler.CreateUserSess(tx, userSess)
 	if err != nil {
 		commonResponse := handler.CommonResponseStatusBadRequest(err)
 		return c.Render(commonResponse.Status.StatusCode, r.JSON(commonResponse))
@@ -49,14 +48,14 @@ func AuthLogin(c buffalo.Context) error {
 func AuthLoginRefresh(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
 	userId := c.Value("UserId").(string)
-	sess, err := self.GetUserByUserId(tx, userId)
+	sess, err := handler.GetUserByUserId(tx, userId)
 	if err != nil {
 		app.Logger.Error(err.Error())
 		commonResponse := handler.CommonResponseStatusBadRequest(err.Error())
 		return c.Render(commonResponse.Status.StatusCode, r.JSON(commonResponse))
 	}
 
-	tokenSet, err := self.RefreshAccessToken(sess.RefreshToken)
+	tokenSet, err := handler.RefreshAccessToken(sess.RefreshToken)
 	if err != nil {
 		app.Logger.Error(err.Error())
 		commonResponse := handler.CommonResponseStatusBadRequest(err.Error())
@@ -68,7 +67,7 @@ func AuthLoginRefresh(c buffalo.Context) error {
 	sess.RefreshToken = tokenSet.Accresstoken
 	sess.RefreshExpiresIn = float64(tokenSet.RefreshExpiresIn)
 
-	_, err = self.UpdateUserSess(tx, sess)
+	_, err = handler.UpdateUserSess(tx, sess)
 	if err != nil {
 		app.Logger.Error(err.Error())
 		commonResponse := handler.CommonResponseStatusBadRequest(err.Error())
@@ -82,7 +81,7 @@ func AuthLoginRefresh(c buffalo.Context) error {
 
 func AuthLogout(c buffalo.Context) error {
 	tx := c.Value("tx").(*pop.Connection)
-	_, err := self.DestroyUserSessByAccesstokenforLogout(tx, c.Value("UserId").(string))
+	_, err := handler.DestroyUserSessByAccesstokenforLogout(tx, c.Value("UserId").(string))
 	if err != nil {
 		log.Println("AuthLogout err : ", err.Error())
 		commonResponse := handler.CommonResponseStatusBadRequest("no user session")

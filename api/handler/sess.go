@@ -1,14 +1,13 @@
-package self
+package handler
 
 import (
-	"api/handler"
 	"api/models"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/opentracing/opentracing-go/log"
 )
 
-func CreateUserSessFromResponseData(tx *pop.Connection, r *handler.CommonResponse, userId string) (*models.Usersess, error) {
+func CreateUserSessFromResponseData(tx *pop.Connection, r *CommonResponse, userId string) (*models.Usersess, error) {
 	t := r.ResponseData.(map[string]interface{})
 	var s models.Usersess
 	s.UserID = userId
@@ -83,7 +82,7 @@ func GetUserByUserId(tx *pop.Connection, userId string) (*models.Usersess, error
 	return &s, nil
 }
 
-func UpdateUserSesssFromResponseData(tx *pop.Connection, r *handler.CommonResponse, userId string) (*models.Usersess, error) {
+func UpdateUserSesssFromResponseData(tx *pop.Connection, r *CommonResponse, userId string) (*models.Usersess, error) {
 
 	t := r.ResponseData.(map[string]interface{})
 

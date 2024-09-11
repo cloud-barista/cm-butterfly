@@ -1,7 +1,6 @@
-package self
+package handler
 
 import (
-	"api/handler"
 	"fmt"
 	"strings"
 
@@ -45,9 +44,9 @@ var DefaultWorkspace = Workspace{
 }
 
 // /ns
-func PostNs(c buffalo.Context, commonRequest *handler.CommonRequest) (*Project, error) {
+func PostNs(c buffalo.Context, commonRequest *CommonRequest) (*Project, error) {
 	operationId := strings.ToLower("PostNs")
-	commonResponse, err := handler.AnyCaller(c, operationId, commonRequest, true)
+	commonResponse, err := AnyCaller(c, operationId, commonRequest, true)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +63,7 @@ func PostNs(c buffalo.Context, commonRequest *handler.CommonRequest) (*Project, 
 // /ns
 func GetAllNs(c buffalo.Context) (*Projects, error) {
 	operationId := strings.ToLower("GetAllNs")
-	commonResponse, err := handler.AnyCaller(c, operationId, &handler.CommonRequest{}, true)
+	commonResponse, err := AnyCaller(c, operationId, &CommonRequest{}, true)
 	if err != nil {
 		return nil, err
 	}
@@ -85,10 +84,10 @@ func GetAllNs(c buffalo.Context) (*Projects, error) {
 }
 
 // /ns/{nsId}
-func GetNs(c buffalo.Context, commonRequest *handler.CommonRequest) (*Project, error) {
+func GetNs(c buffalo.Context, commonRequest *CommonRequest) (*Project, error) {
 
 	operationId := strings.ToLower("GetNs")
-	commonResponse, err := handler.AnyCaller(c, operationId, commonRequest, true)
+	commonResponse, err := AnyCaller(c, operationId, commonRequest, true)
 	if err != nil {
 		return nil, err
 	}
@@ -105,9 +104,9 @@ func GetNs(c buffalo.Context, commonRequest *handler.CommonRequest) (*Project, e
 }
 
 // /ns/{nsId}
-func DelNs(c buffalo.Context, commonRequest *handler.CommonRequest) error {
+func DelNs(c buffalo.Context, commonRequest *CommonRequest) error {
 	operationId := strings.ToLower("DelNs")
-	commonResponse, err := handler.AnyCaller(c, operationId, commonRequest, true)
+	commonResponse, err := AnyCaller(c, operationId, commonRequest, true)
 	if err != nil {
 		return err
 	}
@@ -118,9 +117,9 @@ func DelNs(c buffalo.Context, commonRequest *handler.CommonRequest) error {
 }
 
 // /ns/{nsId}
-func PutNs(c buffalo.Context, commonRequest *handler.CommonRequest) (*Project, error) {
+func PutNs(c buffalo.Context, commonRequest *CommonRequest) (*Project, error) {
 	operationId := strings.ToLower("PutNs")
-	commonResponse, err := handler.AnyCaller(c, operationId, commonRequest, true)
+	commonResponse, err := AnyCaller(c, operationId, commonRequest, true)
 	if err != nil {
 		return nil, err
 	}

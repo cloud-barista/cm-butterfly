@@ -1,4 +1,4 @@
-package self
+package handler
 
 type LookupDiskInfo struct {
 	// create disk list
