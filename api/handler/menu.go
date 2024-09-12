@@ -22,12 +22,13 @@ func init() {
 }
 
 type Menu struct {
-	Id           string `json:"id"` // for routing
-	ParentMenuId string `json:"parentMenuId"`
-	DisplayName  string `json:"displayName"` // for display
-	IsAction     string `json:"isAction"`    // maybe need type assertion..?
-	Priority     string `json:"priority"`
-	Menus        Menus  `json:"menus"`
+	Id          string `json:"id", yaml:"id"` // for routing
+	ParentId    string `json:"parentid", yaml:"parentid"`
+	DisplayName string `json:"displayname", yaml:"displayname"` // for display
+	Restype     string `json:"restype", yaml:"restype"`         // maybe need type assertion..?
+	IsAction    string `json:"isaction", yaml:"isaction"`
+	Priority    string `json:"priority", yaml:"priority"`
+	Menus       Menus  `json:"menus", yaml:"menus"`
 }
 
 type Menus []Menu
@@ -38,12 +39,11 @@ func buildMenuTree(menus Menus, parentID string) Menus {
 	var tree Menus
 
 	for _, menu := range menus {
-		if menu.ParentMenuId == parentID {
+		if menu.ParentId == parentID {
 			menu.Menus = buildMenuTree(menus, menu.Id)
 			tree = append(tree, menu)
 		}
 	}
-
 	return tree
 }
 
@@ -59,7 +59,8 @@ func createMenuResource() error {
 		return err
 	}
 
-	CmigMenuTree.Menus = buildMenuTree(cmigMenus.Menus, "")
+	CmigMenuTree.Menus = buildMenuTree(cmigMenus.Menus, "home")
+
 	return nil
 }
 
