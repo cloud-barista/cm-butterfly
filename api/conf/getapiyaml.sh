@@ -1,6 +1,6 @@
 #!/bin/bash
 FILE="./api.yaml"
-URL="https://raw.githubusercontent.com/cloud-barista/cm-mayfly/main/conf/api.yaml"
+URL="https://raw.githubusercontent.com/MZC-CSC/cm-mayfly/develop/conf/api.yaml"
 
 if [ -f "$FILE" ]; then
     echo "api.yaml already exists."
