@@ -1,0 +1,39 @@
+networks:
+  cm-butterfly-network:
+
+services:
+  cm-butterfly:
+    container_name: cm-butterfly
+    build:
+      context: ../api
+      dockerfile: Dockerfile.cmbutterfly
+    networks:
+      - cm-butterfly-network
+    ports:
+      - target: 4000
+        published: 4000
+        protocol: tcp
+    depends_on:
+      - cm-butterfly-db
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@cm-butterfly-db:5432/${POSTGRES_DB}
+    env_file:
+      - .env
+
+  cm-butterfly-db:
+    container_name: cm-butterfly-db
+    image: postgres:14-alpine
+    networks:
+      - cm-butterfly-network
+    ports:
+      - target: 5432
+        # published: 5432
+        protocol: tcp
+    env_file:
+      - .env
+    volumes:
+      - ./container-volume/cm-butterfly/postgres/postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

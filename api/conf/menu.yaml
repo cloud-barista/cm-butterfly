@@ -1,0 +1,97 @@
+menus:
+  - id: migrations
+    parentid: home
+    displayname: Migrations
+    restype: menu
+    isaction: "false"
+    priority: 0
+  - id: migrationguide
+    parentid: migrations
+    displayname: Migration Guide
+    restype: menu
+    isaction: "true"
+    priority: 0
+  - id: sourcecomputing
+    parentid: migrations
+    displayname: Source Computing
+    restype: menu
+    isaction: "false"
+    priority: 0
+  - id: sourceservices
+    parentid: sourcecomputing
+    displayname: Source Services
+    restype: menu
+    isaction: "true"
+    priority: 0
+  - id: sourceconnections
+    parentid: sourcecomputing
+    displayname: Source Connections
+    restype: menu
+    isaction: "true"
+    priority: 0
+  - id: sourcemetas
+    parentid: sourcecomputing
+    displayname: Source Metas
+    restype: menu
+    isaction: "true"
+    priority: 0
+  - id: models
+    parentid: migrations
+    displayname: Models
+    restype: menu
+    isaction: "false"
+    priority: 0
+  - id: sourcemodels
+    parentid: models
+    displayname: Source Models
+    restype: menu
+    isaction: "false"
+    priority: 0
+  - id: targetmodels
+    parentid: models
+    displayname: Target Models
+    restype: menu
+    isaction: "true"
+    priority: 0
+  - id: workflowmanagement
+    parentid: migrations
+    displayname: Workflow Management
+    restype: menu
+    isaction: "false"
+    priority: 0
+  - id: workflows
+    parentid: workflowmanagement
+    displayname: Workflows
+    restype: menu
+    isaction: "true"
+    priority: 0
+  - id: workflowtemplates
+    parentid: workflowmanagement
+    displayname: Workflow Templates
+    restype: menu
+    isaction: "true"
+    priority: 0
+  - id: taskcomponents
+    parentid: workflowmanagement
+    displayname: Task Components
+    restype: menu
+    isaction: "true"
+    priority: 0
+  - id: workloadoperations
+    parentid: migrations
+    displayname: Workload Operations
+    restype: menu
+    isaction: "false"
+    priority: 0
+  - id: workloads
+    parentid: workflowmanagement
+    displayname: Workloads
+    restype: menu
+    isaction: "false"
+    priority: 0
+  - id: mciswls
+    parentid: workloads
+    displayname: MCIS WLs
+    restype: menu
+    isaction: "true"
+    priority: 0
