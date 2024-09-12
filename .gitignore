@@ -1,26 +1,82 @@
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+# api
+api/vendor/
+api/**/*.log
+api/**/*.sqlite
+api/.idea/
+api/bin/
+api/tmp/
+api/tmp/*
+api/node_modules/
+api/.sass-cache/
+api/public/assets/
+api/.vscode/
+api/.grifter/
+api/.env
+api/**/.DS_Store
+api/*.pid
+api/coverage
+api/coverage.data
+api/.svn
+api/.console_history
+api/.sass-cache/*
+api/.jhw-cache/
+api/jhw.*
+api/*.sublime*
+api/dist/
+api/generated/
+api/.vendor/
+api/.pnp.*
+api/.yarn/*
+api/!.yarn/patches
+api/!.yarn/plugins
+api/!.yarn/releases
+api/!.yarn/sdks
+api/!.yarn/versions
 
-*.swp
 
-# Test binary, build with `go test -c`
-*.test
+# conf
+api/conf/api.yaml
+api/conf/authsetting.yaml
+api/conf/user.dat
+api/conf/serverinfo
 
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
-.DS_Store
+# front
 
-*.code-workspace
-pkg
-conf/*
-conf/*.env
-!conf/setup.env
-!conf/setup.sample.env
+## env
+front/.env*
 
-data/*
+## Logs
+front/logs
+front/*.log
+front/npm-debug.log*
+front/yarn-debug.log*
+front/yarn-error.log*
+front/pnpm-debug.log*
+front/lerna-debug.log*
 
-bin/*
+front/node_modules
+front/dist
+front/dist-ssr
+
+## Editor directories and files
+front/.vscode/*
+front/!.vscode/extensions.json
+front/.idea
+front/.DS_Store
+front/*.suo
+front/*.ntvs*
+front/*.njsproj
+front/*.sln
+front/*.sw?
+front/.iml
+front/.idea
+
+# bin
+bin/mc-web-console-api
+bin/mc-web-console-api.pid
+bin/mc-web-console-api.log
+bin/.env
+
+
+
+# scripts
