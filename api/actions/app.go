@@ -29,7 +29,7 @@ func App() *buffalo.App {
 			PreWares: []buffalo.PreWare{
 				cors.AllowAll().Handler, // disable require, when front proxy done.
 			},
-			SessionName: "mc_web_console",
+			SessionName: "cm-buttergly",
 			Addr:        os.Getenv("API_ADDR") + ":" + os.Getenv("API_PORT"),
 		})
 
