@@ -140,7 +140,7 @@ func GetWorkspaceUserRoleMappingList(c buffalo.Context) (*GetWorkspaceUserRoleMa
 	}
 	result := &GetWorkspaceUserRoleMappingListResponse{
 		Role: Role{
-			Name:        c.Value("Role").(string),
+			Name:        c.Value("Roles").([]string)[0],
 			Description: "this is default role.",
 		},
 		WorkspaceProjectMapping: WorkspaceProjectMapping{
