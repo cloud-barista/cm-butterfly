@@ -1,4 +1,4 @@
-import { AuthorizationType } from '../store/authorizationStore.ts';
+import { AuthorizationType } from '../store/auth';
 
 export interface ILoginData {
   role: AuthorizationType;
