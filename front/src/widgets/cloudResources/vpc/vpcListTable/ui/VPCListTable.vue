@@ -17,6 +17,7 @@ import { i18n } from '@/app/i18n';
 import { useGetAllVPCs, useDeleteVPC } from '@/entities';
 import { insertDynamicComponent } from '@/shared/utils';
 import { DeleteVPC } from '@/features/cloudResources';
+import { AddSourceServiceModal } from '@/widgets/sourceServices';
 
 const resGetAllVPCs = useGetAllVPCs<any, null | { nsId: string }>(null);
 const resDeleteVPC = useDeleteVPC<any, null | { nsId: string; vNetId: string }>(
@@ -310,5 +311,8 @@ onMounted(function () {
       </template>
     </p-horizontal-layout>
     <v-p-c-create-modal v-if="createVpcModalVisible" />
+    <add-source-service-modal
+      :save-button-name="`${i18n.t('COMPONENT.BUTTON_MODAL.SAVE')}`"
+    />
   </div>
 </template>

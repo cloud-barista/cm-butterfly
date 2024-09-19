@@ -5,6 +5,7 @@ import NotFound from '../../../pages/error/404/NotFound.vue';
 import { environmentRoutes } from './routes/environment';
 import { accountAndAccessRoutes } from './routes/accountAndAccess';
 import { manageRoutes } from './routes/manage';
+import { tempRoutes } from './routes/temp.ts';
 import { MainLayout } from '../../Layouts';
 import { MenuId, useAuthenticationStore } from '../../../entities';
 import { Route } from 'vue-router';
@@ -35,6 +36,7 @@ export class McmpRouter {
         ...environmentRoutes,
         ...accountAndAccessRoutes,
         ...manageRoutes,
+        ...tempRoutes,
       ],
     },
     ...authRoutes,
