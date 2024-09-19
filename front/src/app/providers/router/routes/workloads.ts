@@ -3,6 +3,7 @@ import { MENU_ID } from '../../../../entities';
 import { WorkloadsPage } from '../../../../pages/workloads';
 import { MCIPage } from '../../../../pages/mci';
 import { i18n } from '../../../i18n';
+import SourceService from '@/pages/sourceServices/ui/SourceService.vue';
 
 const category = i18n.t('MENU.OPERATIONS.MANAGE._NAME');
 
@@ -32,6 +33,17 @@ const workloadsRoutes: RouteConfig[] = [
         path: 'mci',
         name: WORKLOADS_ROUTE.MCI._NAME,
         component: MCIPage,
+        meta: {
+          requiresAuth: true,
+          lsbVisible: true,
+          menuId: MENU_ID.MANAGE_WORKLOADS,
+          category,
+        },
+      },
+      {
+        path: 'pmk',
+        name: WORKLOADS_ROUTE.PMK._NAME,
+        component: SourceService,
         meta: {
           requiresAuth: true,
           lsbVisible: true,

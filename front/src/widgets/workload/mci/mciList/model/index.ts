@@ -1,5 +1,9 @@
 import { useToolboxTableModel } from '../../../../../shared/hooks/table/toolboxTable/useToolboxTableModel.ts';
-import { IMci, McisTableType, useMCIStore } from '../../../../../entities/mci/model';
+import {
+  IMci,
+  McisTableType,
+  useMCIStore,
+} from '../../../../../entities/mci/model';
 import { watch } from 'vue';
 import { useGetMciList } from '../../../../../entities/mci/api';
 import { showErrorMessage } from '../../../../../shared/utils';
@@ -66,6 +70,7 @@ export function useMciListModel(props: IProps) {
     return organizedDatum;
   }
 
+  //여기는 modelView에서 해야함.
   function fetchMciList() {
     resMciList
       .execute()
