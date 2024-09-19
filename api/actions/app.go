@@ -68,6 +68,7 @@ func App() *buffalo.App {
 		api.POST("/getworkspaceuserrolemappinglistbyuserid", GetWorkspaceUserRoleMappingListByUserId)
 
 		api.POST("/{operationId}", AnyController)
+		api.POST("/{subsystemName}/{operationId}", SubsystemAnyController)
 	})
 
 	return app
