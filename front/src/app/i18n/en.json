@@ -1,0 +1,166 @@
+{
+  "MENU": {
+    "OPERATIONS": {
+      "_NAME": "Operations",
+      "MANAGE": {
+        "_NAME": "Manage", 
+        "PROJECTS": "Projects",
+        "MEMBERS": "Members",
+        "ROLES": "Roles",
+        "PROJECT_BOARD": "Project Board",
+        "WORKLOADS": {
+          "_NAME": "Workloads",
+          "MCI": "MCI",
+          "PMK": "PMK"
+        }
+      },
+      "ANALYTICS": {
+        "_NAME": "Analytics",
+        "MONITORINGS": {
+          "_NAME": "Monitorings",
+          "MCIs": "MCIs Monitoring",
+          "PMKs": "PMKs Monitoring",
+          "THIRD_PARTY": "3rd Party Monitoring",
+          "CONFIG": "Monitoring Config"
+        },
+        "EVENTS_TRACES": {
+          "_NAME": "Events & Traces",
+            "ALRAMS_HISTORY": "Alarms History",
+            "THRESHOLD_CONFIG": "Threshold Config",
+            "LOG_MANAGE": "Log Manage",
+            "LOG_CONFIG": "Log Config",
+            "EVENT_TRACE": "Event Trace",
+            "COST_ANALYSIS": "Cost Analysis"
+        }
+      }
+    },
+    "SETTINGS": {
+      "_NAME": "Settings",
+      "ACCOUNT_ACCESS": {
+        "_NAME": "Account & Access",
+        "ORGANIZATIONS": {
+          "_NAME": "Organizations",
+          "USERS": "Users",
+          "APPROVALS": "Approvals",
+          "ACCESS_CONTROLS": "Access Controls"
+        }
+      },
+      "ENVIRONMENT": {
+        "_NAME": "Environment",
+        "CLOUD_SPS": {
+          "_NAME": "Cloud SPs",
+          "CLOUD_OVERVIEW": "Cloud Overview",
+          "REGIONS": "Regions",
+          "CONNECTIONS": "Connections",
+          "CLOUD_DRIVERS": "Cloud Drivers",
+          "CREDENTIALS": "Credentials"
+        },
+        "CLOUD_RESOURCES": {
+          "_NAME": "Cloud Resources",
+          "SPECS": "Specs",
+          "IMAGES": "Images",
+          "VPC": "VPC",
+          "SECURITYS": "Securitys",
+          "MYIMAGES": "MyImages",
+          "DISKS": "Disks",
+          "SSH_KEYS": "SSH Keys"
+        },
+        "CLOUD_RES_CATALOGS": "Cloud Resource Catalogs",
+        "MANAGE_CREDENTIAL": {
+          "_NAME": "Manage Credential",
+          "CREDENTIALS": "Credentials"
+        },
+        "WORKSPACES_SETTINGS": {
+          "_NAME": "Workspaces Settings",
+          "ALLOCATED_PROJECTS": "Allocated Projects",
+          "SHARE_MEMBERS": "Share Members",
+          "ACCESS_CONTROLS": "Access Controls"
+        }
+      }
+    }
+  },
+  "WORKSPACE": {
+    "_NAME": "Workspace"
+  },
+  "ROLE": {
+    "_NAME": "Role",
+    "PLATFORM_ADMIN": "Platform Admin",
+    "ADMIN": "Admin",
+    "OPERATOR": "Operator",
+    "VIEWER": "Viewer",
+    "BILL_ADMIN": "Bill Admin",
+    "BILL_VIEWER": "Bill Viewer",
+    "MIGRATOR_ADMIN": "Migrator Admin"
+  },
+  "AUTH": {
+    "LOGIN": {
+      "_NAME": "LOGIN",
+      "USER_ID": "User ID",
+      "USER_ID_REQUIRED": "please enter id",
+      "PASSWORD": "Password",
+      "PASSWORD_REQUIRED": "please enter password",
+      "PASSWORD_INCLUDE_SPACES": "Password must not contain spaces",
+      "EMAIL_INVALID": "Invalid email address"
+    }
+  },
+  "USER": {
+    "REGISTER": {
+      "PASSWORD_CONFIRM" : "Please check confirm password"
+    }
+  },
+  "CLOUD_RESOURCES": {
+    "VPC": {
+      "_NAME": "VPC",
+      "DETAILS": "Details",
+      "CONNECTION": "Connection",
+      "SUBNETS": "Subnets"
+    },
+    "PROVIDER": {
+      "_NAME": "Provider",
+      "NCP": "NCP",
+      "NCPVPC": "NCPVPC",
+      "AZURE": "Azure",
+      "IBM": "IBM",
+      "KT_CLOUD": "KTCloud",
+      "KT_CLOUD_VPC": "KTCloudVPC",
+      "OPEN_STACK": "OpenStack",
+      "NHN_CLOUD": "NHNCLOUD",
+      "ALIBABA": "Alibaba",
+      "AWS": "AWS",
+      "GCP": "GCP",
+      "TENCENT": "Tencent"
+    }
+  },
+  "COMPONENT": {
+    "TEXT_INPUT": {
+      "SHOW": "SHOW",
+      "HIDE": "HIDE"
+    },
+    "QUERY_SEARCH_TAGS": {
+      "CLEAR_ALL": "CLEAR"
+    },
+    "DATA_TABLE": {
+      "NO_DATA" : "NO_DATA"
+    },
+    "FIELD_GROUP": {
+      "OPTIONAL": "optional"
+    },
+    "BUTTON_MODAL": {
+      "CANCEL" : "Cancel",
+      "CONFIRM" : "OK",
+      "REMOVE": "Remove",
+      "EDIT": "Edit",
+      "APPLY": "Apply",
+      "DELETE": "Delete",
+      "CREATE": "Create",
+      "SAVE": "Save"
+    },
+    "CONTEXT_MENU": {
+      "SHOW_MORE" : "show more",
+      "NO_ITEM" : "NO ITEM"
+    },
+    "DEFINITION_TABLE": {
+      "NO_DATA" : "NO DATA"
+    }
+  }
+}

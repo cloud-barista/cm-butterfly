@@ -9,7 +9,6 @@ module.exports = {
     '@vue/eslint-config-typescript',
     '@vue/eslint-config-prettier',
     'plugin:vue/recommended',
-
   ],
   rules: {
     'prettier/prettier': [
@@ -28,7 +27,16 @@ module.exports = {
     'vue/no-unused-vars': 'warn',
     'no-console': 'warn',
     'vue/multi-word-component-names': 'off',
-    "no-unused-vars": "warn",
-    'vue/singleline-html-element-content-newline' : 'off'
+    'no-unused-vars': 'warn',
+    'vue/singleline-html-element-content-newline': 'off',
+    'vue/first-attribute-linebreak': [
+      'error',
+      {
+        singleline: 'ignore',
+        multiline: 'below',
+      },
+    ],
+    'vue/max-attributes-per-line': 'off',
+    "vue/no-mutating-props": 'off'
   },
 };

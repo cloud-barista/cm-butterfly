@@ -1,20 +1,40 @@
 <script setup lang="ts">
-// import { PButton } from '@cloudforet-test/mirinae';
-
-import {preAutoLogin} from "@/app/providers/router/auth.ts";
-
-preAutoLogin();
+import { PNoticeAlert, PToastAlert } from '@cloudforet-test/mirinae';
 </script>
 
 <template>
   <div id="app">
+    <p-notice-alert group="noticeBottomRight" />
+    <p-toast-alert group="toastTopCenter" />
     <router-view />
   </div>
 </template>
 
-<style lang="postcss" scoped>
-.test-class {
-  @apply flex flex-row justify-center;
-  border: 1px solid red;
+<style scoped lang="postcss">
+#app {
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+  width: 100vw;
+  height: 100vh;
+  background-color: $bg-color;
+
+  .console-loading-wrapper {
+    position: absolute;
+    height: 100%;
+    z-index: 10;
+
+    & > .data-loader-container > .loader-wrapper > .loader.spinner {
+      max-height: unset;
+    }
+  }
+}
+
+:deep(.sidebar-container) {
+  @apply bg-gray-100;
+}
+
+:deep(.non-sidebar-wrapper) {
+  min-height: 100%;
 }
 </style>

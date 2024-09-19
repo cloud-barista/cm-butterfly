@@ -1,0 +1,152 @@
+[{
+  "id": "7e51e786-80de-4fbf-b17c-326523cf50f3",
+  "parentMenuId": "",
+  "name": "settings",
+  "displayname": "settings category",
+  "isAction": "false",
+  "priority": "0",
+  "menus": [
+    {
+      "id": "b8a3b531-c4fd-4faa-91e4-33296d5922ed",
+      "parentMenuId": "7e51e786-80de-4fbf-b17c-326523cf50f3",
+      "name": "accountAccess",
+      "displayname": "Account & Access category",
+      "isAction": "false",
+      "priority": "0",
+      "menus": [
+        {
+          "id": "7f757269-fc8a-448e-accb-53cf922973f2",
+          "parentMenuId": "b8a3b531-c4fd-4faa-91e4-33296d5922ed",
+          "name": "organizations",
+          "displayname": "Organizations",
+          "isAction": "false",
+          "priority": "0",
+          "menus": [
+            {
+              "id": "121de54e-49f7-47a3-a665-9db82e9f0411",
+              "parentMenuId": "7f757269-fc8a-448e-accb-53cf922973f2",
+              "name": "users",
+              "displayname": "Users menu",
+              "isAction": "true",
+              "priority": "0",
+              "menus": []
+            },
+            {
+              "id": "90dd2da1-1f91-416f-a7b6-0202b3f57289",
+              "parentMenuId": "7f757269-fc8a-448e-accb-53cf922973f2",
+              "name": "approvals",
+              "displayname": "Approvals menu",
+              "isAction": "true",
+              "priority": "0",
+              "menus": []
+            },
+            {
+              "id": "a877bda8-e633-43b4-9ed0-c04018f93139",
+              "parentMenuId": "7f757269-fc8a-448e-accb-53cf922973f2",
+              "name": "accessControls",
+              "displayname": "Access Controls menu",
+              "isAction": "true",
+              "priority": "0",
+              "menus": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "b8a3b531-c4fd-4faa-91e4-33296d5922ed",
+      "parentMenuId": "7e51e786-80de-4fbf-b17c-326523cf50f3",
+      "name": "Environment",
+      "displayname": "Environment category",
+      "isAction": "false",
+      "priority": "0",
+      "menus": [
+        {
+          "id": "7f757269-fc8a-448e-accb-53cf922973f2",
+          "parentMenuId": "b8a3b531-c4fd-4faa-91e4-33296d5922ed",
+          "name": "cloudResources",
+          "displayname": "Cloud Resources",
+          "isAction": "false",
+          "priority": "0",
+          "menus": [
+            {
+              "id": "121de54e-49f7-47a3-a665-9db82e9f0411",
+              "parentMenuId": "7f757269-fc8a-448e-accb-53cf922973f2",
+              "name": "Networks",
+              "displayname": "Networks menu",
+              "isAction": "true",
+              "priority": "0",
+              "menus": []
+            },
+            {
+              "id": "90dd2da1-1f91-416f-a7b6-0202b3f57289",
+              "parentMenuId": "7f757269-fc8a-448e-accb-53cf922973f2",
+              "name": "Securitys",
+              "displayname": "Securitys menu",
+              "isAction": "true",
+              "priority": "0",
+              "menus": []
+            },
+            {
+              "id": "a877bda8-e633-43b4-9ed0-c04018f93139",
+              "parentMenuId": "7f757269-fc8a-448e-accb-53cf922973f2",
+              "name": "MyImages",
+              "displayname": "MyImages menu",
+              "isAction": "true",
+              "priority": "0",
+              "menus": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}, {
+  "id": "7e51e786-80de-4fbf-b17c-326523cf50f2",
+  "parentMenuId": "",
+  "name": "operations",
+  "displayname": "operations category",
+  "isAction": "false",
+  "priority": "0",
+  "menus": [
+    {
+      "id": "b8a3b531-c4fd-4faa-91e4-33296d5922ee",
+      "parentMenuId": "7e51e786-80de-4fbf-b17c-326523cf50f2",
+      "name": "manage",
+      "displayname": "Manage category",
+      "isAction": "false",
+      "priority": "0",
+      "menus": [
+        {
+          "id": "abab",
+          "parentMenuId": "b8a3b531-c4fd-4faa-91e4-33296d5922ee",
+          "name": "workloads",
+          "displayname": "Workloads",
+          "isAction": "false",
+          "priority": "0",
+          "menus": [
+            {
+              "id": "cdcd",
+              "parentMenuId": "abab",
+              "name": "mci",
+              "displayname": "MCI",
+              "isAction": "true",
+              "priority": "0",
+              "menus": []
+            },
+            {
+              "id": "efef",
+              "parentMenuId": "abab",
+              "name": "pmk",
+              "displayname": "PMK",
+              "isAction": "true",
+              "priority": "0",
+              "menus": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+]

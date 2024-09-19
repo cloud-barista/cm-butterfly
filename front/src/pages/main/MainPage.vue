@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import Layout from "@/widgets/mainLayout/mainLayout.vue";
+import MainLayout from '@/app/Layouts/consoleLayout/ui/ConsoleLayout.vue';
 </script>
 
 <template>
   <div class="h-screen">
-    <Layout>
-      <router-view />
-    </Layout>
+    <main-layout>
+      <!-- <router-view /> -->
+    </main-layout>
   </div>
 </template>
 
