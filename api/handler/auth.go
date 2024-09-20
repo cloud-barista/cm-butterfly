@@ -184,7 +184,7 @@ func saveUserToEncryptedFile(user *CmigUser) error {
 func generateJWT() (*CmigUserLoginResponse, error) {
 	UserLoginRes := &CmigUserLoginResponse{}
 
-	exp := time.Now().Add(time.Minute * 10).Unix()
+	exp := time.Now().Add(time.Minute * 60).Unix()
 
 	claims := CmigAccesstokenClaims{
 		Upn:         user.Id,
@@ -207,7 +207,7 @@ func generateJWT() (*CmigUserLoginResponse, error) {
 	UserLoginRes.Accesstoken = signedToken
 	UserLoginRes.ExpiresIn = exp
 
-	refreshExp := time.Now().Add(time.Minute * 30).Unix()
+	refreshExp := time.Now().Add(time.Minute * 180).Unix()
 	refreshClaims := CmigRefreshtokenClaims{
 		Exp: exp,
 		MapClaims: &jwt.MapClaims{
