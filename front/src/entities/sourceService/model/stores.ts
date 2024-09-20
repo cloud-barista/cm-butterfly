@@ -30,7 +30,7 @@ export const useSourceServiceStore = defineStore(
     function isSourceServiceResponse(
       _services: ISourceService[] | ISourceServiceResponse,
     ): _services is ISourceServiceResponse {
-      return (_services as ISourceServiceResponse).temp !== undefined;
+      return (_services as ISourceServiceResponse).target_info !== undefined;
     }
 
     function getServiceById(serviceId: string) {

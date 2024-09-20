@@ -3,7 +3,7 @@ import { MENU_ID } from '../../../../entities';
 import { WorkloadsPage } from '../../../../pages/workloads';
 import { MCIPage } from '../../../../pages/mci';
 import { i18n } from '../../../i18n';
-import SourceService from '@/pages/sourceServices/ui/SourceService.vue';
+import SourceService from '@/pages/sourceServices/ui/SourceServicePage.vue';
 
 const category = i18n.t('MENU.OPERATIONS.MANAGE._NAME');
 

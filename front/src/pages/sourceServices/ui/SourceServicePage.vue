@@ -7,6 +7,7 @@ import VmDetail from '@/widgets/workload/mci/vmInformation/ui/VmInformation.vue'
 import MciDetail from '@/widgets/workload/mci/mciDetail/ui/MciDetail.vue';
 import SourceServiceList from '@/widgets/sourceServices/sourceServiceList/ui/SourceServiceList.vue';
 import SourceServiceDetail from '@/widgets/sourceServices/sourceServiceDetail/ui/SourceServiceDetail.vue';
+import SourceConnectionList from '@/widgets/sourceConnections/sourceConnectionList/ui/SourceConnectionList.vue';
 
 const pageName = 'Source Services';
 
@@ -24,7 +25,26 @@ const mainTabState = reactive({
   ],
 });
 
+const sourceConnectionDetailTabState = reactive({
+  activeTab: 'Information',
+  tabs: [
+    {
+      name: 'information',
+      label: 'Information',
+    },
+    {
+      name: 'infraCollect',
+      label: 'Infra Collect',
+    },
+    {
+      name: 'softwareCollect',
+      label: 'Software Collect',
+    },
+  ],
+});
+
 const selectedServiceId = ref<string>('');
+const selectedConnectionId = ref<string>('');
 </script>
 
 <template>
@@ -59,7 +79,27 @@ const selectedServiceId = ref<string>('');
               :selected-service-id="selectedServiceId"
             ></SourceServiceDetail>
           </template>
-          <template #connections></template>
+          <template #connections>
+            <div class="tab-section-header">
+              <p>Source Connection</p>
+            </div>
+            <SourceConnectionList
+              :selected-service-id="selectedServiceId"
+              @selectRow="id => (selectedConnectionId = id)"
+            >
+              <template #sourceConnectionDetail>
+                <p-button-tab
+                  v-model="sourceConnectionDetailTabState.activeTab"
+                  :tabs="sourceConnectionDetailTabState.tabs"
+                >
+                  <template #information></template>
+                  <template #infraCollect></template>
+                  <template #softwareCollect></template>
+                </p-button-tab>
+                <div class="absolute">test</div>
+              </template>
+            </SourceConnectionList>
+          </template>
         </p-tab>
       </div>
     </section>
