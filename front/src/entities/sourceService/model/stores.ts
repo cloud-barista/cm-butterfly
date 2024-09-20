@@ -1,15 +1,17 @@
 import { ref, Ref } from 'vue';
-import { ISourceService } from '@/entities/sourceService/model/types.ts';
+import {
+  ISourceService,
+  ISourceServiceResponse,
+} from '@/entities/sourceService/model/types.ts';
 import { defineStore } from 'pinia';
 
 const NAMESPACE = 'SOURCESERVICE';
 
 export interface ISourceServiceStore {
   services: Ref<ISourceService[]>;
-  setService: (val: any) => void;
-  // setService: (val: ISourceService[]) => void;
-
+  setService(val: any): void;
   getServiceById: (id: string) => ISourceService | null;
+  setServiceStatus(serviceId: string, status: any): void;
 }
 
 export const useSourceServiceStore = defineStore(
@@ -17,8 +19,18 @@ export const useSourceServiceStore = defineStore(
   (): ISourceServiceStore => {
     const services = ref<ISourceService[]>([]);
 
-    function setService(_services: ISourceService[]) {
-      services.value = _services;
+    function setService(_services: ISourceService[] | ISourceServiceResponse) {
+      if (isSourceServiceResponse(_services)) {
+        //가공로직
+      } else {
+        services.value = _services;
+      }
+    }
+
+    function isSourceServiceResponse(
+      _services: ISourceService[] | ISourceServiceResponse,
+    ): _services is ISourceServiceResponse {
+      return (_services as ISourceServiceResponse).temp !== undefined;
     }
 
     function getServiceById(serviceId: string) {
@@ -29,10 +41,18 @@ export const useSourceServiceStore = defineStore(
       );
     }
 
+    function setServiceStatus(serviceId: string, status: any) {
+      const service = getServiceById(serviceId);
+      if (service) {
+        service.status = status;
+      }
+    }
+
     return {
       services,
       setService,
       getServiceById,
+      setServiceStatus,
     };
   },
 );

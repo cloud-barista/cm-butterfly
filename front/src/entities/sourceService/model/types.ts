@@ -3,12 +3,20 @@ export interface ISourceService {
   name: string;
   description: string;
   connection: string;
-  status: ISourceServiceStatus;
+  status: SourceServiceStatus;
 }
 
-export interface ISourceServiceStatus {}
+export type SourceServiceStatus = 'installed' | 'Unknown';
 
-export interface ISourceServiceResponse {}
+export interface ISourceServiceResponse {
+  description: string;
+  id: string;
+  name: string;
+  target_info: {
+    mci_id: string;
+    ns_id: string;
+  };
+}
 
 export type SourceServiceTableType =
   | 'name'
