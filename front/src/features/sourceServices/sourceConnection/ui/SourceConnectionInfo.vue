@@ -6,6 +6,30 @@ import {
   PPaneLayout,
   PI,
 } from '@cloudforet-test/mirinae';
+import { computed, reactive, watch, watchEffect } from 'vue';
+
+const emit = defineEmits([
+  'update:source-connection',
+  'delete:source-connection',
+]);
+
+const state = reactive({
+  name: '',
+  description: '',
+  ip_address: '',
+  user: '',
+  private_key: '',
+  ssh_port: '',
+  password: '',
+});
+
+watch(state, () => {
+  emit('update:source-connection', state);
+});
+
+const handleDelete = () => {
+  emit('delete:source-connection', true);
+};
 </script>
 
 <template>
@@ -13,32 +37,38 @@ import {
     <p-pane-layout class="source-connection-info">
       <div class="left-layer">
         <p-field-group label="Source Connection Name" required>
-          <p-text-input placeholder="Source Connection Name" />
+          <p-text-input
+            v-model="state.name"
+            placeholder="Source Connection Name"
+          />
         </p-field-group>
         <p-field-group label="Description">
-          <p-textarea />
+          <p-textarea v-model="state.description" />
         </p-field-group>
       </div>
       <div class="right-layer">
         <p-field-group label="IP Address">
-          <p-text-input placeholder="###.###.###.###" />
+          <p-text-input
+            v-model="state.ip_address"
+            placeholder="###.###.###.###"
+          />
         </p-field-group>
         <p-field-group label="Port (for SSH)">
-          <p-text-input placeholder="1~256" />
+          <p-text-input v-model="state.ssh_port" placeholder="1~256" />
         </p-field-group>
         <p-field-group label="User">
-          <p-text-input placeholder="User ID" />
+          <p-text-input v-model="state.user" placeholder="User ID" />
         </p-field-group>
         <p-field-group label="Password">
-          <p-text-input placeholder="Password" />
+          <p-text-input v-model="state.password" placeholder="Password" />
         </p-field-group>
         <p-field-group class="private-key" label="Private Key">
-          <p-text-input />
+          <p-text-input v-model="state.private_key" />
         </p-field-group>
       </div>
     </p-pane-layout>
     <!-- <p-icon-button name="ic_close" /> -->
-    <button>
+    <button @click="handleDelete">
       <p-i name="ic_close" />
     </button>
   </div>

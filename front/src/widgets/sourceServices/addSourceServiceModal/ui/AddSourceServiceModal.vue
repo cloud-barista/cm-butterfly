@@ -10,18 +10,24 @@ import {
   PDivider,
   PLink,
 } from '@cloudforet-test/mirinae';
-import { ref } from 'vue';
+import { reactive, ref, watchEffect } from 'vue';
+import { useSourceServiceStore } from '@/shared/libs/store/source-service-store';
+import { storeToRefs } from 'pinia';
+
+const sourceServiceStore = useSourceServiceStore();
+
+const { sourceConnectionList } = storeToRefs(sourceServiceStore);
 
 interface Props {
   saveButtonName: string;
-  sourceServiceInfo?: {
-    sourceServiceName: string;
-    id: string;
-    description?: string;
-  };
 }
 
 const props = defineProps<Props>();
+
+const state = reactive({
+  sourceServiceName: '',
+  description: '',
+});
 
 // TODO: store값 임시로 (publishing 이후 수정 필요)
 const withSourceConnection = ref(false);
@@ -29,6 +35,14 @@ const withSourceConnection = ref(false);
 const handleCheckSourceConnection = () => {
   withSourceConnection.value = !withSourceConnection.value;
 };
+
+const handleConfirm = () => {
+  // TODO:
+};
+
+watchEffect(() => {
+  console.log(sourceConnectionList);
+});
 </script>
 
 <template>
@@ -36,16 +50,21 @@ const handleCheckSourceConnection = () => {
     :visible="true"
     header-title="Add Source Service"
     size="md"
-    :disabled="false"
+    :disabled="state.sourceServiceName === ''"
+    @confirm="handleConfirm"
   >
     <template #body>
       <p-pane-layout class="source-service-button-modal">
         <p-pane-layout class="layout">
           <p-field-group label="Source Service Name" required>
-            <p-text-input placeholder="Source Service Name" />
+            <p-text-input
+              v-model="state.sourceServiceName"
+              placeholder="Source Service Name"
+              :disabled="false"
+            />
           </p-field-group>
           <p-field-group label="Description">
-            <p-textarea />
+            <p-textarea v-model="state.description" :disabled="false" />
           </p-field-group>
         </p-pane-layout>
         <p-pane-layout class="layout">
@@ -65,13 +84,13 @@ const handleCheckSourceConnection = () => {
             action-icon="internal-link"
           />
           <p-field-group label="Source Connection" required>
-            <p-text-input class="source-connection" disabled="true" />
+            <p-text-input class="source-connection" :disabled="true" />
           </p-field-group>
         </p-pane-layout>
       </p-pane-layout>
     </template>
     <template #close-button>
-      <span>Cancel</span>
+      <span>{{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}</span>
     </template>
     <template #confirm-button>
       <span>{{ saveButtonName }}</span>

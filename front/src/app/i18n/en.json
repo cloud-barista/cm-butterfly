@@ -153,7 +153,8 @@
       "APPLY": "Apply",
       "DELETE": "Delete",
       "CREATE": "Create",
-      "SAVE": "Save"
+      "SAVE": "Save",
+      "CONVERT": "Convert"
     },
     "CONTEXT_MENU": {
       "SHOW_MORE" : "show more",

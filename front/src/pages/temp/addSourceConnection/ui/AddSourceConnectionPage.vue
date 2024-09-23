@@ -1,14 +1,53 @@
 <script setup lang="ts">
-import { PIconButton, PButton } from '@cloudforet-test/mirinae';
+import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
 import { SourceConnectionInfo } from '@/features/sourceServices';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { useSourceServiceStore } from '@/shared/libs/store/source-service-store';
+
+const sourceServiceStore = useSourceServiceStore();
+
+interface SourceConnection {
+  name: string;
+  description: string;
+  ip_address: string;
+  user: string;
+  private_key: string;
+  ssh_port: number;
+  password: string;
+}
 
 const isAdded = ref<boolean[]>([]);
 
+const sourceConnectionList = ref<SourceConnection[]>([]);
+
 const addSourceConnection = (value: boolean) => {
   isAdded.value.push(value);
+};
+
+const handleSourceConnection = (value: any) => {
+  sourceConnectionList.value.push(value);
+};
+
+const handleDeleteSourceConnection = (value: boolean) => {
+  value ? isAdded.value.pop() : null;
+};
+
+watch(
+  sourceConnectionList,
+  () => {
+    console.log(sourceConnectionList.value);
+  },
+  { immediate: true },
+);
+
+const handleAddSourceConnection = () => {
+  let nameArr: string[] = [];
+  sourceConnectionList.value.forEach((sourceConnection: SourceConnection) => {
+    nameArr.push(sourceConnection.name);
+  });
+  sourceServiceStore.setSourceConnectionList(nameArr);
 };
 </script>
 
@@ -21,15 +60,20 @@ const addSourceConnection = (value: boolean) => {
   >
     <template #add-info>
       <div v-for="(value, i) in isAdded" :key="i">
-        <!-- TODO: handleAddSourceConnection 작동시 아래 컴포넌트 한개씩 추가. -->
-        <source-connection-info v-if="value" />
+        <source-connection-info
+          v-if="value"
+          @update:source-connection="handleSourceConnection"
+          @delete:source-connection="handleDeleteSourceConnection"
+        />
       </div>
     </template>
     <template #buttons>
       <p-button style-type="tertiary">
         {{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}
       </p-button>
-      <p-button>{{ i18n.t('COMPONENT.BUTTON_MODAL.APPLY') }}</p-button>
+      <p-button @click="handleAddSourceConnection">
+        {{ i18n.t('COMPONENT.BUTTON_MODAL.APPLY') }}
+      </p-button>
     </template>
   </create-form>
 </template>

@@ -1,13 +1,6 @@
 <script setup lang="ts">
-import {
-  PI,
-  PButton,
-  PIconButton,
-  PTextInput,
-  PFieldGroup,
-} from '@cloudforet-test/mirinae';
+import { PButton, PIconButton } from '@cloudforet-test/mirinae';
 import { WidgetLayout } from '@/widgets/layout';
-import { ref } from 'vue';
 import { useRouter } from 'vue-router/composables';
 import { vpcStore } from '@/shared/libs';
 
@@ -17,11 +10,11 @@ const router = useRouter();
 
 interface Props {
   title: string;
-  subtitle: string;
-  addButtonText: string;
+  subtitle?: string;
+  addButtonText?: string;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 const emit = defineEmits(['addSourceConnection']);
 
 const handleAddSourceConnection = () => {
@@ -51,6 +44,7 @@ const handleGoBack = () => {
     <widget-layout class="widget-layout" :title="subtitle" overflow="auto">
       <template #default>
         <p-button
+          v-if="addButtonText"
           class="icon-plus"
           icon-left="ic_plus"
           style-type="secondary"
