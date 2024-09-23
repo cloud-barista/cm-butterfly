@@ -6,12 +6,23 @@ export interface ISourceService {
   status: SourceServiceStatus;
 }
 
-export type SourceServiceStatus = 'installed' | 'Unknown';
+export interface ISourceAgentAndConnectionStatusResponse {
+  status: SourceServiceStatus;
+}
 
-export interface ISourceServiceResponse {
+export enum SourceServiceStatus {
+  installed = 'installed',
+  unknown = 'Unknown',
+}
+
+export interface ISourceServiceResponse
+  extends Array<ISourceServiceResponseElement> {}
+
+export interface ISourceServiceResponseElement {
   description: string;
   id: string;
   name: string;
+  connection: string;
   target_info: {
     mci_id: string;
     ns_id: string;

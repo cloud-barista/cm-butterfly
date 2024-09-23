@@ -2,6 +2,7 @@ import { ref, Ref } from 'vue';
 import {
   ISourceService,
   ISourceServiceResponse,
+  SourceServiceStatus,
 } from '@/entities/sourceService/model/types.ts';
 import { defineStore } from 'pinia';
 
@@ -9,8 +10,11 @@ const NAMESPACE = 'SOURCESERVICE';
 
 export interface ISourceServiceStore {
   services: Ref<ISourceService[]>;
+
   setService(val: any): void;
+
   getServiceById: (id: string) => ISourceService | null;
+
   setServiceStatus(serviceId: string, status: any): void;
 }
 
@@ -21,7 +25,13 @@ export const useSourceServiceStore = defineStore(
 
     function setService(_services: ISourceService[] | ISourceServiceResponse) {
       if (isSourceServiceResponse(_services)) {
-        //가공로직
+        services.value = _services.map(service => ({
+          id: service.id,
+          name: service.name,
+          description: service.description,
+          connection: service.connection || '',
+          status: SourceServiceStatus.unknown,
+        }));
       } else {
         services.value = _services;
       }
@@ -30,7 +40,7 @@ export const useSourceServiceStore = defineStore(
     function isSourceServiceResponse(
       _services: ISourceService[] | ISourceServiceResponse,
     ): _services is ISourceServiceResponse {
-      return (_services as ISourceServiceResponse).target_info !== undefined;
+      return (_services as ISourceServiceResponse)[0].target_info !== undefined;
     }
 
     function getServiceById(serviceId: string) {

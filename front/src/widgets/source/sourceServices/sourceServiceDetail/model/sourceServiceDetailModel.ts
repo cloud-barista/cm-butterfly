@@ -43,13 +43,23 @@ export function useSourceServiceDetailModel() {
     return data;
   }
 
-  watch(serviceId, nv => {
+  function loadSourceServiceData(serviceId: string | null | undefined) {
     tableModel.tableState.loading = true;
-    if (nv) {
-      tableModel.tableState.data = setDefineTableData(nv);
+    if (serviceId) {
+      tableModel.tableState.data = setDefineTableData(serviceId);
     }
     tableModel.tableState.loading = false;
+  }
+
+  watch(serviceId, nv => {
+    loadSourceServiceData(nv);
   });
 
-  return { initTable, tableModel, setServiceId };
+  return {
+    loadSourceServiceData,
+    sourceServiceStore,
+    initTable,
+    tableModel,
+    setServiceId,
+  };
 }

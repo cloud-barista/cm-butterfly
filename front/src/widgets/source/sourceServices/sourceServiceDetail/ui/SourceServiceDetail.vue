@@ -1,14 +1,43 @@
 <script setup lang="ts">
 import { PDefinitionTable, PButton } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted } from 'vue';
+import { onBeforeMount, onMounted, watch } from 'vue';
 import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
+import { useGetSourceGroupStatus } from '@/entities/sourceService/api';
+import {
+  showErrorMessage,
+  showLoadingMessage,
+  showSuccessMessage,
+} from '@/shared/utils';
+import { get } from '@vueuse/core';
+import { SourceServiceStatus } from '@/entities/sourceService/model/types.ts';
 
 interface IProps {
   selectedServiceId: string;
 }
 
 const props = defineProps<IProps>();
-const { initTable, tableModel, setServiceId } = useSourceServiceDetailModel();
+const {
+  loadSourceServiceData,
+  sourceServiceStore,
+  initTable,
+  tableModel,
+  setServiceId,
+} = useSourceServiceDetailModel();
+const resGetSourceGroupStatus = useGetSourceGroupStatus(null);
+
+watch(resGetSourceGroupStatus.status, nv => {
+  if (nv === 'error') {
+    showErrorMessage(
+      'Error',
+      'Failed to check collector installation connection status',
+    );
+  } else if (nv === 'success') {
+    showSuccessMessage(
+      'Success',
+      'Successfully updated the collector installation and connection status.',
+    );
+  }
+});
 
 onBeforeMount(() => {
   initTable();
@@ -17,6 +46,23 @@ onBeforeMount(() => {
 onMounted(() => {
   setServiceId(props.selectedServiceId);
 });
+
+function handleSourceGroupStatusCheck() {
+  resGetSourceGroupStatus
+    .execute({
+      pathParams: {
+        sgId: props.selectedServiceId,
+      },
+    })
+    .then(res => {
+      sourceServiceStore.setServiceStatus(
+        props.selectedServiceId,
+        res.data.responseData?.status,
+      );
+
+      loadSourceServiceData(props.selectedServiceId);
+    });
+}
 </script>
 
 <template>
@@ -33,7 +79,14 @@ onMounted(() => {
 
       <template #extra="{ name }">
         <div v-if="name === 'status'">
-          <p-button style-type="tertiary" size="sm">Check</p-button>
+          <p-button
+            style-type="tertiary"
+            size="sm"
+            :loading="resGetSourceGroupStatus.status.value === 'loading'"
+            @click="handleSourceGroupStatusCheck"
+          >
+            Check
+          </p-button>
         </div>
       </template>
     </p-definition-table>
