@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PDefinitionTable, PButton } from '@cloudforet-test/mirinae';
-import { useSourceServiceDetailModel } from '@/widgets/sourceServices/sourceServiceDetail/model';
 import { onBeforeMount, onMounted } from 'vue';
+import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model';
 
 interface IProps {
   selectedServiceId: string;

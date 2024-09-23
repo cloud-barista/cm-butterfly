@@ -45,13 +45,11 @@ export function useSourceServiceDetailModel() {
   }
 
   watch(serviceId, nv => {
+    tableModel.tableState.loading = true;
     if (nv) {
-      tableModel.tableState.loading = true;
       tableModel.tableState.data = setDefineTableData(nv);
-      tableModel.tableState.loading = false;
-    } else {
-      tableModel.tableState.loading = false;
     }
+    tableModel.tableState.loading = false;
   });
 
   return { initTable, tableModel, setServiceId };

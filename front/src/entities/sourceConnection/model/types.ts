@@ -13,7 +13,36 @@ export interface ISourceConnectionResponse {
   user: string;
 }
 
-export interface ISourceConnection extends ISourceConnectionResponse {}
+export interface ISourceInfraInfoResponse {
+  collectInfra: string;
+  collectInfraDateTime: string;
+  viewInfra: string;
+}
+
+export interface ISourceSoftwareCollectResponse {
+  collectStatus: string;
+  collectDateTime: string;
+  viewSW: string;
+}
+
+export interface ISourceInfraInfo {
+  collectInfra: string;
+  collectInfraDateTime: string;
+  viewInfra: string;
+}
+
+export interface ISourceSoftwareCollect {
+  collectStatus: string;
+  collectDateTime: string;
+  viewSW: string;
+}
+
+export interface ISourceConnection
+  extends ISourceConnectionResponse,
+    ISourceInfraInfo,
+    ISourceSoftwareCollect {
+  type: string;
+}
 
 export type SourceConnectionTableTypes =
   | 'name'
@@ -21,4 +50,20 @@ export type SourceConnectionTableTypes =
   | 'description'
   | 'type'
   | 'ip'
-  | 'port';
+  | 'port'
+  | 'user'
+  | 'password'
+  | 'privateKey'
+  | 'publicKey'
+  | SourceInfraCollectTableTypes
+  | SourceSoftWareCollectTableTypes;
+
+type SourceInfraCollectTableTypes =
+  | 'collectInfra'
+  | 'collectInfraDateTime'
+  | 'viewInfra';
+
+type SourceSoftWareCollectTableTypes =
+  | 'collectStatus'
+  | 'collectDatetime'
+  | 'viewSW';

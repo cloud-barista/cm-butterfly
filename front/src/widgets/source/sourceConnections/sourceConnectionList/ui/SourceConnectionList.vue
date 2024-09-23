@@ -1,29 +1,31 @@
 <script setup lang="ts">
-import {
-  PToolboxTable,
-  PHorizontalLayout,
-  PButton,
-} from '@cloudforet-test/mirinae';
-import { useSourceServiceListModel } from '@/widgets/sourceServices/sourceServiceList/model';
-import { onBeforeMount, onMounted, watch } from 'vue';
+import { PToolboxTable, PButton } from '@cloudforet-test/mirinae';
 import { showErrorMessage } from '@/shared/utils';
+import { onBeforeMount, onMounted } from 'vue';
+import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model';
 
+interface IProps {
+  selectedServiceId: string;
+}
+
+const props = defineProps<IProps>();
+const emit = defineEmits(['selectRow']);
 const {
   tableModel,
-  services,
-  sourceServicesStore,
-  resSourceServiceList,
+  connections,
+  resSourceConnectionList,
   initToolBoxTableModel,
-} = useSourceServiceListModel();
+  sourceConnectionStore,
+} = useSourceConnectionListModel();
 
-const emit = defineEmits(['selectRow']);
-
-function getSourceServiceList() {
-  resSourceServiceList
-    .execute()
+function getSourceConnectionList() {
+  resSourceConnectionList
+    .execute({
+      pathParams: { sgId: props.selectedServiceId },
+    })
     .then(res => {
       if (res.data.responseData) {
-        sourceServicesStore.setService(res.data.responseData);
+        sourceConnectionStore.setConnections(res.data.responseData);
       }
     })
     .catch(e => {
@@ -45,22 +47,23 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-  getSourceServiceList();
+  getSourceConnectionList();
 });
 </script>
 
 <template>
-  <p-horizontal-layout :height="400" :min-height="400" :max-height="1000">
-    <template #container="{ height }">
+  <div>
+    <section>
       <p-toolbox-table
         ref="toolboxTable"
         :loading="
-          tableModel.tableState.loading || resSourceServiceList.isLoading.value
+          tableModel.tableState.loading ||
+          resSourceConnectionList.isLoading.value
         "
         :items="tableModel.tableState.displayItems"
         :fields="tableModel.tableState.fields"
         :total-count="tableModel.tableState.tableCount"
-        :style="{ height: `${height}px` }"
+        :style="{ height: `500px` }"
         :sortable="tableModel.tableOptions.sortable"
         :sort-by="tableModel.tableOptions.sortBy"
         :selectable="tableModel.tableOptions.selectable"
@@ -72,17 +75,20 @@ onMounted(() => {
         :select-index.sync="tableModel.tableState.selectIndex"
         :page-size="tableModel.tableOptions.pageSize"
         @change="tableModel.handleChange"
-        @refresh="getSourceServiceList"
+        @refresh="getSourceConnectionList"
         @select="handleSelectedIndex"
       >
         <template #toolbox-left>
-          <p-button style-type="primary" icon-left="ic_plus_bold">
-            Add
+          <p-button style-type="secondary" icon-left="ic_plus_bold">
+            Add / Edit
           </p-button>
         </template>
       </p-toolbox-table>
-    </template>
-  </p-horizontal-layout>
+    </section>
+    <section class="relative">
+      <slot :name="'sourceConnectionDetail'"></slot>
+    </section>
+  </div>
 </template>
 
 <style scoped lang="postcss"></style>

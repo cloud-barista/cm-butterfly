@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import MciList from '@/widgets/workload/mci/mciList/ui/MciList.vue';
-import VmGroups from '@/widgets/workload/vmGroups/ui/VmGroups.vue';
 import { PButton, PButtonTab, PTab } from '@cloudforet-test/mirinae';
-import VmDetail from '@/widgets/workload/mci/vmInformation/ui/VmInformation.vue';
-import MciDetail from '@/widgets/workload/mci/mciDetail/ui/MciDetail.vue';
-import SourceServiceList from '@/widgets/sourceServices/sourceServiceList/ui/SourceServiceList.vue';
-import SourceServiceDetail from '@/widgets/sourceServices/sourceServiceDetail/ui/SourceServiceDetail.vue';
-import SourceConnectionList from '@/widgets/sourceConnections/sourceConnectionList/ui/SourceConnectionList.vue';
+import SourceServiceList from '@/widgets/source/sourceServices/sourceServiceList/ui/SourceServiceList.vue';
+import SourceServiceDetail from '@/widgets/source/sourceServices/sourceServiceDetail/ui/SourceServiceDetail.vue';
+import SourceConnectionList from '@/widgets/source/sourceConnections/sourceConnectionList/ui/SourceConnectionList.vue';
+import SourceInformation from '@/widgets/source/sourceConnections/sourceConnectionDetail/information/ui/SourceInformation.vue';
+import SourceInfraCollect from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/ui/SourceInfraCollect.vue';
+import SourceSoftwareCollect from '@/widgets/source/sourceConnections/sourceConnectionDetail/softwareCollect/ui/SourceSoftwareCollect.vue';
 
 const pageName = 'Source Services';
 
@@ -26,7 +25,7 @@ const mainTabState = reactive({
 });
 
 const sourceConnectionDetailTabState = reactive({
-  activeTab: 'Information',
+  activeTab: 'information',
   tabs: [
     {
       name: 'information',
@@ -53,7 +52,6 @@ const selectedConnectionId = ref<string>('');
       <p>{{ pageName }}</p>
     </header>
     <section :class="`${pageName}-page-body`">
-      <!--      <MciList :ns-id="nsId" @selectRow="handleSelectMciTableRow"></MciList>-->
       <SourceServiceList
         @selectRow="id => (selectedServiceId = id)"
       ></SourceServiceList>
@@ -87,16 +85,27 @@ const selectedConnectionId = ref<string>('');
               :selected-service-id="selectedServiceId"
               @selectRow="id => (selectedConnectionId = id)"
             >
-              <template #sourceConnectionDetail>
+              <template #sourceConnectionDetail v-if="selectedConnectionId">
                 <p-button-tab
                   v-model="sourceConnectionDetailTabState.activeTab"
                   :tabs="sourceConnectionDetailTabState.tabs"
                 >
-                  <template #information></template>
-                  <template #infraCollect></template>
-                  <template #softwareCollect></template>
+                  <template #information>
+                    <SourceInformation
+                      :connection-id="selectedConnectionId"
+                    ></SourceInformation>
+                  </template>
+                  <template #infraCollect>
+                    <SourceInfraCollect
+                      :connection-id="selectedConnectionId"
+                    ></SourceInfraCollect>
+                  </template>
+                  <template #softwareCollect>
+                    <SourceSoftwareCollect
+                      :connection-id="selectedConnectionId"
+                    ></SourceSoftwareCollect>
+                  </template>
                 </p-button-tab>
-                <div class="absolute">test</div>
               </template>
             </SourceConnectionList>
           </template>

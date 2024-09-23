@@ -19,7 +19,20 @@ export const useSourceConnectionStore = defineStore(NAMESPACE, () => {
   }
 
   function setConnections(res: ISourceConnectionResponse[]) {
-    connections.value = res;
+    const initAdditionalConnectionInfo = {
+      collectStatus: '',
+      collectDateTime: '',
+      viewSW: '',
+      collectInfra: '',
+      collectInfraDateTime: '',
+      viewInfra: '',
+      type: '',
+    };
+
+    connections.value = res.map(el => ({
+      ...el,
+      ...initAdditionalConnectionInfo,
+    }));
   }
 
   return {
