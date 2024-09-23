@@ -41,6 +41,7 @@ export function useAxiosWrapper<T, D = any>(
       status.value = 'success';
       return result;
     } catch (e: any) {
+      console.log('catch');
       reset();
       error.value = e;
       errorMsg.value = extractErrorMessage(e);
@@ -73,8 +74,13 @@ export function useAxiosWrapper<T, D = any>(
 // 서버 응답에서 에러 메시지를 처리하기 위한 함수
 export function extractErrorMessage(error: any): string {
   if (error.response) {
+    if (error.status === 401) {
+      return 'User Session Expired.\n Pleas login again';
+    }
+
     // 서버가 반환한 에러 응답에서 메시지 추출
     const errorData = error.response.data;
+
     if (errorData.responseData?.message) {
       return errorData.responseData.message;
     }

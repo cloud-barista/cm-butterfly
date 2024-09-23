@@ -80,8 +80,7 @@ export default class JwtTokenProvider {
         throw new Error('Token refresh error');
       }
       return refreshRes;
-    } catch (error) {
-      alert('사용자 인증 만료');
+    } catch (error: any) {
       this.removeToken();
       McmpRouter.getRouter()
         .push({ name: AUTH_ROUTE.LOGIN._NAME })

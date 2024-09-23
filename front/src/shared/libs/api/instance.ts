@@ -30,7 +30,7 @@ axiosInstance.interceptors.response.use(
     const originalRequest: AxiosRequestConfig & { _retry?: boolean } =
       error.config || {};
 
-    if (error.response?.status === 405 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       const jwtTokenProvider: JwtTokenProvider = JwtTokenProvider.getProvider();
