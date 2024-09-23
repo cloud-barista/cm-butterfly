@@ -2,7 +2,7 @@
 import { PToolboxTable, PButton } from '@cloudforet-test/mirinae';
 import { showErrorMessage } from '@/shared/utils';
 import { onBeforeMount, onMounted } from 'vue';
-import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model';
+import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model/sourceConnectionListModel.ts';
 
 interface IProps {
   selectedServiceId: string;

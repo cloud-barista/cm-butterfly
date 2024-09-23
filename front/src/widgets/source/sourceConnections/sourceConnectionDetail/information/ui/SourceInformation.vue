@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSourceInformationModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/information/model';
+import { useSourceInformationModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/information/model/sourceInformationModel.ts';
 import { onBeforeMount, onMounted } from 'vue';
 import { PDefinitionTable } from '@cloudforet-test/mirinae';
 

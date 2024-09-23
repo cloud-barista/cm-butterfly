@@ -6,7 +6,7 @@ import {
 } from '@cloudforet-test/mirinae';
 import { onBeforeMount, onMounted, watch } from 'vue';
 import { showErrorMessage } from '@/shared/utils';
-import { useSourceServiceListModel } from '@/widgets/source/sourceServices/sourceServiceList/model';
+import { useSourceServiceListModel } from '@/widgets/source/sourceServices/sourceServiceList/model/sourceServiceListModel.ts';
 
 const {
   tableModel,
