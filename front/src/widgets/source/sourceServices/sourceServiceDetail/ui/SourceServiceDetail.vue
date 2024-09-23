@@ -33,7 +33,7 @@ onMounted(() => {
 
       <template #extra="{ name }">
         <div v-if="name === 'status'">
-          <p-button style-type="tertiary" size="sm">Edit</p-button>
+          <p-button style-type="tertiary" size="sm">Check</p-button>
         </div>
       </template>
     </p-definition-table>

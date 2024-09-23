@@ -40,7 +40,6 @@ export function useSourceServiceDetailModel() {
         status: sourceService.status || 'test',
       };
     }
-    console.log(data);
     return data;
   }
 

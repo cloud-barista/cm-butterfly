@@ -18,9 +18,9 @@ export function useSourceSoftwareCollectModel() {
     defineTableModel.tableState.fields = [
       { label: 'Source Connection Name', name: 'name' },
       { label: 'Source Connection ID', name: 'id' },
-      { label: 'Collect Infra', name: 'collectInfra' },
-      { label: 'Collect Infra Datetime', name: 'collectInfraDateTime' },
-      { label: 'View Infra', name: 'viewInfra' },
+      { label: 'Collect Status', name: 'collectStatus' },
+      { label: 'Collect Datetime', name: 'collectDatetime' },
+      { label: 'View SW', name: 'viewSW' },
     ];
   }
 
@@ -32,9 +32,9 @@ export function useSourceSoftwareCollectModel() {
       data = {
         name: connection.name,
         id: connection.id,
-        collectInfra: connection.collectInfra,
-        collectInfraDateTime: connection.collectInfraDateTime,
-        viewInfra: connection.viewInfra,
+        collectStatus: connection.collectStatus,
+        collectDatetime: connection.collectDateTime,
+        viewSW: connection.viewSW,
       };
     }
 
