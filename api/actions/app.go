@@ -66,7 +66,11 @@ func App() *buffalo.App {
 		// Projects and Workspace Get
 		api.POST("/getwpmappinglistbyworkspaceid", GetWPmappingListByWorkspaceId)
 		api.POST("/getworkspaceuserrolemappinglistbyuserid", GetWorkspaceUserRoleMappingListByUserId)
+		
+		// source
+		api.POST("/agent-and-connection-check", AgentAndConnectionCheck)
 
+		
 		api.POST("/{operationId}", AnyController)
 		api.POST("/{subsystemName}/{operationId}", SubsystemAnyController)
 	})
