@@ -22,7 +22,7 @@ export interface RequestBodyWrapper<D> {
   pathParams?: D;
 }
 
-export type AsyncStatus = 'idle' | 'loading' | 'success' | 'error';
+export type AsyncStatus = 'idle' | 'loading' | 'success' | 'error' | 'cancel';
 
 export interface IUseAxiosWrapperReturnType<T, D> {
   isLoading: Ref<boolean>;

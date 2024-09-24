@@ -26,7 +26,6 @@ export default class JwtTokenProvider {
     this.localstorage = new LocalStorageConnector<IJwtToken>(
       this.TOKEN_STORAGE,
     );
-    console.log(this.localstorage);
 
     const storeValue = this.localstorage.getValue();
     if (storeValue) {
@@ -82,9 +81,14 @@ export default class JwtTokenProvider {
       return refreshRes;
     } catch (error: any) {
       this.removeToken();
-      McmpRouter.getRouter()
-        .push({ name: AUTH_ROUTE.LOGIN._NAME })
-        .catch(() => {});
+
+      setTimeout(() => {
+        alert('User Session Expired.\n Pleas login again');
+        McmpRouter.getRouter()
+          .push({ name: AUTH_ROUTE.LOGIN._NAME })
+          .catch(() => {});
+      });
+
       return Promise.reject(error);
     }
   }
