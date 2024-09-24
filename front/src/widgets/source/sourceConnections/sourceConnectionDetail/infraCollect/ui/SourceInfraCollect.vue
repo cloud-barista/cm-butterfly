@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted } from 'vue';
+import { onBeforeMount, onMounted, reactive } from 'vue';
 import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
 import { useCollectInfra } from '@/entities/sourceConnection/api';
-import { mapSourceConnectionCollectInfraResponse } from '@/entities/sourceConnection/model/map.ts';
 
 interface IProps {
   sourceGroupId: string | null;
@@ -24,6 +23,10 @@ const resCollectInfra = useCollectInfra({
   connId: props.connectionId,
 });
 
+const viewInfraModalState = reactive({
+  open: false,
+});
+
 onBeforeMount(() => {
   initTable();
 });
@@ -38,16 +41,10 @@ function handleCollectInfra() {
     .then(res => {
       if (res.data.responseData) {
         if (props.connectionId) {
-          let sourceConnection = sourceConnectionStore.getConnectionById(
-            props.connectionId,
+          sourceConnectionStore.mapSourceConnectionCollectInfraResponse(
+            res.data.responseData,
           );
-          if (sourceConnection) {
-            mapSourceConnectionCollectInfraResponse(
-              sourceConnection,
-              res.data.responseData,
-            );
-            loadInfraCollectTableData(props.connectionId);
-          }
+          loadInfraCollectTableData(props.connectionId);
         }
       }
     })
@@ -63,12 +60,19 @@ function handleCollectInfra() {
       :loading="defineTableModel.tableState.loading"
       block
     >
-      <template #data-collectInfra="{ data }">
-        <p>{{ data }}</p>
+      <template #data-collectInfraStatus="{ data }">
+        {{ data ? data : 'unknown' }}
       </template>
-      <template #data-viewInfra="{ data }"></template>
+      <template #data-viewInfra="{ data }">
+        <p
+          class="text-blue-700 cursor-pointer"
+          @click="viewInfraModalState.open = true"
+        >
+          {{ data ? 'View Infra(Meta) ->' : null }}
+        </p>
+      </template>
       <template #extra="{ name }">
-        <div v-if="name === 'collectInfra'">
+        <div v-if="name === 'collectInfraStatus'">
           <p-button
             style-type="tertiary"
             size="sm"

@@ -97,12 +97,13 @@ const selectedConnectionId = ref<string>('');
                   </template>
                   <template #infraCollect>
                     <SourceInfraCollect
-                      :connection-id="selectedConnectionId"
                       :source-group-id="selectedServiceId"
+                      :connection-id="selectedConnectionId"
                     ></SourceInfraCollect>
                   </template>
                   <template #softwareCollect>
                     <SourceSoftwareCollect
+                      :source-group-id="selectedServiceId"
                       :connection-id="selectedConnectionId"
                     ></SourceSoftwareCollect>
                   </template>

@@ -18,9 +18,9 @@ export function useSourceInfraCollectModel() {
     defineTableModel.tableState.fields = [
       { label: 'Source Connection Name', name: 'name' },
       { label: 'Source Connection ID', name: 'id' },
-      { label: 'Collect Infra', name: 'collectInfra' },
+      { label: 'Collect Infra', name: 'collectInfraStatus', disableCopy: true },
       { label: 'Collect Infra Datetime', name: 'collectInfraDateTime' },
-      { label: 'View Infra', name: 'viewInfra' },
+      { label: 'View Infra', name: 'viewInfra', disableCopy: true },
     ];
   }
 
@@ -32,7 +32,7 @@ export function useSourceInfraCollectModel() {
       data = {
         name: connection.name,
         id: connection.id,
-        collectInfra: connection.collectInfra,
+        collectInfraStatus: connection.collectInfraStatus,
         collectInfraDateTime: connection.collectInfraDateTime,
         viewInfra: !!connection.infraData,
       };

@@ -18,9 +18,9 @@ export function useSourceSoftwareCollectModel() {
     defineTableModel.tableState.fields = [
       { label: 'Source Connection Name', name: 'name' },
       { label: 'Source Connection ID', name: 'id' },
-      { label: 'Collect Status', name: 'collectStatus' },
-      { label: 'Collect Datetime', name: 'collectDatetime' },
-      { label: 'View SW', name: 'viewSW' },
+      { label: 'Collect Status', name: 'collectSwStatus', disableCopy: true },
+      { label: 'Collect Datetime', name: 'collectSwDatetime' },
+      { label: 'View SW', name: 'viewSW', disableCopy: true },
     ];
   }
 
@@ -32,24 +32,29 @@ export function useSourceSoftwareCollectModel() {
       data = {
         name: connection.name,
         id: connection.id,
-        collectStatus: connection.collectStatus,
-        collectDatetime: connection.collectDateTime,
-        viewSW: connection.viewSW,
+        collectSwStatus: connection.collectSwStatus,
+        collectSwDatetime: connection.collectSwDateTime,
+        viewSW: !!connection.softwareData,
       };
     }
 
     return data;
   }
 
-  watch(connectionId, nv => {
+  function loadInfraSWTableData(connectionId: string) {
     defineTableModel.tableState.loading = true;
-    if (nv) {
-      defineTableModel.tableState.data = setDefineTableData(nv);
+    if (connectionId) {
+      defineTableModel.tableState.data = setDefineTableData(connectionId);
     }
     defineTableModel.tableState.loading = false;
+  }
+
+  watch(connectionId, nv => {
+    if (nv) loadInfraSWTableData(nv);
   });
 
   return {
+    loadInfraSWTableData,
     sourceConnectionStore,
     setConnectionId,
     defineTableModel,

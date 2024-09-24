@@ -6,11 +6,12 @@ import {
 import {
   ISourceConnectionResponse,
   ISourceInfraInfoResponse,
+  ISourceSoftwareCollectResponse,
 } from '@/entities/sourceConnection/model/types.ts';
 
 const GET_SOURCE_CONNECTION_LIST = 'list-connection-info';
 const COLLECT_INFRA = 'import-infra';
-
+const COLLECT_SW = 'import-software';
 export function useGetSourceConnectionList(sourceGroupId: string | null) {
   const requestWrapper: Required<
     Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>
@@ -40,4 +41,17 @@ export function useCollectInfra(id: params | null) {
     IAxiosResponse<ISourceInfraInfoResponse>,
     Required<Pick<RequestBodyWrapper<params | null>, 'pathParams'>>
   >(COLLECT_INFRA, requestWrapper);
+}
+
+export function useCollectSW(id: params | null) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<params | null>, 'pathParams'>
+  > = {
+    pathParams: { sgId: id?.sgId || null, connId: id?.connId || null },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<ISourceSoftwareCollectResponse>,
+    Required<Pick<RequestBodyWrapper<params | null>, 'pathParams'>>
+  >(COLLECT_SW, requestWrapper);
 }

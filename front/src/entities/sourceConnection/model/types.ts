@@ -21,22 +21,24 @@ export interface ISourceInfraInfoResponse {
 }
 
 export interface ISourceSoftwareCollectResponse {
-  collectStatus: string;
-  collectDateTime: string;
-  viewSW: string;
+  connection_id: string;
+  software_data: string;
+  saved_time: string;
+  status: string;
 }
 
 export interface ISourceInfraInfo {
-  collectInfra: string;
+  collectInfraStatus: string;
   collectInfraDateTime: string;
   infraData: string;
   viewInfra: boolean;
 }
 
 export interface ISourceSoftwareCollect {
-  collectStatus: string;
-  collectDateTime: string;
-  viewSW: string;
+  collectSwStatus: string;
+  collectSwDateTime: string;
+  softwareData: string;
+  viewSW: boolean;
 }
 
 export interface ISourceConnection
@@ -61,11 +63,11 @@ export type SourceConnectionTableTypes =
   | SourceSoftWareCollectTableTypes;
 
 type SourceInfraCollectTableTypes =
-  | 'collectInfra'
+  | 'collectInfraStatus'
   | 'collectInfraDateTime'
   | 'viewInfra';
 
 type SourceSoftWareCollectTableTypes =
-  | 'collectStatus'
-  | 'collectDatetime'
+  | 'collectSwStatus'
+  | 'collectSwDatetime'
   | 'viewSW';
