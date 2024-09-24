@@ -14,9 +14,10 @@ export interface ISourceConnectionResponse {
 }
 
 export interface ISourceInfraInfoResponse {
-  collectInfra: string;
-  collectInfraDateTime: string;
-  viewInfra: string;
+  connection_id: string;
+  infra_data: string;
+  saved_time: string;
+  status: string;
 }
 
 export interface ISourceSoftwareCollectResponse {
@@ -28,7 +29,8 @@ export interface ISourceSoftwareCollectResponse {
 export interface ISourceInfraInfo {
   collectInfra: string;
   collectInfraDateTime: string;
-  viewInfra: string;
+  infraData: string;
+  viewInfra: boolean;
 }
 
 export interface ISourceSoftwareCollect {

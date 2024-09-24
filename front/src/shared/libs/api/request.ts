@@ -75,8 +75,11 @@ export function useAxiosWrapper<T, D = any>(
 }
 
 // 서버 응답에서 에러 메시지를 처리하기 위한 함수
-export function extractErrorMessage(error: any): string {
+export function extractErrorMessage(error: any): string | null {
   if (error.response) {
+    if (error.status === 401) {
+      return null;
+    }
     // 서버가 반환한 에러 응답에서 메시지 추출
     const errorData = error.response.data;
 

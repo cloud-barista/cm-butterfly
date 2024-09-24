@@ -34,19 +34,23 @@ export function useSourceInfraCollectModel() {
         id: connection.id,
         collectInfra: connection.collectInfra,
         collectInfraDateTime: connection.collectInfraDateTime,
-        viewInfra: connection.viewInfra,
+        viewInfra: !!connection.infraData,
       };
     }
 
     return data;
   }
 
-  watch(connectionId, nv => {
+  function loadInfraCollectTableData(connId: string) {
     defineTableModel.tableState.loading = true;
-    if (nv) {
-      defineTableModel.tableState.data = setDefineTableData(nv);
+    if (connId) {
+      defineTableModel.tableState.data = setDefineTableData(connId);
     }
     defineTableModel.tableState.loading = false;
+  }
+
+  watch(connectionId, nv => {
+    if (nv) loadInfraCollectTableData(nv);
   });
 
   return {
@@ -54,5 +58,6 @@ export function useSourceInfraCollectModel() {
     setConnectionId,
     defineTableModel,
     initTable,
+    loadInfraCollectTableData,
   };
 }

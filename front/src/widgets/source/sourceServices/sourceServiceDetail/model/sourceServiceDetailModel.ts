@@ -37,7 +37,7 @@ export function useSourceServiceDetailModel() {
         name: sourceService.name,
         id: sourceService.id,
         description: sourceService.description,
-        status: sourceService.status || 'test',
+        status: sourceService.status || '',
       };
     }
     return data;

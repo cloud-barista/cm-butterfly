@@ -25,8 +25,9 @@ export const useSourceConnectionStore = defineStore(NAMESPACE, () => {
       viewSW: '',
       collectInfra: '',
       collectInfraDateTime: '',
-      viewInfra: '',
+      infraData: '',
       type: '',
+      viewInfra: false,
     };
 
     connections.value = res.map(el => ({
