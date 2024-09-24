@@ -17,6 +17,11 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const (
+	tokenExpired        = time.Minute * 1
+	refreshTokenExpired = time.Minute * 3
+)
+
 type CmigAuthSetting struct {
 	Setting CmigSetting `yaml:"setting"`
 	User    CmigUser    `yaml:"user"`
@@ -184,7 +189,7 @@ func saveUserToEncryptedFile(user *CmigUser) error {
 func generateJWT() (*CmigUserLoginResponse, error) {
 	UserLoginRes := &CmigUserLoginResponse{}
 
-	exp := time.Now().Add(time.Minute * 60).Unix()
+	exp := time.Now().Add(tokenExpired).Unix()
 
 	claims := CmigAccesstokenClaims{
 		Upn:         user.Id,
@@ -207,7 +212,7 @@ func generateJWT() (*CmigUserLoginResponse, error) {
 	UserLoginRes.Accesstoken = signedToken
 	UserLoginRes.ExpiresIn = exp
 
-	refreshExp := time.Now().Add(time.Minute * 180).Unix()
+	refreshExp := time.Now().Add(refreshTokenExpired).Unix()
 	refreshClaims := CmigRefreshtokenClaims{
 		Exp: exp,
 		MapClaims: &jwt.MapClaims{
