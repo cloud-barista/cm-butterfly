@@ -19,237 +19,237 @@ import { insertDynamicComponent } from '@/shared/utils';
 import { DeleteVPC } from '@/features/cloudResources';
 import { AddSourceServiceModal } from '@/widgets/sourceServices';
 
-const resGetAllVPCs = useGetAllVPCs<any, null | { nsId: string }>(null);
-const resDeleteVPC = useDeleteVPC<any, null | { nsId: string; vNetId: string }>(
-  null,
-);
+// const resGetAllVPCs = useGetAllVPCs<any, null | { nsId: string }>(null);
+// const resDeleteVPC = useDeleteVPC<any, null | { nsId: string; vNetId: string }>(
+//   null,
+// );
 
-const vpcStoreInstance = vpcStore.useVpcStore();
+// const vpcStoreInstance = vpcStore.useVpcStore();
 
-const { createVpcModalVisible } = storeToRefs(vpcStoreInstance);
+// const { createVpcModalVisible } = storeToRefs(vpcStoreInstance);
 
-interface Props {
-  tableItems: Partial<Record<VPCInformationTableType, any>>[];
-}
+// interface Props {
+//   tableItems: Partial<Record<VPCInformationTableType, any>>[];
+// }
 
-const props = defineProps<Props>();
-const emit = defineEmits(['selectRow']);
+// const props = defineProps<Props>();
+// const emit = defineEmits(['selectRow']);
 
-let trashBtn;
+// let trashBtn;
 
-const tableModel =
-  useToolboxTableModel<Partial<Record<VPCInformationTableType, any>>>();
+// const tableModel =
+//   useToolboxTableModel<Partial<Record<VPCInformationTableType, any>>>();
 
-tableModel.tableState.items = props.tableItems;
-tableModel.tableState.sortedItems = tableModel.tableState.items;
+// tableModel.tableState.items = props.tableItems;
+// tableModel.tableState.sortedItems = tableModel.tableState.items;
 
-const providers: any = {
-  AWS: {
-    color: '#FF9900',
-  },
-  Google: {
-    color: '#4387F4',
-  },
-  Azure: {
-    color: '#00BCF0',
-  },
-  NHN: {
-    color: '#125DE6',
-  },
-  Other: {
-    color: '#bbb',
-  },
-};
+// const providers: any = {
+//   AWS: {
+//     color: '#FF9900',
+//   },
+//   Google: {
+//     color: '#4387F4',
+//   },
+//   Azure: {
+//     color: '#00BCF0',
+//   },
+//   NHN: {
+//     color: '#125DE6',
+//   },
+//   Other: {
+//     color: '#bbb',
+//   },
+// };
 
-const providerStatusSet = [
-  {
-    key: 'All',
-    label: 'All',
-  },
-  {
-    key: 'AWS',
-    label: 'AWS',
-  },
-  {
-    key: 'Google',
-    label: 'Google',
-  },
-  {
-    key: 'Azure',
-    label: 'Azure',
-  },
-  {
-    key: 'NHN',
-    label: 'NHN',
-  },
-  {
-    key: 'Other',
-    label: 'Other',
-  },
-];
+// const providerStatusSet = [
+//   {
+//     key: 'All',
+//     label: 'All',
+//   },
+//   {
+//     key: 'AWS',
+//     label: 'AWS',
+//   },
+//   {
+//     key: 'Google',
+//     label: 'Google',
+//   },
+//   {
+//     key: 'Azure',
+//     label: 'Azure',
+//   },
+//   {
+//     key: 'NHN',
+//     label: 'NHN',
+//   },
+//   {
+//     key: 'Other',
+//     label: 'Other',
+//   },
+// ];
 
-tableModel.tableState.fields = [
-  {
-    name: 'vpcName',
-    label: 'VPC Name',
-  },
-  {
-    name: 'description',
-    label: 'Description',
-  },
-  {
-    name: 'cidrBlock',
-    label: 'CIDR Block',
-  },
-  {
-    name: 'provider',
-    label: 'Provider',
-  },
-  {
-    name: 'connection',
-    label: 'Connection',
-  },
-];
+// tableModel.tableState.fields = [
+//   {
+//     name: 'vpcName',
+//     label: 'VPC Name',
+//   },
+//   {
+//     name: 'description',
+//     label: 'Description',
+//   },
+//   {
+//     name: 'cidrBlock',
+//     label: 'CIDR Block',
+//   },
+//   {
+//     name: 'provider',
+//     label: 'Provider',
+//   },
+//   {
+//     name: 'connection',
+//     label: 'Connection',
+//   },
+// ];
 
-tableModel.querySearchState.keyItemSet = [
-  {
-    title: 'columns',
-    items: [
-      {
-        name: 'vpcName',
-        label: 'VPC Name',
-      },
-      {
-        name: 'description',
-        label: 'Description',
-      },
-      {
-        name: 'cidrBlock',
-        label: 'CIDR Block',
-      },
-      {
-        name: 'provider',
-        label: 'Provider',
-      },
-      {
-        name: 'connection',
-        label: 'Connection',
-      },
-    ],
-  },
-];
+// tableModel.querySearchState.keyItemSet = [
+//   {
+//     title: 'columns',
+//     items: [
+//       {
+//         name: 'vpcName',
+//         label: 'VPC Name',
+//       },
+//       {
+//         name: 'description',
+//         label: 'Description',
+//       },
+//       {
+//         name: 'cidrBlock',
+//         label: 'CIDR Block',
+//       },
+//       {
+//         name: 'provider',
+//         label: 'Provider',
+//       },
+//       {
+//         name: 'connection',
+//         label: 'Connection',
+//       },
+//     ],
+//   },
+// ];
 
-const toolboxTable = ref(null);
-const isOpenedModal = ref(false);
+// const toolboxTable = ref(null);
+// const isOpenedModal = ref(false);
 
-const state = reactive({
-  displayItems: computed(() => {
-    return tableModel.tableState.displayItems;
-  }),
-});
+// const state = reactive({
+//   displayItems: computed(() => {
+//     return tableModel.tableState.displayItems;
+//   }),
+// });
 
-const handleSelectedIndex = (index: number) => {
-  const selectedData = tableModel.tableState.sortedItems[index];
-  emit('selectRow', selectedData);
-};
+// const handleSelectedIndex = (index: number) => {
+//   const selectedData = tableModel.tableState.sortedItems[index];
+//   emit('selectRow', selectedData);
+// };
 
-const handleCreateVpc = async () => {
-  vpcStoreInstance.setCreateVpcModalVisible(true);
-};
+// const handleCreateVpc = async () => {
+//   vpcStoreInstance.setCreateVpcModalVisible(true);
+// };
 
-const handleTableDataFetch = async () => {
-  const { data } = await resGetAllVPCs.execute({
-    pathParams: {
-      nsId: 'ns01',
-    },
-  });
+// const handleTableDataFetch = async () => {
+//   const { data } = await resGetAllVPCs.execute({
+//     pathParams: {
+//       nsId: 'ns01',
+//     },
+//   });
 
-  if (Object.keys(data.responseData).length > 0) {
-    tableModel.tableState.items = data.responseData.vNet.map(v => {
-      const { id, description, cidrBlock, connectionName, subnetInfoList } = v;
-      let subnetInfoArr = [] as {
-        name: string;
-        ipv4_CIDR: string;
-      }[];
-      if (Array.isArray(subnetInfoList) && subnetInfoList.length > 0) {
-        subnetInfoList.forEach(subnet => {
-          subnetInfoArr.push({
-            name: subnet.Id,
-            ipv4_CIDR: cidrBlock,
-          });
-        });
-      }
+//   if (Object.keys(data.responseData).length > 0) {
+//     tableModel.tableState.items = data.responseData.vNet.map(v => {
+//       const { id, description, cidrBlock, connectionName, subnetInfoList } = v;
+//       let subnetInfoArr = [] as {
+//         name: string;
+//         ipv4_CIDR: string;
+//       }[];
+//       if (Array.isArray(subnetInfoList) && subnetInfoList.length > 0) {
+//         subnetInfoList.forEach(subnet => {
+//           subnetInfoArr.push({
+//             name: subnet.Id,
+//             ipv4_CIDR: cidrBlock,
+//           });
+//         });
+//       }
 
-      let provider = '';
-      if (id.includes('aws')) {
-        provider = 'AWS';
-      } else if (id.includes('google')) {
-        provider = 'Google';
-      } else if (id.includes('azure')) {
-        provider = 'Azure';
-      } else if (id.includes('nhanes')) {
-        provider = 'NHN';
-      } else {
-        provider = 'Other';
-      }
+//       let provider = '';
+//       if (id.includes('aws')) {
+//         provider = 'AWS';
+//       } else if (id.includes('google')) {
+//         provider = 'Google';
+//       } else if (id.includes('azure')) {
+//         provider = 'Azure';
+//       } else if (id.includes('nhanes')) {
+//         provider = 'NHN';
+//       } else {
+//         provider = 'Other';
+//       }
 
-      return {
-        vpcName: id,
-        description,
-        cidrBlock,
-        provider,
-        connection: connectionName,
-        subnetInfoList: subnetInfoArr,
-      };
-    });
-  } else {
-    tableModel.initState();
-  }
-  tableModel.tableState.sortedItems = tableModel.tableState.items;
-  tableModel.handleChange(null);
-};
+//       return {
+//         vpcName: id,
+//         description,
+//         cidrBlock,
+//         provider,
+//         connection: connectionName,
+//         subnetInfoList: subnetInfoArr,
+//       };
+//     });
+//   } else {
+//     tableModel.initState();
+//   }
+//   tableModel.tableState.sortedItems = tableModel.tableState.items;
+//   tableModel.handleChange(null);
+// };
 
-function addDeleteIconAtTable() {
-  const toolboxTable = this.$refs.toolboxTable.$el;
-  const targetElement = toolboxTable.querySelector('.right-tool-group');
-  const instance = insertDynamicComponent(
-    DeleteVPC,
-    {
-      label: '',
-    },
-    {
-      'button-click': async message => {
-        trashBtn.$props.focusedData =
-          tableModel.tableState.items[tableModel.tableState.selectIndex];
-        trashBtn.$props.focus = true;
-        // await resDeleteVPC.execute({
-        //   pathParams: {
-        //     nsId: 'ns01',
-        //     vNetId: 'vNet02',
-        //   },
-        // });
-      },
-    },
-    targetElement,
-    'prepend',
-  );
+// function addDeleteIconAtTable() {
+//   const toolboxTable = this.$refs.toolboxTable.$el;
+//   const targetElement = toolboxTable.querySelector('.right-tool-group');
+//   const instance = insertDynamicComponent(
+//     DeleteVPC,
+//     {
+//       label: '',
+//     },
+//     {
+//       'button-click': async message => {
+//         trashBtn.$props.focusedData =
+//           tableModel.tableState.items[tableModel.tableState.selectIndex];
+//         trashBtn.$props.focus = true;
+//         // await resDeleteVPC.execute({
+//         //   pathParams: {
+//         //     nsId: 'ns01',
+//         //     vNetId: 'vNet02',
+//         //   },
+//         // });
+//       },
+//     },
+//     targetElement,
+//     'prepend',
+//   );
 
-  return instance;
-}
+//   return instance;
+// }
 
-onBeforeMount(() => {
-  tableModel.initState();
-  handleTableDataFetch();
-});
+// onBeforeMount(() => {
+//   tableModel.initState();
+//   handleTableDataFetch();
+// });
 
-onMounted(function () {
-  trashBtn = addDeleteIconAtTable.bind(this)();
-});
+// onMounted(function () {
+//   trashBtn = addDeleteIconAtTable.bind(this)();
+// });
 </script>
 
 <template>
   <div>
-    <p-horizontal-layout :height="400" :min-hieght="400" :max-height="1000">
+    <!-- <p-horizontal-layout :height="400" :min-hieght="400" :max-height="1000">
       <template #container="{ height }">
         <p-toolbox-table
           ref="toolboxTable"
@@ -310,9 +310,9 @@ onMounted(function () {
         </p-toolbox-table>
       </template>
     </p-horizontal-layout>
-    <v-p-c-create-modal v-if="createVpcModalVisible" />
+    <v-p-c-create-modal v-if="createVpcModalVisible" /> -->
     <add-source-service-modal
-      :save-button-name="`${i18n.t('COMPONENT.BUTTON_MODAL.SAVE')}`"
+      :save-button-name="`${i18n.t('COMPONENT.BUTTON_MODAL.ADD')}`"
     />
   </div>
 </template>

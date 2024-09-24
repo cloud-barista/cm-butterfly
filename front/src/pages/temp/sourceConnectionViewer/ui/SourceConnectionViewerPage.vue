@@ -16,9 +16,11 @@ import { SaveSourceModelModal } from '@/widgets/sourceServices';
         <p-button style-type="tertiary">
           {{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}
         </p-button>
-        <p-button>{{ i18n.t('COMPONENT.BUTTON_MODAL.SAVE') }}</p-button>
+        <p-button :disabled="true">
+          {{ i18n.t('COMPONENT.BUTTON_MODAL.SAVE') }}
+        </p-button>
       </template>
     </create-form>
-    <save-source-model-modal />
+    <!-- <save-source-model-modal /> -->
   </div>
 </template>

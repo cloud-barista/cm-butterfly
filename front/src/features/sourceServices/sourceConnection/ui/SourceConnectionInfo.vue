@@ -8,27 +8,40 @@ import {
 } from '@cloudforet-test/mirinae';
 import { computed, reactive, watch, watchEffect } from 'vue';
 
+import { useSourceServiceStore } from '@/shared/libs/store/source-service-store';
+import { storeToRefs } from 'pinia';
+
+import type { SourceConnection } from '@/shared/libs/store/source-service-store';
+
+const sourceServiceStore = useSourceServiceStore();
+
+const { sourceConnectionInfoList } = storeToRefs(sourceServiceStore);
+
 const emit = defineEmits([
   'update:source-connection',
   'delete:source-connection',
 ]);
 
+interface iProps {
+  sourceConnection: SourceConnection;
+}
+
+const props = defineProps<iProps>();
+
 const state = reactive({
-  name: '',
-  description: '',
-  ip_address: '',
-  user: '',
-  private_key: '',
-  ssh_port: '',
-  password: '',
+  sourceConnectionInfoList: computed(() => props.sourceConnection),
 });
 
-watch(state, () => {
-  emit('update:source-connection', state);
-});
+// watch(state, () => {
+//   emit('update:source-connection', state);
+// });
 
 const handleDelete = () => {
   emit('delete:source-connection', true);
+};
+
+const handleInfo = () => {
+  emit('update:source-connection', state.sourceConnectionInfoList);
 };
 </script>
 
@@ -38,32 +51,42 @@ const handleDelete = () => {
       <div class="left-layer">
         <p-field-group label="Source Connection Name" required>
           <p-text-input
-            v-model="state.name"
+            v-model="state.sourceConnectionInfoList.name"
             placeholder="Source Connection Name"
+            @change="handleInfo"
           />
         </p-field-group>
         <p-field-group label="Description">
-          <p-textarea v-model="state.description" />
+          <p-textarea v-model="state.sourceConnectionInfoList.description" />
         </p-field-group>
       </div>
       <div class="right-layer">
         <p-field-group label="IP Address">
           <p-text-input
-            v-model="state.ip_address"
+            v-model="state.sourceConnectionInfoList.ip_address"
             placeholder="###.###.###.###"
           />
         </p-field-group>
         <p-field-group label="Port (for SSH)">
-          <p-text-input v-model="state.ssh_port" placeholder="1~256" />
+          <p-text-input
+            v-model="state.sourceConnectionInfoList.ssh_port"
+            placeholder="1~256"
+          />
         </p-field-group>
         <p-field-group label="User">
-          <p-text-input v-model="state.user" placeholder="User ID" />
+          <p-text-input
+            v-model="state.sourceConnectionInfoList.user"
+            placeholder="User ID"
+          />
         </p-field-group>
         <p-field-group label="Password">
-          <p-text-input v-model="state.password" placeholder="Password" />
+          <p-text-input
+            v-model="state.sourceConnectionInfoList.password"
+            placeholder="Password"
+          />
         </p-field-group>
         <p-field-group class="private-key" label="Private Key">
-          <p-text-input v-model="state.private_key" />
+          <p-text-input v-model="state.sourceConnectionInfoList.private_key" />
         </p-field-group>
       </div>
     </p-pane-layout>

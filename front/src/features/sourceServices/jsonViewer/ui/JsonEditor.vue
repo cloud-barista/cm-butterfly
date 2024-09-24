@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { PTextEditor, PPaneLayout } from '@cloudforet-test/mirinae';
-import { reactive } from 'vue';
+import { reactive, readonly } from 'vue';
 
 interface iProps {
   schema: any;
   formData: any;
+  title: string;
+  readOnly: boolean;
 }
 
 const props = defineProps<iProps>();
@@ -17,15 +19,16 @@ const state = reactive({
 
 <template>
   <p-pane-layout class="json-editor-layout">
-    <p>Meta (data)</p>
+    <p>{{ title }}</p>
     <div class="editor">
-      <p-text-editor :code="JSON.stringify(formData, null, 2)" mode="" />
+      <p-text-editor :code="formData" :read-only="readOnly" />
     </div>
   </p-pane-layout>
 </template>
 
 <style scoped lang="postcss">
 .json-editor-layout {
+  @apply overflow-y-scroll;
   min-width: 726px;
   border-bottom: 1px solid #dddddf;
   p {
@@ -38,7 +41,8 @@ const state = reactive({
 }
 
 :deep(.p-text-editor) {
-  min-height: 36.25rem;
+  min-height: 39rem;
+  max-height: 39rem;
 }
 :deep(.CodeMirror) {
   /* @apply bg-white !important;

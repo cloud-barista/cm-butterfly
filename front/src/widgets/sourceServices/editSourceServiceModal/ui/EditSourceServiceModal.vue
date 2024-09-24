@@ -28,8 +28,10 @@ const handleCheckSourceConnection = () => {
 
 const handleConfirm = () => {
   /**
-   * TODO: 새롭게 source service를 생성하는 경우
-   *
+   * TODO: 동기적으로 처리돼야 함
+   * 1. register-source-group api
+   * 2. 1번의 response가 오면 해당 source group의 sg name으로 (response값 이용)
+   *    create-connection-info api 호출
    */
 };
 

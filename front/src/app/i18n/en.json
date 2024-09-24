@@ -154,7 +154,8 @@
       "DELETE": "Delete",
       "CREATE": "Create",
       "SAVE": "Save",
-      "CONVERT": "Convert"
+      "CONVERT": "Convert",
+      "ADD": "Add"
     },
     "CONTEXT_MENU": {
       "SHOW_MORE" : "show more",

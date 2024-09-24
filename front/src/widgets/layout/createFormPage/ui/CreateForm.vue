@@ -2,9 +2,6 @@
 import { PButton, PIconButton } from '@cloudforet-test/mirinae';
 import { WidgetLayout } from '@/widgets/layout';
 import { useRouter } from 'vue-router/composables';
-import { vpcStore } from '@/shared/libs';
-
-const vpcStoreInstance = vpcStore.useVpcStore();
 
 const router = useRouter();
 
@@ -15,7 +12,7 @@ interface Props {
 }
 
 defineProps<Props>();
-const emit = defineEmits(['addSourceConnection']);
+const emit = defineEmits(['addSourceConnection', 'deleteSourceConnection']);
 
 const handleAddSourceConnection = () => {
   emit('addSourceConnection', true);
@@ -24,7 +21,7 @@ const handleAddSourceConnection = () => {
 // TODO: change api response
 
 const handleGoBack = () => {
-  vpcStoreInstance.removeSubnetList();
+  emit('deleteSourceConnection', true);
   router.go(-1);
 };
 </script>
@@ -52,7 +49,6 @@ const handleGoBack = () => {
         >
           {{ addButtonText }}
         </p-button>
-        <!-- TODO: features - add source connection modal -->
         <slot name="add-info" />
       </template>
     </widget-layout>
