@@ -12,7 +12,10 @@ const handleLoginSuccess = (props: IUserLoginResponse & { id: string }) => {
   auth.setUser(props);
   // McmpRouter.getRouter().push({ name: DASHBOARD_ROUTE.AWS._NAME });
 
-  resUserInfo.execute();
+  resUserInfo
+    .execute()
+    .then()
+    .catch(err => err);
 };
 </script>
 

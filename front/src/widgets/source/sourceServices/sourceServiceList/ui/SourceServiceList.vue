@@ -18,6 +18,14 @@ const {
 
 const emit = defineEmits(['selectRow']);
 
+onBeforeMount(() => {
+  initToolBoxTableModel();
+});
+
+onMounted(() => {
+  getSourceServiceList();
+});
+
 function getSourceServiceList() {
   resSourceServiceList
     .execute()
@@ -27,7 +35,7 @@ function getSourceServiceList() {
       }
     })
     .catch(e => {
-      showErrorMessage('Error', e.errorMsg.value);
+      if (e.errorMsg.value) showErrorMessage('Error', e.errorMsg.value);
     });
 }
 
@@ -39,14 +47,6 @@ function handleSelectedIndex(index: number[]) {
     emit('selectRow', '');
   }
 }
-
-onBeforeMount(() => {
-  initToolBoxTableModel();
-});
-
-onMounted(() => {
-  getSourceServiceList();
-});
 </script>
 
 <template>

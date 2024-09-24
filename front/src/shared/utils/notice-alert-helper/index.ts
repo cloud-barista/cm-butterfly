@@ -4,17 +4,10 @@ import getRandomId from '../uuid';
 /** * @function
  *   @name showErrorMessage
  *   @param errorTitle
- *   @param error
+ *   @param errorMsg
  *   @returns
  */
-export const showErrorMessage = (errorTitle: string, error: any) => {
-  let errorMsg = '';
-  if (error.message) errorMsg = error.message;
-  else if (error.response) {
-    errorMsg = error.response.data.detail.message;
-  } else {
-    errorMsg = error;
-  }
+export const showErrorMessage = (errorTitle: string, errorMsg: string) => {
   if (Vue) {
     Vue.notify({
       group: 'toastTopCenter',
