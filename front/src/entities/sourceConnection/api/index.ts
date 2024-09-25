@@ -8,6 +8,7 @@ import {
   ISourceInfraInfoResponse,
   ISourceSoftwareCollectResponse,
 } from '@/entities/sourceConnection/model/types.ts';
+import { axiosInstance } from '@/shared/libs/api/instance.ts';
 
 const GET_SOURCE_CONNECTION_LIST = 'list-connection-info';
 const COLLECT_INFRA = 'import-infra';
@@ -57,18 +58,15 @@ export function useCollectSW(id: params | null) {
   >(COLLECT_SW, requestWrapper);
 }
 
-export function useDeleteSourceConnection(params: params | null) {
-  const requestWrapper: Required<
-    Pick<RequestBodyWrapper<params | null>, 'pathParams'>
-  > = {
-    pathParams: {
-      sgId: params?.sgId || null,
-      connId: params?.connId || null,
-    },
-  };
+export function useBulkDeleteSourceConnection(params: params[]) {
+  const promiseArr = params.map(param => {
+    return axiosInstance.post(DELETE_SOURCE_CONNECTION, {
+      pathParams: {
+        sgId: param.sgId,
+        connId: param.connId,
+      },
+    });
+  });
 
-  return useAxiosPost<
-    IAxiosResponse<null>,
-    Required<Pick<RequestBodyWrapper<params | null>, 'pathParams'>>
-  >(DELETE_SOURCE_CONNECTION, requestWrapper);
+  return Promise.all(promiseArr);
 }

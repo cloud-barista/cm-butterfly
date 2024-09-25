@@ -12,6 +12,7 @@ export function axiosPost<T, D = any>(
   data: D,
   config?: AxiosRequestConfig,
 ) {
+  console.log(url);
   return axiosInstance.post<T>(`/${url}`, data, config);
 }
 
