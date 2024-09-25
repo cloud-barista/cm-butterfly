@@ -3,7 +3,7 @@ export type ITableItems<T> = {
 };
 
 export type ITableField<T> = {
-  [K in keyof T]: { name: K; label: string };
+  [K in keyof T]: { name: K; label: string; disableCopy?: boolean };
 }[keyof T];
 
 export type IDefineTableField<T extends string> = {

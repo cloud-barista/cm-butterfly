@@ -1,4 +1,4 @@
-import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Ref, ref } from 'vue';
 import { axiosInstance } from './instance.ts';
 import { AsyncStatus, IUseAxiosWrapperReturnType } from '../index';
@@ -43,8 +43,12 @@ export function useAxiosWrapper<T, D = any>(
     } catch (e: any) {
       reset();
       error.value = e;
-      errorMsg.value = extractErrorMessage(e);
-      status.value = 'error';
+      if (axios.isCancel(e)) {
+        status.value = 'cancel';
+      } else {
+        errorMsg.value = extractErrorMessage(e);
+        status.value = 'error';
+      }
       return Promise.reject({ error, errorMsg, status });
     } finally {
       isLoading.value = false;
@@ -71,10 +75,14 @@ export function useAxiosWrapper<T, D = any>(
 }
 
 // 서버 응답에서 에러 메시지를 처리하기 위한 함수
-export function extractErrorMessage(error: any): string {
+export function extractErrorMessage(error: any): string | null {
   if (error.response) {
+    if (error.status === 401) {
+      return null;
+    }
     // 서버가 반환한 에러 응답에서 메시지 추출
     const errorData = error.response.data;
+
     if (errorData.responseData?.message) {
       return errorData.responseData.message;
     }

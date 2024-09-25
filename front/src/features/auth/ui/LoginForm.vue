@@ -15,9 +15,9 @@ const emit = defineEmits(['handleLoginSuccess']);
 
 const validationMsg: Ref<string | null> = ref<string | null>('');
 
-const userId = useInputModel<string | null>('mcpsuper', validateId, 0);
+const userId = useInputModel<string | null>('cmiguser', validateId, 0);
 const userPW = useInputModel<string | null>(
-  'mcpuserpassword',
+  'cmiguserPassword!',
   validatePassword,
   0,
 );
