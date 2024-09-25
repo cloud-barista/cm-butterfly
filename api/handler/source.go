@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/gobuffalo/buffalo"
 )
@@ -246,11 +247,9 @@ func RegisterSourceGroup(c buffalo.Context, commonRequest *CommonRequest) (inter
 
 	return &sgRes, nil
 }
-
 func registerConnection(c buffalo.Context, commonRequest *CommonRequest, res *SourceGroupRes) {
 
 	originalRequest, err := utils.InterToMapInter(commonRequest.Request)
-
 	if err != nil {
 		res.Connections = append(res.Connections, err.Error())
 		return
@@ -263,49 +262,63 @@ func registerConnection(c buffalo.Context, commonRequest *CommonRequest, res *So
 	}
 
 	operationId := strings.ToLower("create-connection-info")
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
 	for _, connInter := range connectionsCommonRequest {
+		wg.Add(1)
 
-		cr := ConnectionRes{}
+		go func(connInter interface{}) {
+			defer wg.Done()
 
-		connectionCommonRequest := CommonRequest{
-			PathParams: map[string]string{"sgId": res.ID},
-			Request:    connInter,
-		}
+			cr := ConnectionRes{}
+			connectionCommonRequest := CommonRequest{
+				PathParams: map[string]string{"sgId": res.ID},
+				Request:    connInter,
+			}
 
-		commonResponse, err := SubsystemAnyCaller(c, "cm-honeybee", operationId, &connectionCommonRequest, false)
-		if err != nil {
-			res.Connections = append(res.Connections, err.Error())
-			return
-		}
+			commonResponse, err := SubsystemAnyCaller(c, "cm-honeybee", operationId, &connectionCommonRequest, false)
+			if err != nil {
+				mu.Lock()
+				res.Connections = append(res.Connections, err.Error())
+				mu.Unlock()
+				return
+			}
 
-		resData, err := utils.InterToMapInter(commonResponse.ResponseData)
+			resData, err := utils.InterToMapInter(commonResponse.ResponseData)
+			if err != nil {
+				mu.Lock()
+				res.Connections = append(res.Connections, err.Error())
+				mu.Unlock()
+				return
+			}
 
-		if err != nil {
-			res.Connections = append(res.Connections, err.Error())
-			return
-		}
+			if em := utils.PtrToStr(resData["error"]); em != "" {
+				log.Println("error from honeybee while creating connections: ", em)
+				mu.Lock()
+				res.Connections = append(res.Connections, em)
+				mu.Unlock()
+			} else {
+				cr.Name = utils.PtrToStr(resData["name"])
+				cr.Description = utils.PtrToStr(resData["description"])
+				cr.FailedMessage = utils.PtrToStr(resData["failed_message"])
+				cr.ID = utils.PtrToStr(resData["id"])
+				cr.IPAddress = utils.PtrToStr(resData["ip_address"])
+				cr.Password = utils.PtrToStr(resData["password"])
+				cr.PrivateKey = utils.PtrToStr(resData["private_key"])
+				cr.PublicKey = utils.PtrToStr(resData["public_key"])
+				cr.SSHPort = int(utils.PtrToFloat(resData["ssh_port"]))
+				cr.Status = utils.PtrToStr(resData["status"])
+				cr.User = utils.PtrToStr(resData["user"])
 
-		if em := utils.PtrToStr(resData["error"]); em != "" {
-			log.Println("error from honeybee while create connections: ", em)
-			res.Connections = append(res.Connections, em)
-		} else {
-			cr.Name = utils.PtrToStr(resData["name"])
+				mu.Lock()
+				res.Connections = append(res.Connections, cr)
+				mu.Unlock()
 
-			cr.Description = utils.PtrToStr(resData["description"])
-			cr.FailedMessage = utils.PtrToStr(resData["failed_message"])
-			cr.ID = utils.PtrToStr(resData["id"])
-			cr.IPAddress = utils.PtrToStr(resData["ip_address"])
-			cr.Password = utils.PtrToStr(resData["password"])
-			cr.PrivateKey = utils.PtrToStr(resData["private_key"])
-			cr.PublicKey = utils.PtrToStr(resData["public_key"])
-			cr.SSHPort = int(utils.PtrToFloat(resData["ssh_port"]))
-			cr.Status = utils.PtrToStr(resData["status"])
-			cr.User = utils.PtrToStr(resData["user"])
-			res.Connections = append(res.Connections, cr)
-
-			log.Println("Source Group: ", res.Name, " / connection", cr.Name, " is created ")
-		}
-
+				log.Println("Source Group: ", res.Name, " / connection", cr.Name, " is created")
+			}
+		}(connInter)
 	}
 
+	wg.Wait()
 }
