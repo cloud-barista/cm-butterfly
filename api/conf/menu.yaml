@@ -12,7 +12,7 @@ menus:
   parentid: none
   displayname: Login
   restype: screen
-  isaction: "false"
+  isaction: "true"
   priority: 0
 
   ################## step2 : quick Link  ################
@@ -62,26 +62,19 @@ menus:
   isaction: "true"
   priority: 1
 
-  - id: sourceconnections
-  parentid: sourcecomputing
-  displayname: Source Connections
-  restype: menu
-  isaction: "true"
-  priority: 2
-
   - id: sourcemetas
   parentid: sourcecomputing
   displayname: Source Metas
   restype: menu
   isaction: "true"
-  priority: 3
+  priority: 2
 
   ################## step3 : menu : migrations > models ################
   - id: sourcemodels
   parentid: models
   displayname: Source Models
   restype: menu
-  isaction: "false"
+  isaction: "true"
   priority: 1
 
   - id: targetmodels
