@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PToolboxTable, PButton } from '@cloudforet-test/mirinae';
 import { showErrorMessage } from '@/shared/utils';
-import { onBeforeMount, onMounted } from 'vue';
+import { onBeforeMount, onMounted, watch } from 'vue';
 import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model/sourceConnectionListModel.ts';
 
 interface IProps {
@@ -29,7 +29,7 @@ function getSourceConnectionList() {
       }
     })
     .catch(e => {
-      showErrorMessage('Error', e.errorMsg.value);
+      if (e.errorMsg.value) showErrorMessage('Error', e.errorMsg.value);
     });
 }
 
@@ -41,13 +41,16 @@ function handleSelectedIndex(index: number[]) {
     emit('selectRow', '');
   }
 }
-
+watch(
+  props,
+  () => {
+    tableModel.initState();
+    getSourceConnectionList();
+  },
+  { immediate: true },
+);
 onBeforeMount(() => {
   initToolBoxTableModel();
-});
-
-onMounted(() => {
-  getSourceConnectionList();
 });
 </script>
 

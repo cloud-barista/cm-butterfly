@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
 import { useCollectInfra } from '@/entities/sourceConnection/api';
 
@@ -26,13 +26,15 @@ const resCollectInfra = useCollectInfra({
 const viewInfraModalState = reactive({
   open: false,
 });
-
+watch(
+  props,
+  () => {
+    setConnectionId(props.connectionId);
+  },
+  { immediate: true },
+);
 onBeforeMount(() => {
   initTable();
-});
-
-onMounted(() => {
-  setConnectionId(props.connectionId);
 });
 
 function handleCollectInfra() {

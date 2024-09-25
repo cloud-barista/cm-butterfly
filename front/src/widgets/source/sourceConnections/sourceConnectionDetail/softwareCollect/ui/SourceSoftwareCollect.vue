@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import { useSourceSoftwareCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/softwareCollect/model/sourceSoftwareCollectModel.ts';
 import { useCollectSW } from '@/entities/sourceConnection/api';
 
@@ -27,12 +27,16 @@ const viewSWModalState = reactive({
   open: false,
 });
 
+watch(
+  props,
+  () => {
+    setConnectionId(props.connectionId);
+  },
+  { immediate: true },
+);
+
 onBeforeMount(() => {
   initTable();
-});
-
-onMounted(() => {
-  setConnectionId(props.connectionId);
 });
 
 function handleClickCollectSW() {

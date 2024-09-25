@@ -44,6 +44,11 @@ const sourceConnectionDetailTabState = reactive({
 
 const selectedServiceId = ref<string>('');
 const selectedConnectionId = ref<string>('');
+
+function handleClickServiceId(id: string) {
+  selectedServiceId.value = id;
+  selectedConnectionId.value = '';
+}
 </script>
 
 <template>
@@ -52,9 +57,7 @@ const selectedConnectionId = ref<string>('');
       <p>{{ pageName }}</p>
     </header>
     <section :class="`${pageName}-page-body`">
-      <SourceServiceList
-        @selectRow="id => (selectedServiceId = id)"
-      ></SourceServiceList>
+      <SourceServiceList @selectRow="handleClickServiceId"></SourceServiceList>
       <p
         v-if="!selectedServiceId"
         class="flex justify-center text-gray-300 text-sm font-normal"

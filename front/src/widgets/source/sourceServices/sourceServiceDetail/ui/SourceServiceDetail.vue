@@ -39,12 +39,16 @@ watch(resGetSourceGroupStatus.status, nv => {
   }
 });
 
+watch(
+  props,
+  () => {
+    setServiceId(props.selectedServiceId);
+  },
+  { immediate: true },
+);
+
 onBeforeMount(() => {
   initTable();
-});
-
-onMounted(() => {
-  setServiceId(props.selectedServiceId);
 });
 
 function handleSourceGroupStatusCheck() {
