@@ -12,6 +12,7 @@ import {
 const GET_SOURCE_CONNECTION_LIST = 'list-connection-info';
 const COLLECT_INFRA = 'import-infra';
 const COLLECT_SW = 'import-software';
+const DELETE_SOURCE_CONNECTION = 'delete-connection-info';
 export function useGetSourceConnectionList(sourceGroupId: string | null) {
   const requestWrapper: Required<
     Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>
@@ -54,4 +55,20 @@ export function useCollectSW(id: params | null) {
     IAxiosResponse<ISourceSoftwareCollectResponse>,
     Required<Pick<RequestBodyWrapper<params | null>, 'pathParams'>>
   >(COLLECT_SW, requestWrapper);
+}
+
+export function useDeleteSourceConnection(params: params | null) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<params | null>, 'pathParams'>
+  > = {
+    pathParams: {
+      sgId: params?.sgId || null,
+      connId: params?.connId || null,
+    },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<null>,
+    Required<Pick<RequestBodyWrapper<params | null>, 'pathParams'>>
+  >(DELETE_SOURCE_CONNECTION, requestWrapper);
 }

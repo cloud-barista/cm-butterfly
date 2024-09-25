@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { PToolboxTable, PButton } from '@cloudforet-test/mirinae';
-import { showErrorMessage } from '@/shared/utils';
+import { PToolboxTable, PButton, PIconButton } from '@cloudforet-test/mirinae';
+import { insertDynamicComponent, showErrorMessage } from '@/shared/utils';
 import { onBeforeMount, onMounted, watch } from 'vue';
 import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model/sourceConnectionListModel.ts';
+import { useDeleteSourceConnection } from '@/entities/sourceConnection/api';
+import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
 
 interface IProps {
   selectedServiceId: string;
@@ -18,6 +20,8 @@ const {
   setTargetConnections,
 } = useSourceConnectionListModel();
 
+const resDeleteConnections = useDeleteSourceConnection(null);
+
 watch(
   props,
   () => {
@@ -30,7 +34,9 @@ onBeforeMount(() => {
   initToolBoxTableModel();
 });
 
-//새로고침시 모든 connection 삭제
+onMounted(function () {
+  addDeleteIconAtTable.bind(this)();
+});
 
 function getSourceConnectionList() {
   resSourceConnectionList
@@ -64,6 +70,39 @@ function handleSelectedIndex(index: number[]) {
   } else {
     emit('selectRow', '');
   }
+}
+//FIXME bulk로 요청을 보내고 끝나면 응답 모달.
+// 삭제전 물어보는 alert
+function handleDeleteConnections() {
+  const selectedConnectionsIds = [];
+
+  tableModel.tableState.selectIndex.reduce((acc, selectIndex) => {
+    acc.push(tableModel.tableState.displayItems[selectIndex].id);
+    return acc;
+  }, selectedConnectionsIds);
+
+  selectedConnectionsIds.forEach(connectionId => {
+    resDeleteConnections.execute({
+      pathParams: { sgId: props.selectedServiceId, connId: connectionId },
+    });
+  });
+}
+
+function addDeleteIconAtTable() {
+  const toolboxTable = this.$refs.toolboxTable.$el;
+  const targetElement = toolboxTable.querySelector('.right-tool-group');
+  const instance = insertDynamicComponent(
+    DynamicTableIconButton,
+    {
+      name: 'ic_delete',
+    },
+    {
+      click: handleDeleteConnections,
+    },
+    targetElement,
+    'prepend',
+  );
+  return instance;
 }
 </script>
 

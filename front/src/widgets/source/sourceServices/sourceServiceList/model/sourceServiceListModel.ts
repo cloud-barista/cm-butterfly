@@ -46,7 +46,7 @@ export function useSourceServiceListModel() {
     > = {
       name: sourceService.name,
       description: sourceService.description,
-      connectionCount: sourceService.connectionCount || 0,
+      connectionCount: sourceService.connectionCount || '',
       id: sourceService.id,
       originalData: sourceService,
     };

@@ -3,6 +3,7 @@ import { PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
 import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import { useSourceSoftwareCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/softwareCollect/model/sourceSoftwareCollectModel.ts';
 import { useCollectSW } from '@/entities/sourceConnection/api';
+import { showErrorMessage } from '@/shared/utils';
 
 interface IProps {
   sourceGroupId: string | null;
@@ -50,7 +51,9 @@ function handleClickCollectSW() {
         loadInfraSWTableData(props.connectionId);
       }
     })
-    .catch();
+    .catch(e => {
+      if (e.errorMsg.value) showErrorMessage('Error', e.errorMsg.value);
+    });
 }
 </script>
 

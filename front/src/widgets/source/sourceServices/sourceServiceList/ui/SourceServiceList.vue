@@ -5,8 +5,10 @@ import {
   PButton,
 } from '@cloudforet-test/mirinae';
 import { onBeforeMount, onMounted, watch } from 'vue';
-import { showErrorMessage } from '@/shared/utils';
+import { insertDynamicComponent, showErrorMessage } from '@/shared/utils';
 import { useSourceServiceListModel } from '@/widgets/source/sourceServices/sourceServiceList/model/sourceServiceListModel.ts';
+import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
+import { useDeleteSourceGroup } from '@/entities/sourceService/api';
 
 const {
   tableModel,
@@ -15,6 +17,7 @@ const {
   resSourceServiceList,
   initToolBoxTableModel,
 } = useSourceServiceListModel();
+const resDeleteSourceGroup = useDeleteSourceGroup(null);
 
 const emit = defineEmits(['selectRow']);
 
@@ -22,9 +25,44 @@ onBeforeMount(() => {
   initToolBoxTableModel();
 });
 
-onMounted(() => {
+onMounted(function () {
+  addDeleteIconAtTable.bind(this)();
   getSourceServiceList();
 });
+
+function addDeleteIconAtTable() {
+  const toolboxTable = this.$refs.toolboxTable.$el;
+  const targetElement = toolboxTable.querySelector('.right-tool-group');
+  const instance = insertDynamicComponent(
+    DynamicTableIconButton,
+    {
+      name: 'ic_delete',
+    },
+    {
+      click: handleDeleteSourceServices,
+    },
+    targetElement,
+    'prepend',
+  );
+  return instance;
+}
+
+function handleDeleteSourceServices() {
+  const selectedSourceServicesIds = [];
+
+  tableModel.tableState.selectIndex.reduce((acc, selectIndex) => {
+    acc.push(tableModel.tableState.displayItems[selectIndex].id);
+    return acc;
+  }, selectedSourceServicesIds);
+
+  selectedSourceServicesIds.forEach(sourceService => {
+    resDeleteSourceGroup.execute({
+      pathParams: {
+        sgId: sourceService,
+      },
+    });
+  });
+}
 
 function getSourceServiceList() {
   resSourceServiceList
