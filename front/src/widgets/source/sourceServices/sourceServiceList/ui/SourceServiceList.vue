@@ -8,7 +8,7 @@ import { onBeforeMount, onMounted, watch } from 'vue';
 import { insertDynamicComponent, showErrorMessage } from '@/shared/utils';
 import { useSourceServiceListModel } from '@/widgets/source/sourceServices/sourceServiceList/model/sourceServiceListModel.ts';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { useDeleteSourceGroup } from '@/entities/sourceService/api';
+import { useBulkDeleteSourceGroup } from '@/entities/sourceService/api';
 
 const {
   tableModel,
@@ -17,7 +17,6 @@ const {
   resSourceServiceList,
   initToolBoxTableModel,
 } = useSourceServiceListModel();
-const resDeleteSourceGroup = useDeleteSourceGroup(null);
 
 const emit = defineEmits(['selectRow']);
 
@@ -55,13 +54,7 @@ function handleDeleteSourceServices() {
     return acc;
   }, selectedSourceServicesIds);
 
-  selectedSourceServicesIds.forEach(sourceService => {
-    resDeleteSourceGroup.execute({
-      pathParams: {
-        sgId: sourceService,
-      },
-    });
-  });
+  useBulkDeleteSourceGroup(selectedSourceServicesIds).then().catch();
 }
 
 function getSourceServiceList() {

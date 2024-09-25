@@ -7,6 +7,7 @@ import {
   ISourceAgentAndConnectionStatusResponse,
   ISourceServiceResponse,
 } from '@/entities/sourceService/model/types.ts';
+import { axiosInstance } from '@/shared/libs/api/instance.ts';
 
 const GET_SOURCE_SERVICE_LIST = 'list-source-group';
 const GET_SOURCE_SERVICE_STATUS = 'GET_SOURCE_SERVICE_STATUS';
@@ -32,15 +33,14 @@ export function useGetSourceGroupStatus(sourceGroupId: string | null) {
   >(GET_SOURCE_SERVICE_STATUS, requestWrapper);
 }
 
-export function useDeleteSourceGroup(sourceGroupId: string | null) {
-  const requestWrapper: Required<
-    Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>
-  > = {
-    pathParams: { sgId: sourceGroupId },
-  };
+export function useBulkDeleteSourceGroup(sourceGroupIds: string[]) {
+  const promiseArr = sourceGroupIds.map(sourceGroupId => {
+    return axiosInstance.post(DELETE_SOURCE_SERVICE, {
+      pathParams: {
+        sgId: sourceGroupId,
+      },
+    });
+  });
 
-  return useAxiosPost<
-    IAxiosResponse<null>,
-    Required<Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>>
-  >(DELETE_SOURCE_SERVICE, requestWrapper);
+  return Promise.all(promiseArr);
 }

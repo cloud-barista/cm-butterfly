@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { PToolboxTable, PButton, PIconButton } from '@cloudforet-test/mirinae';
-import { insertDynamicComponent, showErrorMessage } from '@/shared/utils';
+import {
+  insertDynamicComponent,
+  showErrorMessage,
+  showSuccessMessage,
+} from '@/shared/utils';
 import { onBeforeMount, onMounted, watch } from 'vue';
 import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model/sourceConnectionListModel.ts';
-import { useDeleteSourceConnection } from '@/entities/sourceConnection/api';
+import { useBulkDeleteSourceConnection } from '@/entities/sourceConnection/api';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
 
 interface IProps {
@@ -19,8 +23,6 @@ const {
   sourceConnectionStore,
   setTargetConnections,
 } = useSourceConnectionListModel();
-
-const resDeleteConnections = useDeleteSourceConnection(null);
 
 watch(
   props,
@@ -77,15 +79,20 @@ function handleDeleteConnections() {
   const selectedConnectionsIds = [];
 
   tableModel.tableState.selectIndex.reduce((acc, selectIndex) => {
-    acc.push(tableModel.tableState.displayItems[selectIndex].id);
+    acc.push({
+      sgId: props.selectedServiceId,
+      connId: tableModel.tableState.displayItems[selectIndex].id,
+    });
     return acc;
   }, selectedConnectionsIds);
 
-  selectedConnectionsIds.forEach(connectionId => {
-    resDeleteConnections.execute({
-      pathParams: { sgId: props.selectedServiceId, connId: connectionId },
+  useBulkDeleteSourceConnection(selectedConnectionsIds)
+    .then(res => {
+      showSuccessMessage('success', 'Delete Success');
+    })
+    .catch(err => {
+      if (err.errorMsg.value) showErrorMessage('Error', err.errorMsg.value);
     });
-  });
 }
 
 function addDeleteIconAtTable() {
