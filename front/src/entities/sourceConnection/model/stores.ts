@@ -11,17 +11,20 @@ import { formatDate } from '@/shared/utils';
 const NAMESPACE = 'SOURCECONNECTION';
 
 export const useSourceConnectionStore = defineStore(NAMESPACE, () => {
-  const connections = ref<ISourceConnection[]>([]);
+  //key : sourceConnection Id , value : sourceConnection Info
+  const connections = ref<Record<string, ISourceConnection>>({});
 
-  function getConnectionById(connectId: string) {
-    return (
-      connections.value.find((connection: ISourceConnection) => {
-        return connection.id === connectId;
-      }) || null
-    );
+  function getConnectionById(connectId: string): ISourceConnection | null {
+    return connections.value[connectId] || null;
   }
 
   function setConnections(res: ISourceConnectionResponse[]) {
+    res.forEach(el => {
+      setConnection(el);
+    });
+  }
+
+  function setConnection(res: ISourceConnectionResponse) {
     const initAdditionalConnectionInfo = {
       collectSwStatus: '',
       collectSwDateTime: '',
@@ -34,12 +37,14 @@ export const useSourceConnectionStore = defineStore(NAMESPACE, () => {
       softwareData: '',
     };
 
-    connections.value = res.map(el => ({
-      ...el,
-      ...initAdditionalConnectionInfo,
-    }));
+    const existingConnection = connections.value[res.id];
+    if (!existingConnection) {
+      connections.value[res.id] = {
+        ...res,
+        ...initAdditionalConnectionInfo,
+      };
+    }
   }
-
   function mapSourceConnectionCollectInfraResponse(
     item: ISourceInfraInfoResponse,
   ) {
@@ -63,6 +68,7 @@ export const useSourceConnectionStore = defineStore(NAMESPACE, () => {
   }
 
   return {
+    setConnection,
     connections,
     getConnectionById,
     setConnections,

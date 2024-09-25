@@ -29,7 +29,8 @@ export const useSourceServiceStore = defineStore(
           id: service.id,
           name: service.name,
           description: service.description,
-          connection: service.connection || '',
+          connectionCount: service.connection,
+          connectionIds: [],
           status: SourceServiceStatus.unknown,
         }));
       } else {

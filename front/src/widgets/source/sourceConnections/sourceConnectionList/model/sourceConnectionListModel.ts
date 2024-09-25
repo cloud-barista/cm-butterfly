@@ -4,16 +4,15 @@ import {
   SourceConnectionTableTypes,
 } from '@/entities/sourceConnection/model/types.ts';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores.ts';
-import { storeToRefs } from 'pinia';
 import { useGetSourceConnectionList } from '@/entities/sourceConnection/api';
-import { watch } from 'vue';
+import { ref, watch } from 'vue';
 
 export function useSourceConnectionListModel() {
   const tableModel =
     useToolboxTableModel<Partial<Record<SourceConnectionTableTypes, any>>>();
   const sourceConnectionStore = useSourceConnectionStore();
-  const { connections } = storeToRefs(sourceConnectionStore);
   const resSourceConnectionList = useGetSourceConnectionList(null);
+  const targetConnections = ref<ISourceConnection[]>([]);
 
   function initToolBoxTableModel() {
     tableModel.tableState.fields = [
@@ -43,7 +42,13 @@ export function useSourceConnectionListModel() {
     return organizedDatum;
   }
 
-  watch(connections, nv => {
+  function setTargetConnections(connectionIds: string[]) {
+    targetConnections.value = connectionIds
+      .map(id => sourceConnectionStore.getConnectionById(id))
+      .filter(connection => !!connection);
+  }
+
+  watch(targetConnections, nv => {
     tableModel.tableState.items = nv.map(sourceConnection =>
       organizationSourceConnectionTableItem(sourceConnection),
     );
@@ -51,7 +56,7 @@ export function useSourceConnectionListModel() {
 
   return {
     tableModel,
-    connections,
+    setTargetConnections,
     sourceConnectionStore,
     resSourceConnectionList,
     initToolBoxTableModel,

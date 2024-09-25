@@ -12,11 +12,13 @@ const props = defineProps<IProps>();
 const emit = defineEmits(['selectRow']);
 const {
   tableModel,
-  connections,
   resSourceConnectionList,
   initToolBoxTableModel,
   sourceConnectionStore,
+  setTargetConnections,
 } = useSourceConnectionListModel();
+
+//새로고침시 모든 connection 삭제
 
 function getSourceConnectionList() {
   resSourceConnectionList
@@ -26,6 +28,9 @@ function getSourceConnectionList() {
     .then(res => {
       if (res.data.responseData) {
         sourceConnectionStore.setConnections(res.data.responseData);
+
+        const connectionIds = res.data.responseData.map(el => el.id);
+        setTargetConnections(connectionIds);
       }
     })
     .catch(e => {

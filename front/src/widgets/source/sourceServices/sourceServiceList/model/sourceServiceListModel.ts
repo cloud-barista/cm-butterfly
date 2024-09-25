@@ -21,7 +21,7 @@ export function useSourceServiceListModel() {
       { name: 'name', label: 'Name' },
       { name: 'id', label: 'id' },
       { name: 'description', label: 'Description' },
-      { name: 'connection', label: 'Connection' },
+      { name: 'connectionCount', label: 'Connection' },
     ];
 
     tableModel.querySearchState.keyItemSet = [
@@ -46,7 +46,7 @@ export function useSourceServiceListModel() {
     > = {
       name: sourceService.name,
       description: sourceService.description,
-      connection: sourceService.connection,
+      connectionCount: sourceService.connectionCount || 0,
       id: sourceService.id,
       originalData: sourceService,
     };

@@ -2,7 +2,8 @@ export interface ISourceService {
   id: string;
   name: string;
   description: string;
-  connection: string;
+  connectionCount: string;
+  connectionIds: string[];
   status: SourceServiceStatus;
 }
 
@@ -33,5 +34,5 @@ export type SourceServiceTableType =
   | 'name'
   | 'id'
   | 'description'
-  | 'connection'
+  | 'connectionCount'
   | 'status';
