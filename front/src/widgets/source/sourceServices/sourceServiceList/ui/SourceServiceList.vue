@@ -47,6 +47,12 @@ function handleSelectedIndex(index: number[]) {
     emit('selectRow', '');
   }
 }
+
+function handleRefreshTable() {
+  tableModel.initState();
+  emit('selectRow', '');
+  getSourceServiceList();
+}
 </script>
 
 <template>
@@ -72,7 +78,7 @@ function handleSelectedIndex(index: number[]) {
         :select-index.sync="tableModel.tableState.selectIndex"
         :page-size="tableModel.tableOptions.pageSize"
         @change="tableModel.handleChange"
-        @refresh="getSourceServiceList"
+        @refresh="handleRefreshTable"
         @select="handleSelectedIndex"
       >
         <template #toolbox-left>

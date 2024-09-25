@@ -67,6 +67,10 @@ export const useSourceConnectionStore = defineStore(NAMESPACE, () => {
     }
   }
 
+  function clear() {
+    connections.value = {};
+  }
+
   return {
     setConnection,
     connections,
@@ -74,5 +78,6 @@ export const useSourceConnectionStore = defineStore(NAMESPACE, () => {
     setConnections,
     mapSourceConnectionCollectSWResponse,
     mapSourceConnectionCollectInfraResponse,
+    clear,
   };
 });

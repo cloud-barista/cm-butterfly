@@ -18,6 +18,18 @@ const {
   setTargetConnections,
 } = useSourceConnectionListModel();
 
+watch(
+  props,
+  () => {
+    tableModel.initState();
+    getSourceConnectionList();
+  },
+  { immediate: true },
+);
+onBeforeMount(() => {
+  initToolBoxTableModel();
+});
+
 //새로고침시 모든 connection 삭제
 
 function getSourceConnectionList() {
@@ -38,6 +50,13 @@ function getSourceConnectionList() {
     });
 }
 
+function handleRefresh() {
+  tableModel.initState();
+  emit('selectRow', '');
+  sourceConnectionStore.clear();
+  getSourceConnectionList();
+}
+
 function handleSelectedIndex(index: number[]) {
   const selectedData = tableModel.tableState.displayItems[index];
   if (selectedData) {
@@ -46,17 +65,6 @@ function handleSelectedIndex(index: number[]) {
     emit('selectRow', '');
   }
 }
-watch(
-  props,
-  () => {
-    tableModel.initState();
-    getSourceConnectionList();
-  },
-  { immediate: true },
-);
-onBeforeMount(() => {
-  initToolBoxTableModel();
-});
 </script>
 
 <template>
@@ -83,7 +91,7 @@ onBeforeMount(() => {
         :select-index.sync="tableModel.tableState.selectIndex"
         :page-size="tableModel.tableOptions.pageSize"
         @change="tableModel.handleChange"
-        @refresh="getSourceConnectionList"
+        @refresh="handleRefresh"
         @select="handleSelectedIndex"
       >
         <template #toolbox-left>
