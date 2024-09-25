@@ -1,97 +1,727 @@
 menus:
+  ########## step1 : title  ################
   - id: migrations
     parentid: home
     displayname: Migrations
     restype: menu
     isaction: "false"
     priority: 0
+
+  ################## step2 : auth  ################
+  - id: login
+  parentid: none
+  displayname: Login
+  restype: screen
+  isaction: "false"
+  priority: 0
+
+  ################## step2 : quick Link  ################
+
+
+  ############## step2 : category  : migrations  ################
   - id: migrationguide
-    parentid: migrations
-    displayname: Migration Guide
-    restype: menu
-    isaction: "true"
-    priority: 0
+  parentid: migrations
+  displayname: Migration Guide
+  restype: menu
+  isaction: "true"
+  priority: 1
+
   - id: sourcecomputing
-    parentid: migrations
-    displayname: Source Computing
-    restype: menu
-    isaction: "false"
-    priority: 0
-  - id: sourceservices
-    parentid: sourcecomputing
-    displayname: Source Services
-    restype: menu
-    isaction: "true"
-    priority: 0
-  - id: sourceconnections
-    parentid: sourcecomputing
-    displayname: Source Connections
-    restype: menu
-    isaction: "true"
-    priority: 0
-  - id: sourcemetas
-    parentid: sourcecomputing
-    displayname: Source Metas
-    restype: menu
-    isaction: "true"
-    priority: 0
+  parentid: migrations
+  displayname: Source Computing
+  restype: menu
+  isaction: "false"
+  priority: 2
+
   - id: models
-    parentid: migrations
-    displayname: Models
-    restype: menu
-    isaction: "false"
-    priority: 0
-  - id: sourcemodels
-    parentid: models
-    displayname: Source Models
-    restype: menu
-    isaction: "false"
-    priority: 0
-  - id: targetmodels
-    parentid: models
-    displayname: Target Models
-    restype: menu
-    isaction: "true"
-    priority: 0
+  parentid: migrations
+  displayname: Models
+  restype: menu
+  isaction: "false"
+  priority: 3
+
   - id: workflowmanagement
-    parentid: migrations
-    displayname: Workflow Management
-    restype: menu
-    isaction: "false"
-    priority: 0
-  - id: workflows
-    parentid: workflowmanagement
-    displayname: Workflows
-    restype: menu
-    isaction: "true"
-    priority: 0
-  - id: workflowtemplates
-    parentid: workflowmanagement
-    displayname: Workflow Templates
-    restype: menu
-    isaction: "true"
-    priority: 0
-  - id: taskcomponents
-    parentid: workflowmanagement
-    displayname: Task Components
-    restype: menu
-    isaction: "true"
-    priority: 0
+  parentid: migrations
+  displayname: Workflow Management
+  restype: menu
+  isaction: "false"
+  priority: 4
+
   - id: workloadoperations
-    parentid: migrations
-    displayname: Workload Operations
-    restype: menu
-    isaction: "false"
-    priority: 0
+  parentid: migrations
+  displayname: Workload Operations
+  restype: menu
+  isaction: "false"
+  priority: 5
+
+  ################## step3 : menu : migrations > sourcecomputing ################
+  - id: sourceservices
+  parentid: sourcecomputing
+  displayname: Source Services
+  restype: menu
+  isaction: "true"
+  priority: 1
+
+  - id: sourceconnections
+  parentid: sourcecomputing
+  displayname: Source Connections
+  restype: menu
+  isaction: "true"
+  priority: 2
+
+  - id: sourcemetas
+  parentid: sourcecomputing
+  displayname: Source Metas
+  restype: menu
+  isaction: "true"
+  priority: 3
+
+  ################## step3 : menu : migrations > models ################
+  - id: sourcemodels
+  parentid: models
+  displayname: Source Models
+  restype: menu
+  isaction: "false"
+  priority: 1
+
+  - id: targetmodels
+  parentid: models
+  displayname: Target Models
+  restype: menu
+  isaction: "true"
+  priority: 2
+
+  ################## step3 : menu : migrations > workflowmanagement ################
+  - id: workflows
+  parentid: workflowmanagement
+  displayname: Workflows
+  restype: menu
+  isaction: "true"
+  priority: 1
+
+  - id: workflowtemplates
+  parentid: workflowmanagement
+  displayname: Workflow Templates
+  restype: menu
+  isaction: "true"
+  priority: 2
+
+  - id: taskcomponents
+  parentid: workflowmanagement
+  displayname: Task Components
+  restype: menu
+  isaction: "true"
+  priority: 3
+
+  ################## step3 : menu : migrations > workloadoperations ################
   - id: workloads
-    parentid: workflowmanagement
-    displayname: Workloads
-    restype: menu
-    isaction: "false"
-    priority: 0
-  - id: mciswls
-    parentid: workloads
-    displayname: MCIS WLs
-    restype: menu
-    isaction: "true"
-    priority: 0
+  parentid: workloadoperations
+  displayname: Workloads
+  restype: menu
+  isaction: "false"
+  priority: 0
+
+  ###################### step4 : submenu : migrations > workloadoperations > workloads ################
+  - id: mciwls
+  parentid: workloads
+  displayname: MCI WLs
+  restype: menu
+  isaction: "true"
+  priority: 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
