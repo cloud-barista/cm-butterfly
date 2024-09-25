@@ -10,11 +10,6 @@ interface iProps {
 }
 
 const props = defineProps<iProps>();
-
-const state = reactive({
-  schema: null as any,
-  formData: {} as any,
-});
 </script>
 
 <template>
@@ -29,7 +24,7 @@ const state = reactive({
 <style scoped lang="postcss">
 .json-editor-layout {
   @apply overflow-y-scroll;
-  min-width: 726px;
+  min-width: 750px;
   border-bottom: 1px solid #dddddf;
   p {
     @apply text-[0.75rem] text-gray-500 font-[700] bg-[#F7F7F7] px-[0.75rem] py-[0.25rem];

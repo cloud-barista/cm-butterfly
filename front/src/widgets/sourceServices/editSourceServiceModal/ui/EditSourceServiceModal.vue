@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { i18n } from '@/app/i18n';
 import { PButtonModal } from '@cloudforet-test/mirinae';
-import { reactive, ref, watchEffect, watch, computed } from 'vue';
-import { useSourceServiceStore } from '@/shared/libs/store/source-service-store';
+import { reactive, ref, watchEffect, computed } from 'vue';
+import { useSourceServiceStore } from '@/shared/libs';
 import { storeToRefs } from 'pinia';
 import { UpdateSourceService } from '@/features/sourceServices';
 

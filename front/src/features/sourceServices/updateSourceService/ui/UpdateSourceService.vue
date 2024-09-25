@@ -8,21 +8,21 @@ import {
   PLink,
   PTextarea,
 } from '@cloudforet-test/mirinae';
-import { useSourceServiceStore } from '@/shared/libs/store/source-service-store';
+import { useSourceServiceStore } from '@/shared/libs';
 import { storeToRefs } from 'pinia';
-import { reactive, watchEffect, ref } from 'vue';
+import { watchEffect, ref } from 'vue';
 
 const sourceServiceStore = useSourceServiceStore();
 
 const { withSourceConnection, sourceConnectionNameList, sourceServiceInfo } =
   storeToRefs(sourceServiceStore);
 
-interface iProps {
-  sourceServiceName: string;
-  description: string;
-}
+// interface iProps {
+//   sourceServiceName: string;
+//   description: string;
+// }
 
-const props = defineProps<iProps>();
+// const props = defineProps<iProps>();
 
 const emit = defineEmits(['update:sourceServiceName']);
 
@@ -46,6 +46,13 @@ watchEffect(
           : (sourceConnectionNames.value += sourceConnectionName + ', ');
       },
     );
+  },
+  { flush: 'post' },
+);
+
+watchEffect(
+  () => {
+    emit('update:sourceServiceName', sourceServiceInfo.value);
   },
   { flush: 'post' },
 );

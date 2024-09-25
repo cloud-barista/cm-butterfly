@@ -3,8 +3,9 @@ import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
 import { SourceConnectionInfo } from '@/features/sourceServices';
-import { computed, ref, watch, onMounted, watchEffect } from 'vue';
-import { useSourceServiceStore } from '@/shared/libs/store/source-service-store';
+import { computed, watchEffect } from 'vue';
+import { useSourceServiceStore } from '@/shared/libs';
+import type { SourceConnection } from '@/shared/libs';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router/composables';
 
@@ -16,19 +17,6 @@ const {
   sourceConnectionInfoList,
   sourceConnectionNameList,
 } = storeToRefs(sourceServiceStore);
-
-// TODO: types.ts로 이동
-interface SourceConnection {
-  name: string;
-  description: string;
-  ip_address: string;
-  user: string;
-  private_key: string;
-  ssh_port: number;
-  password: string;
-}
-
-const isAdded = ref<boolean[]>([]);
 
 const addSourceConnection = (value: boolean) => {
   if (value) {
@@ -88,7 +76,7 @@ const handleCancel = () => {
   router.push({ name: 'CloudResources' });
 };
 
-const handleGoBack = (value: boolean) => {
+const deleteSourceConnection = (value: boolean) => {
   value
     ? ((sourceConnectionInfoList.value = []),
       (sourceConnectionNameList.value = []))
@@ -103,7 +91,12 @@ const isDisabled = computed(() => {
     length = sourceConnectionInfoList.value.length;
     const res = sourceConnectionInfoList.value.map(
       (sourceConnectionInfo: SourceConnection) => {
-        return sourceConnectionInfo.name !== ''
+        return sourceConnectionInfo.name !== '' &&
+          sourceConnectionInfo.ip_address !== '' &&
+          sourceConnectionInfo.ssh_port !== 0 &&
+          sourceConnectionInfo.user !== '' &&
+          sourceConnectionInfo.private_key !== '' &&
+          sourceConnectionInfo.password !== ''
           ? sourceConnectionInfo.name
           : null;
       },
@@ -121,7 +114,7 @@ const isDisabled = computed(() => {
     subtitle="Add or register a source connection."
     add-button-text="Add Source Connection"
     @addSourceConnection="addSourceConnection"
-    @deleteSourceConnection="handleGoBack"
+    @deleteSourceConnection="deleteSourceConnection"
   >
     <template #add-info>
       <div v-for="(value, i) in sourceConnectionInfoList" :key="i">
