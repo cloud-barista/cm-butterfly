@@ -18,8 +18,8 @@ import (
 )
 
 const (
-	tokenExpired        = time.Minute * 1
-	refreshTokenExpired = time.Minute * 3
+	tokenExpired        = time.Minute * 60
+	refreshTokenExpired = time.Minute * 180
 )
 
 type CmigAuthSetting struct {
