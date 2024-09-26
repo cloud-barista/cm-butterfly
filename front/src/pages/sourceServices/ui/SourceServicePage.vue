@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref, watch, watchEffect } from 'vue';
 import { PButton, PButtonTab, PTab } from '@cloudforet-test/mirinae';
 import SourceServiceList from '@/widgets/source/sourceServices/sourceServiceList/ui/SourceServiceList.vue';
 import SourceServiceDetail from '@/widgets/source/sourceServices/sourceServiceDetail/ui/SourceServiceDetail.vue';
@@ -8,8 +8,13 @@ import SourceInformation from '@/widgets/source/sourceConnections/sourceConnecti
 import SourceInfraCollect from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/ui/SourceInfraCollect.vue';
 import SourceSoftwareCollect from '@/widgets/source/sourceConnections/sourceConnectionDetail/softwareCollect/ui/SourceSoftwareCollect.vue';
 import SourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/SourceConnectionModal.vue';
+import { AddSourceServiceModal } from '@/widgets/sourceServices';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
+import MetaViewer from '@/widgets/source/sourceConnections/sourceConnectionDetail/metaViewer/ui/MetaViewer.vue';
+import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
+
+const { sourceConnectionStore } = useSourceInfraCollectModel();
 
 const sidebar = useSidebar();
 
@@ -49,6 +54,37 @@ const sourceConnectionDetailTabState = reactive({
   ],
 });
 
+//trigger true해주면 업데이트 되도록 함.
+const modalStates = reactive({
+  addServiceGroup: {
+    open: false,
+    confirm() {
+      modalStates.addServiceGroup.open = false;
+    },
+    trigger: false,
+    updateTrigger() {
+      modalStates.addServiceGroup.trigger = false;
+    },
+  },
+
+  addSourceConnection: {
+    open: false,
+    trigger: false,
+    confirm() {
+      modalStates.addSourceConnection.open = false;
+    },
+    updateTrigger() {
+      modalStates.addSourceConnection.trigger = false;
+    },
+  },
+  addMetaViewer: {
+    open: false,
+    confirm() {
+      modalStates.addMetaViewer.open = false;
+    },
+  },
+});
+
 const selectedServiceId = ref<string>('');
 const selectedConnectionId = ref<string>('');
 
@@ -57,22 +93,45 @@ function handleClickServiceId(id: string) {
   selectedConnectionId.value = '';
 }
 
-const isConnectionModalOpened = ref<boolean>(false);
+function handleGroupModal(value: boolean) {
+  modalStates.addServiceGroup.open = value;
+}
 
 function handleConnectionModal(value: boolean) {
-  isConnectionModalOpened.value = value;
+  modalStates.addSourceConnection.open = value;
+  modalStates.addServiceGroup.open = !value;
   isCollapsed.value = value;
   isGnbToolboxShown.value = !value;
 }
+
+const data = computed(() => {
+  return sourceConnectionStore.getConnectionById(selectedConnectionId.value)
+    ?.softwareData;
+});
+
+// watchEffect(() => {
+//   console.log(
+//     sourceConnectionStore.getConnectionById(selectedConnectionId.value),
+//   );
+// });
 </script>
 
 <template>
   <div :class="`${pageName}-page page`">
-    <header v-if="!isConnectionModalOpened" :class="`${pageName}-page-header`">
+    <header
+      v-if="!modalStates.addSourceConnection.open"
+      :class="`${pageName}-page-header`"
+    >
       <p>{{ pageName }}</p>
     </header>
-    <section v-if="!isConnectionModalOpened" :class="`${pageName}-page-body`">
-      <SourceServiceList @selectRow="handleClickServiceId" />
+    <section :class="`${pageName}-page-body`">
+      <SourceServiceList
+        :add-modal-state="modalStates.addServiceGroup.open"
+        :trigger="modalStates.addServiceGroup.trigger"
+        @selectRow="handleClickServiceId"
+        @update:addModalState="e => (modalStates.addServiceGroup.open = e)"
+        @update:trigger="modalStates.addServiceGroup.updateTrigger"
+      />
       <p
         v-if="!selectedServiceId"
         class="flex justify-center text-gray-300 text-sm font-normal"
@@ -87,7 +146,7 @@ function handleConnectionModal(value: boolean) {
               <p-button
                 :style-type="'tertiary'"
                 icon-left="ic_edit"
-                @click="() => {}"
+                @click="modalStates.addServiceGroup.open = true"
               >
                 Edit
               </p-button>
@@ -99,9 +158,11 @@ function handleConnectionModal(value: boolean) {
               <p>Source Connection</p>
             </div>
             <SourceConnectionList
+              :trigger="modalStates.addSourceConnection.trigger"
               :selected-service-id="selectedServiceId"
               @selectRow="id => (selectedConnectionId = id)"
-              @updateIsConnectionModalOpened="handleConnectionModal"
+              @update:addModalState="handleConnectionModal"
+              @update:trigger="modalStates.addSourceConnection.updateTrigger"
             >
               <template v-if="selectedConnectionId" #sourceConnectionDetail>
                 <p-button-tab
@@ -115,12 +176,20 @@ function handleConnectionModal(value: boolean) {
                     <SourceInfraCollect
                       :source-group-id="selectedServiceId"
                       :connection-id="selectedConnectionId"
+                      :meta-viewer-modal-state="modalStates.addMetaViewer.open"
+                      @update:metaViewerModalState="
+                        e => (modalStates.addMetaViewer.open = e)
+                      "
                     />
                   </template>
                   <template #softwareCollect>
                     <SourceSoftwareCollect
                       :source-group-id="selectedServiceId"
                       :connection-id="selectedConnectionId"
+                      :meta-viewer-modal-state="modalStates.addMetaViewer.open"
+                      @update:metaViewerModalState="
+                        e => (modalStates.addMetaViewer.open = e)
+                      "
                     />
                   </template>
                 </p-button-tab>
@@ -130,10 +199,43 @@ function handleConnectionModal(value: boolean) {
         </p-tab>
       </div>
     </section>
-    <source-connection-modal
-      v-if="isConnectionModalOpened"
-      @update:is-connection-modal-opened="handleConnectionModal"
-    />
+    <div class="relative z-60">
+      <add-source-service-modal
+        v-if="modalStates.addServiceGroup.open"
+        save-button-name="Add"
+        @update:isModalOpened="handleGroupModal"
+        @update:is-connection-modal-opened="handleConnectionModal"
+        @update:trigger="modalStates.addServiceGroup.trigger = true"
+      />
+    </div>
+    <div class="relative z-70">
+      <source-connection-modal
+        v-if="modalStates.addSourceConnection.open"
+        :selected-connection-id="selectedConnectionId"
+        @update:is-connection-modal-opened="handleConnectionModal"
+      />
+
+      <meta-viewer
+        v-if="
+          modalStates.addMetaViewer.open &&
+            sourceConnectionStore.getConnectionById(selectedConnectionId)
+              ?.infraData
+        "
+        :infra-data="
+          sourceConnectionStore.getConnectionById(selectedConnectionId)
+            ?.infraData
+        "
+        @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
+      />
+      <meta-viewer
+        v-else-if="modalStates.addMetaViewer.open && data"
+        :infra-data="
+          sourceConnectionStore.getConnectionById(selectedConnectionId)
+            ?.softwareData
+        "
+        @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
+      />
+    </div>
   </div>
 </template>
 

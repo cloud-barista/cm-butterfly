@@ -21,19 +21,10 @@ const sourceServiceStore = useSourceServiceStore();
 const { withSourceConnection, sourceConnectionNameList, sourceServiceInfo } =
   storeToRefs(sourceServiceStore);
 
-// interface iProps {
-//   sourceServiceName: string;
-//   description: string;
-// }
-
-// const props = defineProps<iProps>();
-
-const emit = defineEmits(['update:sourceServiceName']);
-
-// const state = reactive({
-//   sourceServiceName: sourceServiceInfo.value.name,
-//   description: sourceServiceInfo.value.description,
-// });
+const emit = defineEmits([
+  'update:sourceServiceName',
+  'update:is-connection-modal-opened',
+]);
 
 const handleCheckSourceConnection = () => {
   sourceServiceStore.setWithSourceConnection();
@@ -61,7 +52,9 @@ watchEffect(
   { flush: 'post' },
 );
 
-const handleAddSourceConnection = () => {};
+const handleAddSourceConnection = () => {
+  emit('update:is-connection-modal-opened', true);
+};
 </script>
 
 <template>

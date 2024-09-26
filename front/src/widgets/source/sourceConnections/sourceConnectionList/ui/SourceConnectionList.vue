@@ -17,10 +17,16 @@ import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/Dynamic
 
 interface IProps {
   selectedServiceId: string;
+  trigger: boolean;
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['selectRow', 'updateIsConnectionModalOpened']);
+const emit = defineEmits([
+  'selectRow',
+  'update:trigger',
+  'update:addModalState',
+]);
+
 const {
   tableModel,
   resSourceConnectionList,
@@ -65,13 +71,6 @@ function getSourceConnectionList() {
     .catch(e => {
       if (e.errorMsg.value) showErrorMessage('Error', e.errorMsg.value);
     });
-}
-
-function handleRefresh() {
-  tableModel.initState();
-  emit('selectRow', '');
-  sourceConnectionStore.clear();
-  getSourceConnectionList();
 }
 
 function handleSelectedIndex(index: number[]) {
@@ -126,8 +125,25 @@ function addDeleteIconAtTable() {
   return instance;
 }
 
-function handlePageModal() {
-  emit('updateIsConnectionModalOpened', true);
+function handleRefresh() {
+  tableModel.initState();
+  emit('selectRow', '');
+  sourceConnectionStore.clear();
+  getSourceConnectionList();
+}
+
+watch(
+  () => props.trigger,
+  nv => {
+    if (nv) {
+      handleRefresh();
+      emit('update:trigger');
+    }
+  },
+);
+
+function handleSourceConnectionList() {
+  emit('update:addModalState', true);
 }
 </script>
 
@@ -162,7 +178,7 @@ function handlePageModal() {
           <p-button
             style-type="secondary"
             icon-left="ic_plus_bold"
-            @click="handlePageModal"
+            @click="handleSourceConnectionList"
           >
             Add / Edit
           </p-button>

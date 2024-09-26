@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import { PButton, PIconButton } from '@cloudforet-test/mirinae';
 import { WidgetLayout } from '@/widgets/layout';
-import { useRouter } from 'vue-router/composables';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
 
 const sidebar = useSidebar();
 
 const { isCollapsed, isGnbToolboxShown, isMinimized } = storeToRefs(sidebar);
-
-const router = useRouter();
 
 interface Props {
   title: string;
@@ -22,6 +19,7 @@ const emit = defineEmits([
   'addSourceConnection',
   'deleteSourceConnection',
   'update:is-connection-modal-opened',
+  'update:is-service-modal-opened',
 ]);
 
 const handleAddSourceConnection = () => {
@@ -31,8 +29,9 @@ const handleAddSourceConnection = () => {
 // TODO: change api response
 
 const handleGoBack = () => {
-  emit('deleteSourceConnection', true);
+  emit('deleteSourceConnection', false); //TODO: true로 바꿔야함. 임시...
   emit('update:is-connection-modal-opened', false);
+  emit('update:is-service-modal-opened', false);
   isCollapsed.value = false;
   isGnbToolboxShown.value = true;
   isMinimized.value = true;
@@ -73,7 +72,7 @@ const handleGoBack = () => {
 
 <style scoped lang="postcss">
 .page-layer {
-  @apply px-[1.5rem];
+  @apply p-[1.5rem];
   .page-top {
     @apply flex gap-[0.75rem];
     p {

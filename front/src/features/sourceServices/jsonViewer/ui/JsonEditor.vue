@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { PTextEditor, PPaneLayout } from '@cloudforet-test/mirinae';
-import { reactive, readonly } from 'vue';
 
 interface iProps {
-  schema: any;
   formData: any;
   title: string;
   readOnly: boolean;

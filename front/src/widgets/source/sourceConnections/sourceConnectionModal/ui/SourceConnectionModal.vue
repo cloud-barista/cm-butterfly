@@ -3,14 +3,25 @@ import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
 import { SourceConnectionInfo } from '@/features/sourceServices';
-import { computed, watchEffect } from 'vue';
+import { computed, onMounted, watchEffect } from 'vue';
 import { useSourceServiceStore } from '@/shared/libs';
 import type { SourceConnection } from '@/shared/libs';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router/composables';
+import { SOURCE_COMPUTING_ROUTE } from '@/app/providers/router/routes/constants';
+import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 
 const sourceServiceStore = useSourceServiceStore();
+const sourceConnectionStore = useSourceConnectionStore();
 const router = useRouter();
+
+interface iProps {
+  selectedConnectionId: any;
+}
+
+const props = defineProps<iProps>();
+
+const { connections } = storeToRefs(sourceConnectionStore);
 
 const {
   editingSourceConnectionList,
@@ -20,7 +31,7 @@ const {
 
 const addSourceConnection = (value: boolean) => {
   if (value) {
-    sourceServiceStore.setSourceConnectionInfoList({
+    sourceConnectionInfoList.value.push({
       name: '',
       description: '',
       ip_address: '',
@@ -29,8 +40,43 @@ const addSourceConnection = (value: boolean) => {
       ssh_port: 0,
       password: '',
     });
+    // sourceServiceStore.setSourceConnectionInfoList({
+    //   name: '',
+    //   description: '',
+    //   ip_address: '',
+    //   user: '',
+    //   private_key: '',
+    //   ssh_port: 0,
+    //   password: '',
+    // });
   }
 };
+
+onMounted(() => {
+  Object.values(connections.value).forEach(v => {
+    const {
+      name,
+      ip_address,
+      ssh_port,
+      description,
+      user,
+      password,
+      private_key,
+    } = v;
+
+    const d: SourceConnection = {
+      name,
+      ip_address,
+      ssh_port,
+      description,
+      user,
+      password,
+      private_key,
+    };
+
+    sourceConnectionInfoList.value.unshift(d);
+  });
+});
 
 const handleSourceConnection = (value: SourceConnection) => {
   editingSourceConnectionList.value = [
@@ -66,14 +112,14 @@ watchEffect(
 
 const handleAddSourceConnection = () => {
   // TODO: temporary route name
-  router.push({ name: 'CloudResources' });
+  // router.push({ name: SOURCE_COMPUTING_ROUTE.SOURCE_SERVICES._NAME });
 };
 
 const handleCancel = () => {
   sourceConnectionInfoList.value = [];
   sourceConnectionNameList.value = [];
 
-  router.push({ name: 'CloudResources' });
+  router.push({ name: SOURCE_COMPUTING_ROUTE.SOURCE_SERVICES._NAME });
 };
 
 const deleteSourceConnection = (value: boolean) => {
@@ -115,7 +161,7 @@ const handleConnectionModal = (value: boolean) => {
 </script>
 
 <template>
-  <div class="connection-modal-layout">
+  <div class="page-modal-layout">
     <create-form
       class="modal-layer"
       title="Source Connection"
@@ -148,8 +194,14 @@ const handleConnectionModal = (value: boolean) => {
 </template>
 
 <style scoped lang="postcss">
-.connection-modal-layout {
-  @apply fixed left-0 w-[100vw];
-  height: calc(100vh);
-}
+/* .page-modal-layout {
+  overflow-y: scroll;
+  position: fixed;
+  width: 100vw;
+  height: calc(100vh - $top-bar-height);
+  top: $top-bar-height;
+  left: 0;
+  z-index: 99;
+  background-color: $bg-color;
+} */
 </style>

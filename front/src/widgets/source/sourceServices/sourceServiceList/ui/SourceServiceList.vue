@@ -5,7 +5,7 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import {
   insertDynamicComponent,
   showErrorMessage,
@@ -14,8 +14,6 @@ import {
 import { useSourceServiceListModel } from '@/widgets/source/sourceServices/sourceServiceList/model/sourceServiceListModel.ts';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
 import { useBulkDeleteSourceGroup } from '@/entities/sourceService/api';
-import { i18n } from '@/app/i18n';
-import { AddSourceServiceModal } from '@/widgets/sourceServices';
 
 const {
   tableModel,
@@ -25,10 +23,21 @@ const {
   initToolBoxTableModel,
 } = useSourceServiceListModel();
 
-const emit = defineEmits(['selectRow']);
+interface IProps {
+  addModalState: boolean;
+  trigger: boolean;
+}
+
+const props = defineProps<IProps>();
+const emit = defineEmits([
+  'selectRow',
+  'update:addModalState',
+  'update:trigger',
+]);
 
 const modals = reactive({
   alertModalState: { open: false },
+  serviceAddModalState: { open: false },
 });
 
 onBeforeMount(() => {
@@ -108,15 +117,15 @@ function handleRefreshTable() {
   getSourceServiceList();
 }
 
-const isModalOpened = ref<boolean>(false);
-
-function handleModal(value: boolean) {
-  !value ? (isModalOpened.value = false) : (isModalOpened.value = true);
-}
-
-function handleAddModal() {
-  isModalOpened.value = true;
-}
+watch(
+  () => props.trigger,
+  nv => {
+    if (nv) {
+      handleRefreshTable();
+      emit('update:trigger');
+    }
+  },
+);
 </script>
 
 <template>
@@ -151,9 +160,9 @@ function handleAddModal() {
             <p-button
               style-type="primary"
               icon-left="ic_plus_bold"
-              @click="handleAddModal"
+              @click="emit('update:addModalState', true)"
             >
-              {{ i18n.t('COMPONENT.BUTTON_MODAL.ADD') }}
+              Add
             </p-button>
           </template>
         </p-toolbox-table>
@@ -174,11 +183,6 @@ function handleAddModal() {
           handleDeleteSourceServices();
         }
       "
-    />
-    <add-source-service-modal
-      v-if="isModalOpened"
-      :save-button-name="i18n.t('COMPONENT.BUTTON_MODAL.ADD')"
-      @update:isModalOpened="handleModal"
     />
   </div>
 </template>

@@ -4,6 +4,8 @@ import { SourceModelTextInput } from '@/features/sourceServices';
 import { i18n } from '@/app/i18n';
 import { computed, ref, watchEffect } from 'vue';
 
+const emit = defineEmits(['update:save-modal']);
+
 const name = ref<string>('');
 const description = ref<string>('');
 
@@ -24,6 +26,9 @@ const isTextInputBlank = computed(() => name.value === '');
     header-title="Save Source Model"
     size="md"
     :disabled="isTextInputBlank"
+    @confirm="emit('update:save-modal')"
+    @cancel="emit('update:save-modal')"
+    @close="emit('update:save-modal')"
   >
     <template #body>
       <p-pane-layout class="layout">

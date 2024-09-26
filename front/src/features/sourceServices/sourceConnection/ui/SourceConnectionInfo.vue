@@ -141,10 +141,11 @@ watchEffect(
 }
 .source-connection-info {
   @apply flex p-[1.5rem] border-[0.0625rem] border-[#DDDDDF];
+  width: 100%;
   min-height: 15.125rem;
   border-radius: 0.25rem 0 0 0.25rem;
   .left-layer {
-    @apply w-[450px] mr-[1.5rem];
+    /* @apply w-[450px] mr-[1.5rem]; */
     .p-text-input {
       @apply w-[450px];
     }
@@ -152,7 +153,7 @@ watchEffect(
   .right-layer {
     @apply grid grid-cols-2 gap-x-[1.5rem] ml-[1.5rem];
     .p-text-input {
-      @apply w-[27rem];
+      @apply w-[37rem];
     }
     .private-key {
       @apply col-span-2;

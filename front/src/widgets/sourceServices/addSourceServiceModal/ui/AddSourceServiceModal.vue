@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { i18n } from '@/app/i18n';
 import { PButtonModal } from '@cloudforet-test/mirinae';
-import { reactive, ref, watchEffect, computed, onMounted } from 'vue';
+import { reactive, ref, watchEffect, computed, onMounted, watch } from 'vue';
 import { SourceConnection, useSourceServiceStore } from '@/shared/libs';
 import { storeToRefs } from 'pinia';
 import { UpdateSourceService } from '@/features/sourceServices';
 import { useRegisterSourceGroup } from '@/entities/temp/api';
 import { TranslateResult } from 'vue-i18n';
+import { showSuccessMessage, showErrorMessage } from '@/shared/utils';
 
 const sourceServiceStore = useSourceServiceStore();
 
@@ -18,16 +19,29 @@ const {
 
 interface Props {
   saveButtonName: string | TranslateResult;
+  trigger?: boolean;
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits(['update:isModalOpened']);
+const emit = defineEmits([
+  'update:isModalOpened',
+  'update:is-connection-modal-opened',
+  'update:trigger',
+]);
 
 const registerSourceGroup = useRegisterSourceGroup<{ request: any }, any>(null);
 
-// TODO: merge 이후 add 버튼에 추가.
-const tempBtn = async () => {
+const state = reactive({
+  sourceServiceName: computed(() => sourceServiceInfo.value.name),
+  description: computed(() => sourceServiceInfo.value.description),
+});
+
+const handleCheckSourceConnection = () => {
+  sourceServiceStore.setWithSourceConnection();
+};
+
+const handleConfirm = async () => {
   sourceConnectionInfoList.value.map((sourceConnection: SourceConnection) => {
     sourceConnection.ssh_port = Number(sourceConnection.ssh_port);
   });
@@ -42,36 +56,23 @@ const tempBtn = async () => {
     });
 
     if (data) {
-      alert('Source Group이 성공적으로 추가되었습니다.');
+      showSuccessMessage('success', 'Register Success');
       sourceConnectionInfoList.value = [];
       sourceConnectionNames.value = '';
       sourceServiceInfo.value = {
         name: '',
         description: '',
       };
+
+      emit('update:trigger');
+      emit('update:isModalOpened', false);
     }
   } catch (err: any) {
     if (err?.error.value.code === 'ERR_BAD_RESPONSE') {
-      alert('이미 존재하는 Source Group입니다.');
+      showErrorMessage('failed', 'already existed source group');
       console.log(err);
     }
   }
-};
-
-const state = reactive({
-  sourceServiceName: computed(() => sourceServiceInfo.value.name),
-  description: computed(() => sourceServiceInfo.value.description),
-});
-
-const handleCheckSourceConnection = () => {
-  sourceServiceStore.setWithSourceConnection();
-};
-
-const handleConfirm = () => {
-  /**
-   * TODO: 새롭게 source service를 생성하는 경우
-   *
-   */
 };
 
 const sourceConnectionNames = ref<string>('');
@@ -98,7 +99,19 @@ const handleCancel = () => {
   emit('update:isModalOpened', false);
 };
 
-const isOpenedModal = ref<boolean>(false);
+const handleConnectionModal = (value: boolean) => {
+  emit('update:is-connection-modal-opened', value);
+};
+
+// watch(
+//   () => props.trigger,
+//   nv => {
+//     if (nv) {
+//       console.log(nv);
+//       emit('update:trigger');
+//     }
+//   },
+// );
 </script>
 
 <template>
@@ -112,12 +125,12 @@ const isOpenedModal = ref<boolean>(false);
       "
       @confirm="handleConfirm"
       @cancel="handleCancel"
+      @close="handleCancel"
     >
       <template #body>
-        <update-source-service />
-        <!-- :source-service-name="state.sourceServiceName"
-        :description="state.description" -->
-        <!-- @update:source-service-name="handleUpdateValues" -->
+        <update-source-service
+          @update:is-connection-modal-opened="handleConnectionModal"
+        />
       </template>
       <template #close-button>
         <span>{{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}</span>
