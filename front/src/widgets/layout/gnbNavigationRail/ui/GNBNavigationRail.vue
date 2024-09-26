@@ -1,30 +1,15 @@
 <script setup lang="ts">
 import { PTooltip, PI } from '@cloudforet-test/mirinae';
-import { onMounted, reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import { MenuCategory } from '@/widgets/layout';
-import { useMenuPerUserStore } from '@/entities';
+import { MigratorMenu } from '@/entities';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
+import { MIGRATOR_MENU_LIST } from '@/entities';
 
 const sidebar = useSidebar();
-const menuPerUserStore = useMenuPerUserStore();
 
 const { isCollapsed, isMinimized } = storeToRefs(sidebar);
-
-// TODO: userMenuInfo Mock Data (api yet)
-import testJson from '@/entities/user/store/test.json';
-import { i18n } from '@/app/i18n';
-import { toLower } from 'lodash';
-
-onMounted(() => {
-  testJson.forEach((majorCategory: any) => {
-    toLower(majorCategory.name) === toLower(`${i18n.t('MENU.SETTINGS._NAME')}`)
-      ? menuPerUserStore.setUserMenuInfo(majorCategory)
-      : menuPerUserStore.setOperationMenuInfo(majorCategory);
-  });
-});
-
-const { settingMenu, operationMenu } = storeToRefs(menuPerUserStore);
 
 const state = reactive({
   isInit: false as boolean | undefined,
@@ -39,6 +24,8 @@ const clickMinimizeBtn = () => {
 const handleMouseEvent = (value: boolean) => {
   state.isHovered = value;
 };
+
+const migratorMenuList = ref<MigratorMenu[]>(MIGRATOR_MENU_LIST);
 </script>
 
 <template>
@@ -73,9 +60,7 @@ class="minimize-button-wrapper" position="bottom" /> -->
     </p-tooltip>
     <div class="navigation-rail-container">
       <div class="navigation-rail-wrapper">
-        <menu-category
-          :displayed-menu="[...settingMenu.menus, ...operationMenu.menus]"
-        />
+        <menu-category :displayed-menu="migratorMenuList" />
       </div>
     </div>
   </div>

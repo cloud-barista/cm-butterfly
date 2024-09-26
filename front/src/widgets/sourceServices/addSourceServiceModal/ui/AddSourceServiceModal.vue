@@ -53,16 +53,6 @@ const tempBtn = async () => {
       console.log(err);
     }
   }
-  // if (
-  //   data.responseData ===
-  //   'error constraint failed: UNIQUE constraint failed: source_groups.name (2067)'
-  // ) {
-  //   alert('안돼 돌아가');
-  // }
-
-  // if (data) {
-  //   if (data.status?.code === 500 && data.responseData === )
-  // }
 };
 
 const state = reactive({
