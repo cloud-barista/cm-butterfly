@@ -23,10 +23,21 @@ const {
   initToolBoxTableModel,
 } = useSourceServiceListModel();
 
-const emit = defineEmits(['selectRow']);
+interface IProps {
+  addModalState: boolean;
+  trigger: boolean;
+}
+
+const props = defineProps<IProps>();
+const emit = defineEmits([
+  'selectRow',
+  'update:addModalState',
+  'update:trigger',
+]);
 
 const modals = reactive({
   alertModalState: { open: false },
+  serviceAddModalState: { open: false },
 });
 
 onBeforeMount(() => {
@@ -105,6 +116,16 @@ function handleRefreshTable() {
   emit('selectRow', '');
   getSourceServiceList();
 }
+
+watch(
+  () => props.trigger,
+  nv => {
+    if (nv) {
+      handleRefreshTable();
+      emit('update:trigger');
+    }
+  },
+);
 </script>
 
 <template>
@@ -136,7 +157,11 @@ function handleRefreshTable() {
           @select="handleSelectedIndex"
         >
           <template #toolbox-left>
-            <p-button style-type="primary" icon-left="ic_plus_bold">
+            <p-button
+              style-type="primary"
+              icon-left="ic_plus_bold"
+              @click="emit('update:addModalState', true)"
+            >
               Add
             </p-button>
           </template>

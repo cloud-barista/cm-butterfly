@@ -8,9 +8,12 @@ import { showErrorMessage } from '@/shared/utils';
 interface IProps {
   sourceGroupId: string | null;
   connectionId: string | null;
+  metaViewerModalState: boolean;
 }
 
 const props = defineProps<IProps>();
+const emit = defineEmits(['update:metaViewerModalState']);
+
 const {
   sourceConnectionStore,
   setConnectionId,
@@ -24,9 +27,6 @@ const resCollectInfra = useCollectInfra({
   connId: props.connectionId,
 });
 
-const viewInfraModalState = reactive({
-  open: false,
-});
 watch(
   props,
   () => {
@@ -71,7 +71,7 @@ function handleCollectInfra() {
       <template #data-viewInfra="{ data }">
         <p
           class="text-blue-700 cursor-pointer"
-          @click="viewInfraModalState.open = true"
+          @click="emit('update:metaViewerModalState', true)"
         >
           {{ data ? 'View Infra(Meta) ->' : null }}
         </p>

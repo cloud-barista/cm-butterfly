@@ -82,12 +82,10 @@ export default class JwtTokenProvider {
     } catch (error: any) {
       this.removeToken();
 
-      setTimeout(() => {
-        alert('User Session Expired.\n Pleas login again');
-        McmpRouter.getRouter()
-          .push({ name: AUTH_ROUTE.LOGIN._NAME })
-          .catch(() => {});
-      });
+      alert('User Session Expired.\n Pleas login again');
+      McmpRouter.getRouter()
+        .push({ name: AUTH_ROUTE.LOGIN._NAME })
+        .catch(() => {});
 
       return Promise.reject(error);
     }
