@@ -28,7 +28,6 @@ axiosInstance.interceptors.request.use(config => {
   cancelSourceMap.set(config, cancelSource);
 
   if (access_token) config.headers.Authorization = `Bearer ${access_token}`;
-  console.log(config);
   return config;
 });
 

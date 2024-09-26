@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { PToolboxTable, PButton, PIconButton } from '@cloudforet-test/mirinae';
+import {
+  PToolboxTable,
+  PButton,
+  PIconButton,
+  PButtonModal,
+} from '@cloudforet-test/mirinae';
 import {
   insertDynamicComponent,
   showErrorMessage,
   showSuccessMessage,
 } from '@/shared/utils';
-import { onBeforeMount, onMounted, watch } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model/sourceConnectionListModel.ts';
 import { useBulkDeleteSourceConnection } from '@/entities/sourceConnection/api';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
@@ -23,6 +28,10 @@ const {
   sourceConnectionStore,
   setTargetConnections,
 } = useSourceConnectionListModel();
+
+const modals = reactive({
+  alertModalState: { open: false },
+});
 
 watch(
   props,
@@ -74,8 +83,6 @@ function handleSelectedIndex(index: number[]) {
   }
 }
 
-//FIXME bulk로 요청을 보내고 끝나면 응답 모달.
-// 삭제전 물어보는 alert
 function handleDeleteConnections() {
   const selectedConnectionsIds = [];
 
@@ -87,13 +94,16 @@ function handleDeleteConnections() {
     return acc;
   }, selectedConnectionsIds);
 
-  useBulkDeleteSourceConnection(selectedConnectionsIds)
-    .then(res => {
-      showSuccessMessage('success', 'Delete Success');
-    })
-    .catch(err => {
-      if (err.errorMsg.value) showErrorMessage('Error', err.errorMsg.value);
-    });
+  if (selectedConnectionsIds.length) {
+    useBulkDeleteSourceConnection(selectedConnectionsIds)
+      .then(res => {
+        handleRefresh();
+        showSuccessMessage('success', 'Delete Success');
+      })
+      .catch(err => {
+        showErrorMessage('Error', err);
+      });
+  }
 }
 
 function addDeleteIconAtTable() {
@@ -105,7 +115,10 @@ function addDeleteIconAtTable() {
       name: 'ic_delete',
     },
     {
-      click: handleDeleteConnections,
+      click: () => {
+        if (tableModel.tableState.selectIndex.length > 0)
+          modals.alertModalState.open = true;
+      },
     },
     targetElement,
     'prepend',
@@ -151,6 +164,23 @@ function addDeleteIconAtTable() {
     <section class="relative">
       <slot :name="'sourceConnectionDetail'"></slot>
     </section>
+    <p-button-modal
+      v-model="modals.alertModalState.open"
+      :visible="modals.alertModalState.open"
+      size="sm"
+      backdrop
+      theme-color="alert"
+      header-title="Are you sure you want to delete it?"
+      :hide-body="true"
+      :hide-header-close-button="true"
+      @confirm="
+        () => {
+          modals.alertModalState.open = false;
+          handleDeleteConnections();
+        }
+      "
+    >
+    </p-button-modal>
   </div>
 </template>
 
