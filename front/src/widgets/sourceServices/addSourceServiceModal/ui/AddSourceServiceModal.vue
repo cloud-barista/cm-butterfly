@@ -6,6 +6,7 @@ import { SourceConnection, useSourceServiceStore } from '@/shared/libs';
 import { storeToRefs } from 'pinia';
 import { UpdateSourceService } from '@/features/sourceServices';
 import { useRegisterSourceGroup } from '@/entities/temp/api';
+import { TranslateResult } from 'vue-i18n';
 
 const sourceServiceStore = useSourceServiceStore();
 
@@ -16,10 +17,12 @@ const {
 } = storeToRefs(sourceServiceStore);
 
 interface Props {
-  saveButtonName: string;
+  saveButtonName: string | TranslateResult;
 }
 
 const props = defineProps<Props>();
+
+const emit = defineEmits(['update:isModalOpened']);
 
 const registerSourceGroup = useRegisterSourceGroup<{ request: any }, any>(null);
 
@@ -86,36 +89,44 @@ watchEffect(
   { flush: 'post' },
 );
 
-const handleUpdateValues = (value: any) => {
-  state.sourceServiceName = value.name;
-  state.description = value.description;
+// const handleUpdateValues = (value: any) => {
+//   state.sourceServiceName = value.name;
+//   state.description = value.description;
+// };
+
+const handleCancel = () => {
+  emit('update:isModalOpened', false);
 };
+
+const isOpenedModal = ref<boolean>(false);
 </script>
 
 <template>
-  <p-button-modal
-    :visible="true"
-    header-title="Add Source Service"
-    size="md"
-    :disabled="
-      state.sourceServiceName === '' || state.sourceServiceName === undefined
-    "
-    @confirm="handleConfirm"
-    @cancel="tempBtn"
-  >
-    <template #body>
-      <update-source-service />
-      <!-- :source-service-name="state.sourceServiceName"
+  <div>
+    <p-button-modal
+      :visible="true"
+      header-title="Add Source Service"
+      size="md"
+      :disabled="
+        state.sourceServiceName === '' || state.sourceServiceName === undefined
+      "
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
+    >
+      <template #body>
+        <update-source-service />
+        <!-- :source-service-name="state.sourceServiceName"
         :description="state.description" -->
-      <!-- @update:source-service-name="handleUpdateValues" -->
-    </template>
-    <template #close-button>
-      <span>{{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}</span>
-    </template>
-    <template #confirm-button>
-      <span>{{ saveButtonName }}</span>
-    </template>
-  </p-button-modal>
+        <!-- @update:source-service-name="handleUpdateValues" -->
+      </template>
+      <template #close-button>
+        <span>{{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}</span>
+      </template>
+      <template #confirm-button>
+        <span>{{ saveButtonName }}</span>
+      </template>
+    </p-button-modal>
+  </div>
 </template>
 
 <style scoped lang="postcss"></style>

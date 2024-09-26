@@ -10,5 +10,8 @@ export const SOURCE_COMPUTING_ROUTE = {
   _NAME: 'sourceComputing',
   SOURCE_SERVICES: {
     _NAME: MENU_ID.SOURCE_SERVICES,
+    SOURCE_CONNECTION: {
+      _NAME: MENU_ID.SOURCE_CONNECTIONS,
+    },
   },
 };

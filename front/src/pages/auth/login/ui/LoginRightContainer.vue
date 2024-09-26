@@ -2,17 +2,23 @@
 import LoginForm from '@/features/auth/ui/LoginForm.vue';
 import { IUserLoginResponse, useGetUserRole } from '@/entities';
 import { McmpRouter } from '@/app/providers/router';
-// import { DASHBOARD_ROUTE } from '@/pages/dashboard/dashboard.route.ts';
 import { useAuth } from '@/features/auth/model/useAuth.ts';
+// import { WORKLOADS_ROUTE } from '@/app/providers/router/routes/workloads.ts';
+import { SOURCE_COMPUTING_ROUTE } from '@/app/providers/router/routes/constants';
 
 const resUserInfo = useGetUserRole();
 const auth = useAuth();
 
 const handleLoginSuccess = (props: IUserLoginResponse & { id: string }) => {
   auth.setUser(props);
-  // McmpRouter.getRouter().push({ name: DASHBOARD_ROUTE.AWS._NAME });
+  McmpRouter.getRouter().push({
+    name: SOURCE_COMPUTING_ROUTE.SOURCE_SERVICES._NAME,
+  });
 
-  resUserInfo.execute();
+  resUserInfo
+    .execute()
+    .then()
+    .catch(err => err);
 };
 </script>
 

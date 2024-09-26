@@ -39,6 +39,7 @@ const migratorMenuList = ref<MigratorMenu[]>(MIGRATOR_MENU_LIST);
 class="minimize-button-wrapper" position="bottom" /> -->
     <!-- TODO: Sidebar shirnk & expand -->
     <p-tooltip
+      v-if="!isCollapsed"
       class="minimize-button-wrapper"
       position="bottom"
       :contents="!isMinimized ? 'Minimize menu' : 'Expand menu'"
@@ -142,7 +143,7 @@ class="minimize-button-wrapper" position="bottom" /> -->
     border-top-left-radius: 6.25rem;
     border-bottom-left-radius: 6.25rem;
     transition: padding 0.1s ease;
-    z-index: 50;
+    /* z-index: 50; */
     &:hover {
       @apply bg-violet-200 text-violet-600;
       padding-right: 0.75rem;

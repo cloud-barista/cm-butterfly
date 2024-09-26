@@ -31,10 +31,6 @@ const state = reactive({
   sourceConnectionInfoList: computed(() => props.sourceConnection),
 });
 
-// watch(state, () => {
-//   emit('update:source-connection', state);
-// });
-
 const handleDelete = () => {
   emit('delete:source-connection', true);
 };
@@ -156,7 +152,7 @@ watchEffect(
   .right-layer {
     @apply grid grid-cols-2 gap-x-[1.5rem] ml-[1.5rem];
     .p-text-input {
-      @apply w-[30rem];
+      @apply w-[27rem];
     }
     .private-key {
       @apply col-span-2;

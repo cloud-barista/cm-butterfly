@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { JsonViewer } from '@/widgets/sourceServices';
-import CreateForm from '@/widgets/layout/createFormPage/ui/CreateForm.vue';
+import CreateForm from '@/widgets/layout/createForm/ui/CreateForm.vue';
 import { PButton } from '@cloudforet-test/mirinae';
 import { i18n } from '@/app/i18n';
 </script>

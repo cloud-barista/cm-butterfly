@@ -57,13 +57,10 @@ export function validateConfirmPassword({
     message: null,
   };
 
-  console.log(password)
-  console.log(comparedPassword)
   result.isValid = password === comparedPassword;
 
   if (!result.isValid) {
     result.message = i18n.t('USER.REGISTER.PASSWORD_CONFIRM') as string;
   }
-  console.log(result);
   return result;
 }

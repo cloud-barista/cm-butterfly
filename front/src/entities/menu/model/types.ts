@@ -4,6 +4,7 @@ export const MENU_ID = Object.freeze({
   // C-MIGRATOR
   SOURCE_COMPUTING: 'sourceComputing',
   SOURCE_SERVICES: 'sourceServices',
+  SOURCE_CONNECTIONS: 'sourceConnections',
   SOURCE_MODELS: 'sourceModels',
   TARGET_MODELS: 'targetModels',
   WORKFLOWS: 'workflows',

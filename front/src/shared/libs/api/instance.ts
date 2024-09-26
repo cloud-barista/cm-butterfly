@@ -6,12 +6,11 @@ import axios, {
 import { McmpRouter } from '../../../app/providers/router';
 import { AUTH_ROUTE } from '../../../pages/auth/auth.route.ts';
 import JwtTokenProvider from '../token';
-// const url = 'http://mcmpdemo.csesmzc.com:3000';
+
 const url = import.meta.env.VITE_BACKEND_ENDPOINT;
 const createInstance = () => {
   return axios.create({
     baseURL: `${url}`,
-    // withCredentials: true,
     headers: {
       'Content-Type': 'application/json',
     },
@@ -29,7 +28,6 @@ axiosInstance.interceptors.request.use(config => {
   cancelSourceMap.set(config, cancelSource);
 
   if (access_token) config.headers.Authorization = `Bearer ${access_token}`;
-
   return config;
 });
 

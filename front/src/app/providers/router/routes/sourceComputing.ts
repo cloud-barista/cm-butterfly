@@ -1,10 +1,7 @@
 import { RouteConfig } from 'vue-router';
-import {
-  AddSourceConnectionPage,
-  EditSourceConnectionPage,
-} from '@/pages/temp';
-import { SourceConnectionViewerPage } from '@/pages/temp';
+import { AddSourceConnectionPage } from '@/pages/sourceConnections';
 import { SOURCE_COMPUTING_ROUTE } from './constants';
+import SourceServicePage from '@/pages/sourceServices/ui/SourceServicePage.vue';
 
 export const sourceComputingRoutes: RouteConfig[] = [
   {
@@ -15,6 +12,14 @@ export const sourceComputingRoutes: RouteConfig[] = [
       {
         path: 'source-services',
         name: SOURCE_COMPUTING_ROUTE.SOURCE_SERVICES._NAME,
+        component: SourceServicePage,
+        meta: {
+          menuId: SOURCE_COMPUTING_ROUTE._NAME,
+        },
+      },
+      {
+        path: 'source-connection',
+        name: SOURCE_COMPUTING_ROUTE.SOURCE_SERVICES.SOURCE_CONNECTION._NAME,
         component: AddSourceConnectionPage,
         meta: {
           menuId: SOURCE_COMPUTING_ROUTE._NAME,

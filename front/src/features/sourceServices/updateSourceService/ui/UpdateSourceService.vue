@@ -6,11 +6,15 @@ import {
   PToggleButton,
   PDivider,
   PLink,
+  PI,
+  PIconButton,
   PTextarea,
 } from '@cloudforet-test/mirinae';
 import { useSourceServiceStore } from '@/shared/libs';
 import { storeToRefs } from 'pinia';
 import { watchEffect, ref } from 'vue';
+import { MENU_ID } from '@/entities';
+import { SOURCE_COMPUTING_ROUTE } from '@/app/providers/router/routes/constants';
 
 const sourceServiceStore = useSourceServiceStore();
 
@@ -56,6 +60,8 @@ watchEffect(
   },
   { flush: 'post' },
 );
+
+const handleAddSourceConnection = () => {};
 </script>
 
 <template>
@@ -81,13 +87,16 @@ watchEffect(
         <span>With Source Connection</span>
       </div>
       <p-divider />
-      <p-link
+      <!-- <p-link
         text="Go add Source Connection"
-        :to="{ name: 'sourceConnection' }"
         action-icon="internal-link"
         :highlight="withSourceConnection"
         :disabled="!withSourceConnection"
-      />
+      /> -->
+      <p class="link" @click="handleAddSourceConnection">
+        Go add Source Connection
+        <p-i name="ic_arrow-right" width="1rem" height="1rem" />
+      </p>
       <p-field-group label="Source Connection" required>
         <p-text-input
           v-model="sourceConnectionNames"
@@ -100,11 +109,18 @@ watchEffect(
 </template>
 
 <style scoped lang="postcss">
+.link {
+  font-weight: 400;
+}
+.link:hover {
+  @apply text-blue-700;
+  text-decoration: underline;
+  cursor: pointer;
+}
 .source-service-button-modal {
   @apply flex flex-col gap-[1rem] bg-[#F7F7F7] p-[1rem] border-none;
   p {
     font-size: 0.875rem;
-    font-weight: 700;
     margin-bottom: 0.25rem;
     .optional {
       margin-left: 0.25rem;

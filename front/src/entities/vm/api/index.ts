@@ -5,7 +5,7 @@ import {
 } from '../../../shared/libs';
 import { IVm } from '../model';
 
-interface IVmRequestParams {
+export interface IVmRequestParams {
   nsId: string;
   mciId: string;
   vmId: string;

@@ -5,14 +5,17 @@ import { useSidebar } from '@/shared/libs/store/sidebar.ts';
 import { storeToRefs } from 'pinia';
 
 const sidebar = useSidebar();
-const { isMinimized, isCollapsed } = storeToRefs(sidebar);
+const { isMinimized, isCollapsed, isGnbToolboxShown } = storeToRefs(sidebar);
 </script>
 
 <template>
   <div>
     <div class="layout-container">
       <nav class="gnb">
-        <g-n-b-toolbox class="g-n-b-item g-n-b-toolbox" />
+        <g-n-b-toolbox
+          v-if="isGnbToolboxShown"
+          class="g-n-b-item g-n-b-toolbox"
+        />
         <g-n-b-navigation-rail class="g-n-b-item g-n-b-rail" />
       </nav>
       <main
@@ -34,10 +37,10 @@ const { isMinimized, isCollapsed } = storeToRefs(sidebar);
     @apply absolute flex border-gray-200;
   }
   .g-n-b-rail {
-    z-index: 50;
+    /* z-index: 50; */
   }
   .g-n-b-toolbox {
-    z-index: 100;
+    /* z-index: 100; */
   }
 }
 .main {

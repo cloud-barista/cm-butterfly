@@ -89,6 +89,9 @@
     },
     "DEFINITION_TABLE": {
       "NO_DATA" : "NO DATA"
+    },
+    "COPY_BUTTON": {
+      "COPIED": "Copy!"
     }
   }
 }

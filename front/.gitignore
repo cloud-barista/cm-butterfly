@@ -27,3 +27,6 @@ dist-ssr
 .iml
 *.idea
 *.xml
+
+
+.env

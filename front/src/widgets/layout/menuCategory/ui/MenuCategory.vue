@@ -30,7 +30,9 @@ const selectedMenuId = computed(() => {
   <!-- displayedMenu.parentMenuId === '' && displayedMenu.isAction === 'false' -->
   <div v-if="!isCollapsed">
     <div v-for="(m, idx) in displayedMenu" :key="idx" class="menu">
-      <span class="menu-category">{{ m.category.name }}</span>
+      <span v-if="!isMinimized" class="menu-category">{{
+        m.category.name
+      }}</span>
       <router-link
         class="service-menu"
         :to="{ name: m.menu.id }"
@@ -107,7 +109,8 @@ const selectedMenuId = computed(() => {
       content: '';
       top: 0.125rem;
       left: -0.75rem;
-      width: 0.25rem;
+      /* width: 0.25rem; */
+      width: fit-content;
       height: 1.75rem;
       border-top-right-radius: 0.25rem;
       border-bottom-right-radius: 0.25rem;
