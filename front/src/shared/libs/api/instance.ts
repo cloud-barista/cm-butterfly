@@ -55,28 +55,28 @@ axiosInstance.interceptors.response.use(
         McmpRouter.getRouter()
           .push({ name: AUTH_ROUTE.LOGIN._NAME })
           .catch(() => {});
-      }
+      } else {
+        try {
+          const refreshRes = await jwtTokenProvider.refreshTokens();
+          const { refresh_token, access_token } = refreshRes.data.responseData!;
 
-      try {
-        const refreshRes = await jwtTokenProvider.refreshTokens();
-        const { refresh_token, access_token } = refreshRes.data.responseData!;
-
-        if (refresh_token && access_token) {
-          jwtTokenProvider.setTokens({ refresh_token, access_token });
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${access_token}`;
+          if (refresh_token && access_token) {
+            jwtTokenProvider.setTokens({ refresh_token, access_token });
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${access_token}`;
+            }
+            return axiosInstance(originalRequest);
           }
-          return axiosInstance(originalRequest);
+        } catch (e) {
+          const cancelSource = cancelSourceMap.get(originalRequest);
+          if (cancelSource) {
+            cancelSource.cancel(
+              'Refresh token renewal failed, original request canceled.',
+            );
+            cancelSourceMap.delete(originalRequest);
+          }
+          return Promise.reject(e);
         }
-      } catch (e) {
-        const cancelSource = cancelSourceMap.get(originalRequest);
-        if (cancelSource) {
-          cancelSource.cancel(
-            'Refresh token renewal failed, original request canceled.',
-          );
-          cancelSourceMap.delete(originalRequest);
-        }
-        return Promise.reject(e);
       }
     }
     return Promise.reject(error);

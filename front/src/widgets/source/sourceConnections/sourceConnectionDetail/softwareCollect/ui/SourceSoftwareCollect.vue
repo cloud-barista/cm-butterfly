@@ -8,9 +8,11 @@ import { showErrorMessage } from '@/shared/utils';
 interface IProps {
   sourceGroupId: string | null;
   connectionId: string | null;
+  metaViewerModalState: boolean;
 }
 
 const props = defineProps<IProps>();
+const emit = defineEmits(['update:metaViewerModalState']);
 const {
   loadInfraSWTableData,
   sourceConnectionStore,
@@ -22,10 +24,6 @@ const {
 const resCollectSW = useCollectSW({
   sgId: props.sourceGroupId,
   connId: props.connectionId,
-});
-
-const viewSWModalState = reactive({
-  open: false,
 });
 
 watch(
@@ -69,7 +67,7 @@ function handleClickCollectSW() {
       <template #data-viewSW="{ data }">
         <p
           class="text-blue-700 cursor-pointer"
-          @click="viewSWModalState.open = true"
+          @click="emit('update:metaViewerModalState', true)"
         >
           {{ data ? 'View SW(Meta) ->' : null }}
         </p>

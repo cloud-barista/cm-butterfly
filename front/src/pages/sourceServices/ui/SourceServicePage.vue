@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { PButton, PButtonTab, PTab } from '@cloudforet-test/mirinae';
 import SourceServiceList from '@/widgets/source/sourceServices/sourceServiceList/ui/SourceServiceList.vue';
 import SourceServiceDetail from '@/widgets/source/sourceServices/sourceServiceDetail/ui/SourceServiceDetail.vue';
@@ -42,6 +42,37 @@ const sourceConnectionDetailTabState = reactive({
   ],
 });
 
+//trigger true해주면 업데이트 되도록 함.
+const modalStates = reactive({
+  addServiceGroup: {
+    open: false,
+    confirm() {
+      modalStates.addServiceGroup.open = false;
+    },
+    trigger: false,
+    updateTrigger() {
+      modalStates.addServiceGroup.trigger = false;
+    },
+  },
+
+  addSourceConnection: {
+    open: false,
+    trigger: false,
+    confirm() {
+      modalStates.addSourceConnection.open = false;
+    },
+    updateTrigger() {
+      modalStates.addSourceConnection.trigger = false;
+    },
+  },
+  addMetaViewer: {
+    open: false,
+    confirm() {
+      modalStates.addMetaViewer.open = false;
+    },
+  },
+});
+
 const selectedServiceId = ref<string>('');
 const selectedConnectionId = ref<string>('');
 
@@ -57,7 +88,13 @@ function handleClickServiceId(id: string) {
       <p>{{ pageName }}</p>
     </header>
     <section :class="`${pageName}-page-body`">
-      <SourceServiceList @selectRow="handleClickServiceId"></SourceServiceList>
+      <SourceServiceList
+        :add-modal-state="modalStates.addServiceGroup.open"
+        :trigger="modalStates.addServiceGroup.trigger"
+        @selectRow="handleClickServiceId"
+        @update:addModalState="e => (modalStates.addServiceGroup.open = e)"
+        @update:trigger="modalStates.addServiceGroup.updateTrigger"
+      ></SourceServiceList>
       <p
         v-if="!selectedServiceId"
         class="flex justify-center text-gray-300 text-sm font-normal"
@@ -72,7 +109,7 @@ function handleClickServiceId(id: string) {
               <p-button
                 :style-type="'tertiary'"
                 icon-left="ic_edit"
-                @click="() => {}"
+                @click="modalStates.addServiceGroup.open = true"
                 >Edit
               </p-button>
             </div>
@@ -85,8 +122,13 @@ function handleClickServiceId(id: string) {
               <p>Source Connection</p>
             </div>
             <SourceConnectionList
+              :trigger="modalStates.addSourceConnection.trigger"
               :selected-service-id="selectedServiceId"
               @selectRow="id => (selectedConnectionId = id)"
+              @update:addModalState="
+                modalStates.addSourceConnection.open = true
+              "
+              @update:trigger="modalStates.addSourceConnection.updateTrigger"
             >
               <template #sourceConnectionDetail v-if="selectedConnectionId">
                 <p-button-tab
@@ -102,12 +144,14 @@ function handleClickServiceId(id: string) {
                     <SourceInfraCollect
                       :source-group-id="selectedServiceId"
                       :connection-id="selectedConnectionId"
+                      :meta-viewer-modal-state="modalStates.addMetaViewer.open"
                     ></SourceInfraCollect>
                   </template>
                   <template #softwareCollect>
                     <SourceSoftwareCollect
                       :source-group-id="selectedServiceId"
                       :connection-id="selectedConnectionId"
+                      :meta-viewer-modal-state="modalStates.addMetaViewer.open"
                     ></SourceSoftwareCollect>
                   </template>
                 </p-button-tab>
@@ -117,6 +161,12 @@ function handleClickServiceId(id: string) {
         </p-tab>
       </div>
     </section>
+    <div class="relative z-10">
+      <!--      Modals-->
+    </div>
+    <div class="relative z-20">
+      <!--      PageModals-->
+    </div>
   </div>
 </template>
 

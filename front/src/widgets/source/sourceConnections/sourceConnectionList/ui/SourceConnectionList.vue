@@ -17,10 +17,16 @@ import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/Dynamic
 
 interface IProps {
   selectedServiceId: string;
+  trigger: boolean;
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['selectRow']);
+const emit = defineEmits([
+  'selectRow',
+  'update:trigger',
+  'update:addModalState',
+]);
+
 const {
   tableModel,
   resSourceConnectionList,
@@ -65,13 +71,6 @@ function getSourceConnectionList() {
     .catch(e => {
       if (e.errorMsg.value) showErrorMessage('Error', e.errorMsg.value);
     });
-}
-
-function handleRefresh() {
-  tableModel.initState();
-  emit('selectRow', '');
-  sourceConnectionStore.clear();
-  getSourceConnectionList();
 }
 
 function handleSelectedIndex(index: number[]) {
@@ -125,6 +124,23 @@ function addDeleteIconAtTable() {
   );
   return instance;
 }
+
+function handleRefresh() {
+  tableModel.initState();
+  emit('selectRow', '');
+  sourceConnectionStore.clear();
+  getSourceConnectionList();
+}
+
+watch(
+  () => props.trigger,
+  nv => {
+    if (nv) {
+      handleRefresh();
+      emit('update:trigger');
+    }
+  },
+);
 </script>
 
 <template>
@@ -155,7 +171,11 @@ function addDeleteIconAtTable() {
         @select="handleSelectedIndex"
       >
         <template #toolbox-left>
-          <p-button style-type="secondary" icon-left="ic_plus_bold">
+          <p-button
+            style-type="secondary"
+            icon-left="ic_plus_bold"
+            @click="emit('update:addModalState', true)"
+          >
             Add / Edit
           </p-button>
         </template>

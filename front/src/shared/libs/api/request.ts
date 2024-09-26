@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Ref, ref } from 'vue';
-import { axiosInstance } from './instance.ts';
 import { AsyncStatus, IUseAxiosWrapperReturnType } from '../index';
+import { axiosInstance } from '@/shared/libs/api/instance.ts';
 
 export function axiosGet<T>(url: string, config?: AxiosRequestConfig) {
   return axiosInstance.get<T>(`/${url}`, config);
