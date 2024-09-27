@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
+import { PButton, PDefinitionTable, PStatus } from '@cloudforet-test/mirinae';
 import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import { useSourceSoftwareCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/softwareCollect/model/sourceSoftwareCollectModel.ts';
 import { useCollectSW } from '@/entities/sourceConnection/api';
@@ -63,7 +63,9 @@ function handleClickCollectSW() {
       :loading="defineTableModel.tableState.loading"
       block
     >
-      <template #data-collectSwStatus="{ data }"></template>
+      <template #data-collectSwStatus="{ data }">
+        <p-status :theme="data.color" :text="data.text"></p-status>
+      </template>
       <template #data-viewSW="{ data }">
         <p
           class="text-blue-700 cursor-pointer"

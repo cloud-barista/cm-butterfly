@@ -1,7 +1,11 @@
 import { useSourceServiceStore } from '@/entities/sourceService/model/stores.ts';
 import { ref, watch } from 'vue';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel.ts';
-import { SourceServiceTableType } from '@/entities/sourceService/model/types.ts';
+import {
+  SourceServiceStatus,
+  SourceServiceStatusType,
+  SourceServiceTableType,
+} from '@/entities/sourceService/model/types.ts';
 
 export function useSourceServiceDetailModel() {
   const sourceServiceStore = useSourceServiceStore();
@@ -37,10 +41,44 @@ export function useSourceServiceDetailModel() {
         name: sourceService.name,
         id: sourceService.id,
         description: sourceService.description,
-        status: sourceService.status || '',
+        status: setServiceStatus(sourceService.status),
       };
     }
     return data;
+  }
+
+  interface IStatus {
+    color: string;
+    status: SourceServiceStatusType;
+    text: string;
+  }
+
+  function setServiceStatus(state: SourceServiceStatusType | string): IStatus {
+    if (state === 'S0001') {
+      return {
+        color: 'green',
+        text: SourceServiceStatus[state],
+        status: state,
+      };
+    } else if (state === 'S0002') {
+      return {
+        color: 'yellow',
+        text: SourceServiceStatus[state],
+        status: state,
+      };
+    } else if (state === 'S0003') {
+      return {
+        color: 'red',
+        text: SourceServiceStatus[state],
+        status: state,
+      };
+    } else {
+      return {
+        color: 'gray',
+        text: 'Unknown',
+        status: 'S0004',
+      };
+    }
   }
 
   function loadSourceServiceData(serviceId: string | null | undefined) {
