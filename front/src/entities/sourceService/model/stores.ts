@@ -2,7 +2,6 @@ import { ref, Ref } from 'vue';
 import {
   ISourceService,
   ISourceServiceResponse,
-  SourceServiceStatus,
 } from '@/entities/sourceService/model/types.ts';
 import { defineStore } from 'pinia';
 
@@ -31,7 +30,7 @@ export const useSourceServiceStore = defineStore(
           description: service.description,
           connectionCount: service.connection,
           connectionIds: [],
-          status: SourceServiceStatus.unknown,
+          status: 'S0004',
         }));
       } else {
         services.value = _services;

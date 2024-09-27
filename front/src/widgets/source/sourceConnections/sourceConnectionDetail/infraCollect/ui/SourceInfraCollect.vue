@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
+import { PButton, PDefinitionTable, PStatus } from '@cloudforet-test/mirinae';
 import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
 import { useCollectInfra } from '@/entities/sourceConnection/api';
@@ -66,7 +66,7 @@ function handleCollectInfra() {
       block
     >
       <template #data-collectInfraStatus="{ data }">
-        {{ data ? data : 'unknown' }}
+        <p-status :theme="data.color" :text="data.text"></p-status>
       </template>
       <template #data-viewInfra="{ data }">
         <p

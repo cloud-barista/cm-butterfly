@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue';
-import { PButton, PButtonTab, PTab } from '@cloudforet-test/mirinae';
+import {
+  PButton,
+  PButtonTab,
+  PTab,
+  PButtonModal,
+} from '@cloudforet-test/mirinae';
 import SourceServiceList from '@/widgets/source/sourceServices/sourceServiceList/ui/SourceServiceList.vue';
 import SourceServiceDetail from '@/widgets/source/sourceServices/sourceServiceDetail/ui/SourceServiceDetail.vue';
 import SourceConnectionList from '@/widgets/source/sourceConnections/sourceConnectionList/ui/SourceConnectionList.vue';
@@ -84,83 +89,89 @@ function handleClickServiceId(id: string) {
 
 <template>
   <div :class="`${pageName}-page page`">
-    <header :class="`${pageName}-page-header`">
-      <p>{{ pageName }}</p>
-    </header>
-    <section :class="`${pageName}-page-body`">
-      <SourceServiceList
-        :add-modal-state="modalStates.addServiceGroup.open"
-        :trigger="modalStates.addServiceGroup.trigger"
-        @selectRow="handleClickServiceId"
-        @update:addModalState="e => (modalStates.addServiceGroup.open = e)"
-        @update:trigger="modalStates.addServiceGroup.updateTrigger"
-      ></SourceServiceList>
-      <p
-        v-if="!selectedServiceId"
-        class="flex justify-center text-gray-300 text-sm font-normal"
-      >
-        Select an item for more details.
-      </p>
-      <div v-if="selectedServiceId">
-        <p-tab v-model="mainTabState.activeTab" :tabs="mainTabState.tabs">
-          <template #detail>
-            <div class="tab-section-header">
-              <p>Source Service information</p>
-              <p-button
-                :style-type="'tertiary'"
-                icon-left="ic_edit"
-                @click="modalStates.addServiceGroup.open = true"
-                >Edit
-              </p-button>
-            </div>
-            <SourceServiceDetail
-              :selected-service-id="selectedServiceId"
-            ></SourceServiceDetail>
-          </template>
-          <template #connections>
-            <div class="tab-section-header">
-              <p>Source Connection</p>
-            </div>
-            <SourceConnectionList
-              :trigger="modalStates.addSourceConnection.trigger"
-              :selected-service-id="selectedServiceId"
-              @selectRow="id => (selectedConnectionId = id)"
-              @update:addModalState="
-                modalStates.addSourceConnection.open = true
-              "
-              @update:trigger="modalStates.addSourceConnection.updateTrigger"
-            >
-              <template #sourceConnectionDetail v-if="selectedConnectionId">
-                <p-button-tab
-                  v-model="sourceConnectionDetailTabState.activeTab"
-                  :tabs="sourceConnectionDetailTabState.tabs"
-                >
-                  <template #information>
-                    <SourceInformation
-                      :connection-id="selectedConnectionId"
-                    ></SourceInformation>
-                  </template>
-                  <template #infraCollect>
-                    <SourceInfraCollect
-                      :source-group-id="selectedServiceId"
-                      :connection-id="selectedConnectionId"
-                      :meta-viewer-modal-state="modalStates.addMetaViewer.open"
-                    ></SourceInfraCollect>
-                  </template>
-                  <template #softwareCollect>
-                    <SourceSoftwareCollect
-                      :source-group-id="selectedServiceId"
-                      :connection-id="selectedConnectionId"
-                      :meta-viewer-modal-state="modalStates.addMetaViewer.open"
-                    ></SourceSoftwareCollect>
-                  </template>
-                </p-button-tab>
-              </template>
-            </SourceConnectionList>
-          </template>
-        </p-tab>
-      </div>
-    </section>
+    <div>
+      <header :class="`${pageName}-page-header`">
+        <p>{{ pageName }}</p>
+      </header>
+      <section :class="`${pageName}-page-body`">
+        <SourceServiceList
+          :add-modal-state="modalStates.addServiceGroup.open"
+          :trigger="modalStates.addServiceGroup.trigger"
+          @selectRow="handleClickServiceId"
+          @update:addModalState="e => (modalStates.addServiceGroup.open = e)"
+          @update:trigger="modalStates.addServiceGroup.updateTrigger"
+        ></SourceServiceList>
+        <p
+          v-if="!selectedServiceId"
+          class="flex justify-center text-gray-300 text-sm font-normal"
+        >
+          Select an item for more details.
+        </p>
+        <div v-if="selectedServiceId">
+          <p-tab v-model="mainTabState.activeTab" :tabs="mainTabState.tabs">
+            <template #detail>
+              <div class="tab-section-header">
+                <p>Source Service information</p>
+                <p-button
+                  :style-type="'tertiary'"
+                  icon-left="ic_edit"
+                  @click="modalStates.addServiceGroup.open = true"
+                  >Edit
+                </p-button>
+              </div>
+              <SourceServiceDetail
+                :selected-service-id="selectedServiceId"
+              ></SourceServiceDetail>
+            </template>
+            <template #connections>
+              <div class="tab-section-header">
+                <p>Source Connection</p>
+              </div>
+              <SourceConnectionList
+                :trigger="modalStates.addSourceConnection.trigger"
+                :selected-service-id="selectedServiceId"
+                @selectRow="id => (selectedConnectionId = id)"
+                @update:addModalState="
+                  modalStates.addSourceConnection.open = true
+                "
+                @update:trigger="modalStates.addSourceConnection.updateTrigger"
+              >
+                <template #sourceConnectionDetail v-if="selectedConnectionId">
+                  <p-button-tab
+                    v-model="sourceConnectionDetailTabState.activeTab"
+                    :tabs="sourceConnectionDetailTabState.tabs"
+                  >
+                    <template #information>
+                      <SourceInformation
+                        :connection-id="selectedConnectionId"
+                      ></SourceInformation>
+                    </template>
+                    <template #infraCollect>
+                      <SourceInfraCollect
+                        :source-group-id="selectedServiceId"
+                        :connection-id="selectedConnectionId"
+                        :meta-viewer-modal-state="
+                          modalStates.addMetaViewer.open
+                        "
+                      ></SourceInfraCollect>
+                    </template>
+                    <template #softwareCollect>
+                      <SourceSoftwareCollect
+                        :source-group-id="selectedServiceId"
+                        :connection-id="selectedConnectionId"
+                        :meta-viewer-modal-state="
+                          modalStates.addMetaViewer.open
+                        "
+                      ></SourceSoftwareCollect>
+                    </template>
+                  </p-button-tab>
+                </template>
+              </SourceConnectionList>
+            </template>
+          </p-tab>
+        </div>
+      </section>
+    </div>
     <div class="relative z-10">
       <!--      Modals-->
     </div>
