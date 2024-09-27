@@ -62,13 +62,13 @@ export function useSourceServiceDetailModel() {
       };
     } else if (state === 'S0002') {
       return {
-        color: 'green',
+        color: 'yellow',
         text: SourceServiceStatus[state],
         status: state,
       };
     } else if (state === 'S0003') {
       return {
-        color: 'green',
+        color: 'red',
         text: SourceServiceStatus[state],
         status: state,
       };

@@ -8,7 +8,15 @@ export interface ISourceService {
 }
 
 export interface ISourceAgentAndConnectionStatusResponse {
-  status: SourceServiceStatusType;
+  agentConnectionDetails: {
+    connectionDescription: string;
+    connectionFailedMessage: string;
+    connectionId: string;
+    connectionName: string;
+    agentStatus: SourceServiceStatusType;
+    connectionStatus: SourceServiceStatusType;
+  };
+  agentConnectionStatus: SourceServiceStatusType;
 }
 
 export const SourceServiceStatus = {

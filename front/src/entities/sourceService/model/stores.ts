@@ -2,6 +2,7 @@ import { ref, Ref } from 'vue';
 import {
   ISourceService,
   ISourceServiceResponse,
+  SourceServiceStatusType,
 } from '@/entities/sourceService/model/types.ts';
 import { defineStore } from 'pinia';
 
@@ -51,7 +52,10 @@ export const useSourceServiceStore = defineStore(
       );
     }
 
-    function setServiceStatus(serviceId: string, status: any) {
+    function setServiceStatus(
+      serviceId: string,
+      status: SourceServiceStatusType,
+    ) {
       const service = getServiceById(serviceId);
       if (service) {
         service.status = status;

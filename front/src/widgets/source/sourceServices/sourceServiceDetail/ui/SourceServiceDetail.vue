@@ -61,7 +61,7 @@ function handleSourceGroupStatusCheck() {
     .then(res => {
       sourceServiceStore.setServiceStatus(
         props.selectedServiceId,
-        res.data.responseData?.status,
+        res.data.responseData?.agentConnectionStatus,
       );
 
       loadSourceServiceData(props.selectedServiceId);
