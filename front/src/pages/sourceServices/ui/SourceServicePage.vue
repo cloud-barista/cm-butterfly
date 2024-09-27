@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, watch, watchEffect } from 'vue';
 import { PButton, PButtonTab, PTab } from '@cloudforet-test/mirinae';
 import SourceServiceList from '@/widgets/source/sourceServices/sourceServiceList/ui/SourceServiceList.vue';
 import SourceServiceDetail from '@/widgets/source/sourceServices/sourceServiceDetail/ui/SourceServiceDetail.vue';
@@ -7,6 +7,18 @@ import SourceConnectionList from '@/widgets/source/sourceConnections/sourceConne
 import SourceInformation from '@/widgets/source/sourceConnections/sourceConnectionDetail/information/ui/SourceInformation.vue';
 import SourceInfraCollect from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/ui/SourceInfraCollect.vue';
 import SourceSoftwareCollect from '@/widgets/source/sourceConnections/sourceConnectionDetail/softwareCollect/ui/SourceSoftwareCollect.vue';
+import SourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/SourceConnectionModal.vue';
+import { AddSourceServiceModal } from '@/widgets/sourceServices';
+import { useSidebar } from '@/shared/libs/store/sidebar';
+import { storeToRefs } from 'pinia';
+import MetaViewer from '@/widgets/source/sourceConnections/sourceConnectionDetail/metaViewer/ui/MetaViewer.vue';
+import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
+
+const { sourceConnectionStore } = useSourceInfraCollectModel();
+
+const sidebar = useSidebar();
+
+const { isCollapsed, isGnbToolboxShown } = storeToRefs(sidebar);
 
 const pageName = 'Source Services';
 
@@ -80,11 +92,36 @@ function handleClickServiceId(id: string) {
   selectedServiceId.value = id;
   selectedConnectionId.value = '';
 }
+
+function handleGroupModal(value: boolean) {
+  modalStates.addServiceGroup.open = value;
+}
+
+function handleConnectionModal(value: boolean) {
+  modalStates.addSourceConnection.open = value;
+  modalStates.addServiceGroup.open = !value;
+  isCollapsed.value = value;
+  isGnbToolboxShown.value = !value;
+}
+
+const data = computed(() => {
+  return sourceConnectionStore.getConnectionById(selectedConnectionId.value)
+    ?.softwareData;
+});
+
+// watchEffect(() => {
+//   console.log(
+//     sourceConnectionStore.getConnectionById(selectedConnectionId.value),
+//   );
+// });
 </script>
 
 <template>
   <div :class="`${pageName}-page page`">
-    <header :class="`${pageName}-page-header`">
+    <header
+      v-if="!modalStates.addSourceConnection.open"
+      :class="`${pageName}-page-header`"
+    >
       <p>{{ pageName }}</p>
     </header>
     <section :class="`${pageName}-page-body`">
@@ -94,7 +131,7 @@ function handleClickServiceId(id: string) {
         @selectRow="handleClickServiceId"
         @update:addModalState="e => (modalStates.addServiceGroup.open = e)"
         @update:trigger="modalStates.addServiceGroup.updateTrigger"
-      ></SourceServiceList>
+      />
       <p
         v-if="!selectedServiceId"
         class="flex justify-center text-gray-300 text-sm font-normal"
@@ -110,12 +147,11 @@ function handleClickServiceId(id: string) {
                 :style-type="'tertiary'"
                 icon-left="ic_edit"
                 @click="modalStates.addServiceGroup.open = true"
-                >Edit
+              >
+                Edit
               </p-button>
             </div>
-            <SourceServiceDetail
-              :selected-service-id="selectedServiceId"
-            ></SourceServiceDetail>
+            <SourceServiceDetail :selected-service-id="selectedServiceId" />
           </template>
           <template #connections>
             <div class="tab-section-header">
@@ -125,34 +161,36 @@ function handleClickServiceId(id: string) {
               :trigger="modalStates.addSourceConnection.trigger"
               :selected-service-id="selectedServiceId"
               @selectRow="id => (selectedConnectionId = id)"
-              @update:addModalState="
-                modalStates.addSourceConnection.open = true
-              "
+              @update:addModalState="handleConnectionModal"
               @update:trigger="modalStates.addSourceConnection.updateTrigger"
             >
-              <template #sourceConnectionDetail v-if="selectedConnectionId">
+              <template v-if="selectedConnectionId" #sourceConnectionDetail>
                 <p-button-tab
                   v-model="sourceConnectionDetailTabState.activeTab"
                   :tabs="sourceConnectionDetailTabState.tabs"
                 >
                   <template #information>
-                    <SourceInformation
-                      :connection-id="selectedConnectionId"
-                    ></SourceInformation>
+                    <SourceInformation :connection-id="selectedConnectionId" />
                   </template>
                   <template #infraCollect>
                     <SourceInfraCollect
                       :source-group-id="selectedServiceId"
                       :connection-id="selectedConnectionId"
                       :meta-viewer-modal-state="modalStates.addMetaViewer.open"
-                    ></SourceInfraCollect>
+                      @update:metaViewerModalState="
+                        e => (modalStates.addMetaViewer.open = e)
+                      "
+                    />
                   </template>
                   <template #softwareCollect>
                     <SourceSoftwareCollect
                       :source-group-id="selectedServiceId"
                       :connection-id="selectedConnectionId"
                       :meta-viewer-modal-state="modalStates.addMetaViewer.open"
-                    ></SourceSoftwareCollect>
+                      @update:metaViewerModalState="
+                        e => (modalStates.addMetaViewer.open = e)
+                      "
+                    />
                   </template>
                 </p-button-tab>
               </template>
@@ -161,11 +199,42 @@ function handleClickServiceId(id: string) {
         </p-tab>
       </div>
     </section>
-    <div class="relative z-10">
-      <!--      Modals-->
+    <div class="relative z-60">
+      <add-source-service-modal
+        v-if="modalStates.addServiceGroup.open"
+        save-button-name="Add"
+        @update:isModalOpened="handleGroupModal"
+        @update:is-connection-modal-opened="handleConnectionModal"
+        @update:trigger="modalStates.addServiceGroup.trigger = true"
+      />
     </div>
-    <div class="relative z-20">
-      <!--      PageModals-->
+    <div class="relative z-70">
+      <source-connection-modal
+        v-if="modalStates.addSourceConnection.open"
+        :selected-connection-id="selectedConnectionId"
+        @update:is-connection-modal-opened="handleConnectionModal"
+      />
+
+      <meta-viewer
+        v-if="
+          modalStates.addMetaViewer.open &&
+            sourceConnectionStore.getConnectionById(selectedConnectionId)
+              ?.infraData
+        "
+        :infra-data="
+          sourceConnectionStore.getConnectionById(selectedConnectionId)
+            ?.infraData
+        "
+        @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
+      />
+      <meta-viewer
+        v-else-if="modalStates.addMetaViewer.open && data"
+        :infra-data="
+          sourceConnectionStore.getConnectionById(selectedConnectionId)
+            ?.softwareData
+        "
+        @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
+      />
     </div>
   </div>
 </template>

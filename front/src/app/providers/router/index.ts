@@ -2,9 +2,7 @@ import VueRouter, { RouteConfig } from 'vue-router';
 import { ROOT_ROUTE } from './routes/constants';
 import authRoutes from '../../../pages/auth/auth.route.ts';
 import NotFound from '../../../pages/error/404/NotFound.vue';
-import { environmentRoutes } from './routes/environment';
-import { accountAndAccessRoutes } from './routes/accountAndAccess';
-import { manageRoutes } from './routes/manage';
+import { sourceComputingRoutes } from './routes/sourceComputing.ts';
 import { MainLayout } from '../../Layouts';
 import { MenuId, useAuthenticationStore } from '../../../entities';
 import { Route } from 'vue-router';
@@ -31,11 +29,7 @@ export class McmpRouter {
     {
       path: '/main',
       component: MainLayout,
-      children: [
-        ...environmentRoutes,
-        ...accountAndAccessRoutes,
-        ...manageRoutes,
-      ],
+      children: [...sourceComputingRoutes],
     },
     ...authRoutes,
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 
 export const useSidebar = defineStore('sidebar', {
   state: () => ({
+    isGnbToolboxShown: true,
     isCollapsed: false,
     isMinimized: false,
     breadCrumbs: [],

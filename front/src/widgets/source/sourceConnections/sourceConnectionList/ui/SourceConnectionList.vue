@@ -141,6 +141,10 @@ watch(
     }
   },
 );
+
+function handleSourceConnectionList() {
+  emit('update:addModalState', true);
+}
 </script>
 
 <template>
@@ -174,7 +178,7 @@ watch(
           <p-button
             style-type="secondary"
             icon-left="ic_plus_bold"
-            @click="emit('update:addModalState', true)"
+            @click="handleSourceConnectionList"
           >
             Add / Edit
           </p-button>
@@ -182,7 +186,7 @@ watch(
       </p-toolbox-table>
     </section>
     <section class="relative">
-      <slot :name="'sourceConnectionDetail'"></slot>
+      <slot :name="'sourceConnectionDetail'" />
     </section>
     <p-button-modal
       v-model="modals.alertModalState.open"
@@ -199,8 +203,7 @@ watch(
           handleDeleteConnections();
         }
       "
-    >
-    </p-button-modal>
+    />
   </div>
 </template>
 

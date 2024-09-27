@@ -183,8 +183,7 @@ watch(
           handleDeleteSourceServices();
         }
       "
-    >
-    </p-button-modal>
+    />
   </div>
 </template>
 

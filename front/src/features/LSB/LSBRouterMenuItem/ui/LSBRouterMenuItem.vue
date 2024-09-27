@@ -3,9 +3,6 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import type { Ref } from 'vue';
 import { useElementSize } from '@vueuse/core';
 import { McmpRouter } from '@/app/providers/router';
-import { useMenuPerUserStore } from '@/entities';
-
-const menuPerUserStore = useMenuPerUserStore();
 
 interface Props {
   submenu: string;
@@ -38,9 +35,6 @@ const isSelectedMenu = (selectedMenuRoute: string): boolean => {
 
   return currentPath === resolvedHref?.href;
 };
-const setSelectedSubmenus = (submenu: string) => {
-  menuPerUserStore.setSelectedSubmenu(submenu);
-};
 </script>
 
 <template>
@@ -50,10 +44,10 @@ const setSelectedSubmenus = (submenu: string) => {
     class="l-s-b-router-menu-item"
     :class="{ selected: isSelectedMenu(item.name) }"
     :to="{ name: item.name }"
-    @click.native="setSelectedSubmenus(submenu)"
     @mouseenter.native="state.hoveredItem = item.name"
     @mouseleave.native="state.hoveredItem = ''"
   >
+    <!-- @click.native="setSelectedSubmenus(submenu)" -->
     <slot name="before-text" v-bind="{ ...props, item, index: item?.id }" />
     <div ref="textEl" class="text-wrapper">
       <slot>

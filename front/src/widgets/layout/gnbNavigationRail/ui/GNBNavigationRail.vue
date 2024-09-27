@@ -1,30 +1,15 @@
 <script setup lang="ts">
 import { PTooltip, PI } from '@cloudforet-test/mirinae';
-import { onMounted, reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import { MenuCategory } from '@/widgets/layout';
-import { useMenuPerUserStore } from '@/entities';
+import { MigratorMenu } from '@/entities';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
+import { MIGRATOR_MENU_LIST } from '@/entities';
 
 const sidebar = useSidebar();
-const menuPerUserStore = useMenuPerUserStore();
 
 const { isCollapsed, isMinimized } = storeToRefs(sidebar);
-
-// TODO: userMenuInfo Mock Data (api yet)
-import testJson from '@/entities/user/store/test.json';
-import { i18n } from '@/app/i18n';
-import { toLower } from 'lodash';
-
-onMounted(() => {
-  testJson.forEach((majorCategory: any) => {
-    toLower(majorCategory.name) === toLower(`${i18n.t('MENU.SETTINGS._NAME')}`)
-      ? menuPerUserStore.setUserMenuInfo(majorCategory)
-      : menuPerUserStore.setOperationMenuInfo(majorCategory);
-  });
-});
-
-const { settingMenu, operationMenu } = storeToRefs(menuPerUserStore);
 
 const state = reactive({
   isInit: false as boolean | undefined,
@@ -39,6 +24,8 @@ const clickMinimizeBtn = () => {
 const handleMouseEvent = (value: boolean) => {
   state.isHovered = value;
 };
+
+const migratorMenuList = ref<MigratorMenu[]>(MIGRATOR_MENU_LIST);
 </script>
 
 <template>
@@ -52,6 +39,7 @@ const handleMouseEvent = (value: boolean) => {
 class="minimize-button-wrapper" position="bottom" /> -->
     <!-- TODO: Sidebar shirnk & expand -->
     <p-tooltip
+      v-if="!isCollapsed"
       class="minimize-button-wrapper"
       position="bottom"
       :contents="!isMinimized ? 'Minimize menu' : 'Expand menu'"
@@ -73,9 +61,7 @@ class="minimize-button-wrapper" position="bottom" /> -->
     </p-tooltip>
     <div class="navigation-rail-container">
       <div class="navigation-rail-wrapper">
-        <menu-category
-          :displayed-menu="[...settingMenu.menus, ...operationMenu.menus]"
-        />
+        <menu-category :displayed-menu="migratorMenuList" />
       </div>
     </div>
   </div>
@@ -157,7 +143,7 @@ class="minimize-button-wrapper" position="bottom" /> -->
     border-top-left-radius: 6.25rem;
     border-bottom-left-radius: 6.25rem;
     transition: padding 0.1s ease;
-    z-index: 50;
+    /* z-index: 50; */
     &:hover {
       @apply bg-violet-200 text-violet-600;
       padding-right: 0.75rem;
