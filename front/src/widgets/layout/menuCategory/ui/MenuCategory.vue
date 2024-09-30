@@ -34,8 +34,10 @@ const selectedMenuId = computed(() => {
         m.category.name
       }}</span>
       <router-link
+        v-for="(n, i) in m.menu"
+        :key="i"
         class="service-menu"
-        :to="{ name: m.menu.id }"
+        :to="{ name: n.id }"
         :class="{
           'is-selected': selectedMenuId === m.category.id,
         }"
@@ -50,7 +52,7 @@ const selectedMenuId = computed(() => {
             color="inherit"
           />
           <div v-if="!isMinimized" class="menu-container">
-            <span class="menu-title">{{ m.menu.name }}</span>
+            <span class="menu-title">{{ n.name }}</span>
           </div>
         </div>
       </router-link>

@@ -7,7 +7,7 @@ export const ROOT_ROUTE = {
 } as const;
 
 export const SOURCE_COMPUTING_ROUTE = {
-  _NAME: 'sourceComputing',
+  _NAME: MENU_ID.SOURCE_COMPUTING,
   SOURCE_SERVICES: {
     _NAME: MENU_ID.SOURCE_SERVICES,
     SOURCE_CONNECTION: {
