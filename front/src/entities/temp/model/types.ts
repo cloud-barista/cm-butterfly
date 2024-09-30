@@ -5,3 +5,14 @@ export interface ISourceGroup {
   description: string;
   connections: SourceConnection[];
 }
+
+export interface ISourceConnection {
+  id: string;
+  name: string;
+  description?: string;
+  ip_address: string;
+  user: string;
+  private_key: string;
+  ssh_port: number;
+  password: string;
+}

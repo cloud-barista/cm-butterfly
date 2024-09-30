@@ -33,6 +33,8 @@ const emit = defineEmits([
   'selectRow',
   'update:addModalState',
   'update:trigger',
+  'update:title',
+  'update:connection-title',
 ]);
 
 const modals = reactive({
@@ -160,7 +162,13 @@ watch(
             <p-button
               style-type="primary"
               icon-left="ic_plus_bold"
-              @click="emit('update:addModalState', true)"
+              @click="
+                () => {
+                  emit('update:addModalState', true);
+                  emit('update:title', 'add');
+                  emit('update:connection-title', 'add');
+                }
+              "
             >
               Add
             </p-button>

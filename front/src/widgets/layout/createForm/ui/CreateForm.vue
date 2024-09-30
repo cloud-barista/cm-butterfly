@@ -3,8 +3,11 @@ import { PButton, PIconButton } from '@cloudforet-test/mirinae';
 import { WidgetLayout } from '@/widgets/layout';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
+import { ref } from 'vue';
+import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 
 const sidebar = useSidebar();
+const sourceConnectionStore = useSourceConnectionStore();
 
 const { isCollapsed, isGnbToolboxShown, isMinimized } = storeToRefs(sidebar);
 
@@ -28,13 +31,18 @@ const handleAddSourceConnection = () => {
 
 // TODO: change api response
 
+const isServiceModalOpened = ref<boolean>(true);
+
 const handleGoBack = () => {
-  emit('deleteSourceConnection', false); //TODO: true로 바꿔야함. 임시...
+  emit('deleteSourceConnection', true); //TODO: true로 바꿔야함. 임시...
   emit('update:is-connection-modal-opened', false);
-  emit('update:is-service-modal-opened', false);
+  emit('update:is-service-modal-opened', isServiceModalOpened.value);
   isCollapsed.value = false;
   isGnbToolboxShown.value = true;
-  isMinimized.value = true;
+  isMinimized.value = false;
+  sourceConnectionStore.setWithSourceConnection(
+    !sourceConnectionStore.withSourceConnection,
+  );
 };
 </script>
 
