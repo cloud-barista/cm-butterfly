@@ -23,6 +23,7 @@ const emit = defineEmits([
   'deleteSourceConnection',
   'update:is-connection-modal-opened',
   'update:is-service-modal-opened',
+  'update:is-meta-viewer-opened',
 ]);
 
 const handleAddSourceConnection = () => {
@@ -37,6 +38,7 @@ const handleGoBack = () => {
   emit('deleteSourceConnection', true); //TODO: true로 바꿔야함. 임시...
   emit('update:is-connection-modal-opened', false);
   emit('update:is-service-modal-opened', isServiceModalOpened.value);
+  emit('update:is-meta-viewer-opened', false);
   isCollapsed.value = false;
   isGnbToolboxShown.value = true;
   isMinimized.value = false;
