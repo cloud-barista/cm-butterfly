@@ -32,7 +32,7 @@ export function useSourceSoftwareCollectModel() {
       data = {
         name: connection.name,
         id: connection.id,
-        collectSwStatus: connection.collectSwStatus,
+        collectSwStatus: setCollectionStatus(connection.collectSwStatus),
         collectSwDatetime: connection.collectSwDateTime,
         viewSW: !!connection.softwareData,
       };
@@ -47,6 +47,35 @@ export function useSourceSoftwareCollectModel() {
       defineTableModel.tableState.data = setDefineTableData(connectionId);
     }
     defineTableModel.tableState.loading = false;
+  }
+
+  const collectStatus = {
+    unknown: 'Unknown',
+    success: 'Success',
+  } as const;
+
+  type CollectStatusType = keyof typeof collectStatus;
+
+  interface IStatus {
+    color: string;
+    status: CollectStatusType;
+    text: string;
+  }
+
+  function setCollectionStatus(state: string): IStatus {
+    if (state === 'success') {
+      return {
+        color: 'green',
+        text: collectStatus[state],
+        status: state,
+      };
+    } else {
+      return {
+        color: 'gray',
+        text: 'Unknown',
+        status: 'unknown',
+      };
+    }
   }
 
   watch(connectionId, nv => {

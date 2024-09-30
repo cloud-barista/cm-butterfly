@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { PDefinitionTable, PButton } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, watch, watchEffect } from 'vue';
+import { PDefinitionTable, PButton, PStatus } from '@cloudforet-test/mirinae';
+import { onBeforeMount, onMounted, watch } from 'vue';
 import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
 import { useGetSourceGroupStatus } from '@/entities/sourceService/api';
 import {
@@ -62,7 +62,7 @@ function handleSourceGroupStatusCheck() {
     .then(res => {
       sourceServiceStore.setServiceStatus(
         props.selectedServiceId,
-        res.data.responseData?.status,
+        res.data.responseData?.agentConnectionStatus,
       );
 
       loadSourceServiceData(props.selectedServiceId);
@@ -79,7 +79,7 @@ function handleSourceGroupStatusCheck() {
       :block="true"
     >
       <template #data-status="{ data }">
-        <p>{{ data }}</p>
+        <p-status :theme="data.color" :text="data.text" />
       </template>
 
       <template #extra="{ name }">

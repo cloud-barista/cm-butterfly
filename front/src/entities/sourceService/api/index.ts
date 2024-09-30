@@ -12,7 +12,7 @@ import type { ISourceGroup } from '@/entities/sourceService/model/types.ts';
 
 const REGISTER_SOURCE_GROUP = 'cm-honeybee/register-source-group';
 const GET_SOURCE_SERVICE_LIST = 'list-source-group';
-const GET_SOURCE_SERVICE_STATUS = 'GET_SOURCE_SERVICE_STATUS';
+const GET_SOURCE_SERVICE_STATUS = 'agent-and-connection-check';
 const DELETE_SOURCE_SERVICE = 'delete-source-group';
 
 export function useRegisterSourceGroup<T, D>(
