@@ -4,15 +4,7 @@ import authRoutes from '../../../pages/auth/auth.route.ts';
 import NotFound from '../../../pages/error/404/NotFound.vue';
 import { sourceComputingRoutes } from './routes/sourceComputing.ts';
 import { MainLayout } from '../../Layouts';
-import { MenuId, useAuthenticationStore } from '../../../entities';
-import { Route } from 'vue-router';
-import { AUTH_ROUTE } from '../../../pages/auth/auth.route.ts';
-import { AuthorizationType } from '../../../shared/libs/store/auth';
-import { useAuthStore } from '../../../shared/libs/store/auth';
-import { ROLE_TYPE } from '../../../shared/libs/accessControl/pageAccessHelper/constant';
-import { RoleType } from '../../../shared/libs/accessControl/pageAccessHelper/types';
-import { getMinimalPageAccessPermissionList } from '../../../shared/libs';
-import { toLower } from 'lodash';
+import WorkflowTemplate from '@/features/workflow/workflowTemplate/ui/WorkflowTemplate.vue';
 //TODO admin부분 고려
 
 const accessiblePagesWithRoles = [] as any[];
@@ -32,6 +24,10 @@ export class McmpRouter {
       children: [...sourceComputingRoutes],
     },
     ...authRoutes,
+    {
+      path: '/test',
+      component: WorkflowTemplate,
+    },
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
   ];
 
