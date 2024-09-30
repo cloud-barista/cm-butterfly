@@ -77,6 +77,7 @@ const handleAddSourceConnection = async () => {
 
 watchEffect(() => {
   if (
+    props.selectedConnectionId.length === 0 &&
     connectionInfoData.value?.name !== undefined &&
     connectionInfoData.value?.ip_address !== undefined &&
     connectionInfoData.value?.user !== undefined &&
@@ -86,6 +87,12 @@ watchEffect(() => {
   ) {
     isDisabled.value = true;
   } else {
+    isDisabled.value = false;
+  }
+});
+
+watchEffect(() => {
+  if (props.selectedConnectionId.length > 0) {
     isDisabled.value = false;
   }
 });
