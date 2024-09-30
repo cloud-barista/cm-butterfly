@@ -3,9 +3,9 @@ import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
 import { EditSourceConnectionInfo } from '@/features/sourceServices';
-import { ref, watch, watchEffect } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
-import { useCreateConnectionInfo } from '@/entities/temp/api';
+import { useCreateConnectionInfo } from '@/entities/sourceConnection/api';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 
 const sourceConnectionStore = useSourceConnectionStore();

@@ -6,7 +6,7 @@ import {
   PPaneLayout,
   PI,
 } from '@cloudforet-test/mirinae';
-import { computed, reactive, watchEffect } from 'vue';
+import { ref, reactive, watch, watchEffect } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 
 const sourceConnectionStore = useSourceConnectionStore();
@@ -23,7 +23,7 @@ interface iProps {
 const props = defineProps<iProps>();
 
 const state = reactive({
-  sourceConnectionInfoList: computed(() => props.sourceConnection),
+  sourceConnectionInfoList: ref(props.sourceConnection),
 });
 
 const handleDelete = () => {
@@ -38,41 +38,31 @@ const handleInfo = () => {
 const invalidState = reactive({
   isIpAddressValid: false,
   isPortValid: false,
-  isUserValid: false,
-  isPasswordValid: false,
-  isPrivateKeyValid: false,
 });
 
-watchEffect(
-  () => {
-    invalidState.isIpAddressValid =
-      state.sourceConnectionInfoList.ip_address === '' ||
-      !state.sourceConnectionInfoList.ip_address.match(
-        /^(\d{1,3}\.){3}\d{1,3}$/,
-      )
-        ? false
-        : true;
+watchEffect(() => {
+  invalidState.isIpAddressValid =
+    state.sourceConnectionInfoList.ip_address === '' ||
+    !state.sourceConnectionInfoList.ip_address.match(/^(\d{1,3}\.){3}\d{1,3}$/)
+      ? false
+      : true;
 
-    // TODO: ssh_port가 0인 경우 제외 1~256 사이의 값만 유효하며 숫자여야함 (숫자가 아닌 경우 false)
+  // invalidState.isPasswordValid =
+  //   state.sourceConnectionInfoList.password === '' ||
+  //   !state.sourceConnectionInfoList.password.match(
+  //     /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,16}$/,
+  //   )
+  //     ? false
+  //     : true;
 
+  if (typeof Number(state.sourceConnectionInfoList.ssh_port) === 'number') {
     invalidState.isPortValid =
-      (typeof state.sourceConnectionInfoList.ssh_port === 'number' &&
-        state.sourceConnectionInfoList.ssh_port !== 0) ||
-      state.sourceConnectionInfoList.ssh_port > 1 ||
-      state.sourceConnectionInfoList.ssh_port < 256
-        ? false
-        : true;
-
-    // invalidState.isPortValid =
-    //   (typeof state.sourceConnectionInfoList.ssh_port === 'number' &&
-    //     state.sourceConnectionInfoList.ssh_port !== 0) ||
-    //   state.sourceConnectionInfoList.ssh_port > 1 ||
-    //   state.sourceConnectionInfoList.ssh_port < 256
-    //     ? true
-    //     : false;
-  },
-  { flush: 'post' },
-);
+      Number(state.sourceConnectionInfoList.ssh_port) > 0 &&
+      Number(state.sourceConnectionInfoList.ssh_port) < 256
+        ? true
+        : false;
+  }
+});
 </script>
 
 <template>
@@ -94,7 +84,7 @@ watchEffect(
         <p-field-group label="IP Address" invalid required>
           <p-text-input
             v-model="sourceConnection.ip_address"
-            :invalid="invalidState.isIpAddressValid"
+            :invalid="!invalidState.isIpAddressValid"
             placeholder="###.###.###.###"
           />
         </p-field-group>
@@ -105,17 +95,25 @@ watchEffect(
             :invalid="!invalidState.isPortValid"
           />
         </p-field-group>
-        <p-field-group label="User" required>
-          <p-text-input v-model="sourceConnection.user" placeholder="User ID" />
+        <p-field-group label="User" invalid required>
+          <p-text-input
+            v-model="sourceConnection.user"
+            placeholder="User ID"
+            :invalid="!sourceConnection.user"
+          />
         </p-field-group>
-        <p-field-group label="Password" required>
+        <p-field-group label="Password" invalid required>
           <p-text-input
             v-model="sourceConnection.password"
             placeholder="Password"
+            :invalid="!invalidState.isPasswordValid"
           />
         </p-field-group>
-        <p-field-group class="private-key" label="Private Key" required>
-          <p-text-input v-model="sourceConnection.private_key" />
+        <p-field-group class="private-key" label="Private Key" invalid required>
+          <p-text-input
+            v-model="sourceConnection.private_key"
+            :invalid="!sourceConnection.private_key"
+          />
         </p-field-group>
       </div>
     </p-pane-layout>

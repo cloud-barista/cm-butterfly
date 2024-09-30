@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { i18n } from '@/app/i18n';
 import { PButtonModal } from '@cloudforet-test/mirinae';
-import { reactive, ref, watchEffect, computed, watch } from 'vue';
+import { reactive, ref, watchEffect } from 'vue';
 import { UpdateSourceService } from '@/features/sourceServices';
-import { useRegisterSourceGroup } from '@/entities/temp/api';
+import { useRegisterSourceGroup } from '@/entities/sourceService/api';
 import { showSuccessMessage, showErrorMessage } from '@/shared/utils';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 import { useSourceServiceStore } from '@/shared/libs';

@@ -40,9 +40,7 @@ const handleGoBack = () => {
   isCollapsed.value = false;
   isGnbToolboxShown.value = true;
   isMinimized.value = false;
-  sourceConnectionStore.setWithSourceConnection(
-    !sourceConnectionStore.withSourceConnection,
-  );
+  sourceConnectionStore.setWithSourceConnection(true);
 };
 </script>
 

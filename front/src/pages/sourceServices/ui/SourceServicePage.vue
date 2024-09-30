@@ -19,7 +19,6 @@ import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/s
 import EditSourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/EditSourceConnectionModal.vue';
 
 const { sourceConnectionStore } = useSourceInfraCollectModel();
-const { connections } = storeToRefs(sourceConnectionStore);
 
 const sidebar = useSidebar();
 
@@ -122,12 +121,6 @@ const data = computed(() => {
   return sourceConnectionStore.getConnectionById(selectedConnectionId.value)
     ?.softwareData;
 });
-
-// watchEffect(() => {
-//   console.log(
-//     sourceConnectionStore.getConnectionById(selectedConnectionId.value),
-//   );
-// });
 </script>
 
 <template>

@@ -52,10 +52,11 @@ watchEffect(
   () => {
     sourceConnectionStore.editConnections.forEach(
       (sourceConnection, idx: number) => {
-        idx === sourceConnectionStore.editConnections.length - 1 &&
-        sourceConnection.name.length > 0
-          ? (sourceConnectionNames.value += sourceConnection.name)
-          : (sourceConnectionNames.value += sourceConnection.name + ', ');
+        if (sourceConnection.name.length > 0) {
+          idx === sourceConnectionStore.editConnections.length - 1
+            ? (sourceConnectionNames.value += sourceConnection.name)
+            : (sourceConnectionNames.value += sourceConnection.name + ', ');
+        }
       },
     );
   },
@@ -81,10 +82,6 @@ watchEffect(() => {
     state.description = props.description;
   }
 });
-
-const handleAddSourceConnection = () => {
-  emit('update:is-connection-modal-opened', true);
-};
 
 const isAddDisabled = computed(
   () => sourceConnectionStore.withSourceConnection,

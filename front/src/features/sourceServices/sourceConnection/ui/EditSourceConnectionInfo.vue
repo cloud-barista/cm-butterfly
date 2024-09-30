@@ -40,9 +40,22 @@ const handleDelete = () => {
 const invalidState = reactive({
   isIpAddressValid: false,
   isPortValid: false,
-  isUserValid: false,
-  isPasswordValid: false,
-  isPrivateKeyValid: false,
+});
+
+watchEffect(() => {
+  invalidState.isIpAddressValid =
+    addedSourceConnectionInfo.value.ip_address === '' ||
+    !addedSourceConnectionInfo.value.ip_address.match(/^(\d{1,3}\.){3}\d{1,3}$/)
+      ? false
+      : true;
+
+  if (typeof Number(addedSourceConnectionInfo.value.ssh_port) === 'number') {
+    invalidState.isPortValid =
+      Number(addedSourceConnectionInfo.value.ssh_port) > 0 &&
+      Number(addedSourceConnectionInfo.value.ssh_port) < 256
+        ? true
+        : false;
+  }
 });
 
 watchEffect(() => {
@@ -82,8 +95,8 @@ watchEffect(() => {
         <p-field-group label="IP Address" invalid required>
           <p-text-input
             v-model="addedSourceConnectionInfo.ip_address"
-            :invalid="!invalidState.isIpAddressValid"
             placeholder="###.###.###.###"
+            :invalid="!invalidState.isIpAddressValid"
           />
         </p-field-group>
         <p-field-group label="Port (for SSH)" invalid required>
@@ -93,20 +106,25 @@ watchEffect(() => {
             :invalid="!invalidState.isPortValid"
           />
         </p-field-group>
-        <p-field-group label="User" required>
+        <p-field-group label="User" invalid required>
           <p-text-input
             v-model="addedSourceConnectionInfo.user"
             placeholder="User ID"
+            :invalid="!addedSourceConnectionInfo.user"
           />
         </p-field-group>
-        <p-field-group label="Password" required>
+        <p-field-group label="Password" invalid required>
           <p-text-input
             v-model="addedSourceConnectionInfo.password"
             placeholder="Password"
+            :invalid="!addedSourceConnectionInfo.password"
           />
         </p-field-group>
-        <p-field-group class="private-key" label="Private Key" required>
-          <p-text-input v-model="addedSourceConnectionInfo.private_key" />
+        <p-field-group class="private-key" label="Private Key" invalid required>
+          <p-text-input
+            v-model="addedSourceConnectionInfo.private_key"
+            :invalid="!addedSourceConnectionInfo.private_key"
+          />
         </p-field-group>
       </div>
     </p-pane-layout>
