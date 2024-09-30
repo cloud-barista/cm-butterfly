@@ -8,11 +8,15 @@ import SourceInformation from '@/widgets/source/sourceConnections/sourceConnecti
 import SourceInfraCollect from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/ui/SourceInfraCollect.vue';
 import SourceSoftwareCollect from '@/widgets/source/sourceConnections/sourceConnectionDetail/softwareCollect/ui/SourceSoftwareCollect.vue';
 import SourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/SourceConnectionModal.vue';
-import { AddSourceServiceModal } from '@/widgets/sourceServices';
+import {
+  AddSourceServiceModal,
+  EditSourceServiceModal,
+} from '@/widgets/sourceServices';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
 import MetaViewer from '@/widgets/source/sourceConnections/sourceConnectionDetail/metaViewer/ui/MetaViewer.vue';
 import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
+import EditSourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/EditSourceConnectionModal.vue';
 
 const { sourceConnectionStore } = useSourceInfraCollectModel();
 
@@ -58,6 +62,7 @@ const sourceConnectionDetailTabState = reactive({
 const modalStates = reactive({
   addServiceGroup: {
     open: false,
+    category: 'add',
     confirm() {
       modalStates.addServiceGroup.open = false;
     },
@@ -69,6 +74,7 @@ const modalStates = reactive({
 
   addSourceConnection: {
     open: false,
+    category: 'add',
     trigger: false,
     confirm() {
       modalStates.addSourceConnection.open = false;
@@ -84,6 +90,13 @@ const modalStates = reactive({
     },
   },
 });
+
+const isServiceEditBtnClicked = ref<boolean>(false);
+
+const handleSourceGroupEdit = () => {
+  modalStates.addServiceGroup.open = true;
+  isServiceEditBtnClicked.value = true;
+};
 
 const selectedServiceId = ref<string>('');
 const selectedConnectionId = ref<string>('');
@@ -108,12 +121,6 @@ const data = computed(() => {
   return sourceConnectionStore.getConnectionById(selectedConnectionId.value)
     ?.softwareData;
 });
-
-// watchEffect(() => {
-//   console.log(
-//     sourceConnectionStore.getConnectionById(selectedConnectionId.value),
-//   );
-// });
 </script>
 
 <template>
@@ -131,6 +138,10 @@ const data = computed(() => {
         @selectRow="handleClickServiceId"
         @update:addModalState="e => (modalStates.addServiceGroup.open = e)"
         @update:trigger="modalStates.addServiceGroup.updateTrigger"
+        @update:title="e => (modalStates.addServiceGroup.category = e)"
+        @update:connection-title="
+          e => (modalStates.addSourceConnection.category = e)
+        "
       />
       <p
         v-if="!selectedServiceId"
@@ -146,7 +157,7 @@ const data = computed(() => {
               <p-button
                 :style-type="'tertiary'"
                 icon-left="ic_edit"
-                @click="modalStates.addServiceGroup.open = true"
+                @click="handleSourceGroupEdit"
               >
                 Edit
               </p-button>
@@ -163,6 +174,9 @@ const data = computed(() => {
               @selectRow="id => (selectedConnectionId = id)"
               @update:addModalState="handleConnectionModal"
               @update:trigger="modalStates.addSourceConnection.updateTrigger"
+              @update:title="
+                e => (modalStates.addSourceConnection.category = e)
+              "
             >
               <template v-if="selectedConnectionId" #sourceConnectionDetail>
                 <p-button-tab
@@ -201,25 +215,53 @@ const data = computed(() => {
     </section>
     <div class="relative z-60">
       <add-source-service-modal
-        v-if="modalStates.addServiceGroup.open"
-        save-button-name="Add"
+        v-if="modalStates.addServiceGroup.open && !isServiceEditBtnClicked"
         @update:isModalOpened="handleGroupModal"
         @update:is-connection-modal-opened="handleConnectionModal"
         @update:trigger="modalStates.addServiceGroup.trigger = true"
       />
+      <edit-source-service-modal
+        v-if="modalStates.addServiceGroup.open && isServiceEditBtnClicked"
+        :selected-service-id="selectedServiceId"
+        @update:is-service-modal-opened="
+          e => {
+            modalStates.addServiceGroup.open = e;
+            isServiceEditBtnClicked = e;
+          }
+        "
+      />
     </div>
     <div class="relative z-70">
       <source-connection-modal
-        v-if="modalStates.addSourceConnection.open"
+        v-if="
+          modalStates.addSourceConnection.open &&
+          modalStates.addSourceConnection.category === 'add'
+        "
         :selected-connection-id="selectedConnectionId"
         @update:is-connection-modal-opened="handleConnectionModal"
+        @update:is-service-modal-opened="
+          e => (modalStates.addServiceGroup.open = e)
+        "
+      />
+      <edit-source-connection-modal
+        v-else-if="
+          modalStates.addSourceConnection.open &&
+          modalStates.addSourceConnection.category === 'edit'
+        "
+        :source-service-id="selectedServiceId"
+        :selected-connection-id="selectedConnectionId"
+        @update:is-connection-modal-opened="handleConnectionModal"
+        @update:is-service-modal-opened="
+          e => (modalStates.addServiceGroup.open = e)
+        "
+        @update:trigger="modalStates.addSourceConnection.trigger = true"
       />
 
       <meta-viewer
         v-if="
           modalStates.addMetaViewer.open &&
-            sourceConnectionStore.getConnectionById(selectedConnectionId)
-              ?.infraData
+          sourceConnectionStore.getConnectionById(selectedConnectionId)
+            ?.infraData
         "
         :infra-data="
           sourceConnectionStore.getConnectionById(selectedConnectionId)

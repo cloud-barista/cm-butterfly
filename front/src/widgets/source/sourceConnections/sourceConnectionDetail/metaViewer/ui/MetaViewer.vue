@@ -29,7 +29,12 @@ const handleMetaViewer = () => {
 
 <template>
   <div class="page-modal-layout">
-    <create-form title="Source Connection Viewer">
+    <create-form
+      title="Source Connection Viewer"
+      @update:is-meta-viewer-opened="
+        e => emit('update:is-meta-viewer-opened', e)
+      "
+    >
       <template #add-info>
         <json-viewer
           :form-data="infraData"

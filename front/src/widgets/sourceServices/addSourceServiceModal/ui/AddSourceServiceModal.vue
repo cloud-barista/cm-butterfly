@@ -1,24 +1,20 @@
 <script setup lang="ts">
 import { i18n } from '@/app/i18n';
 import { PButtonModal } from '@cloudforet-test/mirinae';
-import { reactive, ref, watchEffect, computed, onMounted, watch } from 'vue';
-import { SourceConnection, useSourceServiceStore } from '@/shared/libs';
-import { storeToRefs } from 'pinia';
+import { reactive, ref, watchEffect } from 'vue';
 import { UpdateSourceService } from '@/features/sourceServices';
-import { useRegisterSourceGroup } from '@/entities/temp/api';
-import { TranslateResult } from 'vue-i18n';
+import { useRegisterSourceGroup } from '@/entities/sourceService/api';
 import { showSuccessMessage, showErrorMessage } from '@/shared/utils';
+import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
+import { useSourceServiceStore } from '@/shared/libs';
+import { storeToRefs } from 'pinia';
 
-const sourceServiceStore = useSourceServiceStore();
+const sourceConnectionStore = useSourceConnectionStore();
+const sourceServicesStore = useSourceServiceStore();
 
-const {
-  sourceConnectionNameList,
-  sourceServiceInfo,
-  sourceConnectionInfoList,
-} = storeToRefs(sourceServiceStore);
+const { sourceServiceInfo } = storeToRefs(sourceServicesStore);
 
 interface Props {
-  saveButtonName: string | TranslateResult;
   trigger?: boolean;
 }
 
@@ -33,36 +29,39 @@ const emit = defineEmits([
 const registerSourceGroup = useRegisterSourceGroup<{ request: any }, any>(null);
 
 const state = reactive({
-  sourceServiceName: computed(() => sourceServiceInfo.value.name),
-  description: computed(() => sourceServiceInfo.value.description),
+  sourceServiceName: '',
+  description: '',
 });
 
-const handleCheckSourceConnection = () => {
-  sourceServiceStore.setWithSourceConnection();
+const handleSourceServiceInfo = (value: any) => {
+  state.sourceServiceName = value.sourceServiceName;
+  state.description = value.description;
 };
 
 const handleConfirm = async () => {
-  sourceConnectionInfoList.value.map((sourceConnection: SourceConnection) => {
-    sourceConnection.ssh_port = Number(sourceConnection.ssh_port);
+  sourceConnectionStore.editConnections.map(sourceConnection => {
+    sourceConnection.ssh_port = String(sourceConnection.ssh_port);
   });
+
+  const requestData = {
+    name: state.sourceServiceName,
+    description: state.description,
+    connection_info: sourceConnectionStore.editConnections,
+  };
 
   try {
     const { data } = await registerSourceGroup.execute({
-      request: {
-        name: sourceServiceInfo.value.name,
-        description: sourceServiceInfo.value.description,
-        connections: sourceConnectionInfoList.value,
-      },
+      request: requestData,
     });
 
     if (data) {
       showSuccessMessage('success', 'Register Success');
-      sourceConnectionInfoList.value = [];
-      sourceConnectionNames.value = '';
+
       sourceServiceInfo.value = {
         name: '',
         description: '',
       };
+      sourceConnectionStore.editConnections = [];
 
       emit('update:trigger');
       emit('update:isModalOpened', false);
@@ -75,43 +74,26 @@ const handleConfirm = async () => {
   }
 };
 
-const sourceConnectionNames = ref<string>('');
-
-watchEffect(
-  () => {
-    sourceConnectionNameList.value.forEach(
-      (sourceConnectionName: string, idx: number) => {
-        idx === sourceConnectionNameList.value.length - 1
-          ? (sourceConnectionNames.value += sourceConnectionName)
-          : (sourceConnectionNames.value += sourceConnectionName + ', ');
-      },
-    );
-  },
-  { flush: 'post' },
-);
-
-// const handleUpdateValues = (value: any) => {
-//   state.sourceServiceName = value.name;
-//   state.description = value.description;
-// };
-
 const handleCancel = () => {
+  sourceServiceInfo.value = {
+    name: '',
+    description: '',
+  };
+  sourceConnectionStore.editConnections = [];
   emit('update:isModalOpened', false);
+  sourceConnectionStore.withSourceConnection = false;
 };
 
 const handleConnectionModal = (value: boolean) => {
   emit('update:is-connection-modal-opened', value);
 };
+const isDisabled = ref<boolean>(false);
 
-// watch(
-//   () => props.trigger,
-//   nv => {
-//     if (nv) {
-//       console.log(nv);
-//       emit('update:trigger');
-//     }
-//   },
-// );
+watchEffect(() => {
+  state.sourceServiceName && state.sourceServiceName.length > 0
+    ? (isDisabled.value = true)
+    : (isDisabled.value = false);
+});
 </script>
 
 <template>
@@ -120,23 +102,23 @@ const handleConnectionModal = (value: boolean) => {
       :visible="true"
       header-title="Add Source Service"
       size="md"
-      :disabled="
-        state.sourceServiceName === '' || state.sourceServiceName === undefined
-      "
+      :disabled="!isDisabled"
       @confirm="handleConfirm"
       @cancel="handleCancel"
       @close="handleCancel"
     >
       <template #body>
         <update-source-service
+          :is-edit="false"
           @update:is-connection-modal-opened="handleConnectionModal"
+          @update:source-servie-info="handleSourceServiceInfo"
         />
       </template>
       <template #close-button>
         <span>{{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}</span>
       </template>
       <template #confirm-button>
-        <span>{{ saveButtonName }}</span>
+        <span>{{ i18n.t('COMPONENT.BUTTON_MODAL.ADD') }}</span>
       </template>
     </p-button-modal>
   </div>

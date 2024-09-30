@@ -1,3 +1,10 @@
+import type { SourceConnection } from '@/shared/libs';
+export interface ISourceGroup {
+  name: string;
+  description: string;
+  connections: SourceConnection[];
+}
+
 export interface ISourceService {
   id: string;
   name: string;

@@ -13,6 +13,16 @@ const NAMESPACE = 'SOURCECONNECTION';
 export const useSourceConnectionStore = defineStore(NAMESPACE, () => {
   //key : sourceConnection Id , value : sourceConnection Info
   const connections = ref<Record<string, ISourceConnection>>({});
+  const editConnections: any[] = [];
+  const withSourceConnection = ref(false);
+
+  function setEditConnections(value: any) {
+    return editConnections.push(value);
+  }
+
+  function setWithSourceConnection(value: boolean) {
+    withSourceConnection.value = value;
+  }
 
   function getConnectionById(connectId: string): ISourceConnection | null {
     return connections.value[connectId] || null;
@@ -74,10 +84,14 @@ export const useSourceConnectionStore = defineStore(NAMESPACE, () => {
   return {
     setConnection,
     connections,
+    editConnections,
+    setEditConnections,
     getConnectionById,
     setConnections,
     mapSourceConnectionCollectSWResponse,
     mapSourceConnectionCollectInfraResponse,
     clear,
+    withSourceConnection,
+    setWithSourceConnection,
   };
 });

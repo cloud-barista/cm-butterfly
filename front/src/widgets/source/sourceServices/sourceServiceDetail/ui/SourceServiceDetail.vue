@@ -10,6 +10,7 @@ import {
 } from '@/shared/utils';
 import { get } from '@vueuse/core';
 import { SourceServiceStatus } from '@/entities/sourceService/model/types.ts';
+import { storeToRefs } from 'pinia';
 
 interface IProps {
   selectedServiceId: string;
@@ -78,7 +79,7 @@ function handleSourceGroupStatusCheck() {
       :block="true"
     >
       <template #data-status="{ data }">
-        <p-status :theme="data.color" :text="data.text"></p-status>
+        <p-status :theme="data.color" :text="data.text" />
       </template>
 
       <template #extra="{ name }">

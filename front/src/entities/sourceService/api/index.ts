@@ -8,10 +8,27 @@ import {
   ISourceServiceResponse,
 } from '@/entities/sourceService/model/types.ts';
 import { axiosInstance } from '@/shared/libs/api/instance.ts';
+import type { ISourceGroup } from '@/entities/sourceService/model/types.ts';
 
+const REGISTER_SOURCE_GROUP = 'cm-honeybee/register-source-group';
 const GET_SOURCE_SERVICE_LIST = 'list-source-group';
 const GET_SOURCE_SERVICE_STATUS = 'agent-and-connection-check';
 const DELETE_SOURCE_SERVICE = 'delete-source-group';
+
+export function useRegisterSourceGroup<T, D>(
+  sourceGroupData: D | ISourceGroup,
+) {
+  const requestBodyWrapper: Required<
+    Pick<RequestBodyWrapper<D | ISourceGroup>, 'request'>
+  > = {
+    request: sourceGroupData,
+  };
+
+  return useAxiosPost<IAxiosResponse<T>, RequestBodyWrapper<D | ISourceGroup>>(
+    REGISTER_SOURCE_GROUP,
+    requestBodyWrapper,
+  );
+}
 
 export function useGetSourceServiceList() {
   return useAxiosPost<IAxiosResponse<ISourceServiceResponse>, null>(

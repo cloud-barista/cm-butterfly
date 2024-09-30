@@ -1,30 +1,21 @@
 <script setup lang="ts">
 import { i18n } from '@/app/i18n';
 import { PButtonModal } from '@cloudforet-test/mirinae';
-import { reactive, ref, watchEffect, computed } from 'vue';
-import { useSourceServiceStore } from '@/shared/libs';
-import { storeToRefs } from 'pinia';
+import { reactive, watchEffect } from 'vue';
 import { UpdateSourceService } from '@/features/sourceServices';
+import EditSourceService from '@/features/sourceServices/updateSourceService/ui/EditSourceService.vue';
+import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
+import { ISourceService } from '@/entities/sourceService/model/types';
 
-const sourceServiceStore = useSourceServiceStore();
-
-const { sourceConnectionNameList, sourceServiceInfo } =
-  storeToRefs(sourceServiceStore);
-
-interface Props {
-  saveButtonName: string;
+interface iProps {
+  selectedServiceId: string;
 }
 
-const props = defineProps<Props>();
+const props = defineProps<iProps>();
 
-const state = reactive({
-  sourceServiceName: computed(() => sourceServiceInfo.value.name),
-  description: computed(() => sourceServiceInfo.value.description),
-});
+const { sourceServiceStore } = useSourceServiceDetailModel();
 
-const handleCheckSourceConnection = () => {
-  sourceServiceStore.setWithSourceConnection();
-};
+const emit = defineEmits(['update:is-service-modal-opened']);
 
 const handleConfirm = () => {
   /**
@@ -33,50 +24,52 @@ const handleConfirm = () => {
    * 2. 1번의 response가 오면 해당 source group의 sg name으로 (response값 이용)
    *    create-connection-info api 호출
    */
+  emit('update:is-service-modal-opened', false);
 };
 
-const sourceConnectionNames = ref<string>('');
+const handleCancel = () => {
+  emit('update:is-service-modal-opened', false);
+};
+
+const state = reactive<any>({
+  name: '',
+  description: '',
+});
 
 watchEffect(
   () => {
-    sourceConnectionNameList.value.forEach(
-      (sourceConnectionName: string, idx: number) => {
-        idx === sourceConnectionNameList.value.length - 1
-          ? (sourceConnectionNames.value += sourceConnectionName)
-          : (sourceConnectionNames.value += sourceConnectionName + ', ');
-      },
+    const data: ISourceService | null = sourceServiceStore.getServiceById(
+      props.selectedServiceId,
     );
+    state.name = data?.name;
+    state.description = data?.description;
   },
   { flush: 'post' },
 );
-
-const handleUpdateValues = (value: string) => {
-  state.sourceServiceName = value;
-};
 </script>
 
 <template>
   <p-button-modal
     :visible="true"
-    header-title="Add Source Service"
+    header-title="Edit Source Service"
     size="md"
-    :disabled="
-      state.sourceServiceName === '' || state.sourceServiceName === undefined
-    "
+    :disabled="state.name === '' || state.name === undefined"
     @confirm="handleConfirm"
+    @cancel="handleCancel"
+    @close="handleCancel"
   >
     <template #body>
-      <update-source-service
-        :source-service-name="state.sourceServiceName"
+      <edit-source-service
+        :is-edit="true"
+        :source-service-name="state.name"
         :description="state.description"
-        @update:source-service-name="handleUpdateValues"
       />
     </template>
     <template #close-button>
       <span>{{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}</span>
     </template>
     <template #confirm-button>
-      <span>{{ saveButtonName }}</span>
+      <span>{{ i18n.t('COMPONENT.BUTTON_MODAL.EDIT') }}</span>
     </template>
   </p-button-modal>
 </template>

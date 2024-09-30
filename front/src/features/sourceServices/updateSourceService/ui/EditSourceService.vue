@@ -32,8 +32,8 @@ const emit = defineEmits([
 ]);
 
 const state = reactive({
-  sourceServiceName: sourceServiceInfo.value.name,
-  description: sourceServiceInfo.value.description as string | null | undefined,
+  sourceServiceName: '',
+  description: '' as string | null | undefined,
 });
 
 const handleCheckSourceConnection = () => {
@@ -52,11 +52,9 @@ watchEffect(
   () => {
     sourceConnectionStore.editConnections.forEach(
       (sourceConnection, idx: number) => {
-        if (sourceConnection.name.length > 0) {
-          idx === sourceConnectionStore.editConnections.length - 1
-            ? (sourceConnectionNames.value += sourceConnection.name)
-            : (sourceConnectionNames.value += sourceConnection.name + ', ');
-        }
+        idx === sourceConnectionStore.editConnections.length - 1
+          ? (sourceConnectionNames.value += sourceConnection.name)
+          : (sourceConnectionNames.value += sourceConnection.name + ', ');
       },
     );
   },
@@ -86,15 +84,6 @@ watchEffect(() => {
 const isAddDisabled = computed(
   () => sourceConnectionStore.withSourceConnection,
 );
-
-watchEffect(
-  () => {
-    sourceServiceInfo.value.name = state.sourceServiceName;
-    sourceServiceInfo.value.description = state.description;
-  },
-  { flush: 'post' },
-);
-
 const isToggleDisabled = ref<boolean>(true);
 
 watch(

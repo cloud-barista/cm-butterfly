@@ -10,7 +10,15 @@ import {
   showErrorMessage,
   showSuccessMessage,
 } from '@/shared/utils';
-import { onBeforeMount, onMounted, reactive, watch } from 'vue';
+import {
+  computed,
+  onBeforeMount,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+  watchEffect,
+} from 'vue';
 import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model/sourceConnectionListModel.ts';
 import { useBulkDeleteSourceConnection } from '@/entities/sourceConnection/api';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
@@ -25,6 +33,7 @@ const emit = defineEmits([
   'selectRow',
   'update:trigger',
   'update:addModalState',
+  'update:title',
 ]);
 
 const {
@@ -144,6 +153,7 @@ watch(
 
 function handleSourceConnectionList() {
   emit('update:addModalState', true);
+  emit('update:title', 'edit');
 }
 </script>
 

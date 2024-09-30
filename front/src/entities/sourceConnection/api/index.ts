@@ -10,10 +10,22 @@ import {
 } from '@/entities/sourceConnection/model/types.ts';
 import { axiosInstance } from '@/shared/libs/api/instance.ts';
 
+const CREATE_SOURCE_CONNECTION = 'create-connection-info';
 const GET_SOURCE_CONNECTION_LIST = 'list-connection-info';
 const COLLECT_INFRA = 'import-infra';
 const COLLECT_SW = 'import-software';
 const DELETE_SOURCE_CONNECTION = 'delete-connection-info';
+
+export function useCreateConnectionInfo(sgId: string, requestData: null | any) {
+  const requestBodyWrapper = {
+    pathParams: {
+      sgId: sgId || null,
+    },
+    request: requestData,
+  };
+
+  return useAxiosPost(CREATE_SOURCE_CONNECTION, requestBodyWrapper);
+}
 export function useGetSourceConnectionList(sourceGroupId: string | null) {
   const requestWrapper: Required<
     Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>

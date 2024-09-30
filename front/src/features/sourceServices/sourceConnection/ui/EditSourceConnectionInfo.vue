@@ -6,7 +6,7 @@ import {
   PPaneLayout,
   PI,
 } from '@cloudforet-test/mirinae';
-import { ref, reactive, watch, watchEffect } from 'vue';
+import { reactive, ref, watch, watchEffect } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 
 const sourceConnectionStore = useSourceConnectionStore();
@@ -14,24 +14,26 @@ const sourceConnectionStore = useSourceConnectionStore();
 const emit = defineEmits([
   'update:source-connection',
   'delete:source-connection',
+  'update:save-able',
+  'update:values',
 ]);
 
+// TODO: sourceconnectionId가 있으면 수정으로, 없으면 추가로 처리
+// 현재 수정 api는 없음
+
+// TODO: 이미 존재하는 source service에 하나의 source connection 추가하는 api
+
 interface iProps {
-  sourceConnection: any;
+  selectedSourceConnectionId: string;
+  sourceServiceId: string;
 }
 
 const props = defineProps<iProps>();
 
-const state = reactive({
-  sourceConnectionInfoList: ref(props.sourceConnection),
-});
+const addedSourceConnectionInfo = ref<any>({});
 
 const handleDelete = () => {
   emit('delete:source-connection', true);
-};
-
-const handleInfo = () => {
-  emit('update:source-connection', true);
 };
 
 // const isIpAddressValid = ref(false);
@@ -42,25 +44,34 @@ const invalidState = reactive({
 
 watchEffect(() => {
   invalidState.isIpAddressValid =
-    state.sourceConnectionInfoList.ip_address === '' ||
-    !state.sourceConnectionInfoList.ip_address.match(/^(\d{1,3}\.){3}\d{1,3}$/)
+    addedSourceConnectionInfo.value.ip_address === '' ||
+    !addedSourceConnectionInfo.value.ip_address.match(/^(\d{1,3}\.){3}\d{1,3}$/)
       ? false
       : true;
 
-  // invalidState.isPasswordValid =
-  //   state.sourceConnectionInfoList.password === '' ||
-  //   !state.sourceConnectionInfoList.password.match(
-  //     /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,16}$/,
-  //   )
-  //     ? false
-  //     : true;
-
-  if (typeof Number(state.sourceConnectionInfoList.ssh_port) === 'number') {
+  if (typeof Number(addedSourceConnectionInfo.value.ssh_port) === 'number') {
     invalidState.isPortValid =
-      Number(state.sourceConnectionInfoList.ssh_port) > 0 &&
-      Number(state.sourceConnectionInfoList.ssh_port) < 256
+      Number(addedSourceConnectionInfo.value.ssh_port) > 0 &&
+      Number(addedSourceConnectionInfo.value.ssh_port) < 256
         ? true
         : false;
+  }
+});
+
+watchEffect(() => {
+  if (
+    props.selectedSourceConnectionId !== undefined &&
+    props.selectedSourceConnectionId.length > 0
+  ) {
+    addedSourceConnectionInfo.value = sourceConnectionStore.getConnectionById(
+      props.selectedSourceConnectionId,
+    );
+  }
+});
+
+watchEffect(() => {
+  if (Object.keys(addedSourceConnectionInfo.value).length > 0) {
+    emit('update:values', addedSourceConnectionInfo.value);
   }
 });
 </script>
@@ -71,48 +82,48 @@ watchEffect(() => {
       <div class="left-layer">
         <p-field-group label="Source Connection Name" invalid required>
           <p-text-input
-            v-model="sourceConnection.name"
+            v-model="addedSourceConnectionInfo.name"
             placeholder="Source Connection Name"
-            :invalid="!sourceConnection.name"
+            :invalid="!addedSourceConnectionInfo.name"
           />
         </p-field-group>
         <p-field-group label="Description">
-          <p-textarea v-model="sourceConnection.description" />
+          <p-textarea v-model="addedSourceConnectionInfo.description" />
         </p-field-group>
       </div>
       <div class="right-layer">
         <p-field-group label="IP Address" invalid required>
           <p-text-input
-            v-model="sourceConnection.ip_address"
-            :invalid="!invalidState.isIpAddressValid"
+            v-model="addedSourceConnectionInfo.ip_address"
             placeholder="###.###.###.###"
+            :invalid="!invalidState.isIpAddressValid"
           />
         </p-field-group>
         <p-field-group label="Port (for SSH)" invalid required>
           <p-text-input
-            v-model="sourceConnection.ssh_port"
+            v-model="addedSourceConnectionInfo.ssh_port"
             placeholder="1~256"
             :invalid="!invalidState.isPortValid"
           />
         </p-field-group>
         <p-field-group label="User" invalid required>
           <p-text-input
-            v-model="sourceConnection.user"
+            v-model="addedSourceConnectionInfo.user"
             placeholder="User ID"
-            :invalid="!sourceConnection.user"
+            :invalid="!addedSourceConnectionInfo.user"
           />
         </p-field-group>
         <p-field-group label="Password" invalid required>
           <p-text-input
-            v-model="sourceConnection.password"
+            v-model="addedSourceConnectionInfo.password"
             placeholder="Password"
-            :invalid="!invalidState.isPasswordValid"
+            :invalid="!addedSourceConnectionInfo.password"
           />
         </p-field-group>
         <p-field-group class="private-key" label="Private Key" invalid required>
           <p-text-input
-            v-model="sourceConnection.private_key"
-            :invalid="!sourceConnection.private_key"
+            v-model="addedSourceConnectionInfo.private_key"
+            :invalid="!addedSourceConnectionInfo.private_key"
           />
         </p-field-group>
       </div>
