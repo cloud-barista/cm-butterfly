@@ -15,7 +15,6 @@ const { isMinimized, isCollapsed } = storeToRefs(sidebar);
 const props = defineProps<{
   displayedMenu: MigratorMenu[];
 }>();
-
 const selectedMenuId = computed(() => {
   const reversedMatched = clone(route.matched).reverse();
   const closestRoute = reversedMatched.find(r => {

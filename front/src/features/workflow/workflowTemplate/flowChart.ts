@@ -1,22 +1,5 @@
-import {
-  LogStep,
-  MyDefinition,
-} from '@/features/workflow/workflowTemplate/types.ts';
-
 import { Designer } from 'sequential-workflow-designer';
-import {
-  createStepModel,
-  createStringValueModel,
-} from 'sequential-workflow-editor-model';
-import {
-  createRootModel,
-  createVariableDefinitionsValueModel,
-} from 'sequential-workflow-editor-model';
-
-import { createDefinitionModel } from 'sequential-workflow-editor-model';
-
-import { EditorProvider } from 'sequential-workflow-editor';
-import { Uid } from 'sequential-workflow-designer';
+import Vue from 'vue';
 
 export function useFlowChart(refs: any) {
   const placeholder = refs.placeholder;
@@ -56,6 +39,8 @@ export function useFlowChart(refs: any) {
           return targetSequence.length < 5;
         },
         canMoveStep: (sourceSequence, step, targetSequence, targetIndex) => {
+          console.log(step);
+          console.log(sourceSequence);
           return !step.properties['isLocked'];
         },
         canDeleteStep: (step, parentSequence) => {
@@ -97,10 +82,15 @@ export function useFlowChart(refs: any) {
         rootEditorProvider: (definition, rootContext, isReadonly) => {
           const editor = document.createElement('div');
           // ...
+          const testCompo = Vue.extend();
+          console.log(new testCompo());
+
+          new testCompo().$mount(editor);
+
           return editor;
         },
         stepEditorProvider: (step, stepContext, definition, isReadonly) => {
-          const editor = document.createElement('div');
+          const editor = document.createElement('input');
           // ...
           return editor;
         },
