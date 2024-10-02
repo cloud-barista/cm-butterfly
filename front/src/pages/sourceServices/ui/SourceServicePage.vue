@@ -218,8 +218,8 @@ const data = computed(() => {
       <meta-viewer
         v-if="
           modalStates.addMetaViewer.open &&
-            sourceConnectionStore.getConnectionById(selectedConnectionId)
-              ?.infraData
+          sourceConnectionStore.getConnectionById(selectedConnectionId)
+            ?.infraData
         "
         :infra-data="
           sourceConnectionStore.getConnectionById(selectedConnectionId)

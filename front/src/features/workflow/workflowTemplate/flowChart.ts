@@ -1,5 +1,6 @@
-import { Designer } from 'sequential-workflow-designer';
+import { ComponentType, Designer } from 'sequential-workflow-designer';
 import Vue from 'vue';
+import { Step } from 'sequential-workflow-model';
 
 export function useFlowChart(refs: any) {
   const placeholder = refs.placeholder;
@@ -22,28 +23,33 @@ export function useFlowChart(refs: any) {
       steps: {
         // all properties in this section are optional
 
-        iconUrlProvider: (componentType, type) => {
-          return `icon-${componentType}-${type}.svg`;
+        iconUrlProvider: (componentType: ComponentType, type) => {
+          return `/src/shared/asset/image/testSvg.svg`;
         },
 
-        isDraggable: (step, parentSequence) => {
+        isDraggable: (step: Step, parentSequence) => {
           return step.name !== 'y';
         },
-        isDeletable: (step, parentSequence) => {
+        isDeletable: (step: Step, parentSequence) => {
           return step.properties['isDeletable'];
         },
-        isDuplicable: (step, parentSequence) => {
+        isDuplicable: (step: Step, parentSequence) => {
           return true;
         },
-        canInsertStep: (step, targetSequence, targetIndex) => {
+        canInsertStep: (step: Step, targetSequence, targetIndex) => {
           return targetSequence.length < 5;
         },
-        canMoveStep: (sourceSequence, step, targetSequence, targetIndex) => {
+        canMoveStep: (
+          sourceSequence,
+          step: Step,
+          targetSequence,
+          targetIndex,
+        ) => {
           console.log(step);
           console.log(sourceSequence);
           return !step.properties['isLocked'];
         },
-        canDeleteStep: (step, parentSequence) => {
+        canDeleteStep: (step: Step, parentSequence) => {
           return step.name !== 'x';
         },
       },
@@ -63,9 +69,17 @@ export function useFlowChart(refs: any) {
         isCollapsed: false,
         groups: [
           {
-            name: 'Files',
+            name: 'Group 1',
             steps: [
-              // steps for the toolbox's group
+              {
+                componentType: 'task',
+                type: 'sendEmail',
+                name: 'Save e-mail',
+                properties: {
+                  /* ... */
+                },
+              },
+              // ...
             ],
           },
           {

@@ -1,10 +1,10 @@
 import VueRouter, { RouteConfig } from 'vue-router';
 import { ROOT_ROUTE } from './routes/constants';
 import authRoutes from '../../../pages/auth/auth.route.ts';
-import NotFound from '../../../pages/error/404/NotFound.vue';
 import { sourceComputingRoutes } from './routes/sourceComputing.ts';
 import { MainLayout } from '../../Layouts';
 import WorkflowTemplate from '@/features/workflow/workflowTemplate/ui/WorkflowTemplate.vue';
+import NotFound from '@/pages/error/404/NotFound.vue';
 //TODO admin부분 고려
 
 const accessiblePagesWithRoles = [] as any[];
