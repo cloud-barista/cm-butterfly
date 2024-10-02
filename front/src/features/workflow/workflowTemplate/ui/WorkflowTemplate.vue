@@ -41,6 +41,15 @@ onMounted(function () {
     border-width: 1px;
     border-radius: 6px;
     padding: 2px;
+    .sqd-smart-editor-toggle {
+      right: 500px;
+    }
+    .sqd-smart-editor-toggle.sqd-collapsed {
+      right: 0;
+    }
+    .sqd-smart-editor {
+      width: 500px;
+    }
   }
 }
 </style>

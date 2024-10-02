@@ -1,12 +1,33 @@
 import { ComponentType, Designer } from 'sequential-workflow-designer';
-import Vue from 'vue';
+import Vue, { CreateElement, h, ref, RenderContext, VNode } from 'vue';
 import { Step } from 'sequential-workflow-model';
+import TestCompo from '@/features/workflow/workflowTemplate/ui/TestCompo.vue';
+import { insertDynamicComponent } from '@/shared/utils';
+import { DefaultProps } from 'vue/types/options';
 
 export function useFlowChart(refs: any) {
+  let designer: any = null;
+
   const placeholder = refs.placeholder;
+  const testId = ref<string>('');
 
   function initDesigner() {
-    const definition = {
+    if (designer) {
+      designer.destroy();
+    }
+
+    const definition = getDefinition();
+
+    const configuration = getConfigulation();
+    designer = Designer.create(placeholder, definition, configuration);
+    designer.onDefinitionChanged.subscribe(newDefinition => {
+      // ...
+      console.log(newDefinition);
+    });
+  }
+
+  function getDefinition() {
+    return {
       properties: {
         myProperty: 'my-value',
         // root properties...
@@ -15,7 +36,10 @@ export function useFlowChart(refs: any) {
         // steps...
       ],
     };
-    const configuration = {
+  }
+
+  function getConfigulation() {
+    return {
       theme: 'light', // optional, default: 'light'
       isReadonly: false, // optional, default: false
       undoStackSize: 10, // optional, default: 0 - disabled, 1+ - enabled
@@ -50,18 +74,19 @@ export function useFlowChart(refs: any) {
           return !step.properties['isLocked'];
         },
         canDeleteStep: (step: Step, parentSequence) => {
-          return step.name !== 'x';
+          return confirm('Are you sure?');
         },
+        isAutoSelectDisabled: true,
       },
 
       validator: {
         // all validators are optional
 
         step: (step, parentSequence, definition) => {
-          return /^[a-z]+$/.test(step.name);
+          return true;
         },
         root: definition => {
-          return definition.properties['memory'] > 256;
+          return true;
         },
       },
 
@@ -70,17 +95,7 @@ export function useFlowChart(refs: any) {
         groups: [
           {
             name: 'Group 1',
-            steps: [
-              {
-                componentType: 'task',
-                type: 'sendEmail',
-                name: 'Save e-mail',
-                properties: {
-                  /* ... */
-                },
-              },
-              // ...
-            ],
+            steps: [],
           },
           {
             name: 'Notification',
@@ -94,17 +109,26 @@ export function useFlowChart(refs: any) {
       editors: {
         isCollapsed: false,
         rootEditorProvider: (definition, rootContext, isReadonly) => {
+          console.log(definition);
+          console.log(rootContext);
           const editor = document.createElement('div');
-          // ...
-          const testCompo = Vue.extend();
-          console.log(new testCompo());
 
-          new testCompo().$mount(editor);
-
+          //instance, id와 value로 값저장 하는 방법도 있고 store에서 저장하는 방법도 있을듯
+          let e = insertDynamicComponent(
+            TestCompo,
+            { id: testId.value },
+            {
+              'button-click': () => (testId.value = '변경됨'),
+            },
+            editor,
+          );
           return editor;
         },
         stepEditorProvider: (step, stepContext, definition, isReadonly) => {
-          const editor = document.createElement('input');
+          console.log(step);
+          console.log(stepContext);
+          console.log(definition);
+          const editor = document.createElement('div');
           // ...
           return editor;
         },
@@ -113,12 +137,6 @@ export function useFlowChart(refs: any) {
       controlBar: true,
       contextMenu: true,
     };
-
-    const designer = Designer.create(placeholder, definition, configuration);
-    designer.onDefinitionChanged.subscribe(newDefinition => {
-      // ...
-      console.log(newDefinition);
-    });
   }
 
   return { initDesigner };
