@@ -3,7 +3,7 @@ services:
     container_name: cm-butterfly-api
     build:
       context: ../api
-      dockerfile: Dockerfile.cmbutterfly
+      dockerfile: Dockerfile
     networks:
       - cm-butterfly-network
     ports:
@@ -14,6 +14,28 @@ services:
       - cm-butterfly-db
     env_file:
       - ../api/.env
+    environment:
+      USER_AUTH_DATA_PATH: /conf/user.dat 
+      USER_AUTH_CONF_PATH: /conf/authsetting.yaml
+      MENU_CONF_DATA_PATH: /conf/menu.yaml
+    volumes:
+      - ../api/conf:/conf/
+
+  cm-butterfly-front:
+    container_name: cm-butterfly-front
+    build:
+      context: ../front
+      dockerfile: Dockerfile
+    networks:
+      - cm-butterfly-network
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+    depends_on:
+      - cm-butterfly-api
+    volumes:
+      - ../front/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
 
   cm-butterfly-db:
     container_name: cm-butterfly-db
