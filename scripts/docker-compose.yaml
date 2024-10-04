@@ -1,0 +1,61 @@
+services:
+  cm-butterfly-api:
+    container_name: cm-butterfly-api
+    build:
+      context: ../api
+      dockerfile: Dockerfile
+    networks:
+      - cm-butterfly-network
+    ports:
+      - target: 4000
+        published: 4000
+        protocol: tcp
+    depends_on:
+      - cm-butterfly-db
+    env_file:
+      - ../api/.env
+    environment:
+      USER_AUTH_DATA_PATH: /conf/user.dat 
+      USER_AUTH_CONF_PATH: /conf/authsetting.yaml
+      MENU_CONF_DATA_PATH: /conf/menu.yaml
+    volumes:
+      - ../api/conf:/conf/
+
+  cm-butterfly-front:
+    container_name: cm-butterfly-front
+    build:
+      context: ../front
+      dockerfile: Dockerfile
+    networks:
+      - cm-butterfly-network
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+    depends_on:
+      - cm-butterfly-api
+    volumes:
+      - ../front/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
+
+  cm-butterfly-db:
+    container_name: cm-butterfly-db
+    image: postgres:14-alpine
+    networks:
+      - cm-butterfly-network
+    ports:
+      - target: 5432
+        published: 5432
+        protocol: tcp
+    volumes:
+      - cm-butterfly-db:/var/lib/postgresql/data
+    user: root
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+networks:
+  cm-butterfly-network:
+
+volumes:
+  cm-butterfly-db:

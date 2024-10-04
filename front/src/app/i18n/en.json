@@ -1,0 +1,97 @@
+{
+  "MENU": {
+    "SOURCE_COMPUTING": {
+      "_NAME": "Source Computing",
+      "SOURCE_SERVICES": "Source Services"
+    }
+  },
+  "WORKSPACE": {
+    "_NAME": "Workspace"
+  },
+  "ROLE": {
+    "_NAME": "Role",
+    "PLATFORM_ADMIN": "Platform Admin",
+    "ADMIN": "Admin",
+    "OPERATOR": "Operator",
+    "VIEWER": "Viewer",
+    "BILL_ADMIN": "Bill Admin",
+    "BILL_VIEWER": "Bill Viewer",
+    "MIGRATOR_ADMIN": "Migrator Admin"
+  },
+  "AUTH": {
+    "LOGIN": {
+      "_NAME": "LOGIN",
+      "USER_ID": "User ID",
+      "USER_ID_REQUIRED": "please enter id",
+      "PASSWORD": "Password",
+      "PASSWORD_REQUIRED": "please enter password",
+      "PASSWORD_INCLUDE_SPACES": "Password must not contain spaces",
+      "EMAIL_INVALID": "Invalid email address"
+    }
+  },
+  "USER": {
+    "REGISTER": {
+      "PASSWORD_CONFIRM" : "Please check confirm password"
+    }
+  },
+  "CLOUD_RESOURCES": {
+    "VPC": {
+      "_NAME": "VPC",
+      "DETAILS": "Details",
+      "CONNECTION": "Connection",
+      "SUBNETS": "Subnets"
+    },
+    "PROVIDER": {
+      "_NAME": "Provider",
+      "NCP": "NCP",
+      "NCPVPC": "NCPVPC",
+      "AZURE": "Azure",
+      "IBM": "IBM",
+      "KT_CLOUD": "KTCloud",
+      "KT_CLOUD_VPC": "KTCloudVPC",
+      "OPEN_STACK": "OpenStack",
+      "NHN_CLOUD": "NHNCLOUD",
+      "ALIBABA": "Alibaba",
+      "AWS": "AWS",
+      "GCP": "GCP",
+      "TENCENT": "Tencent"
+    }
+  },
+  "COMPONENT": {
+    "TEXT_INPUT": {
+      "SHOW": "SHOW",
+      "HIDE": "HIDE"
+    },
+    "QUERY_SEARCH_TAGS": {
+      "CLEAR_ALL": "CLEAR"
+    },
+    "DATA_TABLE": {
+      "NO_DATA" : "NO_DATA"
+    },
+    "FIELD_GROUP": {
+      "OPTIONAL": "optional"
+    },
+    "BUTTON_MODAL": {
+      "CANCEL" : "Cancel",
+      "CONFIRM" : "OK",
+      "REMOVE": "Remove",
+      "EDIT": "Edit",
+      "APPLY": "Apply",
+      "DELETE": "Delete",
+      "CREATE": "Create",
+      "SAVE": "Save",
+      "CONVERT": "Convert",
+      "ADD": "Add"
+    },
+    "CONTEXT_MENU": {
+      "SHOW_MORE" : "show more",
+      "NO_ITEM" : "NO ITEM"
+    },
+    "DEFINITION_TABLE": {
+      "NO_DATA" : "NO DATA"
+    },
+    "COPY_BUTTON": {
+      "COPIED": "Copy!"
+    }
+  }
+}

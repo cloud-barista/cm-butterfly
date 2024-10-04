@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html:lang(ko), body:lang(ko) {
+    font-family: Noto Sans, Roboto, Noto Sans KR, sans-serif;
+}
+
+html:lang(en), body:lang(en) {
+    font-family: Noto Sans, Roboto, sans-serif;
+}
+
+html:lang(ja), body:lang(ja) {
+    font-family: Noto Sans, Roboto, Noto Sans JP, sans-serif;
+}
+
+pre {
+    font-family: Noto Sans, Roboto, sans-serif;
+}
+
+.page {
+    @apply bg-gray-100;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+
+    header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 18px;
+        p {
+            @apply text-display-lg;
+            font-weight: 700;
+        }
+    }
+
+    .tab-section-header {
+        padding: 2rem 1rem 1.5rem 1rem;
+        margin-top: 0.625rem;
+        display: flex;
+        justify-content: space-between;
+
+        p {
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+    }
+}
+
+.page-modal-layout {
+  overflow-y: scroll;
+  position: fixed;
+  width: 100vw;
+  height: calc(100vh - $top-bar-height);
+  top: $top-bar-height;
+  left: 0;
+  z-index: 99;
+  background-color: $bg-color;
+}
