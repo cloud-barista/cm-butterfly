@@ -44,7 +44,7 @@ jobs:
 
       - name: Install Go dependencies
         run: go mod download
-         working-directory: ./api
+        working-directory: ./api
     
       - name: Build Buffalo application
         run: buffalo build --static
