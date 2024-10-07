@@ -5,41 +5,20 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive, watch } from 'vue';
-import {
-  insertDynamicComponent,
-  showErrorMessage,
-  showSuccessMessage,
-} from '@/shared/utils';
-import { useSourceServiceListModel } from '@/widgets/source/sourceServices/sourceServiceList/model/sourceServiceListModel.ts';
+import { useSourceModelListModel } from '../model/sourceModelListModel';
+import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
+import { insertDynamicComponent } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { useBulkDeleteSourceGroup } from '@/entities/sourceService/api';
+import axios from 'axios';
 
-const {
-  tableModel,
-  services,
-  sourceServicesStore,
-  resSourceServiceList,
-  initToolBoxTableModel,
-} = useSourceServiceListModel();
+const { tableModel, initToolBoxTableModel, sourceModelStore, models } =
+  useSourceModelListModel();
 
-interface IProps {
-  addModalState: boolean;
-  trigger: boolean;
-}
-
-const props = defineProps<IProps>();
-const emit = defineEmits([
-  'selectRow',
-  'update:addModalState',
-  'update:trigger',
-  'update:title',
-  'update:connection-title',
-]);
+const emit = defineEmits(['select-row']);
 
 const modals = reactive({
   alertModalState: { open: false },
-  serviceAddModalState: { open: false },
+  sourceModelAddModalState: { open: false },
 });
 
 onBeforeMount(() => {
@@ -48,7 +27,6 @@ onBeforeMount(() => {
 
 onMounted(function () {
   addDeleteIconAtTable.bind(this)();
-  getSourceServiceList();
 });
 
 function addDeleteIconAtTable() {
@@ -68,67 +46,32 @@ function addDeleteIconAtTable() {
     targetElement,
     'prepend',
   );
-  return instance;
+  targetElement.appendChild(instance.$el);
 }
 
-function handleDeleteSourceServices() {
-  const selectedSourceServicesIds = [];
-
-  tableModel.tableState.selectIndex.reduce((acc, selectIndex) => {
-    acc.push(tableModel.tableState.displayItems[selectIndex].id);
-    return acc;
-  }, selectedSourceServicesIds);
-
-  if (selectedSourceServicesIds.length) {
-    useBulkDeleteSourceGroup(selectedSourceServicesIds)
-      .then(res => {
-        handleRefreshTable();
-        showSuccessMessage('Success', 'Delete Success');
-      })
-      .catch(error => {
-        showErrorMessage('Error', error);
-      });
-  }
-}
-
-function getSourceServiceList() {
-  resSourceServiceList
-    .execute()
-    .then(res => {
-      if (res.data.responseData) {
-        console.log(res.data.responseData);
-        sourceServicesStore.setService(res.data.responseData);
-      }
-    })
-    .catch(e => {
-      if (e.errorMsg.value) showErrorMessage('Error', e.errorMsg.value);
-    });
-}
-
-function handleSelectedIndex(index: number[]) {
-  const selectedData = tableModel.tableState.displayItems[index];
-  if (selectedData) {
-    emit('selectRow', selectedData.id);
-  } else {
-    emit('selectRow', '');
-  }
-}
+// TODO: temporary tablemodel data
+onMounted(() => {
+  // tableModel.tableState.fields = [];
+});
 
 function handleRefreshTable() {
   tableModel.initState();
-  emit('selectRow', '');
-  getSourceServiceList();
+  // tableModel.handleChange();
 }
 
-watch(
-  () => props.trigger,
-  nv => {
-    if (nv) {
-      handleRefreshTable();
-      emit('update:trigger');
-    }
-  },
-);
+function handleSelectedIndex(selectedIndex: number) {
+  const selectedData = tableModel.tableState.displayItems[selectedIndex];
+  if (selectedData) {
+    emit('select-row', selectedData.id);
+  } else {
+    emit('select-row', '');
+  }
+}
+
+watchEffect(() => {
+  // TODO: api 연결 후 수정
+  tableModel.tableState.items = models.value;
+});
 </script>
 
 <template>
@@ -137,10 +80,6 @@ watch(
       <template #container="{ height }">
         <p-toolbox-table
           ref="toolboxTable"
-          :loading="
-            tableModel.tableState.loading ||
-            resSourceServiceList.isLoading.value
-          "
           :items="tableModel.tableState.displayItems"
           :fields="tableModel.tableState.fields"
           :total-count="tableModel.tableState.tableCount"
@@ -160,17 +99,7 @@ watch(
           @select="handleSelectedIndex"
         >
           <template #toolbox-left>
-            <p-button
-              style-type="primary"
-              icon-left="ic_plus_bold"
-              @click="
-                () => {
-                  emit('update:addModalState', true);
-                  emit('update:title', 'add');
-                  emit('update:connection-title', 'add');
-                }
-              "
-            >
+            <p-button style-type="primary" icon-left="ic_plus_bold">
               Add
             </p-button>
           </template>
@@ -189,7 +118,6 @@ watch(
       @confirm="
         () => {
           modals.alertModalState.open = false;
-          handleDeleteSourceServices();
         }
       "
     />

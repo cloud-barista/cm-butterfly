@@ -5,6 +5,7 @@ export const MENU_ID = Object.freeze({
   SOURCE_COMPUTING: 'sourceComputing',
   SOURCE_SERVICES: 'sourceServices',
   SOURCE_CONNECTIONS: 'sourceConnections',
+  MODELS: 'models',
   SOURCE_MODELS: 'sourceModels',
   TARGET_MODELS: 'targetModels',
   WORKFLOWS: 'workflows',
@@ -12,7 +13,7 @@ export const MENU_ID = Object.freeze({
   TASK_COMPONENTS: 'taskComponents',
 });
 
-export type MenuId = (typeof MENU_ID)[keyof typeof MENU_ID];
+// export type MenuId = (typeof MENU_ID)[keyof typeof MENU_ID];
 
 export interface IMenu {
   id: string;
@@ -20,6 +21,6 @@ export interface IMenu {
 }
 export interface MigratorMenu {
   category: IMenu;
-  menu: IMenu;
+  menu: IMenu[];
   submenus?: any[];
 }

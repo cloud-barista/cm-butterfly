@@ -16,4 +16,20 @@ export const MIGRATOR_MENU_LIST: MigratorMenu[] = [
       },
     ],
   },
+  {
+    category: {
+      id: MENU_ID.MODELS,
+      name: 'Models',
+    },
+    menu: [
+      {
+        id: MENU_ID.SOURCE_MODELS,
+        name: 'Source Models',
+      },
+      {
+        id: MENU_ID.TARGET_MODELS,
+        name: 'Target Models',
+      },
+    ],
+  },
 ];

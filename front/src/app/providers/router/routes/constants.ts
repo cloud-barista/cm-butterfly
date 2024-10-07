@@ -15,3 +15,13 @@ export const SOURCE_COMPUTING_ROUTE = {
     },
   },
 };
+
+export const MODEL_ROUTE = {
+  _NAME: MENU_ID.MODELS,
+  SOURCE_MODELS: {
+    _NAME: MENU_ID.SOURCE_MODELS,
+  },
+  TARGET_MODELS: {
+    _NAME: MENU_ID.TARGET_MODELS,
+  },
+};

@@ -39,7 +39,7 @@ const selectedMenuId = computed(() => {
         class="service-menu"
         :to="{ name: n.id }"
         :class="{
-          'is-selected': selectedMenuId === m.category.id,
+          'is-selected': selectedMenuId === n.id,
         }"
       >
         <!-- 'is-only-label': menu?.isAction === 'true', -->
