@@ -43,7 +43,7 @@ api/conf/serverinfo
 # front
 
 ## env
-front/.env*
+front/.env
 
 ## Logs
 front/logs
@@ -80,3 +80,6 @@ bin/.env
 
 
 # scripts
+
+#intellij
+.idea
