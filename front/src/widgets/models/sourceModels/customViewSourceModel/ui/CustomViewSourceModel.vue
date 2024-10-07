@@ -3,13 +3,21 @@ import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { JsonEditor } from '@/features/sourceServices';
 import { i18n } from '@/app/i18n';
+
+const emit = defineEmits(['update:custom-view-json-modal'])
+
+function handleModal() {
+  emit('update:custom-view-json-modal', false)
+}
 </script>
 
 <template>
   <create-form
     class="page-modal-layout"
     title="Custom & View Source Model"
-    subtitle="JSON Viewer"
+    subtitle=""
+    firstTitle="JSON Viewer"
+    @update:modal-state="handleModal"
   >
     <template #add-info>
       <json-editor :form-data="''" title="Source Model" :read-only="false" />

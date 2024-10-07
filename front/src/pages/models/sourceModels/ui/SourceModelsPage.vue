@@ -26,6 +26,10 @@ const mainTabState = reactive({
 const modalState = reactive({
   customViewJsonModal: { open: true, trigger: false },
 });
+
+function handleJsonModal(value: boolean) {
+  modalState.customViewJsonModal.open = value;
+}
 </script>
 
 <template>
@@ -61,7 +65,7 @@ const modalState = reactive({
       <!-- TODO: small modal -->
     </div>
     <div class="relative z-70">
-      <custom-view-source-model v-if="modalState.customViewJsonModal.open" />
+      <custom-view-source-model v-if="modalState.customViewJsonModal.open" @update:custom-view-json-modal="handleJsonModal" />
     </div>
   </div>
 </template>
