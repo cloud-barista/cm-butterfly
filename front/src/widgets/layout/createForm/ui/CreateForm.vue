@@ -30,6 +30,8 @@ const handleAddSourceConnection = () => {
   emit('addSourceConnection', true);
 };
 
+console.log('sajfasklfj;as')
+
 // TODO: change api response
 
 const isServiceModalOpened = ref<boolean>(true);
