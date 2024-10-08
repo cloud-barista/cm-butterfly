@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 html:lang(ko), body:lang(ko) {
     font-family: Noto Sans, Roboto, Noto Sans KR, sans-serif;
 }
@@ -26,10 +27,11 @@ pre {
     height: 100%;
     width: 100%;
 
-    header {
+    > header {
         display: flex;
         align-items: center;
         margin-bottom: 18px;
+
         p {
             @apply text-display-lg;
             font-weight: 700;
@@ -50,12 +52,12 @@ pre {
 }
 
 .page-modal-layout {
-  overflow-y: scroll;
-  position: fixed;
-  width: 100vw;
-  height: calc(100vh - $top-bar-height);
-  top: $top-bar-height;
-  left: 0;
-  z-index: 99;
-  background-color: $bg-color;
+    overflow-y: scroll;
+    position: fixed;
+    width: 100vw;
+    height: calc(100vh - $top-bar-height);
+    top: $top-bar-height;
+    left: 0;
+    z-index: 99;
+    background-color: $bg-color;
 }
