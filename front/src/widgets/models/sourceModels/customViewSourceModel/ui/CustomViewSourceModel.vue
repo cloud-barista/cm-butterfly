@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PButton } from '@cloudforet-test/mirinae';
+import { PButton, PIconModal } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { JsonEditor } from '@/features/sourceServices';
 import { i18n } from '@/app/i18n';
@@ -57,6 +57,12 @@ function handleSave() {
       name-placeholder="Model Name"
       @update:save-modal="handleModal"
       @update:close-modal="targetModalState = false"
+    />
+    <p-icon-modal
+      size="sm"
+      :visible="true"
+      icon-name="ic_done"
+      header-title="The Target Model was successfully saved."
     />
   </div>
 </template>
