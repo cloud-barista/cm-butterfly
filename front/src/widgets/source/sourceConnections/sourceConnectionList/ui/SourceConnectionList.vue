@@ -73,7 +73,9 @@ function getSourceConnectionList() {
       if (res.data.responseData) {
         sourceConnectionStore.setConnections(res.data.responseData);
 
-        const connectionIds = res.data.responseData.map(el => el.id);
+        const connectionIds = res.data.responseData.connection_info.map(
+          el => el.id,
+        );
         setTargetConnections(connectionIds);
       }
     })

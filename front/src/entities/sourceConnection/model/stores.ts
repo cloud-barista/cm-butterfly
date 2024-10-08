@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import {
   ISourceConnection,
+  ISourceConnectionInfo,
   ISourceConnectionResponse,
   ISourceInfraInfoResponse,
   ISourceSoftwareCollectResponse,
@@ -28,13 +29,13 @@ export const useSourceConnectionStore = defineStore(NAMESPACE, () => {
     return connections.value[connectId] || null;
   }
 
-  function setConnections(res: ISourceConnectionResponse[]) {
-    res.forEach(el => {
+  function setConnections(res: ISourceConnectionResponse) {
+    res.connection_info.forEach(el => {
       setConnection(el);
     });
   }
 
-  function setConnection(res: ISourceConnectionResponse) {
+  function setConnection(res: ISourceConnectionInfo) {
     const initAdditionalConnectionInfo = {
       collectSwStatus: '',
       collectSwDateTime: '',

@@ -1,4 +1,8 @@
 export interface ISourceConnectionResponse {
+  connection_info: Array<ISourceConnectionInfo>;
+}
+
+export interface ISourceConnectionInfo {
   description: string;
   failed_message: string;
   id: string;
@@ -42,7 +46,7 @@ export interface ISourceSoftwareCollect {
 }
 
 export interface ISourceConnection
-  extends ISourceConnectionResponse,
+  extends ISourceConnectionInfo,
     ISourceInfraInfo,
     ISourceSoftwareCollect {
   type: string;
