@@ -34,7 +34,7 @@ export function useGetSourceConnectionList(sourceGroupId: string | null) {
   };
 
   return useAxiosPost<
-    IAxiosResponse<ISourceConnectionResponse[]>,
+    IAxiosResponse<ISourceConnectionResponse>,
     Required<Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>>
   >(GET_SOURCE_CONNECTION_LIST, requestWrapper);
 }
