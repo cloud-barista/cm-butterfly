@@ -3,34 +3,62 @@ import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { JsonEditor } from '@/features/sourceServices';
 import { i18n } from '@/app/i18n';
+import { SimpleEditForm } from '@/widgets/layout';
 
-const emit = defineEmits(['update:custom-view-json-modal'])
+import { ref } from 'vue';
+
+const formData = {
+  os_version: 'Amazon Linux release 2 (Karoo)',
+  os: 'Amazon Linux 2',
+  email: 'glee@mz.co.kr',
+};
+
+const emit = defineEmits(['update:close-modal']);
+
+const targetModalState = ref<boolean>(false);
 
 function handleModal() {
-  emit('update:custom-view-json-modal', false)
+  emit('update:close-modal', false);
+}
+
+function handleSave() {
+  targetModalState.value = true;
 }
 </script>
 
 <template>
-  <create-form
-    class="page-modal-layout"
-    title="Custom & View Source Model"
-    subtitle=""
-    firstTitle="JSON Viewer"
-    @update:modal-state="handleModal"
-  >
-    <template #add-info>
-      <json-editor :form-data="''" title="Source Model" :read-only="false" />
-    </template>
-    <template #buttons>
-      <p-button style-type="tertiary">
-        {{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}
-      </p-button>
-      <p-button>
-        {{ i18n.t('COMPONENT.BUTTON_MODAL.SAVE') }}
-      </p-button>
-    </template>
-  </create-form>
+  <div>
+    <create-form
+      class="page-modal-layout"
+      title="Custom & View Source Model"
+      first-title="JSON Viewer"
+      @update:modal-state="handleModal"
+    >
+      <template #add-info>
+        <json-editor
+          :form-data="JSON.stringify(formData)"
+          title="Source Model"
+          :read-only="false"
+        />
+      </template>
+      <template #buttons>
+        <p-button style-type="tertiary" @click="handleModal">
+          {{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}
+        </p-button>
+        <p-button @click="handleSave">
+          {{ i18n.t('COMPONENT.BUTTON_MODAL.SAVE') }}
+        </p-button>
+      </template>
+    </create-form>
+    <simple-edit-form
+      v-if="targetModalState"
+      header-title="Save Target Model"
+      name-label="Model Name"
+      name-placeholder="Model Name"
+      @update:save-modal="handleModal"
+      @update:close-modal="targetModalState = false"
+    />
+  </div>
 </template>
 
 <style scoped lang="postcss"></style>

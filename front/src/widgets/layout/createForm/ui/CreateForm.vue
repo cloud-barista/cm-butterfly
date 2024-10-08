@@ -26,11 +26,13 @@ const emit = defineEmits([
   'update:is-service-modal-opened',
   'update:is-meta-viewer-opened',
   // TODO: 이 위로 모두 없애기
-  'update:modal-state'
+  'update:modal-state',
+  'on-click:button',
 ]);
 
 const handleAddSourceConnection = () => {
   emit('addSourceConnection', true);
+  // 이 위로 모두 없애기
 };
 
 // TODO: change api response
@@ -38,7 +40,7 @@ const handleAddSourceConnection = () => {
 const isServiceModalOpened = ref<boolean>(true);
 
 const handleGoBack = () => {
-  emit('deleteSourceConnection', true); 
+  emit('deleteSourceConnection', true);
   emit('update:is-connection-modal-opened', false);
   emit('update:is-service-modal-opened', isServiceModalOpened.value);
   emit('update:is-meta-viewer-opened', false);
@@ -48,7 +50,7 @@ const handleGoBack = () => {
   sourceConnectionStore.setWithSourceConnection(true);
 
   // 이 위로 모두 없애기
-  emit('update:modal-state')
+  emit('update:modal-state');
 };
 </script>
 
@@ -64,7 +66,12 @@ const handleGoBack = () => {
       />
       <p>{{ title }}</p>
     </div>
-    <widget-layout class="widget-layout" :title="subtitle" overflow="auto" :firstTitle="firstTitle">
+    <widget-layout
+      class="widget-layout"
+      overflow="visible"
+      :first-title="firstTitle"
+      :title="subtitle"
+    >
       <template #default>
         <p-button
           v-if="addButtonText"

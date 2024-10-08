@@ -2,13 +2,6 @@ import { defineStore } from 'pinia';
 import { formatDate } from '@/shared/utils';
 import type { ISourceModel } from './types';
 
-export interface iSourceModelStore {
-  models: any[];
-  setModels(val: any): void;
-  getModelById(id: string): any;
-  setModelStatus(modelId: string, status: any): void;
-}
-
 export const useSourceModelStore = defineStore('SOURCEMODEL', {
   state: () => ({
     models: [

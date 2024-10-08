@@ -5,7 +5,7 @@ import NotFound from '../../../pages/error/404/NotFound.vue';
 import { sourceComputingRoutes } from './routes/sourceComputing.ts';
 import { modelRoutes } from './routes/models.ts';
 import { MainLayout } from '../../Layouts';
-import { MenuId, useAuthenticationStore } from '../../../entities';
+import { useAuthenticationStore } from '../../../entities';
 import { Route } from 'vue-router';
 import { AUTH_ROUTE } from '../../../pages/auth/auth.route.ts';
 import { AuthorizationType } from '../../../shared/libs/store/auth';

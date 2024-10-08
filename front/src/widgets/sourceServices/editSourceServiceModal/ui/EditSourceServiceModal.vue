@@ -2,7 +2,6 @@
 import { i18n } from '@/app/i18n';
 import { PButtonModal } from '@cloudforet-test/mirinae';
 import { reactive, watchEffect } from 'vue';
-import { UpdateSourceService } from '@/features/sourceServices';
 import EditSourceService from '@/features/sourceServices/updateSourceService/ui/EditSourceService.vue';
 import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
 import { ISourceService } from '@/entities/sourceService/model/types';

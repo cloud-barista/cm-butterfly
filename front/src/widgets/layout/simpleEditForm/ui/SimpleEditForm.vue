@@ -1,28 +1,26 @@
 <script setup lang="ts">
-import { PButtonModal, PPaneLayout } from '@cloudforet-test/mirinae';
-import { SourceModelTextInput } from '@/features/sourceServices';
+import {
+  PButtonModal,
+  PPaneLayout,
+  PFieldGroup,
+  PTextInput,
+  PTextarea,
+} from '@cloudforet-test/mirinae';
 import { i18n } from '@/app/i18n';
-import { computed, ref, watch, watchEffect } from 'vue';
+import { ref, watchEffect } from 'vue';
 
 interface iProps {
   headerTitle: string;
   nameLabel: string;
+  namePlaceholder: string;
 }
 
 const props = defineProps<iProps>();
 
-const emit = defineEmits(['update:save-modal']);
+const emit = defineEmits(['update:save-modal', 'update:close-modal']);
 
 const name = ref<string>('');
 const description = ref<string>('');
-
-const handleName = (value: any) => {
-  name.value = value;
-};
-
-const handleDescription = (value: any) => {
-  description.value = value;
-};
 
 const isTextInputBlank = ref<boolean>(false);
 
@@ -43,16 +41,19 @@ watchEffect(
     size="md"
     :disabled="!isTextInputBlank"
     @confirm="emit('update:save-modal')"
-    @cancel="emit('update:save-modal')"
-    @close="emit('update:save-modal')"
+    @cancel="emit('update:close-modal')"
+    @close="emit('update:close-modal')"
   >
     <template #body>
       <p-pane-layout class="layout">
-        <source-model-text-input
-          :name-label="nameLabel"
-          @update:model-name="handleName"
-          @update:model-description="handleDescription"
-        />
+        <p-pane-layout class="text-input-layout">
+          <p-field-group :label="nameLabel" required>
+            <p-text-input v-model="name" :placeholder="namePlaceholder" />
+          </p-field-group>
+          <p-field-group label="Description">
+            <p-textarea v-model="description" />
+          </p-field-group>
+        </p-pane-layout>
       </p-pane-layout>
     </template>
     <template #close-button>
@@ -67,5 +68,11 @@ watchEffect(
 <style scoped lang="postcss">
 .layout {
   @apply rounded-[6px] p-[16px] bg-gray-100 border-none;
+}
+.text-input-layout {
+  @apply p-[0.75rem] border-none;
+  .p-text-input {
+    @apply w-full;
+  }
 }
 </style>

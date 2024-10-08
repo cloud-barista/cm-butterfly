@@ -9,6 +9,11 @@ interface iProps {
 
 const props = defineProps<iProps>();
 
+const emit = defineEmits([
+  'update:custom-view-json-modal',
+  'update:view-recommend-list-modal',
+]);
+
 const { sourceModelStore, setSourceModelId, initTable, tableModel } =
   useSourceModelDetailModel();
 
@@ -48,12 +53,18 @@ onBeforeMount(() => {
       :disable-copy="true"
     >
       <template #data-customAndViewJSON>
-        <p-button style-type="transparent">
+        <p-button
+          style-type="transparent"
+          @click="emit('update:custom-view-json-modal', true)"
+        >
           <p class="button-text">Custom & View Source Model</p>
         </p-button>
       </template>
       <template #data-recommendModel>
-        <p-button style-type="transparent">
+        <p-button
+          style-type="transparent"
+          @click="emit('update:view-recommend-list-modal', true)"
+        >
           <p class="button-text">View Recommended List</p>
         </p-button>
       </template>

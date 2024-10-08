@@ -55,6 +55,8 @@ const handleMetaViewer = () => {
     </create-form>
     <save-source-model-modal
       v-if="isSaveModal"
+      header-title="Save Source Model"
+      name-label="Source Service n"
       @update:save-modal="handleMetaViewer"
     />
   </div>

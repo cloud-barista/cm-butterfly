@@ -3,7 +3,9 @@ import { PTab, PButton } from '@cloudforet-test/mirinae';
 import { SourceModelList } from '@/widgets/models/sourceModels';
 import { SourceModelDetail } from '@/widgets/models/sourceModels';
 import { CustomViewSourceModel } from '@/widgets/models/sourceModels';
-import { reactive, ref, watch, watchEffect } from 'vue';
+import { RecommendedModel } from '@/widgets/models/sourceModels';
+import { reactive, ref } from 'vue';
+import { SimpleEditForm } from '@/widgets/layout';
 
 const pageName = 'Source Models';
 
@@ -24,7 +26,9 @@ const mainTabState = reactive({
 });
 
 const modalState = reactive({
-  customViewJsonModal: { open: true, trigger: false },
+  customViewJsonModal: { open: false, trigger: false },
+  editModelModal: { open: false, trigger: false },
+  viewRecommendedListModal: { open: false, trigger: false },
 });
 
 function handleJsonModal(value: boolean) {
@@ -50,22 +54,47 @@ function handleJsonModal(value: boolean) {
           <template #details>
             <div class="tab-section-header">
               <p>Source Model Information</p>
-              <p-button style-type="tertiary" icon-left="ic_edit">
+              <p-button
+                style-type="tertiary"
+                icon-left="ic_edit"
+                @click="modalState.editModelModal.open = true"
+              >
                 Edit
               </p-button>
             </div>
             <source-model-detail
               :selected-source-model-id="selectedSourceModelId"
+              @update:custom-view-json-modal="
+                e => (modalState.customViewJsonModal.open = e)
+              "
+              @update:view-recommend-list-modal="
+                e => (modalState.viewRecommendedListModal.open = e)
+              "
             />
           </template>
         </p-tab>
       </div>
     </section>
     <div class="relative z-60">
-      <!-- TODO: small modal -->
+      <simple-edit-form
+        v-if="modalState.editModelModal.open"
+        header-title="Edit Model"
+        name-label="Model Name"
+        :name-placeholder="'Model Name'"
+        @update:save-modal="modalState.editModelModal.open = false"
+      />
     </div>
     <div class="relative z-70">
-      <custom-view-source-model v-if="modalState.customViewJsonModal.open" @update:custom-view-json-modal="handleJsonModal" />
+      <custom-view-source-model
+        v-if="modalState.customViewJsonModal.open"
+        @update:close-modal="handleJsonModal"
+      />
+      <recommended-model
+        v-if="modalState.viewRecommendedListModal.open"
+        @update:close-modal="
+          e => (modalState.viewRecommendedListModal.open = e)
+        "
+      />
     </div>
   </div>
 </template>

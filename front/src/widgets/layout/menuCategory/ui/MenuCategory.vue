@@ -4,17 +4,45 @@ import { PI } from '@cloudforet-test/mirinae';
 import type { MigratorMenu } from '@/entities';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+import { computed, onMounted, ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router/composables';
+import { useGetMenuTree } from '@/entities/menu/api';
+import { IMigratorMenu, MENU_ID } from '@/entities';
+import { useMigratorMenuStore } from '@/entities/menu/model/stores';
+
+const migratorMenuStore = useMigratorMenuStore();
+const { migratorMenu } = storeToRefs(migratorMenuStore);
 
 const sidebar = useSidebar();
 const route = useRoute();
+const getMenuTree = useGetMenuTree();
 
 const { isMinimized, isCollapsed } = storeToRefs(sidebar);
 
 const props = defineProps<{
   displayedMenu: MigratorMenu[];
 }>();
+
+const displayMigratorMenu = ref<IMigratorMenu[] | null>(null);
+
+onMounted(async () => {
+  const { data } = await getMenuTree.execute();
+  if (
+    Array.isArray(data.responseData) &&
+    data.responseData.length > 0 &&
+    data.responseData[0].id === MENU_ID.MIGRATIONS
+  ) {
+    data.responseData[0].menus?.forEach((migratorMenu: IMigratorMenu) => {
+      migratorMenuStore.setMigratorMenu(migratorMenu);
+    });
+  }
+});
+
+watchEffect(() => {
+  if (displayMigratorMenu.value === null && migratorMenu.value.length === 5) {
+    displayMigratorMenu.value = migratorMenu.value;
+  }
+});
 
 const selectedMenuId = computed(() => {
   const reversedMatched = clone(route.matched).reverse();
@@ -28,7 +56,7 @@ const selectedMenuId = computed(() => {
 
 <template>
   <!-- displayedMenu.parentMenuId === '' && displayedMenu.isAction === 'false' -->
-  <div v-if="!isCollapsed">
+  <div v-if="!isCollapsed && displayMigratorMenu !== null">
     <div v-for="(m, idx) in displayedMenu" :key="idx" class="menu">
       <span v-if="!isMinimized" class="menu-category">{{
         m.category.name
@@ -45,7 +73,7 @@ const selectedMenuId = computed(() => {
         <!-- 'is-only-label': menu?.isAction === 'true', -->
         <div class="menu-wrapper">
           <p-i
-            name="ic_member"
+            name="ic_folder"
             class="menu-button"
             height="1.25rem"
             width="1.25rem"

@@ -49,11 +49,6 @@ function addDeleteIconAtTable() {
   targetElement.appendChild(instance.$el);
 }
 
-// TODO: temporary tablemodel data
-onMounted(() => {
-  // tableModel.tableState.fields = [];
-});
-
 function handleRefreshTable() {
   tableModel.initState();
   // tableModel.handleChange();
