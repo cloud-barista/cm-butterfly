@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
-import { useFlowChart } from '@/features/workflow/workflowTemplate/flowChart.ts';
 import { PButton } from '@cloudforet-test/mirinae';
+import { useFlowChartModel } from '@/features/workflow/workflowTemplate/flowChartModel.ts';
 
 let flowChart;
 const name = reactive({ _name: 'Vue 컴포넌트' });
@@ -12,8 +12,9 @@ const targetModel = ref({});
 onMounted(function () {
   let refs = this.$refs;
 
-  flowChart = useFlowChart(refs);
+  flowChart = useFlowChartModel(refs);
   flowChart.initDesigner();
+  flowChart.draw();
 });
 </script>
 
