@@ -2,7 +2,14 @@
 import { PButtonModal, PPaneLayout } from '@cloudforet-test/mirinae';
 import { SourceModelTextInput } from '@/features/sourceServices';
 import { i18n } from '@/app/i18n';
-import { computed, ref, watchEffect } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
+
+interface iProps {
+  headerTitle: string;
+  nameLabel: string;
+}
+
+const props = defineProps<iProps>();
 
 const emit = defineEmits(['update:save-modal']);
 
@@ -17,15 +24,24 @@ const handleDescription = (value: any) => {
   description.value = value;
 };
 
-const isTextInputBlank = computed(() => name.value === '');
+const isTextInputBlank = ref<boolean>(false);
+
+watchEffect(
+  () => {
+    name.value !== ''
+      ? (isTextInputBlank.value = true)
+      : (isTextInputBlank.value = false);
+  },
+  { flush: 'post' },
+);
 </script>
 
 <template>
   <p-button-modal
     :visible="true"
-    header-title="Save Source Model"
+    :header-title="props.headerTitle"
     size="md"
-    :disabled="isTextInputBlank"
+    :disabled="!isTextInputBlank"
     @confirm="emit('update:save-modal')"
     @cancel="emit('update:save-modal')"
     @close="emit('update:save-modal')"
@@ -33,6 +49,7 @@ const isTextInputBlank = computed(() => name.value === '');
     <template #body>
       <p-pane-layout class="layout">
         <source-model-text-input
+          :name-label="nameLabel"
           @update:model-name="handleName"
           @update:model-description="handleDescription"
         />

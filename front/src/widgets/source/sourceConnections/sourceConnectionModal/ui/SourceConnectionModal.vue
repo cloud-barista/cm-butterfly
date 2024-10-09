@@ -120,16 +120,3 @@ const handleAddSourceConnection = () => {
     </create-form>
   </div>
 </template>
-
-<style scoped lang="postcss">
-/* .page-modal-layout {
-  overflow-y: scroll;
-  position: fixed;
-  width: 100vw;
-  height: calc(100vh - $top-bar-height);
-  top: $top-bar-height;
-  left: 0;
-  z-index: 99;
-  background-color: $bg-color;
-} */
-</style>

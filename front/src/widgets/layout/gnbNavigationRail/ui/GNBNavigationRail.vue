@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { PTooltip, PI } from '@cloudforet-test/mirinae';
-import { reactive, ref } from 'vue';
+import { reactive } from 'vue';
 import { MenuCategory } from '@/widgets/layout';
-import { MigratorMenu } from '@/entities';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
-import { MIGRATOR_MENU_LIST } from '@/entities';
 
 const sidebar = useSidebar();
 
@@ -24,8 +22,6 @@ const clickMinimizeBtn = () => {
 const handleMouseEvent = (value: boolean) => {
   state.isHovered = value;
 };
-
-const migratorMenuList = ref<MigratorMenu[]>(MIGRATOR_MENU_LIST);
 </script>
 
 <template>
@@ -61,7 +57,7 @@ class="minimize-button-wrapper" position="bottom" /> -->
     </p-tooltip>
     <div class="navigation-rail-container">
       <div class="navigation-rail-wrapper">
-        <menu-category :displayed-menu="migratorMenuList" />
+        <menu-category />
       </div>
     </div>
   </div>

@@ -13,6 +13,7 @@ const { isCollapsed, isGnbToolboxShown, isMinimized } = storeToRefs(sidebar);
 
 interface Props {
   title: string;
+  firstTitle?: string;
   subtitle?: string;
   addButtonText?: string;
 }
@@ -24,10 +25,14 @@ const emit = defineEmits([
   'update:is-connection-modal-opened',
   'update:is-service-modal-opened',
   'update:is-meta-viewer-opened',
+  // TODO: 이 위로 모두 없애기
+  'update:modal-state',
+  'on-click:button',
 ]);
 
 const handleAddSourceConnection = () => {
   emit('addSourceConnection', true);
+  // 이 위로 모두 없애기
 };
 
 // TODO: change api response
@@ -35,7 +40,7 @@ const handleAddSourceConnection = () => {
 const isServiceModalOpened = ref<boolean>(true);
 
 const handleGoBack = () => {
-  emit('deleteSourceConnection', true); //TODO: true로 바꿔야함. 임시...
+  emit('deleteSourceConnection', true);
   emit('update:is-connection-modal-opened', false);
   emit('update:is-service-modal-opened', isServiceModalOpened.value);
   emit('update:is-meta-viewer-opened', false);
@@ -43,6 +48,9 @@ const handleGoBack = () => {
   isGnbToolboxShown.value = true;
   isMinimized.value = false;
   sourceConnectionStore.setWithSourceConnection(true);
+
+  // 이 위로 모두 없애기
+  emit('update:modal-state');
 };
 </script>
 
@@ -58,7 +66,12 @@ const handleGoBack = () => {
       />
       <p>{{ title }}</p>
     </div>
-    <widget-layout class="widget-layout" :title="subtitle" overflow="auto">
+    <widget-layout
+      class="widget-layout"
+      overflow="visible"
+      :first-title="firstTitle"
+      :title="subtitle"
+    >
       <template #default>
         <p-button
           v-if="addButtonText"

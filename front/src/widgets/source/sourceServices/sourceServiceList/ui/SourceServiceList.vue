@@ -96,6 +96,7 @@ function getSourceServiceList() {
     .execute()
     .then(res => {
       if (res.data.responseData) {
+        console.log(res.data.responseData);
         sourceServicesStore.setService(res.data.responseData);
       }
     })

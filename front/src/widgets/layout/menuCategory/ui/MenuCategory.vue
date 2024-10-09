@@ -2,19 +2,61 @@
 import { clone } from 'lodash';
 import { PI } from '@cloudforet-test/mirinae';
 import type { MigratorMenu } from '@/entities';
+import { IMigratorMenu, MENU_ID } from '@/entities';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+import { computed, onMounted, ref, watch, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router/composables';
+import { useGetMenuTree } from '@/entities/menu/api';
+import { useMigratorMenuStore } from '@/entities/menu/model/stores';
+
+const migratorMenuStore = useMigratorMenuStore();
+const { migratorMenu } = storeToRefs(migratorMenuStore);
 
 const sidebar = useSidebar();
 const route = useRoute();
+const getMenuTree = useGetMenuTree();
 
 const { isMinimized, isCollapsed } = storeToRefs(sidebar);
 
-const props = defineProps<{
-  displayedMenu: MigratorMenu[];
-}>();
+// const props = defineProps<{
+//   displayedMenu: MigratorMenu[];
+// }>();
+
+onBeforeUnmount(() => {
+  migratorMenu.value = [];
+});
+
+const isDataLoaded = ref<boolean>(false);
+const displayMigratorMenu = ref<MigratorMenu[] | null>(null);
+const loadedCnt = ref(0);
+
+async function fetchData() {
+  if (!isDataLoaded.value && loadedCnt.value < 1) {
+    isDataLoaded.value = true;
+    loadedCnt.value += 1;
+    const { data } = await getMenuTree.execute();
+    if (
+      Array.isArray(data.responseData) &&
+      data.responseData.length > 0 &&
+      data.responseData[0].id === MENU_ID.MIGRATIONS
+    ) {
+      data.responseData[0].menus?.forEach((migratorMenu: IMigratorMenu) => {
+        migratorMenuStore.setMigratorMenu(migratorMenu);
+      });
+    }
+
+    displayMigratorMenu.value = migratorMenu.value;
+  }
+}
+
+onMounted(async () => {
+  await fetchData();
+});
+
+watch(displayMigratorMenu, newTree => {
+  console.log(newTree);
+});
 
 const selectedMenuId = computed(() => {
   const reversedMatched = clone(route.matched).reverse();
@@ -29,7 +71,7 @@ const selectedMenuId = computed(() => {
 <template>
   <!-- displayedMenu.parentMenuId === '' && displayedMenu.isAction === 'false' -->
   <div v-if="!isCollapsed">
-    <div v-for="(m, idx) in displayedMenu" :key="idx" class="menu">
+    <div v-for="(m, idx) in displayMigratorMenu" :key="idx" class="menu">
       <span v-if="!isMinimized" class="menu-category">{{
         m.category.name
       }}</span>
@@ -39,13 +81,18 @@ const selectedMenuId = computed(() => {
         class="service-menu"
         :to="{ name: n.id }"
         :class="{
-          'is-selected': selectedMenuId === m.category.id,
+          'is-selected': selectedMenuId === n.id,
+          'is-disabled': !(
+            n.id === 'sourceservices' ||
+            n.id === 'sourcemodels' ||
+            n.id === 'targetmodels'
+          ),
         }"
       >
         <!-- 'is-only-label': menu?.isAction === 'true', -->
         <div class="menu-wrapper">
           <p-i
-            name="ic_member"
+            name="ic_folder"
             class="menu-button"
             height="1.25rem"
             width="1.25rem"
@@ -61,6 +108,10 @@ const selectedMenuId = computed(() => {
 </template>
 
 <style scoped lang="postcss">
+.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
 .menu {
   @apply mb-[1.7rem];
 }
