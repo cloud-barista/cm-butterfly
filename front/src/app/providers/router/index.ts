@@ -1,3 +1,4 @@
+import { tempRoutes } from './routes/temp';
 import VueRouter, { RouteConfig } from 'vue-router';
 import { ROOT_ROUTE } from './routes/constants';
 import authRoutes from '../../../pages/auth/auth.route.ts';
@@ -30,7 +31,7 @@ export class McmpRouter {
     {
       path: '/main',
       component: MainLayout,
-      children: [...sourceComputingRoutes, ...modelRoutes],
+      children: [...sourceComputingRoutes, ...modelRoutes, ...tempRoutes],
     },
     ...authRoutes,
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },

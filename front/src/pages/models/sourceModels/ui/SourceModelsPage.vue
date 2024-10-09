@@ -82,6 +82,7 @@ function handleJsonModal(value: boolean) {
         name-label="Model Name"
         :name-placeholder="'Model Name'"
         @update:save-modal="modalState.editModelModal.open = false"
+        @update:close-modal="modalState.editModelModal.open = false"
       />
     </div>
     <div class="relative z-70">

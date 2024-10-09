@@ -22,7 +22,7 @@ export const useMigratorMenuStore = defineStore('MIGRATOR_MENU', {
         menus[0].menu = [
           ...menus[0].menu,
           {
-            id: apiMenu,
+            id: apiMenu.id,
             name: apiMenu.displayname,
           },
         ];
