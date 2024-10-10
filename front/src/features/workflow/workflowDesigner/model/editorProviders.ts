@@ -1,6 +1,6 @@
 import { insertDynamicComponent } from '@/shared/utils';
-import TestCompo from '@/features/workflow/workflowTemplate/ui/TestCompo.vue';
-import { getSequencePath } from '@/features/workflow/workflowTemplate/ui/utils.ts';
+import TestCompo from '@/features/workflow/workflowDesigner/ui/TestCompo.vue';
+import { getSequencePath } from '@/features/workflow/workflowEditor/model/utils.ts';
 
 export function editorProviders() {
   const editor = document.createElement('div');

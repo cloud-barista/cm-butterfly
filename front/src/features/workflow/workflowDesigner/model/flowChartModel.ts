@@ -1,8 +1,8 @@
 import { Designer, DesignerConfiguration } from 'sequential-workflow-designer';
-import { Definition } from 'sequential-workflow-model';
+import { Definition, Step } from 'sequential-workflow-model';
 import getRandomId from '@/shared/utils/uuid';
-import { toolboxSteps } from '@/features/workflow/workflowTemplate/toolboxSteps.ts';
-import { editorProviders } from '@/features/workflow/workflowTemplate/editorProviders.ts';
+import { toolboxSteps } from '@/features/workflow/workflowDesigner/model/toolboxSteps.ts';
+import { editorProviders } from '@/features/workflow/workflowDesigner/model/editorProviders.ts';
 
 export function useFlowChartModel(refs: any) {
   let designer: any = null;
@@ -11,6 +11,7 @@ export function useFlowChartModel(refs: any) {
   const designerOptionsState = {
     id: '',
     name: '',
+    sequence: [],
     others: {
       theme: 'light',
       isReadonly: false, // optional, default: false
@@ -28,12 +29,12 @@ export function useFlowChartModel(refs: any) {
   let definition: Definition;
   let configuration: DesignerConfiguration<Definition>;
 
-  function defineDefaultDefinition(workflowName: string) {
+  function defineDefaultDefinition(workflowName: string, sequence: Step[]) {
     return {
       properties: {
         workflow: workflowName,
       },
-      sequence: setDefaultSequence([]),
+      sequence: setDefaultSequence(sequence),
     };
   }
 
@@ -133,7 +134,10 @@ export function useFlowChartModel(refs: any) {
     if (designer) {
       designer.destroy();
     }
-    definition = defineDefaultDefinition(designerOptionsState.name);
+    definition = defineDefaultDefinition(
+      designerOptionsState.name,
+      designerOptionsState.sequence,
+    );
     configuration = loadConfiguration();
   }
 

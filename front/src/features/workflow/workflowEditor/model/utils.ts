@@ -30,13 +30,13 @@ export function getSequencePath(
     if (step.branches) {
       if (step.branches.true) {
         step.branches.true.forEach((step: Step) => {
-          stepStack.push({ step, path: `${path}/[true]/${step.name}` });
+          stepStack.push({ step, path: `${path}/[true]${step.name}` });
         });
       }
 
       if (step.branches.false) {
         step.branches.false.forEach((step: Step) => {
-          stepStack.push({ step, path: `${path}/[false]/${step.name}` });
+          stepStack.push({ step, path: `${path}/[false]${step.name}` });
         });
       }
     }
