@@ -5,13 +5,13 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { useSourceModelListModel } from '../model/sourceModelListModel';
-import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
+import { useTargetModelListModel } from '../model/targetModelListModel';
 import { insertDynamicComponent } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
+import { onBeforeMount, onMounted, watchEffect, reactive } from 'vue';
 
-const { tableModel, initToolBoxTableModel, sourceModelStore, models } =
-  useSourceModelListModel();
+const { tableModel, initToolBoxTableModel, targetModelStore, targetModels } =
+  useTargetModelListModel();
 
 const emit = defineEmits(['select-row']);
 
@@ -50,7 +50,6 @@ function addDeleteIconAtTable() {
 
 function handleRefreshTable() {
   tableModel.initState();
-  // tableModel.handleChange();
 }
 
 function handleSelectedIndex(selectedIndex: number) {
@@ -64,7 +63,7 @@ function handleSelectedIndex(selectedIndex: number) {
 
 watchEffect(() => {
   // TODO: api 연결 후 수정
-  tableModel.tableState.items = models.value;
+  tableModel.tableState.items = targetModels.value;
 });
 </script>
 
@@ -100,21 +99,6 @@ watchEffect(() => {
         </p-toolbox-table>
       </template>
     </p-horizontal-layout>
-    <p-button-modal
-      v-model="modals.alertModalState.open"
-      :visible="modals.alertModalState.open"
-      size="sm"
-      backdrop
-      theme-color="alert"
-      header-title="Are you sure you want to delete it?"
-      :hide-body="true"
-      :hide-header-close-button="true"
-      @confirm="
-        () => {
-          modals.alertModalState.open = false;
-        }
-      "
-    />
   </div>
 </template>
 

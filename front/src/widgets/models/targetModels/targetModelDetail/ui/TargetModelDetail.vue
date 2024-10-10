@@ -1,35 +1,26 @@
 <script setup lang="ts">
 import { PDefinitionTable, PButton } from '@cloudforet-test/mirinae';
-import { useSourceModelDetailModel } from '@/widgets/models/sourceModels';
-import { onBeforeMount, ref, watch, watchEffect } from 'vue';
+import { useTargetModelDetailModel } from '@/widgets/models/targetModels/targetModelDetail';
+import { onBeforeMount, watch, watchEffect, ref } from 'vue';
 
 interface iProps {
-  selectedSourceModelId: string;
+  selectedTargetModelId: string;
 }
 
 const props = defineProps<iProps>();
 
 const emit = defineEmits([
   'update:custom-view-json-modal',
-  'update:view-recommend-list-modal',
-  'update:source-model-name',
+  'update:target-model-name',
 ]);
 
-const { sourceModelStore, setSourceModelId, initTable, tableModel } =
-  useSourceModelDetailModel();
-
-const sourceModelName = ref<string | undefined>('');
-
-watchEffect(() => {
-  sourceModelName.value = sourceModelStore.getModelById(
-    props.selectedSourceModelId,
-  )?.name;
-});
+const { targetModelStore, setTargetModelId, initTable, tableModel } =
+  useTargetModelDetailModel();
 
 watch(
   props,
   () => {
-    setSourceModelId(props.selectedSourceModelId);
+    setTargetModelId(props.selectedTargetModelId);
   },
   { immediate: true },
 );
@@ -38,9 +29,17 @@ onBeforeMount(() => {
   initTable();
 });
 
+const targetModelName = ref<string | undefined>('');
+
+watchEffect(() => {
+  targetModelName.value = targetModelStore.getTargetModelById(
+    props.selectedTargetModelId,
+  )?.name;
+});
+
 function handleJsonModal() {
   emit('update:custom-view-json-modal', true);
-  emit('update:source-model-name', sourceModelName.value);
+  emit('update:target-model-name', targetModelName.value);
 }
 </script>
 
@@ -58,14 +57,13 @@ function handleJsonModal() {
           <p class="link-button-text">Custom & View Source Model</p>
         </p-button>
       </template>
-      <template #data-recommendModel>
-        <p-button
-          style-type="transparent"
-          @click="emit('update:view-recommend-list-modal', true)"
-        >
-          <p class="link-button-text">View Recommended List</p>
+      <template #data-workflowTool>
+        <p-button style-type="transparent">
+          <p class="link-button-text">Make Workflow</p>
         </p-button>
       </template>
     </p-definition-table>
   </div>
 </template>
+
+<style scoped lang="postcss"></style>

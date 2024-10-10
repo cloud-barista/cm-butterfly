@@ -1,14 +1,14 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
-import type { ISourceModel } from '@/entities';
-import { useSourceModelStore, SourceModelTableType } from '@/entities';
-import { watch } from 'vue';
+import type { ITargetModel } from '@/entities';
+import { useTargetModelStore, TargetModelTableType } from '@/entities';
 import { storeToRefs } from 'pinia';
+import { watch } from 'vue';
 
-export function useSourceModelListModel() {
+export function useTargetModelListModel() {
   const tableModel =
-    useToolboxTableModel<Partial<Record<SourceModelTableType, any>>>();
-  const sourceModelStore = useSourceModelStore();
-  const { models } = storeToRefs(sourceModelStore);
+    useToolboxTableModel<Partial<Record<TargetModelTableType, any>>>();
+  const targetModelStore = useTargetModelStore();
+  const { targetModels } = storeToRefs(targetModelStore);
 
   function initToolBoxTableModel() {
     tableModel.tableState.fields = [
@@ -37,32 +37,32 @@ export function useSourceModelListModel() {
     ];
   }
 
-  function organizeSourceModelTableItem(sourceModel: ISourceModel) {
+  function organizeTargetModelTableItem(targetModel: ITargetModel) {
     const organizedDatum: Partial<
-      Record<SourceModelTableType | 'originalData', any>
+      Record<TargetModelTableType | 'originalData', any>
     > = {
-      name: sourceModel.name,
-      id: sourceModel.id,
-      description: sourceModel.description,
-      migrationType: sourceModel.migrationType,
-      custom: sourceModel.custom,
-      createdDateTime: sourceModel.createdDateTime,
-      updatedDateTime: sourceModel.updatedDateTime,
-      originalData: sourceModel,
+      name: targetModel.name,
+      id: targetModel.id,
+      description: targetModel.description,
+      migrationType: targetModel.migrationType,
+      custom: targetModel.custom,
+      createdDateTime: targetModel.createdDateTime,
+      updatedDateTime: targetModel.updatedDateTime,
+      originalData: targetModel,
     };
     return organizedDatum;
   }
 
-  watch(models, nv => {
+  watch(targetModels, nv => {
     tableModel.tableState.items = nv.map(value =>
-      organizeSourceModelTableItem(value),
+      organizeTargetModelTableItem(value),
     );
   });
 
   return {
     tableModel,
-    models,
+    targetModels,
     initToolBoxTableModel,
-    sourceModelStore,
+    targetModelStore,
   };
 }

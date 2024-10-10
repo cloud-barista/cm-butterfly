@@ -1,7 +1,6 @@
-import { useSourceModelStore } from '@/entities/models/model/stores';
+import { useSourceModelStore, SourceModelTableType } from '@/entities';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
-import { SourceModelTableType } from '@/entities/models/model/types';
 
 export function useSourceModelDetailModel() {
   const sourceModelStore = useSourceModelStore();

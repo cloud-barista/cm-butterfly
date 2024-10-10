@@ -34,6 +34,8 @@ const modalState = reactive({
 function handleJsonModal(value: boolean) {
   modalState.customViewJsonModal.open = value;
 }
+
+const sourceModelName = ref<string>('');
 </script>
 
 <template>
@@ -70,6 +72,7 @@ function handleJsonModal(value: boolean) {
               @update:view-recommend-list-modal="
                 e => (modalState.viewRecommendedListModal.open = e)
               "
+              @update:source-model-name="e => (sourceModelName = e)"
             />
           </template>
         </p-tab>
@@ -88,10 +91,12 @@ function handleJsonModal(value: boolean) {
     <div class="relative z-70">
       <custom-view-source-model
         v-if="modalState.customViewJsonModal.open"
+        :source-model-name="sourceModelName"
         @update:close-modal="handleJsonModal"
       />
       <recommended-model
         v-if="modalState.viewRecommendedListModal.open"
+        :source-model-name="sourceModelName"
         @update:close-modal="
           e => (modalState.viewRecommendedListModal.open = e)
         "
