@@ -54,17 +54,19 @@ function handleJsonModal() {
       :disable-copy="true"
     >
       <template #data-customAndViewJSON>
-        <p-button style-type="transparent" @click="handleJsonModal">
-          <p class="link-button-text">Custom & View Source Model</p>
-        </p-button>
+        <p class="link-button-text" @click="handleJsonModal">
+          Custom & View Source Model
+        </p>
+        <!-- <p-button style-type="transparent" @click="handleJsonModal">
+        </p-button> -->
       </template>
       <template #data-recommendModel>
-        <p-button
-          style-type="transparent"
+        <p
+          class="link-button-text"
           @click="emit('update:view-recommend-list-modal', true)"
         >
-          <p class="link-button-text">View Recommended List</p>
-        </p-button>
+          View Recommended List
+        </p>
       </template>
     </p-definition-table>
   </div>

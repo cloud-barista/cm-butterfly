@@ -13,7 +13,7 @@ const { isCollapsed, isGnbToolboxShown, isMinimized } = storeToRefs(sidebar);
 
 interface Props {
   title: string;
-  badgeTitle: string;
+  badgeTitle?: string;
   firstTitle?: string;
   subtitle?: string;
   addButtonText?: string;
@@ -67,6 +67,7 @@ const handleGoBack = () => {
       />
       <p class="page-title">{{ title }}</p>
       <p-badge
+        v-if="badgeTitle"
         class="badge"
         shape="square"
         style-type="primary1"

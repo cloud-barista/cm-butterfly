@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PDefinitionTable, PButton, PStatus } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, watch } from 'vue';
+import { onBeforeMount, onMounted, watch, watchEffect } from 'vue';
 import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
 import { useGetSourceGroupStatus } from '@/entities/sourceService/api';
 import {
@@ -17,6 +17,9 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
+
+const emit = defineEmits(['update:source-connection-name']);
+
 const {
   loadSourceServiceData,
   sourceServiceStore,
@@ -50,6 +53,13 @@ watch(
 
 onBeforeMount(() => {
   initTable();
+});
+
+watchEffect(() => {
+  emit(
+    'update:source-connection-name',
+    sourceServiceStore.getServiceById(props.selectedServiceId)?.name,
+  );
 });
 
 function handleSourceGroupStatusCheck() {

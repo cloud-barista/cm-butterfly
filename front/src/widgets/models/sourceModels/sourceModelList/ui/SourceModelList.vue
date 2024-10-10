@@ -93,7 +93,7 @@ watchEffect(() => {
           @select="handleSelectedIndex"
         >
           <template #toolbox-left>
-            <p-button style-type="primary" icon-left="ic_plus_bold">
+            <p-button style-type="primary" icon-left="ic_plus_bold" disabled>
               Add
             </p-button>
           </template>
