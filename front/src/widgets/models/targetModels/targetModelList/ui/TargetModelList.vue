@@ -99,6 +99,21 @@ watchEffect(() => {
         </p-toolbox-table>
       </template>
     </p-horizontal-layout>
+    <p-button-modal
+      v-model="modals.alertModalState.open"
+      :visible="modals.alertModalState.open"
+      size="sm"
+      backdrop
+      theme-color="alert"
+      header-title="Are you sure you want to delete it?"
+      :hide-body="true"
+      :hide-header-close-button="true"
+      @confirm="
+        () => {
+          modals.alertModalState.open = false;
+        }
+      "
+    />
   </div>
 </template>
 

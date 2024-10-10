@@ -1,16 +1,9 @@
 <script setup lang="ts">
 import { PDefinitionTable, PButton, PStatus } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, watch, watchEffect } from 'vue';
+import { onBeforeMount, watch, watchEffect } from 'vue';
 import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
 import { useGetSourceGroupStatus } from '@/entities/sourceService/api';
-import {
-  showErrorMessage,
-  showLoadingMessage,
-  showSuccessMessage,
-} from '@/shared/utils';
-import { get } from '@vueuse/core';
-import { SourceServiceStatus } from '@/entities/sourceService/model/types.ts';
-import { storeToRefs } from 'pinia';
+import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 
 interface IProps {
   selectedServiceId: string;

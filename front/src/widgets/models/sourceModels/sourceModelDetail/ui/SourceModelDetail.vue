@@ -51,9 +51,9 @@ function handleJsonModal() {
       :data="tableModel.tableState.data"
       :loading="tableModel.tableState.loading"
       :block="true"
-      :disable-copy="true"
     >
-      <template #data-customAndViewJSON>
+      <!-- :disable-copy="true" -->
+      <template #data-customAndViewJSON="{ data }">
         <p class="link-button-text" @click="handleJsonModal">
           Custom & View Source Model
         </p>

@@ -24,8 +24,12 @@ export function useTargetModelDetailModel() {
       { label: 'Model Type', name: 'modelType' },
       { label: 'Created Date Time', name: 'createdDateTime' },
       { label: 'Updated Date Time', name: 'updatedDateTime' },
-      { label: 'Custom & View JSON', name: 'customAndViewJSON' },
-      { label: 'Workflow Tool', name: 'workflowTool' },
+      {
+        label: 'Custom & View JSON',
+        name: 'customAndViewJSON',
+        disableCopy: true,
+      },
+      { label: 'Workflow Tool', name: 'workflowTool', disableCopy: true },
     ];
   }
 

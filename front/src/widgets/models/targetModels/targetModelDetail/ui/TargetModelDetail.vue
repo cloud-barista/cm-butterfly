@@ -50,17 +50,14 @@ function handleJsonModal() {
       :data="tableModel.tableState.data"
       :loading="tableModel.tableState.loading"
       :block="true"
-      :disable-copy="true"
     >
       <template #data-customAndViewJSON>
-        <p-button style-type="transparent" @click="handleJsonModal">
-          <p class="link-button-text">Custom & View Source Model</p>
-        </p-button>
+        <p class="link-button-text" @click="handleJsonModal">
+          Custom & View Source Model
+        </p>
       </template>
       <template #data-workflowTool>
-        <p-button style-type="transparent">
-          <p class="link-button-text">Make Workflow</p>
-        </p-button>
+        <p class="link-button-text">Make Workflow</p>
       </template>
     </p-definition-table>
   </div>

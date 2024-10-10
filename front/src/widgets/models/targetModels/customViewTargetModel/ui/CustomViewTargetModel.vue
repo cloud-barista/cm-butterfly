@@ -50,7 +50,12 @@ function handleModelName(value: string) {
         />
       </template>
       <template #buttons>
-        <p-button style-type="tertiary"> Cancel </p-button>
+        <p-button
+          style-type="tertiary"
+          @click="$emit('update:close-modal', false)"
+        >
+          Cancel
+        </p-button>
         <p-button @click="targetModalState = true"> Save </p-button>
       </template>
     </create-form>

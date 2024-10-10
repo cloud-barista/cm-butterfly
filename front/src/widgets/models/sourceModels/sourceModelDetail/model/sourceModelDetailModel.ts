@@ -24,8 +24,12 @@ export function useSourceModelDetailModel() {
       { label: 'Model Type', name: 'modelType' },
       { label: 'Created Date Time', name: 'createdDateTime' },
       { label: 'Updated Date Time', name: 'updatedDateTime' },
-      { label: 'Custom & View JSON', name: 'customAndViewJSON' },
-      { label: 'Recommend Model', name: 'recommendModel' },
+      {
+        label: 'Custom & View JSON',
+        name: 'customAndViewJSON',
+        disableCopy: true,
+      },
+      { label: 'Recommend Model', name: 'recommendModel', disableCopy: true },
     ];
   }
 
