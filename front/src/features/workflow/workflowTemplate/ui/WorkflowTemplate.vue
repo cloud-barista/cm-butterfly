@@ -50,6 +50,10 @@ onMounted(function () {
     }
     .sqd-smart-editor {
       width: 500px;
+      .sqd-editor {
+        width: 100%;
+        height: 100%;
+      }
     }
   }
 }

@@ -9,14 +9,17 @@ import Vue, {
 } from 'vue';
 import TestCompo from '@/features/workflow/workflowTemplate/ui/TestCompo.vue';
 import { insertDynamicComponent } from '@/shared/utils';
-import { Definition } from 'sequential-workflow-model';
+import { Definition, Step } from 'sequential-workflow-model';
 import Uuid from '@/shared/utils/uuid';
 import getRandomId from '@/shared/utils/uuid';
+import { toolboxSteps } from '@/features/workflow/workflowTemplate/toolboxSteps.ts';
+import { editorProviders } from '@/features/workflow/workflowTemplate/editorProviders.ts';
 
 export function useFlowChartModel(refs: any) {
   let designer: any = null;
 
   const placeholder = refs.placeholder;
+  const steps: Record<string, Step> = {};
   let test2Id = ref('');
   const designerOptionsState = {
     others: {
@@ -36,7 +39,7 @@ export function useFlowChartModel(refs: any) {
   let definition: Definition;
   let configuration: DesignerConfiguration<Definition>;
 
-  function getDefinition(workflowName: string) {
+  function defineDefaultDefinition(workflowName: string) {
     return {
       properties: {
         workflow: workflowName,
@@ -49,7 +52,7 @@ export function useFlowChartModel(refs: any) {
     return [...serverData];
   }
 
-  function getStepEvent() {
+  function defineStepEvent() {
     return {
       // all properties in this section are optional
       iconUrlProvider: (componentType, type) => {
@@ -84,7 +87,7 @@ export function useFlowChartModel(refs: any) {
     };
   }
 
-  function getStepValidate() {
+  function defineStepValidate() {
     return {
       // all validators are optional
 
@@ -97,88 +100,42 @@ export function useFlowChartModel(refs: any) {
     };
   }
 
-  function getEditorsSetting() {
-    return {
-      rootEditorProvider: function (definition, rootContext, isReadonly) {
-        const editor = document.createElement('div');
-        console.log(definition);
-        //instance, id와 value로 값저장 하는 방법도 있고 store에서 저장하는 방법도 있을듯
-        let e = insertDynamicComponent(
-          TestCompo,
-          { id: test2Id },
-          {
-            'button-click': () => {
-              console.log('event 발생');
-              // test2Id.id = '변경됨';
-              // e.$props.id = 'test!';
-              test2Id.value = 'asd';
-            },
-          },
-          editor,
-        );
-        return editor;
-      },
-      stepEditorProvider: function (step, stepContext, definition, isReadonly) {
-        const editor = document.createElement('div');
-        return editor;
-      },
-    };
-  }
-
-  function getToolboxGroups() {
+  function defineToolboxGroups() {
     return [
+      {
+        name: 'Tool',
+        steps: [toolboxSteps().defineIfStep(getRandomId(), [], [])],
+      },
       {
         name: 'Components',
         steps: [
-          {
-            componentType: 'container',
-            id: getRandomId(),
-            type: 'foreach',
-            name: 'Task Group',
-            properties: {
-              isDeletable: true,
-            },
-            sequence: [
-              //task
-            ],
-          },
-          {
-            componentType: 'task',
-            id: getRandomId(),
-            type: 'task',
-            name: 'bettle_task',
-            properties: {
-              isDeletable: true,
-            },
-            sequence: [
-              // 없어야함.
-            ],
-          },
+          toolboxSteps().defineTaskGroupStep(getRandomId()),
+          toolboxSteps().defineBettleTaskStep(getRandomId()),
         ],
       },
     ];
   }
 
-  function getConfiguration() {
+  function loadConfiguration() {
     return {
-      steps: getStepEvent(),
-      validator: getStepValidate(),
+      steps: defineStepEvent(),
+      validator: defineStepValidate(),
       toolbox: {
         isCollapsed: designerOptionsState.toolbox.isCollapsed,
-        groups: getToolboxGroups(),
+        groups: defineToolboxGroups(),
       },
 
       editors: {
         isCollapsed: designerOptionsState.editors.isCollapsed,
         rootEditorProvider: (definition, rootContext, isReadonly) => {
-          return getEditorsSetting().rootEditorProvider(
+          return editorProviders().defaultRootEditorProvider(
             definition,
             rootContext,
             isReadonly,
           );
         },
         stepEditorProvider: (step, stepContext, definition, isReadonly) => {
-          return getEditorsSetting().stepEditorProvider(
+          return editorProviders().defaultStepEditorProvider(
             step,
             stepContext,
             definition,
@@ -190,12 +147,12 @@ export function useFlowChartModel(refs: any) {
     };
   }
 
-  function initDesigner(readOnly: boolean = false) {
+  function initDesigner() {
     if (designer) {
       designer.destroy();
     }
-    definition = getDefinition('test');
-    configuration = getConfiguration();
+    definition = defineDefaultDefinition('test');
+    configuration = loadConfiguration();
   }
 
   function draw() {
