@@ -1,16 +1,5 @@
 import { Designer, DesignerConfiguration } from 'sequential-workflow-designer';
-import Vue, {
-  CreateElement,
-  h,
-  reactive,
-  ref,
-  RenderContext,
-  VNode,
-} from 'vue';
-import TestCompo from '@/features/workflow/workflowTemplate/ui/TestCompo.vue';
-import { insertDynamicComponent } from '@/shared/utils';
-import { Definition, Step } from 'sequential-workflow-model';
-import Uuid from '@/shared/utils/uuid';
+import { Definition } from 'sequential-workflow-model';
 import getRandomId from '@/shared/utils/uuid';
 import { toolboxSteps } from '@/features/workflow/workflowTemplate/toolboxSteps.ts';
 import { editorProviders } from '@/features/workflow/workflowTemplate/editorProviders.ts';
@@ -19,9 +8,9 @@ export function useFlowChartModel(refs: any) {
   let designer: any = null;
 
   const placeholder = refs.placeholder;
-  const steps: Record<string, Step> = {};
-  let test2Id = ref('');
   const designerOptionsState = {
+    id: '',
+    name: '',
     others: {
       theme: 'light',
       isReadonly: false, // optional, default: false
@@ -69,16 +58,9 @@ export function useFlowChartModel(refs: any) {
         return true;
       },
       canInsertStep: (step, targetSequence, targetIndex) => {
-        console.log('can insert@@@@@@');
-        console.log(step);
-        console.log(JSON.parse(JSON.stringify(targetSequence)));
-        console.log(targetIndex);
-        console.log('can insert#####');
         return true;
       },
       canMoveStep: (sourceSequence, step, targetSequence, targetIndex) => {
-        console.log(sourceSequence);
-        console.log(targetSequence);
         return !step.properties['isLocked'];
       },
       canDeleteStep: (step, parentSequence) => {
@@ -151,7 +133,7 @@ export function useFlowChartModel(refs: any) {
     if (designer) {
       designer.destroy();
     }
-    definition = defineDefaultDefinition('test');
+    definition = defineDefaultDefinition(designerOptionsState.name);
     configuration = loadConfiguration();
   }
 

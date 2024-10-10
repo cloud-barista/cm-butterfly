@@ -21,7 +21,7 @@ export function toolboxSteps() {
       return {
         componentType: 'container',
         id,
-        type: 'foreach',
+        type: 'MCI',
         name: 'Task Group',
         properties: {
           isDeletable: true,
@@ -35,7 +35,7 @@ export function toolboxSteps() {
       return {
         componentType: 'task',
         id,
-        type: 'task',
+        type: 'bettle_task',
         name: 'bettle_task',
         properties: {
           isDeletable: true,

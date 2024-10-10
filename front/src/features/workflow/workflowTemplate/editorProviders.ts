@@ -1,5 +1,6 @@
 import { insertDynamicComponent } from '@/shared/utils';
 import TestCompo from '@/features/workflow/workflowTemplate/ui/TestCompo.vue';
+import { getSequencePath } from '@/features/workflow/workflowTemplate/ui/utils.ts';
 
 export function editorProviders() {
   const editor = document.createElement('div');
@@ -23,35 +24,31 @@ export function editorProviders() {
       definition,
       isReadonly,
     ) {
-      if (step.componentType === 'container' && step.type === 'loop') {
+      console.log(step);
+      console.log(definition);
+      //각각에 만들어야할 Vue component 정의
+      if (step.componentType === 'switch' && step.type == 'if') {
       }
-
-      if (step.componentType === 'task' && step.type === 'task') {
+      if (step.componentType === 'container' && step.type == 'MCI') {
       }
-
-      if (step.componentType === 'task' && step.type === 'write') {
-      }
-
-      if (step.componentType === 'switch' && step.type === 'if') {
-      }
-
-      if (step.componentType === 'switch' && step.type === 'parallel') {
-      }
-
-      if (step.componentType === 'task' && step.type == 'InfraMigration') {
+      if (step.componentType === 'task' && step.type == 'bettle_task') {
+        insertDynamicComponent(
+          TestCompo,
+          { id: 'tst' },
+          {
+            'button-click': () => {
+              console.log('event 발생');
+            },
+          },
+          editor,
+        );
       }
       //instance, id와 value로 값저장 하는 방법도 있고 store에서 저장하는 방법도 있을듯
 
-      insertDynamicComponent(
-        TestCompo,
-        { id: 'tst' },
-        {
-          'button-click': () => {
-            console.log('event 발생');
-          },
-        },
-        editor,
-      );
+      const label = document.createElement('label');
+      label.innerText = getSequencePath(definition.sequence, step.id) ?? '';
+      editor.appendChild(label);
+
       return editor;
     },
   };
