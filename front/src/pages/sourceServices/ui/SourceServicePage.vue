@@ -121,6 +121,8 @@ const data = computed(() => {
   return sourceConnectionStore.getConnectionById(selectedConnectionId.value)
     ?.softwareData;
 });
+
+const sourceConnectionName = ref<string>('');
 </script>
 
 <template>
@@ -162,7 +164,10 @@ const data = computed(() => {
                 Edit
               </p-button>
             </div>
-            <SourceServiceDetail :selected-service-id="selectedServiceId" />
+            <SourceServiceDetail
+              :selected-service-id="selectedServiceId"
+              @update:source-connection-name="e => (sourceConnectionName = e)"
+            />
           </template>
           <template #connections>
             <div class="tab-section-header">
@@ -267,6 +272,7 @@ const data = computed(() => {
           sourceConnectionStore.getConnectionById(selectedConnectionId)
             ?.infraData
         "
+        :source-connection-name="sourceConnectionName"
         @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
       />
       <meta-viewer
@@ -275,6 +281,7 @@ const data = computed(() => {
           sourceConnectionStore.getConnectionById(selectedConnectionId)
             ?.softwareData
         "
+        :source-connection-name="sourceConnectionName"
         @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
       />
     </div>

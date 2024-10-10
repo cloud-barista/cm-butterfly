@@ -54,10 +54,6 @@ onMounted(async () => {
   await fetchData();
 });
 
-watch(displayMigratorMenu, newTree => {
-  console.log(newTree);
-});
-
 const selectedMenuId = computed(() => {
   const reversedMatched = clone(route.matched).reverse();
   const closestRoute = reversedMatched.find(r => {

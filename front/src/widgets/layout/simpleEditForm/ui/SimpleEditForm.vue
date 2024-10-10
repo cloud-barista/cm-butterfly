@@ -17,7 +17,11 @@ interface iProps {
 
 const props = defineProps<iProps>();
 
-const emit = defineEmits(['update:save-modal', 'update:close-modal']);
+const emit = defineEmits([
+  'update:save-modal',
+  'update:close-modal',
+  'update:name-value',
+]);
 
 const name = ref<string>('');
 const description = ref<string>('');
@@ -32,6 +36,11 @@ watchEffect(
   },
   { flush: 'post' },
 );
+
+function handleConfirm() {
+  emit('update:save-modal');
+  emit('update:name-value', name.value);
+}
 </script>
 
 <template>
@@ -40,7 +49,7 @@ watchEffect(
     :header-title="props.headerTitle"
     size="md"
     :disabled="!isTextInputBlank"
-    @confirm="emit('update:save-modal')"
+    @confirm="handleConfirm"
     @cancel="emit('update:close-modal')"
     @close="emit('update:close-modal')"
   >

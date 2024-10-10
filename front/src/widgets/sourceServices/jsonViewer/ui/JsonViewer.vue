@@ -2,7 +2,7 @@
 import { i18n } from '@/app/i18n';
 import { JsonEditor } from '@/features/sourceServices';
 import { PI } from '@cloudforet-test/mirinae';
-import { reactive, ref } from 'vue';
+import { ref } from 'vue';
 
 interface iProps {
   formData: string | undefined;
@@ -12,7 +12,6 @@ const props = defineProps<iProps>();
 const emit = defineEmits(['update:is-converted']);
 
 const convertedJson = ref<string | undefined>('');
-const isConverted = ref(false);
 
 const handleConvertJson = () => {
   // TODO: convert button action 미정
@@ -42,7 +41,6 @@ const handleConvertJson = () => {
 <style scoped lang="postcss">
 .json-viewer-layout {
   @apply flex justify-center;
-  min-width: 480px;
   .convert-btn {
     @apply flex justify-center items-center rounded-[4px] text-[#fff] bg-violet-400;
     font-size: 14px;

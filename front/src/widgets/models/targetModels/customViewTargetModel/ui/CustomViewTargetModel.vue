@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
-import { JsonEditor } from '@/features/sourceServices';
-import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
+import { JsonEditor } from '@/features/sourceServices';
 import { ref } from 'vue';
 
 const formData = {
@@ -11,29 +10,22 @@ const formData = {
   os: 'Amazon Linux 2',
   email: 'glee@mz.co.kr',
 };
+
 const modelName = ref<string>('');
 
 interface iProps {
-  sourceModelName: string;
+  targetModelName: string;
 }
 
 const props = defineProps<iProps>();
 
 const emit = defineEmits(['update:close-modal']);
 
-const modalState = ref<boolean>(false);
+const targetModalState = ref<boolean>(false);
 
 function handleModal() {
   emit('update:close-modal', false);
-}
-
-function handleSave() {
-  modalState.value = true;
-}
-
-function handleSaveModal() {
-  emit('update:close-modal', false);
-  modalState.value = false;
+  targetModalState.value = false;
 }
 
 function handleModelName(value: string) {
@@ -45,34 +37,35 @@ function handleModelName(value: string) {
   <div>
     <create-form
       class="page-modal-layout"
-      :badge-title="sourceModelName"
-      title="Custom & View Source Model"
+      :badge-title="targetModelName"
+      title="Custom & View Target Model"
       first-title="JSON Viewer"
       @update:modal-state="handleModal"
     >
       <template #add-info>
         <json-editor
-          :form-data="JSON.stringify(formData)"
-          title="Source Model"
+          :form-data="JSON.stringify(formData, null, 2)"
+          title="Target Model"
           :read-only="false"
         />
       </template>
       <template #buttons>
-        <p-button style-type="tertiary" @click="handleModal">
-          {{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}
+        <p-button
+          style-type="tertiary"
+          @click="$emit('update:close-modal', false)"
+        >
+          Cancel
         </p-button>
-        <p-button @click="handleSave">
-          {{ i18n.t('COMPONENT.BUTTON_MODAL.SAVE') }}
-        </p-button>
+        <p-button @click="targetModalState = true"> Save </p-button>
       </template>
     </create-form>
     <simple-edit-form
-      v-if="modalState"
+      v-if="targetModalState"
       header-title="Save Target Model"
-      name-label="Model Name"
-      name-placeholder="Model Name"
-      @update:save-modal="handleSaveModal"
-      @update:close-modal="modalState = false"
+      name-label="Name"
+      name-placeholder="Target Model Name"
+      @update:save-modal="handleModal"
+      @update:close-modal="targetModalState = false"
       @update:name-value="handleModelName"
     />
   </div>

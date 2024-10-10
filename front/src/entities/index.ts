@@ -6,3 +6,5 @@ export * from './menu';
 export * from './cloudResources/model/types';
 export * from './cloudResources/model';
 export * from './cloudResources/api';
+export * from './sourceModels';
+export * from './targetModels';

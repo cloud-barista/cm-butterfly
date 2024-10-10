@@ -129,9 +129,6 @@ watchEffect(() => {
       </div>
     </p-pane-layout>
     <!-- <p-icon-button name="ic_close" /> -->
-    <button @click="handleDelete">
-      <p-i name="ic_close" />
-    </button>
   </div>
 </template>
 

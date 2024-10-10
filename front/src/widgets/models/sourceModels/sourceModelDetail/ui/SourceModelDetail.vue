@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PDefinitionTable, PButton } from '@cloudforet-test/mirinae';
 import { useSourceModelDetailModel } from '@/widgets/models/sourceModels';
-import { onBeforeMount, onMounted, ref, watch, watchEffect } from 'vue';
+import { onBeforeMount, ref, watch, watchEffect } from 'vue';
 
 interface iProps {
   selectedSourceModelId: string;
@@ -12,10 +12,19 @@ const props = defineProps<iProps>();
 const emit = defineEmits([
   'update:custom-view-json-modal',
   'update:view-recommend-list-modal',
+  'update:source-model-name',
 ]);
 
 const { sourceModelStore, setSourceModelId, initTable, tableModel } =
   useSourceModelDetailModel();
+
+const sourceModelName = ref<string | undefined>('');
+
+watchEffect(() => {
+  sourceModelName.value = sourceModelStore.getModelById(
+    props.selectedSourceModelId,
+  )?.name;
+});
 
 watch(
   props,
@@ -29,18 +38,10 @@ onBeforeMount(() => {
   initTable();
 });
 
-// const isColCopyAble = ref<boolean[]>([]);
-
-// watchEffect(() => {
-//   tableModel.tableState.fields.forEach(field => {
-//     field.name === 'createdDateTime' ||
-//     field.name === 'updatedDateTime' ||
-//     field.name === 'customAndViewJSON' ||
-//     field.name === 'recommendModel'
-//       ? isColCopyAble.value.push(false)
-//       : isColCopyAble.value.push(true);
-//   });
-// });
+function handleJsonModal() {
+  emit('update:custom-view-json-modal', true);
+  emit('update:source-model-name', sourceModelName.value);
+}
 </script>
 
 <template>
@@ -50,32 +51,23 @@ onBeforeMount(() => {
       :data="tableModel.tableState.data"
       :loading="tableModel.tableState.loading"
       :block="true"
-      :disable-copy="true"
     >
-      <template #data-customAndViewJSON>
-        <p-button
-          style-type="transparent"
-          @click="emit('update:custom-view-json-modal', true)"
-        >
-          <p class="button-text">Custom & View Source Model</p>
-        </p-button>
+      <!-- :disable-copy="true" -->
+      <template #data-customAndViewJSON="{ data }">
+        <p class="link-button-text" @click="handleJsonModal">
+          Custom & View Source Model
+        </p>
+        <!-- <p-button style-type="transparent" @click="handleJsonModal">
+        </p-button> -->
       </template>
       <template #data-recommendModel>
-        <p-button
-          style-type="transparent"
+        <p
+          class="link-button-text"
           @click="emit('update:view-recommend-list-modal', true)"
         >
-          <p class="button-text">View Recommended List</p>
-        </p-button>
+          View Recommended List
+        </p>
       </template>
     </p-definition-table>
   </div>
 </template>
-
-<style scoped lang="postcss">
-.button-text {
-  @apply text-sm text-blue-700;
-  font-weight: 400;
-  margin: unset;
-}
-</style>

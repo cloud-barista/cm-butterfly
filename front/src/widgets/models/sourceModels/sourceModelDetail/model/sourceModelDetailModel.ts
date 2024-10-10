@@ -1,7 +1,6 @@
-import { useSourceModelStore } from '@/entities/models/model/stores';
+import { useSourceModelStore, SourceModelTableType } from '@/entities';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
-import { SourceModelTableType } from '@/entities/models/model/types';
 
 export function useSourceModelDetailModel() {
   const sourceModelStore = useSourceModelStore();
@@ -25,8 +24,12 @@ export function useSourceModelDetailModel() {
       { label: 'Model Type', name: 'modelType' },
       { label: 'Created Date Time', name: 'createdDateTime' },
       { label: 'Updated Date Time', name: 'updatedDateTime' },
-      { label: 'Custom & View JSON', name: 'customAndViewJSON' },
-      { label: 'Recommend Model', name: 'recommendModel' },
+      {
+        label: 'Custom & View JSON',
+        name: 'customAndViewJSON',
+        disableCopy: true,
+      },
+      { label: 'Recommend Model', name: 'recommendModel', disableCopy: true },
     ];
   }
 
