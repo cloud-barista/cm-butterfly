@@ -5,10 +5,10 @@ import { toolboxSteps } from '@/features/workflow/workflowDesigner/model/toolbox
 import { editorProviders } from '@/features/workflow/workflowDesigner/model/editorProviders.ts';
 
 export function useFlowChartModel(refs: any) {
-  let designer: any = null;
+  let designer: Designer | null = null;
 
   const placeholder = refs.placeholder;
-  const designerOptionsState = {
+  const designerOptionsState: any = {
     id: '',
     name: '',
     sequence: [],
@@ -149,5 +149,5 @@ export function useFlowChartModel(refs: any) {
     });
   }
 
-  return { designerOptionsState, initDesigner, draw };
+  return { designer, designerOptionsState, initDesigner, draw };
 }
