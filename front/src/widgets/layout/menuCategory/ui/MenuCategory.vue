@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { clone } from 'lodash';
 import { PI } from '@cloudforet-test/mirinae';
-import type { MigratorMenu } from '@/entities';
 import { IMigratorMenu, MENU_ID } from '@/entities';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
-import { computed, onMounted, ref, onBeforeUnmount, watchEffect } from 'vue';
+import { computed, onMounted, ref, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router/composables';
 import { useGetMenuTree } from '@/entities/menu/api';
 import { useMigratorMenuStore } from '@/entities/menu/model/stores';
@@ -17,19 +16,40 @@ const sidebar = useSidebar();
 const route = useRoute();
 const getMenuTree = useGetMenuTree();
 
-const { isMinimized, isCollapsed } = storeToRefs(sidebar);
+const { isMinimized, isCollapsed, isHovered } = storeToRefs(sidebar);
 
-// const props = defineProps<{
-//   displayedMenu: MigratorMenu[];
-// }>();
+const isDataLoaded = ref<boolean>(false);
+const loadedCnt = ref(0);
+
+const selectedMenuId = computed(() => {
+  const reversedMatched = clone(route.matched).reverse();
+  const closestRoute = reversedMatched.find(r => {
+    return r.name !== undefined;
+  });
+  const targetMenuId: string | any = closestRoute?.meta.menuId;
+  return targetMenuId;
+});
 
 onBeforeUnmount(() => {
   migratorMenu.value = [];
 });
 
-const isDataLoaded = ref<boolean>(false);
-const displayMigratorMenu = ref<MigratorMenu[] | null>(null);
-const loadedCnt = ref(0);
+onMounted(async () => {
+  await fetchMenuTree();
+});
+
+onMounted(() => {
+  document
+    .querySelector('.g-n-b-navigation-rail')
+    ?.addEventListener('mouseover', () => {
+      sidebar.toggleHover(true);
+    });
+  document
+    .querySelector('.g-n-b-navigation-rail')
+    ?.addEventListener('mouseleave', () => {
+      sidebar.toggleHover(false);
+    });
+});
 
 async function fetchMenuTree() {
   if (!isDataLoaded.value && loadedCnt.value < 1) {
@@ -45,32 +65,19 @@ async function fetchMenuTree() {
         migratorMenuStore.setMigratorMenu(migratorMenu);
       });
     }
-
-    displayMigratorMenu.value = migratorMenu.value;
   }
 }
-
-onMounted(async () => {
-  await fetchMenuTree();
-});
-
-const selectedMenuId = computed(() => {
-  const reversedMatched = clone(route.matched).reverse();
-  const closestRoute = reversedMatched.find(r => {
-    return r.name !== undefined;
-  });
-  const targetMenuId: string | any = closestRoute?.meta.menuId;
-  return targetMenuId;
-});
 </script>
 
 <template>
-  <!-- displayedMenu.parentMenuId === '' && displayedMenu.isAction === 'false' -->
   <div v-if="!isCollapsed">
-    <div v-for="(m, idx) in displayMigratorMenu" :key="idx" class="menu">
-      <span v-if="!isMinimized" class="menu-category">{{
-        m.category.name
-      }}</span>
+    <div v-for="(m, idx) in migratorMenu" :key="idx" class="menu">
+      <span
+        v-if="!isMinimized || (isMinimized && isHovered)"
+        class="menu-category"
+      >
+        {{ m.category.name }}
+      </span>
       <router-link
         v-for="(n, i) in m.menu"
         :key="i"
@@ -85,7 +92,6 @@ const selectedMenuId = computed(() => {
           ),
         }"
       >
-        <!-- 'is-only-label': menu?.isAction === 'true', -->
         <div class="menu-wrapper">
           <p-i
             name="ic_folder"
@@ -94,7 +100,10 @@ const selectedMenuId = computed(() => {
             width="1.25rem"
             color="inherit"
           />
-          <div v-if="!isMinimized" class="menu-container">
+          <div
+            v-if="!isMinimized || (isMinimized && isHovered)"
+            class="menu-container"
+          >
             <span class="menu-title">{{ n.name }}</span>
           </div>
         </div>
@@ -158,7 +167,6 @@ const selectedMenuId = computed(() => {
       content: '';
       top: 0.125rem;
       left: -0.75rem;
-      /* width: 0.25rem; */
       width: fit-content;
       height: 1.75rem;
       border-top-right-radius: 0.25rem;

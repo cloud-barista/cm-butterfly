@@ -3,7 +3,7 @@ import { JsonViewer } from '@/widgets/sourceServices';
 import CreateForm from '@/widgets/layout/createForm/ui/CreateForm.vue';
 import { PButton } from '@cloudforet-test/mirinae';
 import { i18n } from '@/app/i18n';
-import { SaveSourceModelModal } from '@/widgets/sourceServices';
+import { SimpleEditForm } from '@/widgets/layout';
 import { ref } from 'vue';
 
 interface iProps {
@@ -55,11 +55,19 @@ const handleMetaViewer = () => {
         </p-button>
       </template>
     </create-form>
-    <save-source-model-modal
+    <simple-edit-form
+      v-if="isSaveModal"
+      header-title="Save Source Modal"
+      name-label="Name"
+      name-placeholder="Source Service name"
+      @update:close-modal="isSaveModal = false"
+      @update:save-modal="handleMetaViewer"
+    />
+    <!-- <save-source-model-modal
       v-if="isSaveModal"
       header-title="Save Source Model"
       name-label="Source Service name"
       @update:save-modal="handleMetaViewer"
-    />
+    /> -->
   </div>
 </template>

@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { PToolboxTable } from '@cloudforet-test/mirinae';
 import { useRecommendedModelModel } from '@/widgets/models/sourceModels/recommendedModel/model/recommendedModelModel';
-import { onBeforeMount, reactive, ref, watchEffect } from 'vue';
+import { onBeforeMount, ref, watchEffect } from 'vue';
+import { IRecommendedModel } from '@/entities/recommendedModel/model/types';
+
+interface iProps {
+  recommendedModelList: IRecommendedModel[];
+}
+
+const props = defineProps<iProps>();
 
 const emit = defineEmits(['select-row']);
 
@@ -33,7 +40,7 @@ function handleSelectedIndex(selectedIndex: number) {
 
 // TODO: api 연결 후 수정
 watchEffect(() => {
-  tableModel.tableState.items = recommendedModels.value;
+  tableModel.tableState.items = props.recommendedModelList;
 });
 </script>
 

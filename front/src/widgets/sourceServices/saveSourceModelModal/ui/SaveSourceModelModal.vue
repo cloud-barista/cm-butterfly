@@ -2,7 +2,7 @@
 import { PButtonModal, PPaneLayout } from '@cloudforet-test/mirinae';
 import { SourceModelTextInput } from '@/features/sourceServices';
 import { i18n } from '@/app/i18n';
-import { computed, ref, watch, watchEffect } from 'vue';
+import { ref, watchEffect } from 'vue';
 
 interface iProps {
   headerTitle: string;

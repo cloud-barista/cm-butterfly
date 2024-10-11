@@ -3,11 +3,17 @@ import { PButton, PIconModal } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { RecommendedModelList } from '@/pages/models';
 import { TargetModelNameSave } from '@/features/models';
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
+import { IRecommendedModel } from '@/entities/recommendedModel/model/types';
+import { useTargetModelStore } from '@/entities';
+import { dateType } from '@/entities';
+
+const targetModelStore = useTargetModelStore();
 
 interface iProps {
   sourceModelName: string;
+  recommendedModelList: IRecommendedModel[];
 }
 
 const props = defineProps<iProps>();
@@ -16,6 +22,7 @@ const emit = defineEmits(['update:close-modal']);
 
 const selectedRecommendedModelId = ref<string>('');
 const modelName = ref<string>('');
+const description = ref<string>('');
 
 const modalState = reactive({
   targetModal: false,
@@ -32,9 +39,10 @@ function handleModal() {
   modalState.checkModal = true;
 }
 
-function handleSaveModal() {
+function handleConfirm() {
   modalState.targetModal = false;
-  modalState.checkModal = true;
+  modalState.checkModal = false;
+  emit('update:close-modal', false);
 }
 
 function handleSave() {
@@ -42,15 +50,25 @@ function handleSave() {
   modalState.checkModal = true;
 }
 
-function handleConfirm() {
-  modalState.targetModal = false;
-  modalState.checkModal = false;
-  emit('update:close-modal', false);
-}
-
-function handleModelName(value: string) {
-  modelName.value = value;
-}
+watch(
+  [modelName, description],
+  nv => {
+    if (nv[0] !== '')
+      targetModelStore.setTargetModel({
+        name: nv[0],
+        id: '20001',
+        description: nv[1],
+        migrationType: 'Data',
+        custom: 'Custom',
+        createdDateTime: dateType,
+        updatedDateTime: dateType,
+        modelType: 'Target',
+        customAndViewJSON: {},
+        workflowTool: 'Airflow',
+      });
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -63,7 +81,10 @@ function handleModelName(value: string) {
       @update:modal-state="handleModal"
     >
       <template #add-info>
-        <recommended-model-list @select-row="handleClickRecommendedModelId" />
+        <recommended-model-list
+          :recommended-model-list="recommendedModelList"
+          @select-row="handleClickRecommendedModelId"
+        />
       </template>
       <template #buttons>
         <p-button style-type="tertiary">cancel</p-button>
@@ -79,7 +100,8 @@ function handleModelName(value: string) {
       name-placeholder="Model name"
       @update:save-modal="handleSave"
       @update:close-modal="modalState.targetModal = false"
-      @update:name-value="handleModelName"
+      @update:name-value="e => (modelName = e)"
+      @update:description="e => (description = e)"
     />
     <p-icon-modal
       size="md"
