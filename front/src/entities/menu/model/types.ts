@@ -3,22 +3,24 @@ import { TranslateResult } from 'vue-i18n';
 export const MENU_ID = Object.freeze({
   // C-MIGRATOR
   MIGRATIONS: 'migrations',
+  MIGRATION_GUIDE: 'migrationguide',
   SOURCE_COMPUTING: 'sourcecomputing',
   SOURCE_SERVICES: 'sourceservices',
   SOURCE_CONNECTIONS: 'sourceconnections',
   MODELS: 'models',
   SOURCE_MODELS: 'sourcemodels',
   TARGET_MODELS: 'targetmodels',
+  WORKFLOW_MANAGEMENT: 'workflowmanagement',
   WORKFLOWS: 'workflows',
-  WORKFLOW_TEMPLATES: 'workflowTemplates',
-  TASK_COMPONENTS: 'taskComponents',
+  WORKFLOW_TEMPLATES: 'workflowtemplates',
+  TASK_COMPONENTS: 'taskcomponents',
+  WORKLOAD_OPERATIONS: 'workloadoperations',
+  WORKLOADS: 'workloads',
 });
-
-// export type MenuId = (typeof MENU_ID)[keyof typeof MENU_ID];
-
 export interface IMenu {
   id: string;
   name: TranslateResult;
+  icon?: string;
 }
 export interface MigratorMenu {
   category: IMenu;

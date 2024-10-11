@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { IMigratorMenu, MigratorMenu } from './types';
+import { IMigratorMenu, MENU_ID, MigratorMenu } from './types';
 
 export const useMigratorMenuStore = defineStore('MIGRATOR_MENU', {
   state: () => ({
@@ -8,12 +8,11 @@ export const useMigratorMenuStore = defineStore('MIGRATOR_MENU', {
   getters: {},
   actions: {
     setMigratorMenu(apiMenu: IMigratorMenu) {
-      // TODO: 1. menus: null
       if (apiMenu.menus === null) {
         const menus: MigratorMenu[] = [
           {
             category: {
-              id: 'migrations',
+              id: MENU_ID.MIGRATIONS,
               name: 'Migrations',
             },
             menu: [],

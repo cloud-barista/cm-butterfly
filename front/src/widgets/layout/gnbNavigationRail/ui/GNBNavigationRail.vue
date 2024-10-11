@@ -31,7 +31,7 @@ const handleMouseEvent = (value: boolean) => {
     @mouseover="handleMouseEvent(true)"
     @mouseleave="handleMouseEvent(false)"
   >
-    <p-tooltip
+    <!-- <p-tooltip
       v-if="!isCollapsed"
       class="minimize-button-wrapper"
       position="bottom"
@@ -47,7 +47,7 @@ const handleMouseEvent = (value: boolean) => {
         width="1.5rem"
         color="inherit"
       />
-    </p-tooltip>
+    </p-tooltip> -->
     <div class="navigation-rail-container">
       <div class="navigation-rail-wrapper">
         <menu-category />

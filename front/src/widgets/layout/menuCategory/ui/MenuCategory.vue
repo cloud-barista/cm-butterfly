@@ -88,18 +88,21 @@ async function fetchMenuTree() {
           'is-disabled': !(
             n.id === 'sourceservices' ||
             n.id === 'sourcemodels' ||
-            n.id === 'targetmodels'
+            n.id === 'targetmodels' ||
+            n.id === 'workflows' ||
+            n.id === 'workflowtemplates' ||
+            n.id === 'taskcomponents'
           ),
         }"
       >
         <div class="menu-wrapper">
-          <p-i
+          <!-- <p-i
             name="ic_folder"
             class="menu-button"
             height="1.25rem"
             width="1.25rem"
             color="inherit"
-          />
+          /> -->
           <div
             v-if="!isMinimized || (isMinimized && isHovered)"
             class="menu-container"

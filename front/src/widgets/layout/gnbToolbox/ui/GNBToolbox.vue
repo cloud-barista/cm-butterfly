@@ -23,6 +23,7 @@ const dictionary = [
   'metas',
   'models',
   'target',
+  'workflows',
   'workflow',
   'management',
   'templates',
