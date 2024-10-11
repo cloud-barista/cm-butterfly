@@ -33,6 +33,12 @@ const state = reactive({
   description: '',
 });
 
+watchEffect(() => {
+  state.sourceServiceName && state.sourceServiceName.length > 0
+    ? (isDisabled.value = true)
+    : (isDisabled.value = false);
+});
+
 const handleSourceServiceInfo = (value: any) => {
   state.sourceServiceName = value.sourceServiceName;
   state.description = value.description;
@@ -62,6 +68,7 @@ const handleConfirm = async () => {
         description: '',
       };
       sourceConnectionStore.editConnections = [];
+      sourceConnectionStore.withSourceConnection = false;
 
       emit('update:trigger');
       emit('update:isModalOpened', false);
@@ -88,12 +95,6 @@ const handleConnectionModal = (value: boolean) => {
   emit('update:is-connection-modal-opened', value);
 };
 const isDisabled = ref<boolean>(false);
-
-watchEffect(() => {
-  state.sourceServiceName && state.sourceServiceName.length > 0
-    ? (isDisabled.value = true)
-    : (isDisabled.value = false);
-});
 </script>
 
 <template>
@@ -103,6 +104,7 @@ watchEffect(() => {
       header-title="Add Source Service"
       size="md"
       :disabled="!isDisabled"
+      :loading="registerSourceGroup.isLoading.value"
       @confirm="handleConfirm"
       @cancel="handleCancel"
       @close="handleCancel"

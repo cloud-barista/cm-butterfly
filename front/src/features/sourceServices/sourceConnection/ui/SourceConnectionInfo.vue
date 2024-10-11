@@ -106,7 +106,7 @@ watchEffect(() => {
           <p-text-input
             v-model="sourceConnection.password"
             placeholder="Password"
-            :invalid="!invalidState.isPasswordValid"
+            :invalid="sourceConnection.password === ''"
           />
         </p-field-group>
         <p-field-group class="private-key" label="Private Key" invalid required>

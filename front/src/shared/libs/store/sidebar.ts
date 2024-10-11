@@ -5,6 +5,7 @@ export const useSidebar = defineStore('sidebar', {
     isGnbToolboxShown: true,
     isCollapsed: false,
     isMinimized: false,
+    isHovered: false,
     breadCrumbs: [],
   }),
   getters: {},
@@ -14,6 +15,9 @@ export const useSidebar = defineStore('sidebar', {
     },
     toggleMinimize() {
       this.isMinimized = !this.isMinimized;
+    },
+    toggleHover(value: boolean) {
+      this.isHovered = value;
     },
     initState() {
       this.breadCrumbs = [];

@@ -21,6 +21,7 @@ const emit = defineEmits([
   'update:save-modal',
   'update:close-modal',
   'update:name-value',
+  'update:description',
 ]);
 
 const name = ref<string>('');
@@ -40,6 +41,7 @@ watchEffect(
 function handleConfirm() {
   emit('update:save-modal');
   emit('update:name-value', name.value);
+  emit('update:description', description.value);
 }
 </script>
 

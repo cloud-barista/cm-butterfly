@@ -4,9 +4,9 @@ export interface ITargetModel {
   description: string;
   migrationType: string;
   custom: string;
-  createdDateTime: string;
-  updatedDateTime: string;
-  modelType: 'Source';
+  createdDateTime: string | Date;
+  updatedDateTime: string | Date;
+  modelType: 'Target';
   customAndViewJSON: any;
   workflowTool: any;
 }

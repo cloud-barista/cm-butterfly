@@ -15,6 +15,7 @@ export const modelRoutes: RouteConfig[] = [
         component: SourceModelsPage,
         meta: {
           menuId: MODEL_ROUTE.SOURCE_MODELS._NAME,
+          category: MODEL_ROUTE._NAME,
         },
       },
       {
@@ -23,6 +24,7 @@ export const modelRoutes: RouteConfig[] = [
         component: TargetModelsPage,
         meta: {
           menuId: MODEL_ROUTE.TARGET_MODELS._NAME,
+          category: MODEL_ROUTE._NAME,
         },
       },
     ],

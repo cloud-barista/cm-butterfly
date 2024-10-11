@@ -1,4 +1,4 @@
-import { tempRoutes } from './routes/temp';
+import { workflowManagementRoutes } from './routes/workflowManagement.ts';
 import VueRouter, { RouteConfig } from 'vue-router';
 import { ROOT_ROUTE } from './routes/constants';
 import authRoutes from '../../../pages/auth/auth.route.ts';
@@ -31,7 +31,11 @@ export class McmpRouter {
     {
       path: '/main',
       component: MainLayout,
-      children: [...sourceComputingRoutes, ...modelRoutes, ...tempRoutes],
+      children: [
+        ...sourceComputingRoutes,
+        ...modelRoutes,
+        ...workflowManagementRoutes,
+      ],
     },
     ...authRoutes,
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },

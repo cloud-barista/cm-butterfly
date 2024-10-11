@@ -32,19 +32,12 @@ const handleMouseEvent = (value: boolean) => {
     @mouseleave="handleMouseEvent(false)"
   >
     <!-- <p-tooltip
-class="minimize-button-wrapper" position="bottom" /> -->
-    <!-- TODO: Sidebar shirnk & expand -->
-    <p-tooltip
       v-if="!isCollapsed"
       class="minimize-button-wrapper"
       position="bottom"
       :contents="!isMinimized ? 'Minimize menu' : 'Expand menu'"
       @click="clickMinimizeBtn"
     >
-      <!-- @click="isSidebarExpanded = !isSidebarExpanded" -->
-      <!-- storeState.isMinimizeNavRail
-          ? $t('COMMON.GNB.TOOLTIP.EXPAND_GNB_RAIL')
-          : $t('COMMON.GNB.TOOLTIP.MINIMIZE_GNB_RAIL') -->
       <p-i
         :name="
           isMinimized ? 'ic_double-chevron-right' : 'ic_double-chevron-left'
@@ -54,7 +47,7 @@ class="minimize-button-wrapper" position="bottom" /> -->
         width="1.5rem"
         color="inherit"
       />
-    </p-tooltip>
+    </p-tooltip> -->
     <div class="navigation-rail-container">
       <div class="navigation-rail-wrapper">
         <menu-category />

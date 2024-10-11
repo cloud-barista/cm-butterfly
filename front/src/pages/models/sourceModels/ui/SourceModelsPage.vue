@@ -10,10 +10,7 @@ import { SimpleEditForm } from '@/widgets/layout';
 const pageName = 'Source Models';
 
 const selectedSourceModelId = ref<string>('');
-
-function handleClickSourceModelId(id: string) {
-  selectedSourceModelId.value = id;
-}
+const sourceModelName = ref<string>('');
 
 const mainTabState = reactive({
   activeTab: 'details',
@@ -31,11 +28,15 @@ const modalState = reactive({
   viewRecommendedListModal: { open: false, trigger: false },
 });
 
+function handleClickSourceModelId(id: string) {
+  selectedSourceModelId.value = id;
+}
+
 function handleJsonModal(value: boolean) {
   modalState.customViewJsonModal.open = value;
 }
 
-const sourceModelName = ref<string>('');
+const recommendedModelList = ref<any>([]);
 </script>
 
 <template>
@@ -73,6 +74,7 @@ const sourceModelName = ref<string>('');
                 e => (modalState.viewRecommendedListModal.open = e)
               "
               @update:source-model-name="e => (sourceModelName = e)"
+              @update:recommended-model-list="e => (recommendedModelList = e)"
             />
           </template>
         </p-tab>
@@ -97,6 +99,7 @@ const sourceModelName = ref<string>('');
       <recommended-model
         v-if="modalState.viewRecommendedListModal.open"
         :source-model-name="sourceModelName"
+        :recommended-model-list="recommendedModelList"
         @update:close-modal="
           e => (modalState.viewRecommendedListModal.open = e)
         "

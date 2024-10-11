@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { PDefinitionTable, PButton } from '@cloudforet-test/mirinae';
+import { PDefinitionTable } from '@cloudforet-test/mirinae';
 import { useSourceModelDetailModel } from '@/widgets/models/sourceModels';
 import { onBeforeMount, ref, watch, watchEffect } from 'vue';
+import { IRecommendedModel } from '@/entities/recommendedModel/model/types';
 
 interface iProps {
   selectedSourceModelId: string;
@@ -13,17 +14,25 @@ const emit = defineEmits([
   'update:custom-view-json-modal',
   'update:view-recommend-list-modal',
   'update:source-model-name',
+  'update:recommended-model-list',
 ]);
 
 const { sourceModelStore, setSourceModelId, initTable, tableModel } =
   useSourceModelDetailModel();
 
 const sourceModelName = ref<string | undefined>('');
+const recommendedModelList = ref<any>([]);
 
 watchEffect(() => {
   sourceModelName.value = sourceModelStore.getModelById(
     props.selectedSourceModelId,
   )?.name;
+});
+
+watchEffect(() => {
+  recommendedModelList.value = sourceModelStore.getModelById(
+    props.selectedSourceModelId,
+  )?.recommendModel;
 });
 
 watch(
@@ -42,6 +51,12 @@ function handleJsonModal() {
   emit('update:custom-view-json-modal', true);
   emit('update:source-model-name', sourceModelName.value);
 }
+
+function handleRecommendedList() {
+  emit('update:view-recommend-list-modal', true);
+  emit('update:source-model-name', sourceModelName.value);
+  emit('update:recommended-model-list', recommendedModelList.value);
+}
 </script>
 
 <template>
@@ -53,7 +68,7 @@ function handleJsonModal() {
       :block="true"
     >
       <!-- :disable-copy="true" -->
-      <template #data-customAndViewJSON="{ data }">
+      <template #data-customAndViewJSON>
         <p class="link-button-text" @click="handleJsonModal">
           Custom & View Source Model
         </p>
@@ -61,10 +76,7 @@ function handleJsonModal() {
         </p-button> -->
       </template>
       <template #data-recommendModel>
-        <p
-          class="link-button-text"
-          @click="emit('update:view-recommend-list-modal', true)"
-        >
+        <p class="link-button-text" @click="handleRecommendedList">
           View Recommended List
         </p>
       </template>

@@ -2,32 +2,125 @@ import { defineStore } from 'pinia';
 import { formatDate } from '@/shared/utils';
 import type { ISourceModel } from './types';
 
+export const dateType =
+  new Date().getFullYear() +
+  '-' +
+  new Date().getMonth() +
+  '-' +
+  new Date().getDate() +
+  ' ' +
+  new Date().getHours() +
+  ':' +
+  new Date().getMinutes() +
+  ':' +
+  new Date().getSeconds();
+
 export const useSourceModelStore = defineStore('SOURCEMODEL', {
   state: () => ({
     models: [
       {
-        id: '1',
-        name: 'model1',
+        id: '10001',
+        name: 'sourceservicename01-md01',
         description: 'model1 description',
-        migrationType: 'migrationType',
+        migrationType: 'Infra',
         custom: 'Basic',
-        createdDateTime: '2021-08-01',
-        updatedDateTime: '2021-08-01',
+        createdDateTime: dateType,
+        updatedDateTime: dateType,
         modelType: 'Source',
         customAndViewJSON: {},
-        recommendModel: 'recommendModel',
+        recommendModel: [
+          {
+            name: 'recommendedmodelname-01',
+            id: '100001',
+            description: 'recommendedmodeldescription-01',
+            label: 'Rehosted vm',
+            spec: 'aws-ap-northeast-2-t2-small',
+            image: 'ubuntu 18.04',
+            rootDiskType: 'default',
+            rootDiskSize: 'default',
+            userPassword: 'qwerqwerqwer',
+            connection: 'aws-seoul-conname01',
+            estimateCost: '12.800/M',
+          },
+          {
+            name: 'recommendedmodelname-02',
+            id: '100002',
+            description: 'recommendedmodeldescription-02',
+            label: 'Rehosted vm',
+            spec: 'aws-ap-northeast-2-t2-small',
+            image: 'ubuntu 18.04',
+            rootDiskType: 'default',
+            rootDiskSize: 'default',
+            userPassword: 'qwerqwerqwer',
+            connection: 'aws-seoul-conname01',
+            estimateCost: '12.800/M',
+          },
+          {
+            name: 'recommendedmodelname-03',
+            id: '100003',
+            description: 'recommendedmodeldescription-03',
+            label: 'Rehosted vm',
+            spec: 'aws-ap-northeast-2-t2-small',
+            image: 'ubuntu 18.04',
+            rootDiskType: 'default',
+            rootDiskSize: 'default',
+            userPassword: 'qwerqwerqwer',
+            connection: 'aws-seoul-conname01',
+            estimateCost: '12.800/M',
+          },
+        ],
       },
       {
-        id: '2',
-        name: 'model2',
+        id: '10002',
+        name: 'sourceservicename01-md02',
         description: 'model2 description',
-        migrationType: 'migrationType',
+        migrationType: 'Software',
         custom: 'Custom',
-        createdDateTime: '2021-08-01',
-        updatedDateTime: '2021-08-01',
+        createdDateTime: dateType,
+        updatedDateTime: dateType,
         modelType: 'Source',
         customAndViewJSON: {},
-        recommendModel: 'recommendModel',
+        recommendModel: [
+          {
+            name: 'recommendedmodelname-01',
+            id: '100001',
+            description: 'recommendedmodeldescription-01',
+            label: 'Rehosted vm',
+            spec: 'aws-ap-northeast-2-t2-small',
+            image: 'ubuntu 18.04',
+            rootDiskType: 'default',
+            rootDiskSize: 'default',
+            userPassword: 'qwerqwerqwer',
+            connection: 'aws-seoul-conname01',
+            estimateCost: '12.800/M',
+          },
+          {
+            name: 'recommendedmodelname-02',
+            id: '100002',
+            description: 'recommendedmodeldescription-02',
+            label: 'Rehosted vm',
+            spec: 'aws-ap-northeast-2-t2-small',
+            image: 'ubuntu 18.04',
+            rootDiskType: 'default',
+            rootDiskSize: 'default',
+            userPassword: 'qwerqwerqwer',
+            connection: 'aws-seoul-conname01',
+            estimateCost: '12.800/M',
+          },
+          {
+            name: 'recommendedmodelname-03',
+            id: '100003',
+            description: 'recommendedmodeldescription-03',
+            label: 'Rehosted vm',
+            spec: 'aws-ap-northeast-2-t2-small',
+            image: 'ubuntu 18.04',
+            rootDiskType: 'default',
+            rootDiskSize: 'default',
+            userPassword: 'qwerqwerqwer',
+            connection: 'aws-seoul-conname01',
+            estimateCost: '12.800/M',
+          },
+        ],
       },
     ] as ISourceModel[],
   }),
