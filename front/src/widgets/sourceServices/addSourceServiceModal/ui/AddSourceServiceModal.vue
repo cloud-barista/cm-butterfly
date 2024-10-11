@@ -103,6 +103,7 @@ watchEffect(() => {
       header-title="Add Source Service"
       size="md"
       :disabled="!isDisabled"
+      :loading="registerSourceGroup.isLoading.value"
       @confirm="handleConfirm"
       @cancel="handleCancel"
       @close="handleCancel"

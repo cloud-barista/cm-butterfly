@@ -14,6 +14,7 @@ export const sourceComputingRoutes: RouteConfig[] = [
         component: SourceServicePage,
         meta: {
           menuId: SOURCE_COMPUTING_ROUTE.SOURCE_SERVICES._NAME,
+          category: SOURCE_COMPUTING_ROUTE._NAME,
         },
       },
     ],

@@ -2,37 +2,53 @@
 import { PTooltip, PIconButton, PBreadcrumbs } from '@cloudforet-test/mirinae';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
-import { useBreadcrumbs } from '@/shared/hooks/breadcrumb';
+// import { useBreadcrumbs } from '@/shared/hooks/breadcrumb';
+// import { useGnbStore } from '@/shared/libs/store/gnb-store';
 import type { Breadcrumb } from '@/shared/types';
-import { computed, reactive } from 'vue';
+import { computed, reactive, ref, watch, watchEffect } from 'vue';
 import { useRoute } from 'vue-router/composables';
-import { useGnbStore } from '@/shared/libs/store/gnb-store';
 import { clone } from 'lodash';
-import { MenuId } from '@/entities';
 
 const sidebar = useSidebar();
-const gnbStore = useGnbStore();
-const gnbGetters = gnbStore.getters;
+// const gnbStore = useGnbStore();
+// const gnbGetters = gnbStore.getters;
 const route = useRoute();
-const { breadcrumbs } = useBreadcrumbs();
+// const { breadcrumbs } = useBreadcrumbs();
+const dictionary = [
+  'migration',
+  'guide',
+  'source',
+  'computing',
+  'services',
+  'metas',
+  'models',
+  'target',
+  'workflow',
+  'management',
+  'templates',
+  'task',
+  'components',
+  'workload',
+  'operations',
+];
 
 const { isCollapsed } = storeToRefs(sidebar);
 
 const state = reactive({
-  routes: computed(() => {
-    let routes: Breadcrumb[] = [];
-    if (breadcrumbs.value.length === 0) {
-      routes = [...routes, ...breadcrumbs.value];
-    }
-    routes = [...routes, ...gnbGetters.breadcrumbs];
-    return routes;
-  }),
+  // routes: computed(() => {
+  //   let routes: Breadcrumb[] = [];
+  //   if (breadcrumbs.value.length === 0) {
+  //     routes = [...routes, ...breadcrumbs.value];
+  //   }
+  //   routes = [...routes, ...gnbGetters.breadcrumbs];
+  //   return routes;
+  // }),
   selectedMenuId: computed(() => {
     const reversedMatched = clone(route.matched).reverse();
     const closestRoute = reversedMatched.find(
       m => m.meta?.menuId !== undefined,
     );
-    const targetMenuId: MenuId = closestRoute?.meta.menuId;
+    const targetMenuId: string = closestRoute?.meta.menuId;
     return targetMenuId;
   }),
   currentMenuId: computed(
@@ -41,7 +57,10 @@ const state = reactive({
   breadcrumbs: computed(() => {
     let resultArr: Breadcrumb[] = [];
     if (route.meta?.category) {
-      resultArr = [{ name: `${route.meta?.category}` }];
+      const uppered =
+        String(route.meta?.category).charAt(0).toUpperCase() +
+        String(route.meta?.category).slice(1);
+      resultArr = [{ name: uppered }];
       route.matched.forEach(matchedRoute => {
         matchedRoute.meta?.menuId === route.meta?.menuId
           ? resultArr.push({
@@ -60,6 +79,40 @@ const state = reactive({
 const handleClickMenuButton = () => {
   sidebar.toggleCollapse();
 };
+
+const splitedWords = ref<string[]>([]);
+
+watchEffect(() => {
+  let result = [] as string[];
+  state.breadcrumbs.forEach(nv => {
+    nv.name = splitWordsFromDictionary(nv.name as string, dictionary);
+  });
+  splitedWords.value = result;
+});
+
+function splitWordsFromDictionary(str: string, dictionary: string[]) {
+  let result = '';
+  let remaining = str.toLowerCase();
+
+  while (remaining.length > 0) {
+    let found = false;
+
+    for (let word of dictionary) {
+      if (remaining.startsWith(word)) {
+        result += word.charAt(0).toUpperCase() + word.slice(1) + ' ';
+        remaining = remaining.slice(word.length);
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      result += remaining.charAt(0).toUpperCase();
+      remaining = remaining.slice(1);
+    }
+  }
+  return result.trim();
+}
 </script>
 
 <template>

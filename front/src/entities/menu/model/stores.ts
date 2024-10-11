@@ -3,7 +3,7 @@ import { IMigratorMenu, MigratorMenu } from './types';
 
 export const useMigratorMenuStore = defineStore('MIGRATOR_MENU', {
   state: () => ({
-    migratorMenu: [] as MigratorMenu[] | any,
+    migratorMenu: [] as MigratorMenu[],
   }),
   getters: {},
   actions: {

@@ -5,7 +5,7 @@ import type { MigratorMenu } from '@/entities';
 import { IMigratorMenu, MENU_ID } from '@/entities';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
-import { computed, onMounted, ref, watch, onBeforeUnmount } from 'vue';
+import { computed, onMounted, ref, onBeforeUnmount, watchEffect } from 'vue';
 import { useRoute } from 'vue-router/composables';
 import { useGetMenuTree } from '@/entities/menu/api';
 import { useMigratorMenuStore } from '@/entities/menu/model/stores';
@@ -31,7 +31,7 @@ const isDataLoaded = ref<boolean>(false);
 const displayMigratorMenu = ref<MigratorMenu[] | null>(null);
 const loadedCnt = ref(0);
 
-async function fetchData() {
+async function fetchMenuTree() {
   if (!isDataLoaded.value && loadedCnt.value < 1) {
     isDataLoaded.value = true;
     loadedCnt.value += 1;
@@ -51,7 +51,7 @@ async function fetchData() {
 }
 
 onMounted(async () => {
-  await fetchData();
+  await fetchMenuTree();
 });
 
 const selectedMenuId = computed(() => {
