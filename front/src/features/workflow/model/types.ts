@@ -33,12 +33,3 @@ export interface Step extends _Step {
 export interface IWorkFlowDesignerFormData {
   sequence: Step[];
 }
-
-export interface IWorkflowTool {
-  id: string;
-  name: string;
-  description: string;
-  createdDatetime: string;
-  updateDatetime: string;
-  data?: IWorkFlowDesignerFormData;
-}

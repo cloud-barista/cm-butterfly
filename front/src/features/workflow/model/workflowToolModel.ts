@@ -1,17 +1,14 @@
 import { useWorkflowStore } from '@/entities/workflow/model/stores.ts';
 import {
   IWorkFlowDesignerFormData,
-  IWorkflowTool,
   Step,
 } from '@/features/workflow/model/types.ts';
 import {
   ITaskGroupResponse,
   ITaskResponse,
-  ITaskVmResponse,
   IWorkflow,
-  IWorkflowResponse,
 } from '@/entities/workflow/model/types.ts';
-import { Sequence } from 'sequential-workflow-designer';
+import getRandomId from '@/shared/utils/uuid';
 
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
@@ -26,31 +23,27 @@ export function useWorkflowToolModel() {
   function setWorkflowSequenceModel(
     workflow: IWorkflow,
   ): IWorkFlowDesignerFormData {
-    // const sequence: Step[] = {};
-    //
-    // //TODO workflow template에 맞게 가공하는 작업이 있어야함.
-    // const taskGroupStack: Array<ITaskGroupResponse> = [];
-    // workflow.data.task_groups.forEach(task_group => {
-    //   taskGroupStack.push(task_group);
-    // });
-    //
-    // //taskGroup안에 taskGroup이 있다면?
-    // while (taskGroupStack.length > 0) {
-    //   const taskGroup = taskGroupStack.pop();
-    //   const taskStack: Array<ITaskResponse> = [];
-    //
-    //   taskGroup?.tasks.forEach(task => {
-    //     taskStack.push(task);
-    //   });
-    //
-    //   while (taskStack.length > 0) {
-    //     const task = taskStack.pop();
-    //   }
-    // }
+    const sequence = processTaskGroups(workflow.data.task_groups);
 
-    function processTaskGroup(taskGroup: ITaskGroupResponse): Step {
-      const taskSteps: Step[] = taskGroup.tasks.map(task => ({
-        id: '',
+    function processTaskGroups(taskGroups: ITaskGroupResponse[]): Step[] {
+      const sequence: Step[] = [];
+      for (let i = 0; i < taskGroups.length; i++) {
+        const steps: Step[] = [];
+        const currentSequence = convertToDesignerTaskGroup(taskGroups[i]);
+        steps.push(currentSequence);
+
+        if (taskGroups[i].task_groups) {
+          steps.push(...processTaskGroups(taskGroups[i].task_groups));
+        }
+        sequence.push(...steps);
+      }
+
+      return sequence;
+    }
+
+    function convertToDesignerTask(task: ITaskResponse): Step {
+      return {
+        id: getRandomId(),
         name: task.name,
         componentType: 'task',
         type: 'bettle_task',
@@ -72,36 +65,22 @@ export function useWorkflowToolModel() {
             })),
           },
         },
-      }));
+      };
+    }
 
+    function convertToDesignerTaskGroup(taskGroup: ITaskGroupResponse): Step {
       return {
-        id: '',
+        id: getRandomId(),
         name: taskGroup.name,
         componentType: 'container',
         type: 'MCI',
         properties: {
           isDeletable: true,
         },
-        sequence: taskSteps,
+        sequence: taskGroup.tasks.map(task => convertToDesignerTask(task)),
       };
     }
-
-    function processTaskGroups(taskGroups: ITaskGroupResponse[]): Step[] {
-      const result: Step[] = [];
-      const stack: ITaskGroupResponse[] = [...taskGroups];
-
-      while (stack.length > 0) {
-        const currentTaskGroup = stack.pop();
-        const taskGroupStep = processTaskGroup(currentTaskGroup!);
-
-        result.push(taskGroupStep);
-
-        if (currentTaskGroup?.task_groups) {
-          stack.push(...currentTaskGroup!.task_groups);
-        }
-      }
-
-      return result;
-    }
+    return { sequence };
   }
+  return { getWorkflowToolData, setWorkflowSequenceModel };
 }

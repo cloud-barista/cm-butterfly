@@ -2,6 +2,8 @@
 import { onMounted, reactive, ref } from 'vue';
 import { PButton } from '@cloudforet-test/mirinae';
 import { useFlowChartModel } from '@/features/workflow/workflowDesigner/model/flowChartModel.ts';
+import { useWorkflowToolModel } from '@/features/workflow/model/workflowToolModel.ts';
+import { IWorkflow } from '@/entities/workflow/model/types.ts';
 
 let flowChart;
 const name = reactive({ _name: 'Vue 컴포넌트' });
@@ -81,12 +83,70 @@ const target = [
     },
   },
 ];
+const workflowToolModel = useWorkflowToolModel();
 
+let t: IWorkflow = {
+  createdDatetime: '',
+  data: {
+    description: '',
+    task_groups: [
+      {
+        description: 'string',
+        name: '',
+        tasks: [
+          {
+            dependencies: ['any[]'],
+            name: 'string',
+            path_params: 'any',
+            request_body: {
+              name: 'string',
+              installMonAgent: 'string',
+              label: 'string',
+              systemLabel: 'string',
+              description: 'string',
+              vm: [],
+            },
+            task_component: 'string',
+          },
+        ],
+        task_groups: [
+          {
+            description: 'string',
+            name: '',
+            tasks: [
+              {
+                dependencies: ['any[]'],
+                name: 'string',
+                path_params: 'any',
+                request_body: {
+                  name: 'string',
+                  installMonAgent: 'string',
+                  label: 'string',
+                  systemLabel: 'string',
+                  description: 'string',
+                  vm: [],
+                },
+                task_component: 'string',
+              },
+            ],
+            task_groups: [],
+          },
+        ],
+      },
+    ],
+  },
+  description: '',
+  id: '',
+  name: '',
+  updateDatetime: '',
+};
+
+let tt = workflowToolModel.setWorkflowSequenceModel(t);
 onMounted(function () {
   let refs = this.$refs;
 
   flowChart = useFlowChartModel(refs);
-  flowChart.designerOptionsState.sequence = target;
+  flowChart.designerOptionsState.sequence = tt.sequence;
   flowChart.initDesigner();
   flowChart.draw();
 });

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import WorkflowTemplate from '@/features/workflow/workflowDesigner/ui/WorkflowDesigner.vue';
+import WorkflowTool from '@/features/workflow/ui/WorkflowTool.vue';
 
 const pageName = 'sourceTemplate';
 </script>
@@ -14,6 +15,7 @@ const pageName = 'sourceTemplate';
         <header class="h-[54px]"></header>
         <section class="workflow-body">
           <WorkflowTemplate></WorkflowTemplate>
+          <WorkflowTool></WorkflowTool>
         </section>
       </section>
     </div>
