@@ -26,10 +26,6 @@ const mainTabState = reactive({
       name: 'details',
       label: 'Details',
     },
-    {
-      name: 'output',
-      label: 'Output',
-    },
   ],
 });
 
@@ -85,6 +81,7 @@ function handleClickWorkflowId(id: string) {
     <div class="relative z-70">
       <workflow-json-viewer
         v-if="modalState.workflowJsonModal.open"
+        title="Custom & View Workflow"
         :workflow-name="workflowName"
         @update:close-modal="e => (modalState.workflowJsonModal.open = e)"
       />

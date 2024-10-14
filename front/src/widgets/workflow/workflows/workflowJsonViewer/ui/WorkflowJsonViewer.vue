@@ -10,6 +10,7 @@ const formData = {
 };
 
 interface iProps {
+  title: string;
   workflowName: string;
 }
 
@@ -26,7 +27,7 @@ function handleModal() {
   <create-form
     class="page-modal-layout"
     :badge-title="workflowName"
-    title="Custom & View Workflow"
+    :title="title"
     first-title="JSON Viewer"
     @update:modal-state="handleModal"
   >

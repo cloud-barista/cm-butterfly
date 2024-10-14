@@ -15,7 +15,7 @@ export function useWorkflowDetailModel() {
     tableModel.initState();
 
     tableModel.tableState.fields = [
-      { label: 'Workflow Information', name: 'name' },
+      { label: 'Workflow Name', name: 'name' },
       { label: 'ID', name: 'id' },
       { label: 'Description', name: 'description' },
       { label: 'Created Date Time', name: 'createdDatetime' },

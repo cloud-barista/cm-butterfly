@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { PDefinitionTable } from '@cloudforet-test/mirinae';
-import { useWorkflowDetailModel } from '@/widgets/workflow';
+import { useWorkflowTemplatesDetailModel } from '../model/workflowTemplatesDetailModel';
 import { onBeforeMount, watch, watchEffect } from 'vue';
 
 interface iProps {
-  selectedWorkflowId: string;
+  selectedWorkflowTemplateId: string;
 }
 
 const props = defineProps<iProps>();
 
 const emit = defineEmits([
-  'update:workflow-name',
-  'update:workflow-json-modal',
+  'update:workflow-template-name',
+  'update:workflow-template-json-modal',
 ]);
 
-const { workflowsStore, setWorkflowId, initTable, tableModel } =
-  useWorkflowDetailModel();
+const { workflowsStore, setWorkflowTemplateId, initTable, tableModel } =
+  useWorkflowTemplatesDetailModel();
 
 onBeforeMount(() => {
   initTable();
@@ -24,22 +24,21 @@ onBeforeMount(() => {
 watch(
   props,
   () => {
-    setWorkflowId(props.selectedWorkflowId);
+    setWorkflowTemplateId(props.selectedWorkflowTemplateId);
   },
   { immediate: true },
 );
 
 watchEffect(() => {
   emit(
-    'update:workflow-name',
-    workflowsStore.getWorkflowById(props.selectedWorkflowId)?.name,
+    'update:workflow-template-name',
+    workflowsStore.getWorkflowTemplateById(props.selectedWorkflowTemplateId)
+      ?.name,
   );
 });
 
-function handleWorkflowTool() {}
-
 function handleJsonModal() {
-  emit('update:workflow-json-modal', true);
+  emit('update:workflow-template-json-modal', true);
 }
 </script>
 
@@ -51,16 +50,13 @@ function handleJsonModal() {
       :loading="tableModel.tableState.loading"
       block
     >
-      <template #data-workflowTool>
-        <p class="link-button-text" @click="handleWorkflowTool">
-          View Workflow Tool
-        </p>
-      </template>
-      <template #data-workflowJSON>
+      <template #data-workflowTemplateJSON>
         <p class="link-button-text" @click="handleJsonModal">
-          View Workflow JSON
+          View Workflow Template JSON
         </p>
       </template>
     </p-definition-table>
   </div>
 </template>
+
+<style scoped lang="postcss"></style>

@@ -1,14 +1,14 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
-import type { IWorkflow } from '@/entities';
+import type { IWorkflowTemplate } from '@/entities';
 import { useWorkflowsStore, WorkflowTableType } from '@/entities';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 
-export function useWorkflowListModel() {
+export function useWorkflowTemplatesListModel() {
   const tableModel =
     useToolboxTableModel<Partial<Record<WorkflowTableType, any>>>();
   const workflowsStore = useWorkflowsStore();
-  const { workflows } = storeToRefs(workflowsStore);
+  const { workflowTemplates } = storeToRefs(workflowsStore);
 
   function initToolBoxTableModel() {
     tableModel.tableState.fields = [
@@ -35,30 +35,32 @@ export function useWorkflowListModel() {
     ];
   }
 
-  function organizeWorkflowsTableItem(workflow: IWorkflow) {
+  function organizeWorkflowTemplatesTableItem(
+    workflowTemplate: IWorkflowTemplate,
+  ) {
     const organizedDatum: Partial<
       Record<WorkflowTableType | 'originalData', any>
     > = {
-      name: workflow.name,
-      id: workflow.id,
-      description: workflow.description,
-      data: workflow.data,
-      createdDatetime: workflow.createdDatetime,
-      updatedDatetime: workflow.updatedDatetime,
-      originalData: workflow,
+      name: workflowTemplate.name,
+      id: workflowTemplate.id,
+      description: workflowTemplate.description,
+      data: workflowTemplate.data,
+      createdDatetime: workflowTemplate.createdDatetime,
+      updatedDatetime: workflowTemplate.updatedDatetime,
+      originalData: workflowTemplate,
     };
     return organizedDatum;
   }
 
-  watch(workflows, nv => {
+  watch(workflowTemplates, nv => {
     tableModel.tableState.items = nv.map(value =>
-      organizeWorkflowsTableItem(value),
+      organizeWorkflowTemplatesTableItem(value),
     );
   });
 
   return {
     tableModel,
-    workflows,
+    workflowTemplates,
     initToolBoxTableModel,
     workflowsStore,
   };
