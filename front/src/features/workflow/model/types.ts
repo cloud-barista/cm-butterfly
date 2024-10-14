@@ -32,3 +32,15 @@ export interface Step extends _Step {
 export interface IWorkFlowDesignerFormData {
   sequence: Step[];
 }
+
+let t = {
+  title: 'Root Disk Size',
+  model: {
+    value: '',
+    errorMessage: null,
+    isValid: true,
+    validating: false,
+    touched: false,
+  },
+  type: 'text',
+};

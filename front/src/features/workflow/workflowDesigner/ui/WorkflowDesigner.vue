@@ -2,10 +2,7 @@
 import { onMounted, reactive, ref } from 'vue';
 import { PButton } from '@cloudforet-test/mirinae';
 import { useFlowChartModel } from '@/features/workflow/workflowDesigner/model/flowChartModel.ts';
-import {
-  useWorkflowToolModel,
-  useWorkflowToolModel2,
-} from '@/features/workflow/model/workflowToolModel.ts';
+import { useWorkflowToolModel } from '@/features/workflow/model/workflowToolModel.ts';
 import { IWorkflow } from '@/entities/workflow/model/types.ts';
 
 let flowChart;
@@ -62,7 +59,7 @@ let t: IWorkflow = {
   updateDatetime: '',
 };
 
-let t2 = {
+let t2: IWorkflow = {
   createdDatetime: '',
   data: {
     description: '',

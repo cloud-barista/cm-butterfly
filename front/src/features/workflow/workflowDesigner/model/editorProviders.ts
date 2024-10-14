@@ -1,6 +1,6 @@
 import { insertDynamicComponent } from '@/shared/utils';
-import TestCompo from '@/features/workflow/workflowDesigner/ui/TestCompo.vue';
 import { getSequencePath } from '@/features/workflow/workflowEditor/model/utils.ts';
+import StepEditorProvider from '@/features/workflow/workflowEditor/ui/StepEditorProvider.vue';
 
 export function editorProviders() {
   const editor = document.createElement('div');
@@ -33,7 +33,7 @@ export function editorProviders() {
       }
       if (step.componentType === 'task' && step.type == 'bettle_task') {
         insertDynamicComponent(
-          TestCompo,
+          StepEditorProvider,
           { id: 'tst' },
           {
             'button-click': () => {
