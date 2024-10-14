@@ -1,14 +1,14 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
-import type { IWorkflowTemplate } from '@/entities';
-import { useWorkflowTemplatesStore, WorkflowTableType } from '@/entities';
+import type { ITaskComponent } from '@/entities';
+import { useTaskComponentsStore, TaskComponentTableType } from '@/entities';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 
-export function useWorkflowTemplatesListModel() {
+export function useTaskComponentsListModel() {
   const tableModel =
-    useToolboxTableModel<Partial<Record<WorkflowTableType, any>>>();
-  const workflowTemplatesStore = useWorkflowTemplatesStore();
-  const { workflowTemplates } = storeToRefs(workflowTemplatesStore);
+    useToolboxTableModel<Partial<Record<TaskComponentTableType, any>>>();
+  const taskComponentsStore = useTaskComponentsStore();
+  const { taskComponents } = storeToRefs(taskComponentsStore);
 
   function initToolBoxTableModel() {
     tableModel.tableState.fields = [
@@ -35,33 +35,31 @@ export function useWorkflowTemplatesListModel() {
     ];
   }
 
-  function organizeWorkflowTemplatesTableItem(
-    workflowTemplate: IWorkflowTemplate,
-  ) {
+  function organizeTaskComponentsTableItem(taskComponent: ITaskComponent) {
     const organizedDatum: Partial<
-      Record<WorkflowTableType | 'originalData', any>
+      Record<TaskComponentTableType | 'originalData', any>
     > = {
-      name: workflowTemplate.name,
-      id: workflowTemplate.id,
-      description: workflowTemplate.description,
-      data: workflowTemplate.data,
-      createdDatetime: workflowTemplate.createdDatetime,
-      updatedDatetime: workflowTemplate.updatedDatetime,
-      originalData: workflowTemplate,
+      name: taskComponent.name,
+      id: taskComponent.id,
+      description: taskComponent.description,
+      data: taskComponent.data,
+      createdDatetime: taskComponent.createdDatetime,
+      updatedDatetime: taskComponent.updatedDatetime,
+      originalData: taskComponent,
     };
     return organizedDatum;
   }
 
-  watch(workflowTemplates, nv => {
+  watch(taskComponents, nv => {
     tableModel.tableState.items = nv.map(value =>
-      organizeWorkflowTemplatesTableItem(value),
+      organizeTaskComponentsTableItem(value),
     );
   });
 
   return {
     tableModel,
-    workflowTemplates,
+    taskComponents,
     initToolBoxTableModel,
-    workflowTemplatesStore,
+    taskComponentsStore,
   };
 }

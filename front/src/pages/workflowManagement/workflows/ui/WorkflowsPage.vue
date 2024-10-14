@@ -42,7 +42,7 @@ function handleClickWorkflowId(id: string) {
     <section :class="`${pageName}-page-body`">
       <workflow-list @select-row="handleClickWorkflowId" />
       <p v-if="!selectedWorkflowId" class="more-details">
-        Select an item for more details
+        Select an item for more details.
       </p>
       <div v-if="selectedWorkflowId">
         <p-tab v-model="mainTabState.activeTab" :tabs="mainTabState.tabs">

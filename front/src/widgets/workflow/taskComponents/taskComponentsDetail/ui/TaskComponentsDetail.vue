@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { PDefinitionTable } from '@cloudforet-test/mirinae';
-import { useWorkflowTemplatesDetailModel } from '../model/workflowTemplatesDetailModel';
+import { useTaskComponentsDetailModel } from '../model/taskComponentsDetailModel';
 import { onBeforeMount, watch, watchEffect } from 'vue';
 
 interface iProps {
-  selectedWorkflowTemplateId: string;
+  selectedTaskComponentId: string;
 }
 
 const props = defineProps<iProps>();
 
 const emit = defineEmits([
-  'update:workflow-template-name',
-  'update:workflow-template-json-modal',
+  'update:task-component-name',
+  'update:task-component-json-modal',
 ]);
 
-const { workflowTemplatesStore, setWorkflowTemplateId, initTable, tableModel } =
-  useWorkflowTemplatesDetailModel();
+const { taskComponentsStore, setTaskComponentId, initTable, tableModel } =
+  useTaskComponentsDetailModel();
 
 onBeforeMount(() => {
   initTable();
@@ -24,22 +24,21 @@ onBeforeMount(() => {
 watch(
   props,
   () => {
-    setWorkflowTemplateId(props.selectedWorkflowTemplateId);
+    setTaskComponentId(props.selectedTaskComponentId);
   },
   { immediate: true },
 );
 
 watchEffect(() => {
   emit(
-    'update:workflow-template-name',
-    workflowTemplatesStore.getWorkflowTemplateById(
-      props.selectedWorkflowTemplateId,
-    )?.name,
+    'update:task-component-name',
+    taskComponentsStore.getTaskComponentById(props.selectedTaskComponentId)
+      ?.name,
   );
 });
 
 function handleJsonModal() {
-  emit('update:workflow-template-json-modal', true);
+  emit('update:task-component-json-modal', true);
 }
 </script>
 
@@ -51,9 +50,9 @@ function handleJsonModal() {
       :loading="tableModel.tableState.loading"
       block
     >
-      <template #data-workflowTemplateJSON>
+      <template #data-taskComponentJSON>
         <p class="link-button-text" @click="handleJsonModal">
-          View Workflow Template JSON
+          View Task Component JSON
         </p>
       </template>
     </p-definition-table>

@@ -1,9 +1,12 @@
-import { useWorkflowsStore, WorkflowTemplateTableType } from '@/entities';
+import {
+  useWorkflowTemplatesStore,
+  WorkflowTemplateTableType,
+} from '@/entities';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
 
 export function useWorkflowTemplatesDetailModel() {
-  const workflowsStore = useWorkflowsStore();
+  const workflowTemplatesStore = useWorkflowTemplatesStore();
   const workflowTemplateId = ref<string | null>();
   const tableModel =
     useDefinitionTableModel<Record<WorkflowTemplateTableType, any>>();
@@ -16,7 +19,7 @@ export function useWorkflowTemplatesDetailModel() {
     tableModel.initState();
 
     tableModel.tableState.fields = [
-      { label: 'Workflow Template Name', name: 'name' },
+      { label: 'Workflow Template Information', name: 'name' },
       { label: 'ID', name: 'id' },
       { label: 'Description', name: 'description' },
       { label: 'Created Date Time', name: 'createdDatetime' },
@@ -31,7 +34,7 @@ export function useWorkflowTemplatesDetailModel() {
 
   function setDefineTableData(workflowTemplateId: string) {
     const workflowTemplate =
-      workflowsStore.getWorkflowTemplateById(workflowTemplateId);
+      workflowTemplatesStore.getWorkflowTemplateById(workflowTemplateId);
     let data: Partial<Record<WorkflowTemplateTableType, any>> = {};
 
     if (workflowTemplate) {
@@ -63,7 +66,7 @@ export function useWorkflowTemplatesDetailModel() {
 
   return {
     setWorkflowTemplateId,
-    workflowsStore,
+    workflowTemplatesStore,
     initTable,
     tableModel,
   };

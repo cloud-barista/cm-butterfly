@@ -41,7 +41,7 @@ function handleClickWorkflowTemplateId(id: string) {
     <section :class="`${pageName}-page-body`">
       <workflow-templates-list @select-row="handleClickWorkflowTemplateId" />
       <p v-if="!selectedWorkflowTemplateId" class="more-details">
-        Select an item for more details
+        Select an item for more details.
       </p>
       <div v-if="selectedWorkflowTemplateId">
         <p-tab v-model="mainTabState.activeTab" :tabs="mainTabState.tabs">

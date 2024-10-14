@@ -1,4 +1,4 @@
-interface Workflow {
+export interface Workflow {
   name: string;
   id: string;
   description: string;
@@ -7,11 +7,9 @@ interface Workflow {
   updatedDatetime: string | Date;
 }
 export interface IWorkflow extends Workflow {
+  run: string;
   workflowTool: any;
   workflowJSON: any;
-}
-export interface IWorkflowTemplate extends Workflow {
-  workflowTemplateJSON: any;
 }
 
 export type TWorkflowTableType =
@@ -24,9 +22,6 @@ export type TWorkflowTableType =
 
 export type WorkflowTableType =
   | TWorkflowTableType
+  | 'run'
   | 'workflowTool'
   | 'workflowJSON';
-
-export type WorkflowTemplateTableType =
-  | TWorkflowTableType
-  | 'workflowTemplateJSON';

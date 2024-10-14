@@ -5,12 +5,13 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { useWorkflowListModel } from '../model/workflowListModel';
+import { useTaskComponentsListModel } from '../model/taskComponenetsListModel';
 import { insertDynamicComponent } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
 import { onBeforeMount, onMounted, reactive, watchEffect } from 'vue';
 
-const { tableModel, initToolBoxTableModel, workflows } = useWorkflowListModel();
+const { tableModel, initToolBoxTableModel, taskComponents } =
+  useTaskComponentsListModel();
 
 const emit = defineEmits(['select-row']);
 
@@ -62,7 +63,7 @@ function handleSelectedIndex(selectedIndex: number) {
 
 watchEffect(() => {
   // TODO: api 연결 후 수정
-  tableModel.tableState.items = workflows.value;
+  tableModel.tableState.items = taskComponents.value;
 });
 </script>
 
@@ -93,16 +94,12 @@ watchEffect(() => {
           <template #toolbox-left>
             <p-button disabled icon-left="ic_plus_bold">Add</p-button>
           </template>
-          <template #th-run> &nbsp; </template>
-          <template #col-run-format>
-            <p-button style-type="tertiary" size="sm">Run</p-button>
-          </template>
         </p-toolbox-table>
       </template>
     </p-horizontal-layout>
     <p-button-modal
       v-model="modal.alertModalState.open"
-      :visible="modal.alertModalState.open"
+      :visible="true"
       size="sm"
       backdrop
       theme-color="alert"

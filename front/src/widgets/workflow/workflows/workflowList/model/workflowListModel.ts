@@ -18,6 +18,7 @@ export function useWorkflowListModel() {
       { name: 'data', label: 'Data' },
       { name: 'createdDatetime', label: 'Created Date Time' },
       { name: 'updatedDatetime', label: 'Updated Date Time' },
+      { name: 'run', label: '' },
     ];
 
     tableModel.querySearchState.keyItemSet = [
