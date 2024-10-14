@@ -12,13 +12,12 @@ interface IVm {
   serverQuantity: string;
   commonSpec: string;
   osImage: string;
-  diskType: diskType;
+  diskType: string;
   diskSize: string;
   password: string;
   connectionName: string;
 }
 
-export type diskType = {};
 export interface Step extends _Step {
   sequence?: Step[];
   branches?: { true: Step[]; false: Step[] };

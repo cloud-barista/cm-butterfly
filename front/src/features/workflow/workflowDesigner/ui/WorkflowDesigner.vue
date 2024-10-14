@@ -2,7 +2,10 @@
 import { onMounted, reactive, ref } from 'vue';
 import { PButton } from '@cloudforet-test/mirinae';
 import { useFlowChartModel } from '@/features/workflow/workflowDesigner/model/flowChartModel.ts';
-import { useWorkflowToolModel } from '@/features/workflow/model/workflowToolModel.ts';
+import {
+  useWorkflowToolModel,
+  useWorkflowToolModel2,
+} from '@/features/workflow/model/workflowToolModel.ts';
 import { IWorkflow } from '@/entities/workflow/model/types.ts';
 
 let flowChart;
@@ -11,95 +14,69 @@ const name = reactive({ _name: 'Vue 컴포넌트' });
 //클릭시 해당 데이터를 저장할 변수
 const targetModel = ref({});
 
-const target = [
-  {
-    componentType: 'switch',
-    id: '6f8510aaaf062a7d323a4db822e12df9',
-    type: 'if',
-    name: 'If',
-    properties: {
-      isDeletable: true,
-    },
-    branches: {
-      true: [
-        {
-          componentType: 'task',
-          id: '4e42702929bebb818f2d806c749b9fd9',
-          type: 'bettle_task',
-          name: 'bettle_task',
-          properties: {
-            isDeletable: true,
-          },
-          sequence: [],
-        },
-      ],
-      false: [
-        {
-          componentType: 'container',
-          id: 'a494f0fb11b86a393e2183be8fe97ab5',
-          type: 'MCI',
-          name: 'Task Group',
-          properties: {
-            isDeletable: true,
-          },
-          sequence: [],
-        },
-      ],
-    },
-  },
-  {
-    componentType: 'switch',
-    id: '6a6fe61a5b3634da89d964fce09324f8',
-    type: 'if',
-    name: 'If',
-    properties: {
-      isDeletable: true,
-    },
-    branches: {
-      true: [
-        {
-          componentType: 'container',
-          id: '9a0028d73ca05e5d2404c331f7db9928',
-          type: 'MCI',
-          name: 'Task Group',
-          properties: {
-            isDeletable: true,
-          },
-          sequence: [
-            {
-              componentType: 'task',
-              id: '052fcc0a0cedd8bd7d0953e31445bdb1',
-              type: 'bettle_task',
-              name: 'bettle_task',
-              properties: {
-                isDeletable: true,
-              },
-              sequence: [],
-            },
-          ],
-        },
-      ],
-      false: [],
-    },
-  },
-];
 const workflowToolModel = useWorkflowToolModel();
 
 let t: IWorkflow = {
+  createdDatetime: '',
+  data: {
+    description: 'Create Server',
+    task_groups: [
+      {
+        description: 'Migrate Server',
+        name: 'migrate_infra',
+        tasks: [
+          {
+            dependencies: [],
+            name: 'infra_create',
+            path_params: 's',
+            request_body: {
+              name: 'recommended-infra01',
+              installMonAgent: 'no',
+              label: 'DynamicVM',
+              systemLabel: '',
+              description: 'Made in CB-TB',
+              vm: [
+                {
+                  name: 'recommended-vm01',
+                  subGroupSize: '3',
+                  label: 'DynamicVM',
+                  description: 'Description',
+                  commonSpec: 'azure-koreacentral-standard-b4ms',
+                  commonImage: 'ubuntu22-04',
+                  rootDiskType: 'default',
+                  rootDiskSize: 'default',
+                  vmUserPassword: 'test',
+                  connectionName: 'azure-koreacentral',
+                },
+              ],
+            },
+            task_component: 'beetle_task_infra_migration',
+          },
+        ],
+      },
+    ],
+  },
+  description: '',
+  id: '',
+  name: '',
+  updateDatetime: '',
+};
+
+let t2 = {
   createdDatetime: '',
   data: {
     description: '',
     task_groups: [
       {
         description: 'string',
-        name: '',
+        name: 'Task Group',
         tasks: [
           {
             dependencies: ['any[]'],
-            name: 'string',
+            name: 'bettle_task',
             path_params: 'any',
             request_body: {
-              name: 'string',
+              name: 'bettle_task',
               installMonAgent: 'string',
               label: 'string',
               systemLabel: 'string',
@@ -112,11 +89,11 @@ let t: IWorkflow = {
         task_groups: [
           {
             description: 'string',
-            name: '',
+            name: 'Task Group',
             tasks: [
               {
                 dependencies: ['any[]'],
-                name: 'string',
+                name: 'bettle_task',
                 path_params: 'any',
                 request_body: {
                   name: 'string',
@@ -141,12 +118,12 @@ let t: IWorkflow = {
   updateDatetime: '',
 };
 
-let tt = workflowToolModel.setWorkflowSequenceModel(t);
+let tt = workflowToolModel.setWorkflowSequenceModel(t2);
 onMounted(function () {
   let refs = this.$refs;
 
   flowChart = useFlowChartModel(refs);
-  flowChart.designerOptionsState.sequence = tt.sequence;
+  flowChart.setDefaultSequence(tt.sequence);
   flowChart.initDesigner();
   flowChart.draw();
 });
@@ -176,14 +153,18 @@ onMounted(function () {
     border-width: 1px;
     border-radius: 6px;
     padding: 2px;
+
     .sqd-smart-editor-toggle {
       right: 500px;
     }
+
     .sqd-smart-editor-toggle.sqd-collapsed {
       right: 0;
     }
+
     .sqd-smart-editor {
       width: 500px;
+
       .sqd-editor {
         width: 100%;
         height: 100%;

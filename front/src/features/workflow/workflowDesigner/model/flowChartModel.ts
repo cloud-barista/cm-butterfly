@@ -1,4 +1,8 @@
-import { Designer, DesignerConfiguration } from 'sequential-workflow-designer';
+import {
+  Designer,
+  DesignerConfiguration,
+  Sequence,
+} from 'sequential-workflow-designer';
 import { Definition, Step } from 'sequential-workflow-model';
 import getRandomId from '@/shared/utils/uuid';
 import { toolboxSteps } from '@/features/workflow/workflowDesigner/model/toolboxSteps.ts';
@@ -34,12 +38,8 @@ export function useFlowChartModel(refs: any) {
       properties: {
         workflow: workflowName,
       },
-      sequence: setDefaultSequence(sequence),
+      sequence: sequence,
     };
-  }
-
-  function setDefaultSequence(serverData: any): Array<any> {
-    return [...serverData];
   }
 
   function defineStepEvent() {
@@ -130,6 +130,10 @@ export function useFlowChartModel(refs: any) {
     };
   }
 
+  function setDefaultSequence(sequence: Sequence) {
+    designerOptionsState.sequence = [...sequence];
+  }
+
   function initDesigner() {
     if (designer) {
       designer.destroy();
@@ -149,5 +153,11 @@ export function useFlowChartModel(refs: any) {
     });
   }
 
-  return { designer, designerOptionsState, initDesigner, draw };
+  return {
+    designer,
+    designerOptionsState,
+    setDefaultSequence,
+    initDesigner,
+    draw,
+  };
 }

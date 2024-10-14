@@ -12,75 +12,110 @@ import getRandomId from '@/shared/utils/uuid';
 
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
+  function getWorkflowToolData(
+    type: 'template' | 'data' = 'data',
+    workflowId: string,
+  ) {
+    let workflow;
+    if (type === 'template') {
+      workflow = workflowStore.getTemplateById(workflowId);
+    } else {
+      workflow = workflowStore.getWorkFlowById(workflowId);
+    }
 
-  function getWorkflowToolData(workflowId: string) {
-    const workflow = workflowStore.getWorkFlowById(workflowId);
     if (workflow) {
-      setWorkflowSequenceModel(workflow);
+      convertWorkFlowToDesignerFormData(workflow);
     }
   }
 
-  function setWorkflowSequenceModel(
+  function convertWorkFlowToDesignerFormData(
     workflow: IWorkflow,
   ): IWorkFlowDesignerFormData {
-    const sequence = processTaskGroups(workflow.data.task_groups);
+    const sequence: Step[] = [];
 
-    function processTaskGroups(taskGroups: ITaskGroupResponse[]): Step[] {
-      const sequence: Step[] = [];
-      for (let i = 0; i < taskGroups.length; i++) {
-        const steps: Step[] = [];
-        const currentSequence = convertToDesignerTaskGroup(taskGroups[i]);
-        steps.push(currentSequence);
+    // 스택에 부모 taskGroup과 현재 taskGroup을 함께 저장
+    const stack: {
+      parentTaskGroup: Step | null;
+      currentTaskGroup: ITaskGroupResponse;
+    }[] = workflow.data.task_groups.map(taskGroup => ({
+      parentTaskGroup: null,
+      currentTaskGroup: taskGroup,
+    }));
 
-        if (taskGroups[i].task_groups) {
-          steps.push(...processTaskGroups(taskGroups[i].task_groups));
+    while (stack.length) {
+      const { parentTaskGroup, currentTaskGroup } = stack.pop()!;
+
+      const currentDesignerTaskGroup =
+        convertToDesignerTaskGroup(currentTaskGroup);
+
+      if (currentTaskGroup.tasks) {
+        for (const task of currentTaskGroup.tasks) {
+          const currentDesignerTask = convertToDesignerTask(task);
+          currentDesignerTaskGroup.sequence!.push(currentDesignerTask);
         }
-        sequence.push(...steps);
       }
 
-      return sequence;
+      if (parentTaskGroup) {
+        parentTaskGroup.sequence!.push(currentDesignerTaskGroup);
+      } else {
+        sequence.push(currentDesignerTaskGroup);
+      }
+
+      if (currentTaskGroup.task_groups) {
+        for (const subTaskGroups of currentTaskGroup.task_groups) {
+          stack.push({
+            parentTaskGroup: currentDesignerTaskGroup,
+            currentTaskGroup: subTaskGroups,
+          });
+        }
+      }
     }
 
-    function convertToDesignerTask(task: ITaskResponse): Step {
-      return {
-        id: getRandomId(),
-        name: task.name,
-        componentType: 'task',
-        type: 'bettle_task',
-        properties: {
-          isDeletable: true,
-          mci: {
-            name: task.request_body.name,
-            description: task.request_body.description,
-            vms: task.request_body.vm.map(vm => ({
-              id: vm.label,
-              name: vm.name,
-              serverQuantity: vm.subGroupSize,
-              commonSpec: vm.commonSpec,
-              osImage: vm.commonImage,
-              diskType: vm.rootDiskType,
-              diskSize: vm.rootDiskSize,
-              password: vm.vmUserPassword,
-              connectionName: vm.connectionName,
-            })),
-          },
-        },
-      };
-    }
-
-    function convertToDesignerTaskGroup(taskGroup: ITaskGroupResponse): Step {
-      return {
-        id: getRandomId(),
-        name: taskGroup.name,
-        componentType: 'container',
-        type: 'MCI',
-        properties: {
-          isDeletable: true,
-        },
-        sequence: taskGroup.tasks.map(task => convertToDesignerTask(task)),
-      };
-    }
     return { sequence };
   }
-  return { getWorkflowToolData, setWorkflowSequenceModel };
+
+  function convertToDesignerTask(task: ITaskResponse): Step {
+    return {
+      id: getRandomId(),
+      name: task.name,
+      componentType: 'task',
+      type: 'bettle_task',
+      properties: {
+        isDeletable: true,
+        mci: {
+          name: task.request_body.name,
+          description: task.request_body.description,
+          vms: task.request_body.vm.map(vm => ({
+            id: vm.label,
+            name: vm.name,
+            serverQuantity: vm.subGroupSize,
+            commonSpec: vm.commonSpec,
+            osImage: vm.commonImage,
+            diskType: vm.rootDiskType,
+            diskSize: vm.rootDiskSize,
+            password: vm.vmUserPassword,
+            connectionName: vm.connectionName,
+          })),
+        },
+      },
+    };
+  }
+
+  function convertToDesignerTaskGroup(taskGroup: ITaskGroupResponse): Step {
+    return {
+      id: getRandomId(),
+      name: taskGroup.name,
+      componentType: 'container',
+      type: 'MCI',
+      properties: {
+        isDeletable: true,
+      },
+      sequence: [],
+    };
+  }
+
+  return {
+    getWorkflowToolData,
+    setWorkflowSequenceModel: convertWorkFlowToDesignerFormData,
+  };
 }
