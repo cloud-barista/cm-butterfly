@@ -2,18 +2,13 @@
 import { PTooltip, PIconButton, PBreadcrumbs } from '@cloudforet-test/mirinae';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
-// import { useBreadcrumbs } from '@/shared/hooks/breadcrumb';
-// import { useGnbStore } from '@/shared/libs/store/gnb-store';
 import type { Breadcrumb } from '@/shared/types';
-import { computed, reactive, ref, watch, watchEffect } from 'vue';
+import { computed, reactive, ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router/composables';
 import { clone } from 'lodash';
 
 const sidebar = useSidebar();
-// const gnbStore = useGnbStore();
-// const gnbGetters = gnbStore.getters;
 const route = useRoute();
-// const { breadcrumbs } = useBreadcrumbs();
 const dictionary = [
   'migration',
   'guide',

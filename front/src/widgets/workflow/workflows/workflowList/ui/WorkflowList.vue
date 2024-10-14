@@ -5,19 +5,19 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { useTargetModelListModel } from '../model/targetModelListModel';
+import { useWorkflowListModel } from '../model/workflowListModel';
 import { insertDynamicComponent } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, watchEffect, reactive } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
 
-const { tableModel, initToolBoxTableModel, targetModelStore, targetModels } =
-  useTargetModelListModel();
+const { tableModel, initToolBoxTableModel, workflowsStore, workflows } =
+  useWorkflowListModel();
 
 const emit = defineEmits(['select-row']);
 
 const modals = reactive({
   alertModalState: { open: false },
-  sourceModelAddModalState: { open: false },
+  workflowAddModalState: { open: false },
 });
 
 onBeforeMount(() => {
@@ -38,8 +38,9 @@ function addDeleteIconAtTable() {
     },
     {
       click: () => {
-        if (tableModel.tableState.selectIndex.length > 0)
+        if (tableModel.tableState.selectIndex.length > 0) {
           modals.alertModalState.open = true;
+        }
       },
     },
     targetElement,
@@ -63,7 +64,7 @@ function handleSelectedIndex(selectedIndex: number) {
 
 watchEffect(() => {
   // TODO: api 연결 후 수정
-  tableModel.tableState.items = targetModels.value;
+  tableModel.tableState.items = workflows.value;
 });
 </script>
 
@@ -92,9 +93,7 @@ watchEffect(() => {
           @select="handleSelectedIndex"
         >
           <template #toolbox-left>
-            <p-button style-type="primary" icon-left="ic_plus_bold" disabled>
-              Add
-            </p-button>
+            <p-button disabled icon-left="ic_plus_bold">Add</p-button>
           </template>
         </p-toolbox-table>
       </template>

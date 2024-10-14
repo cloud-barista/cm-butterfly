@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { clone } from 'lodash';
-import { PI } from '@cloudforet-test/mirinae';
 import { IMigratorMenu, MENU_ID } from '@/entities';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
@@ -16,7 +15,7 @@ const sidebar = useSidebar();
 const route = useRoute();
 const getMenuTree = useGetMenuTree();
 
-const { isMinimized, isCollapsed, isHovered } = storeToRefs(sidebar);
+const { isCollapsed } = storeToRefs(sidebar);
 
 const isDataLoaded = ref<boolean>(false);
 const loadedCnt = ref(0);
@@ -61,6 +60,9 @@ async function fetchMenuTree() {
       data.responseData.length > 0 &&
       data.responseData[0].id === MENU_ID.MIGRATIONS
     ) {
+      data.responseData[0].menus?.sort((a: IMigratorMenu, b: IMigratorMenu) => {
+        return a.priority - b.priority;
+      });
       data.responseData[0].menus?.forEach((migratorMenu: IMigratorMenu) => {
         migratorMenuStore.setMigratorMenu(migratorMenu);
       });
@@ -72,10 +74,7 @@ async function fetchMenuTree() {
 <template>
   <div v-if="!isCollapsed">
     <div v-for="(m, idx) in migratorMenu" :key="idx" class="menu">
-      <span
-        v-if="!isMinimized || (isMinimized && isHovered)"
-        class="menu-category"
-      >
+      <span class="menu-category">
         {{ m.category.name }}
       </span>
       <router-link
@@ -96,17 +95,7 @@ async function fetchMenuTree() {
         }"
       >
         <div class="menu-wrapper">
-          <!-- <p-i
-            name="ic_folder"
-            class="menu-button"
-            height="1.25rem"
-            width="1.25rem"
-            color="inherit"
-          /> -->
-          <div
-            v-if="!isMinimized || (isMinimized && isHovered)"
-            class="menu-container"
-          >
+          <div class="menu-container">
             <span class="menu-title">{{ n.name }}</span>
           </div>
         </div>

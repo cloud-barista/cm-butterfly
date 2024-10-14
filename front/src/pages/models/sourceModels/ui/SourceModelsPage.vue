@@ -46,10 +46,7 @@ const recommendedModelList = ref<any>([]);
     </header>
     <section :class="`${pageName}-page-body`">
       <source-model-list @select-row="handleClickSourceModelId" />
-      <p
-        v-if="!selectedSourceModelId"
-        class="flex justify-center text-gray-300 text-sm font-normal"
-      >
+      <p v-if="!selectedSourceModelId" class="more-details">
         Select an item for more details.
       </p>
       <div v-if="selectedSourceModelId">
