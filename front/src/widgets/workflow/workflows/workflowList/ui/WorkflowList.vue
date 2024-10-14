@@ -8,9 +8,20 @@ import {
 import { useWorkflowListModel } from '../model/workflowListModel';
 import { insertDynamicComponent } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, reactive, watchEffect } from 'vue';
+import {
+  onBeforeMount,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+  watchEffect,
+} from 'vue';
+import { IWorkflowResponse, useGetWorkflowList } from '@/entities';
 
-const { tableModel, initToolBoxTableModel, workflows } = useWorkflowListModel();
+const getWorkflowList = useGetWorkflowList();
+
+const { tableModel, initToolBoxTableModel, workflows, workflowsStore } =
+  useWorkflowListModel();
 
 const emit = defineEmits(['select-row']);
 
@@ -60,10 +71,42 @@ function handleSelectedIndex(selectedIndex: number) {
   }
 }
 
-watchEffect(() => {
-  // TODO: api 연결 후 수정
-  tableModel.tableState.items = workflows.value;
-});
+const fetchCnt = ref(0);
+// TODO: 무한루프 해결하기
+watchEffect(
+  async () => {
+    try {
+      const { data } = await getWorkflowList.execute();
+      if (
+        data.status?.code === 200 &&
+        data.responseData &&
+        data.responseData.length > 0 &&
+        fetchCnt.value === 0
+      ) {
+        data.responseData.forEach((workflow: IWorkflowResponse) => {
+          workflows.value = [
+            ...workflows.value,
+            {
+              name: workflow.name,
+              id: workflow.id,
+              description: workflow.description,
+              data: {},
+              createdDatetime: workflow.createdAt,
+              updatedDatetime: workflow.updatedAt,
+              workflowTool: '',
+              workflowJSON: '',
+              run: '',
+            },
+          ];
+          fetchCnt.value += 1;
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  { flush: 'post' },
+);
 </script>
 
 <template>
