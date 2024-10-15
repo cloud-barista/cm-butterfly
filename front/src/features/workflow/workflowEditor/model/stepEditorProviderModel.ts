@@ -20,18 +20,20 @@ export function useStepEditorProviderModel() {
         type: 'text',
       },
     },
-    accordions: [loadAccordionSlotModel(false)],
+    accordions: [loadAccordionSlotModel()],
   });
 
   function addAccordionSlot() {
     // @ts-ignore
-    formValues.accordions.push(loadAccordionSlotModel(false));
+    formValues.accordions.push(loadAccordionSlotModel());
   }
-  function loadAccordionSlotModel(visible: boolean) {
+  function loadAccordionSlotModel() {
     return {
-      icon: 'ic_chevron-down',
-      visible,
-      value: {
+      header: {
+        icon: 'ic_chevron-down',
+        title: 'VM Name',
+      },
+      content: {
         vms: loadVmsModel(),
       },
     };

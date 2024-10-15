@@ -3,6 +3,7 @@ import { PButton, PIconButton, PTextInput } from '@cloudforet-test/mirinae';
 import { onMounted, onUnmounted, reactive, ref, toRef, watch } from 'vue';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import { useStepEditorProviderModel } from '@/features/workflow/workflowEditor/model/stepEditorProviderModel.ts';
+import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
 
 interface IProps {
   id: ref<string>;
@@ -12,6 +13,46 @@ const props = defineProps<IProps>();
 const emit = defineEmits(['button-click']);
 
 const stepEditorProviderModel = useStepEditorProviderModel();
+
+const t = [
+  {
+    title: 'test',
+    content: '1',
+    children: [
+      {
+        title: 'test2',
+        content: '12',
+        children: [
+          {
+            title: 'test24',
+            content: '124',
+            children: [
+              {
+                title: 'test24',
+                content: '124',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'test',
+    content: '1',
+    children: [
+      {
+        title: 'test2',
+        content: '12',
+      },
+    ],
+  },
+  {
+    title: 'test3',
+    content: '3',
+  },
+];
+
 watch(props, nv => {
   console.log('update!');
   console.log(nv);
@@ -29,16 +70,17 @@ onMounted(() => {
     <div class="header">
       test
       <p-button
-        @click="stepEditorProviderModel.addAccordionSlot"
-        icon-left="ic_plus"
         :style-type="'secondary'"
+        icon-left="ic_plus"
+        @click="stepEditorProviderModel.addAccordionSlot"
       >
         Add Entity
       </p-button>
     </div>
     <div
+      v-for="(entity, index) in stepEditorProviderModel.formValues.entity"
+      :key="index"
       class="field-group flex justify-between align-items-center"
-      v-for="entity in stepEditorProviderModel.formValues.entity"
     >
       <div class="field-title-box">
         {{ entity.title }}
@@ -55,79 +97,58 @@ onMounted(() => {
     </div>
 
     <section class="vm-list">
-      <div class="header">
-        test
-        <button @click="stepEditorProviderModel.addAccordionSlot">tests</button>
-      </div>
-
-      <div class="accordion" role="tablist">
-        <b-card
-          no-body
-          v-for="(accordion, index) in stepEditorProviderModel.formValues
-            .accordions"
-          :key="index"
-        >
-          <b-card-header header-tag="header" role="tab">
-            <div
-              class="field-group flex justify-between align-items-center"
-              v-for="vms in accordion.value"
-            >
-              <div class="field-title-box">
-                <PIconButton
-                  v-b-toggle="'accordion-' + (index + 1)"
-                  :name="accordion.icon"
-                  :size="'sm'"
-                ></PIconButton>
-                {{ vms.header.vmName.title }}
-              </div>
-              <div class="field-content-box">
+      <BAccordion :items="stepEditorProviderModel.formValues.accordions">
+        <template #header="{ item, click }">
+          <div class="field-group flex justify-between align-items-center">
+            <div class="field-title-box">
+              <PIconButton :name="item.header.icon" :size="'sm'"></PIconButton>
+              {{ item.header.title }}
+            </div>
+            <div class="field-content-box">
+              <p-text-input
+                :size="'md'"
+                block
+                v-model="vms.header.vmName.model.value"
+                :invalid="!vms.header.vmName.model.isValid"
+                @blur="vms.header.vmName.model.onBlur"
+              ></p-text-input>
+            </div>
+          </div>
+        </template>
+        <template #content="{ content }">
+          <!--          <div class="custom-content">{{ content }} - 부모 기본 콘텐츠</div>-->
+          <div
+            class="field-group flex justify-between align-items-center"
+            v-for="vms in accordion.value.vms.body"
+          >
+            <div class="field-title-box">
+              {{ vms.title }}
+            </div>
+            <div class="field-content-box">
+              <template v-if="vms.type === 'text'">
                 <p-text-input
                   :size="'md'"
                   block
-                  v-model="vms.header.vmName.model.value"
-                  :invalid="!vms.header.vmName.model.isValid"
-                  @blur="vms.header.vmName.model.onBlur"
+                  v-model="vms['model'].value"
+                  :invalid="!vms['model'].isValid"
+                  @blur="vms['model'].onBlur"
                 ></p-text-input>
-              </div>
-            </div>
-          </b-card-header>
-          <b-collapse
-            :id="'accordion-' + (index + 1)"
-            :visible="accordion.visible"
-            accordion="my-accordion"
-            role="tabpanel"
-          >
-            <b-card-body>
-              <div
-                class="field-group flex justify-between align-items-center"
-                v-for="vms in accordion.value.vms.body"
-              >
-                <div class="field-title-box">
-                  {{ vms.title }}
-                </div>
-                <div class="field-content-box">
-                  <template v-if="vms.type === 'text'">
-                    <p-text-input
-                      :size="'md'"
-                      block
-                      v-model="vms['model'].value"
-                      :invalid="!vms['model'].isValid"
-                      @blur="vms['model'].onBlur"
-                    ></p-text-input>
-                  </template>
+              </template>
 
-                  <template v-else-if="vms.type === 'select'">
-                    <b-form-select
-                      v-model="vms['selected']"
-                      :options="vms['options']"
-                      :required="true"
-                    ></b-form-select>
-                  </template>
-                </div>
-              </div>
-            </b-card-body>
-          </b-collapse>
-        </b-card>
+              <template v-else-if="vms.type === 'select'">
+                <b-form-select
+                  v-model="vms['selected']"
+                  :options="vms['options']"
+                  :required="true"
+                ></b-form-select>
+              </template>
+            </div>
+          </div>
+        </template>
+      </BAccordion>
+      <div class="header">
+        test
+        <button @click="stepEditorProviderModel.addAccordionSlot">tests</button>
       </div>
     </section>
   </div>
@@ -170,6 +191,7 @@ onMounted(() => {
 
         .field-group {
           border-bottom: none;
+
           .field-title-box {
             padding-left: 10px;
           }
@@ -192,6 +214,7 @@ onMounted(() => {
 
         .field-group {
           border-bottom: none;
+
           .field-title-box {
             padding-left: 34px;
           }
