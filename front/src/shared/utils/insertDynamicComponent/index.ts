@@ -13,6 +13,7 @@ export function insertDynamicComponent(
   insertMethod?: InsertMethod,
 ): Vue {
   const ComponentConstructor = Vue.extend(component);
+  console.log(propsData);
 
   const instance = new ComponentConstructor({ propsData }).$mount();
 

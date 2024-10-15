@@ -8,11 +8,17 @@ import { createPinia, PiniaVuePlugin } from 'pinia';
 import VueRouter from 'vue-router';
 import { McmpRouter } from './app/providers/router';
 import { i18n } from './app/i18n';
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 const pinia = createPinia();
 Vue.use(PiniaVuePlugin);
 Vue.use(MirinaeDesignSystem);
 Vue.use(VueRouter);
+Vue.use(BootstrapVue);
+Vue.use(IconsPlugin);
 
 new Vue({
   i18n,

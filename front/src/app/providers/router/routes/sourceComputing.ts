@@ -1,6 +1,6 @@
 import { RouteConfig } from 'vue-router';
 import { SOURCE_COMPUTING_ROUTE } from './constants';
-import SourceServicePage from '@/pages/sourceServices/ui/SourceServicePage.vue';
+import SourceTemplate from '@/pages/sourceTemplate/ui/SourceTemplate.vue';
 
 export const sourceComputingRoutes: RouteConfig[] = [
   {
@@ -11,7 +11,7 @@ export const sourceComputingRoutes: RouteConfig[] = [
       {
         path: 'source-services',
         name: SOURCE_COMPUTING_ROUTE.SOURCE_SERVICES._NAME,
-        component: SourceServicePage,
+        component: SourceTemplate,
         meta: {
           menuId: SOURCE_COMPUTING_ROUTE.SOURCE_SERVICES._NAME,
           category: SOURCE_COMPUTING_ROUTE._NAME,
