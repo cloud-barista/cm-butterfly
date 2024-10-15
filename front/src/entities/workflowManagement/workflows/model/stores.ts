@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
-import type { IWorkflow } from './types';
+import type { IWorkflowList } from './types';
 import { formatDate } from '@/shared/utils';
 
 export const useWorkflowsStore = defineStore('WORKFLOWS', {
   state: () => ({
-    workflows: [] as IWorkflow[],
+    workflows: [] as IWorkflowList[],
   }),
   getters: {
     getWorkflowById: state => (id: string) => {
@@ -12,7 +12,7 @@ export const useWorkflowsStore = defineStore('WORKFLOWS', {
     },
   },
   actions: {
-    setWorkflows(workflows: IWorkflow[]) {
+    setWorkflows(workflows: IWorkflowList[]) {
       this.workflows = workflows;
     },
   },

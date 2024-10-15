@@ -12,8 +12,17 @@ const pageName = 'Workflows';
 
 const selectedWorkflowId = ref<string>('');
 const workflowName = ref<string>('');
+const workflowJson = ref<object>({});
 
 const modalState = reactive({
+  addWorkflow: {
+    open: false,
+    trigger: false,
+    updateTrigger() {
+      this.trigger = false;
+    },
+  },
+
   editModal: { open: false, trigger: false },
   workflowToolModal: { open: false, trigger: false },
   workflowJsonModal: { open: false, trigger: false },
@@ -40,7 +49,11 @@ function handleClickWorkflowId(id: string) {
       <p>{{ pageName }}</p>
     </header>
     <section :class="`${pageName}-page-body`">
-      <workflow-list @select-row="handleClickWorkflowId" />
+      <workflow-list
+        :trigger="modalState.addWorkflow.trigger"
+        @select-row="handleClickWorkflowId"
+        @update:trigger="modalState.addWorkflow.updateTrigger"
+      />
       <p v-if="!selectedWorkflowId" class="more-details">
         Select an item for more details.
       </p>
@@ -63,6 +76,7 @@ function handleClickWorkflowId(id: string) {
                 modalState.workflowJsonModal.open = true
               "
               @update:workflow-name="e => (workflowName = e)"
+              @update:workflow-json="e => (workflowJson = e)"
             />
           </template>
         </p-tab>
@@ -82,7 +96,9 @@ function handleClickWorkflowId(id: string) {
       <workflow-json-viewer
         v-if="modalState.workflowJsonModal.open"
         title="Custom & View Workflow"
+        :workflow-id="selectedWorkflowId"
         :workflow-name="workflowName"
+        :workflow-json="workflowJson"
         @update:close-modal="e => (modalState.workflowJsonModal.open = e)"
       />
     </div>

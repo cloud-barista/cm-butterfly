@@ -6,28 +6,36 @@ import {
   PButtonModal,
 } from '@cloudforet-test/mirinae';
 import { useWorkflowListModel } from '../model/workflowListModel';
-import { insertDynamicComponent } from '@/shared/utils';
+import { insertDynamicComponent, showSuccessMessage } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
+import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
+import { IWorkflowResponse } from '@/entities';
+// import { useGetWorkFlowList } from '@/entities';
 import {
-  onBeforeMount,
-  onMounted,
-  reactive,
-  ref,
-  watch,
-  watchEffect,
-} from 'vue';
-import { IWorkflowResponse, useGetWorkflowList } from '@/entities';
+  useGetWorkFlowList,
+  useBulkDeleteWorkflow,
+} from '@/entities/workflowManagement';
+import { useWorkflowStore } from '@/entities';
+import { storeToRefs } from 'pinia';
+import { showErrorMessage } from '@/shared/utils';
 
-const getWorkflowList = useGetWorkflowList();
+const getWorkflowList = useGetWorkFlowList();
 
-const { tableModel, initToolBoxTableModel, workflows, workflowsStore } =
+const { tableModel, initToolBoxTableModel, workflowStore } =
   useWorkflowListModel();
 
-const emit = defineEmits(['select-row']);
+interface iProps {
+  trigger: boolean;
+}
+
+const props = defineProps<iProps>();
+
+const emit = defineEmits(['select-row', 'update:trigger']);
 
 const modal = reactive({
   alertModalState: { open: false },
 });
+const fetchCnt = ref(0);
 
 onBeforeMount(() => {
   initToolBoxTableModel();
@@ -35,6 +43,7 @@ onBeforeMount(() => {
 
 onMounted(function (this: any) {
   addDeleteIconAtTable.bind(this)();
+  fetchWorkflowList();
 });
 
 function addDeleteIconAtTable(this: any) {
@@ -58,8 +67,30 @@ function addDeleteIconAtTable(this: any) {
   return instance;
 }
 
+function handleDeleteWorkflow() {
+  const selectedWorkflowsIds: any[] = [];
+
+  tableModel.tableState.selectIndex.reduce((acc, selectIndex) => {
+    acc.push(tableModel.tableState.displayItems[selectIndex].id);
+    return acc;
+  }, selectedWorkflowsIds);
+
+  if (selectedWorkflowsIds.length > 0) {
+    useBulkDeleteWorkflow(selectedWorkflowsIds)
+      .then(res => {
+        handleRefreshTable();
+        showSuccessMessage('success', 'Delete Success');
+      })
+      .catch(err => {
+        showErrorMessage('Error', err);
+      });
+  }
+}
+
 function handleRefreshTable() {
   tableModel.initState();
+  emit('select-row', '');
+  fetchWorkflowList();
 }
 
 function handleSelectedIndex(selectedIndex: number) {
@@ -71,41 +102,29 @@ function handleSelectedIndex(selectedIndex: number) {
   }
 }
 
-const fetchCnt = ref(0);
-// TODO: 무한루프 해결하기
-watchEffect(
-  async () => {
-    try {
-      const { data } = await getWorkflowList.execute();
-      if (
-        data.status?.code === 200 &&
-        data.responseData &&
-        data.responseData.length > 0 &&
-        fetchCnt.value === 0
-      ) {
-        data.responseData.forEach((workflow: IWorkflowResponse) => {
-          workflows.value = [
-            ...workflows.value,
-            {
-              name: workflow.name,
-              id: workflow.id,
-              description: workflow.description,
-              data: {},
-              createdDatetime: workflow.createdAt,
-              updatedDatetime: workflow.updatedAt,
-              workflowTool: '',
-              workflowJSON: '',
-              run: '',
-            },
-          ];
-          fetchCnt.value += 1;
-        });
-      }
-    } catch (error) {
-      console.error(error);
+async function fetchWorkflowList() {
+  try {
+    const { data } = await getWorkflowList.execute();
+    if (
+      data.status?.code === 200 &&
+      data.responseData &&
+      data.responseData.length > 0
+    )
+      workflowStore.setWorkFlows(data.responseData);
+  } catch (e) {
+    // if (e.errorMsg.value) showErrorMessage('Error', e.errorMsg.value);
+    console.log(e);
+  }
+}
+
+watch(
+  () => props.trigger,
+  nv => {
+    if (nv) {
+      handleRefreshTable();
+      emit('update:trigger');
     }
   },
-  { flush: 'post' },
 );
 </script>
 
@@ -155,6 +174,7 @@ watchEffect(
       @confirm="
         () => {
           modal.alertModalState.open = false;
+          handleDeleteWorkflow();
         }
       "
     />

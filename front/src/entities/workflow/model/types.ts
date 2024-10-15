@@ -2,12 +2,13 @@ export interface IWorkflow {
   id: string;
   name: string;
   description: string;
-  createdDatetime: string;
-  updateDatetime: string;
+  created_at: string;
+  updated_at: string;
   data: IWorkflowResponse['data'];
 }
 export interface ITaskGroupResponse {
   description: string;
+  id: string;
   name: string;
   tasks: Array<ITaskResponse>;
   task_groups?: Array<ITaskGroupResponse>;
@@ -46,4 +47,6 @@ export interface IWorkflowResponse {
   };
   name: string;
   id: string;
+  created_at: any;
+  updated_at: any;
 }

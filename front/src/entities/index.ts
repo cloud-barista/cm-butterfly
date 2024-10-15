@@ -9,3 +9,6 @@ export * from './cloudResources/api';
 export * from './sourceModels';
 export * from './targetModels';
 export * from './workflow';
+export * from './workflowManagement/taskComponents';
+export * from './workflowManagement/workflowTemplates';
+export * from './workflowManagement/workflows';

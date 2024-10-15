@@ -1,23 +1,24 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import type { IWorkflow } from '@/entities';
-import { useWorkflowsStore, WorkflowTableType } from '@/entities';
+import { WorkflowTableType } from '@/entities/workflowManagement';
+import { useWorkflowStore } from '@/entities';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 
 export function useWorkflowListModel() {
   const tableModel =
     useToolboxTableModel<Partial<Record<WorkflowTableType, any>>>();
-  const workflowsStore = useWorkflowsStore();
-  const { workflows } = storeToRefs(workflowsStore);
+  const workflowStore = useWorkflowStore();
+  const { workflows } = storeToRefs(workflowStore);
 
   function initToolBoxTableModel() {
     tableModel.tableState.fields = [
       { name: 'name', label: 'Name' },
       { name: 'id', label: 'ID' },
       { name: 'description', label: 'Description' },
-      { name: 'data', label: 'Data' },
-      { name: 'createdDatetime', label: 'Created Date Time' },
-      { name: 'updatedDatetime', label: 'Updated Date Time' },
+      // { name: 'data', label: 'Data' },
+      { name: 'created_at', label: 'Created Date Time' },
+      { name: 'updated_at', label: 'Updated Date Time' },
       { name: 'run', label: '' },
     ];
 
@@ -28,7 +29,7 @@ export function useWorkflowListModel() {
           { name: 'name', label: 'Name' },
           { name: 'id', label: 'ID' },
           { name: 'description', label: 'Description' },
-          { name: 'data', label: 'Data' },
+          // { name: 'data', label: 'Data' },
           { name: 'createdDatetime', label: 'Created Date Time' },
           { name: 'updatedDatetime', label: 'Updated Date Time' },
         ],
@@ -44,23 +45,27 @@ export function useWorkflowListModel() {
       id: workflow.id,
       description: workflow.description,
       data: workflow.data,
-      createdDatetime: workflow.createdDatetime,
-      updatedDatetime: workflow.updatedDatetime,
+      created_at: workflow.created_at,
+      updated_at: workflow.updated_at,
       originalData: workflow,
     };
     return organizedDatum;
   }
 
-  watch(workflows, nv => {
-    tableModel.tableState.items = nv.map(value =>
-      organizeWorkflowsTableItem(value),
-    );
-  });
+  watch(
+    () => Object.values(workflows.value),
+    workflowArr => {
+      tableModel.tableState.items = workflowArr.map(value => {
+        return organizeWorkflowsTableItem(value);
+      });
+    },
+    { immediate: true },
+  );
 
   return {
     tableModel,
     workflows,
     initToolBoxTableModel,
-    workflowsStore,
+    workflowStore,
   };
 }

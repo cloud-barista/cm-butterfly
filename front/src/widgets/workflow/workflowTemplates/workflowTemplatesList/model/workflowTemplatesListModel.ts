@@ -1,6 +1,7 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import type { IWorkflowTemplate } from '@/entities';
-import { useWorkflowTemplatesStore, WorkflowTableType } from '@/entities';
+import { useWorkflowTemplatesStore } from '@/entities';
+import { WorkflowTableType } from '@/entities/workflowManagement';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 

@@ -1,9 +1,11 @@
-import { useWorkflowsStore, WorkflowTableType } from '@/entities';
+import { useWorkflowStore } from '@/entities';
+import { WorkflowTableType } from '@/entities/workflowManagement';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
 
 export function useWorkflowDetailModel() {
-  const workflowsStore = useWorkflowsStore();
+  // const workflowsStore = useWorkflowsStore();
+  const workflowStore = useWorkflowStore();
   const workflowId = ref<string | null>();
   const tableModel = useDefinitionTableModel<Record<WorkflowTableType, any>>();
 
@@ -18,15 +20,15 @@ export function useWorkflowDetailModel() {
       { label: 'Workflow Name', name: 'name' },
       { label: 'ID', name: 'id' },
       { label: 'Description', name: 'description' },
-      { label: 'Created Date Time', name: 'createdDatetime' },
-      { label: 'Updated Date Time', name: 'updatedDatetime' },
+      { label: 'Created Date Time', name: 'created_at' },
+      { label: 'Updated Date Time', name: 'updated_at' },
       { label: 'Workflow Tool', name: 'workflowTool', disableCopy: true },
       { label: 'Workflow JSON', name: 'workflowJSON', disableCopy: true },
     ];
   }
 
   function setDefineTableData(workflowId: string) {
-    const workflow = workflowsStore.getWorkflowById(workflowId);
+    const workflow = workflowStore.getWorkflowById(workflowId);
     let data: Partial<Record<WorkflowTableType, any>> = {};
 
     if (workflow) {
@@ -34,10 +36,10 @@ export function useWorkflowDetailModel() {
         name: workflow.name,
         id: workflow.id,
         description: workflow.description,
-        createdDatetime: workflow.createdDatetime,
-        updatedDatetime: workflow.updatedDatetime,
-        workflowTool: workflow.workflowTool,
-        workflowJSON: workflow.workflowJSON,
+        created_at: workflow.created_at,
+        updated_at: workflow.updated_at,
+        workflowTool: {},
+        workflowJSON: {},
       };
     }
     return data;
@@ -57,7 +59,7 @@ export function useWorkflowDetailModel() {
 
   return {
     setWorkflowId,
-    workflowsStore,
+    workflowStore,
     initTable,
     tableModel,
   };

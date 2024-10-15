@@ -1,4 +1,4 @@
-export interface IWorkflowResponse {
+export interface IWorkflowListResponse {
   createdAt: any;
   updatedAt: any;
   id: string;
@@ -19,7 +19,7 @@ export interface Workflow {
   createdDatetime: string | Date;
   updatedDatetime: string | Date;
 }
-export interface IWorkflow extends Workflow {
+export interface IWorkflowList extends Workflow {
   run: string;
   workflowTool: any;
   workflowJSON: any;
@@ -30,8 +30,8 @@ export type TWorkflowTableType =
   | 'id'
   | 'description'
   | 'data'
-  | 'createdDatetime'
-  | 'updatedDatetime';
+  | 'created_at'
+  | 'updated_at';
 
 export type WorkflowTableType =
   | TWorkflowTableType
