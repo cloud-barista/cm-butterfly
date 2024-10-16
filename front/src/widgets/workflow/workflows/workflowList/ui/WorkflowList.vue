@@ -6,20 +6,16 @@ import {
   PButtonModal,
 } from '@cloudforet-test/mirinae';
 import { useWorkflowListModel } from '../model/workflowListModel';
-import { insertDynamicComponent, showSuccessMessage } from '@/shared/utils';
-import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
-import { IWorkflowResponse } from '@/entities';
-// import { useGetWorkFlowList } from '@/entities';
 import {
-  useGetWorkFlowList,
-  useBulkDeleteWorkflow,
-} from '@/entities/workflowManagement';
-import { useWorkflowStore } from '@/entities';
-import { storeToRefs } from 'pinia';
-import { showErrorMessage } from '@/shared/utils';
+  insertDynamicComponent,
+  showSuccessMessage,
+  showErrorMessage,
+} from '@/shared/utils';
+import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
+import { useGetWorkflowList, useBulkDeleteWorkflow } from '@/entities';
 
-const getWorkflowList = useGetWorkFlowList();
+const getWorkflowList = useGetWorkflowList();
 
 const { tableModel, initToolBoxTableModel, workflowStore } =
   useWorkflowListModel();
@@ -35,7 +31,6 @@ const emit = defineEmits(['select-row', 'update:trigger']);
 const modal = reactive({
   alertModalState: { open: false },
 });
-const fetchCnt = ref(0);
 
 onBeforeMount(() => {
   initToolBoxTableModel();
@@ -112,7 +107,6 @@ async function fetchWorkflowList() {
     )
       workflowStore.setWorkFlows(data.responseData);
   } catch (e) {
-    // if (e.errorMsg.value) showErrorMessage('Error', e.errorMsg.value);
     console.log(e);
   }
 }

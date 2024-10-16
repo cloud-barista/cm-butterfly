@@ -15,7 +15,7 @@ const emit = defineEmits([
   'update:workflow-json',
 ]);
 
-const { workflowStore, setWorkflowId, initTable, tableModel } =
+const { workflowStore, initTable, tableModel, workflowId } =
   useWorkflowDetailModel();
 
 onBeforeMount(() => {
@@ -25,7 +25,7 @@ onBeforeMount(() => {
 watch(
   props,
   () => {
-    setWorkflowId(props.selectedWorkflowId);
+    workflowId.value = props.selectedWorkflowId;
   },
   { immediate: true },
 );
@@ -46,7 +46,7 @@ function handleJsonModal() {
 watchEffect(() => {
   emit(
     'update:workflow-json',
-    workflowStore.getWorkflowById(props.selectedWorkflowId)?.data,
+    workflowStore.getWorkflowById(workflowId.value)?.data,
   );
 });
 </script>

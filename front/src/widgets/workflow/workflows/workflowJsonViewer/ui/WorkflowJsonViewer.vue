@@ -1,43 +1,25 @@
 <script setup lang="ts">
-import {
-  PButton,
-  PJsonSchemaForm,
-  PTextEditor,
-} from '@cloudforet-test/mirinae';
+import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { JsonEditor } from '@/widgets/layout';
-import { useUpdateWorkflow } from '@/entities/workflowManagement';
-import { watchEffect, ref, watch, computed } from 'vue';
-import { showSuccessMessage, showErrorMessage } from '@/shared/utils';
-
-const updateWorkflow = useUpdateWorkflow(null, null);
+import { ref } from 'vue';
 
 interface iProps {
   title: string;
-  workflowId: string | any;
-  workflowName: string;
-  workflowJson: object | null | undefined | any;
+  name: string;
+  json: object | null | undefined | any;
+  schema: {
+    json: boolean;
+    properties: object;
+  };
+  readOnly: boolean;
 }
 
 const props = defineProps<iProps>();
 
-const emit = defineEmits(['update:close-modal']);
+const emit = defineEmits(['update:close-modal', 'update:api']);
 
-const updatedData = ref(props.workflowJson);
-
-const schema = {
-  json: true,
-  properties: {
-    description: {
-      type: 'string',
-      title: 'Description',
-    },
-    task_groups: {
-      type: 'array',
-      title: 'Task Groups',
-    },
-  },
-};
+const updatedData = ref(props.json);
 
 function handleModal() {
   emit('update:close-modal', false);
@@ -48,23 +30,9 @@ function handleSchemaUpdate(data: any) {
 }
 
 async function handleSave() {
-  emit('update:close-modal', false);
-  // TODO: update api (only data)
   if (updatedData.value !== null) {
-    const { data } = await updateWorkflow.execute({
-      pathParams: {
-        wfId: props.workflowId,
-      },
-      request: updatedData.value,
-      // pathParams: {
-      //   wfId: props.workflowId,
-      // },
-      // request: updatedData.value,
-    });
-
-    console.log(data);
-  } else {
-    showErrorMessage('Workflow data cannot be null.', 'error');
+    emit('update:close-modal', false);
+    emit('update:api', updatedData.value);
   }
 }
 </script>
@@ -72,7 +40,7 @@ async function handleSave() {
 <template>
   <create-form
     class="page-modal-layout"
-    :badge-title="workflowName"
+    :badge-title="name"
     :title="title"
     first-title="JSON Viewer"
     @update:modal-state="handleModal"
@@ -80,6 +48,7 @@ async function handleSave() {
     <template #add-info>
       <json-editor
         title="Target Model"
+        :read-only="readOnly"
         :json="schema.json"
         :shema-properties="schema.properties"
         :form-data="updatedData"

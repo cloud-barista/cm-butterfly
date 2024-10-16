@@ -1,9 +1,10 @@
-import { useTaskComponentsStore, TaskComponentTableType } from '@/entities';
+import { TaskComponentTableType } from '@/entities';
+import { useWorkflowStore } from '@/entities';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
 
 export function useTaskComponentsDetailModel() {
-  const taskComponentsStore = useTaskComponentsStore();
+  const workflowStore = useWorkflowStore();
   const taskComponentId = ref<string | null>();
   const tableModel =
     useDefinitionTableModel<Record<TaskComponentTableType, any>>();
@@ -19,8 +20,8 @@ export function useTaskComponentsDetailModel() {
       { label: 'Task Component Information', name: 'name' },
       { label: 'ID', name: 'id' },
       { label: 'Description', name: 'description' },
-      { label: 'Created Date Time', name: 'createdDatetime' },
-      { label: 'Updated Date Time', name: 'updatedDatetime' },
+      { label: 'Created Date Time', name: 'created_at' },
+      { label: 'Updated Date Time', name: 'updated_at' },
       {
         label: 'Task Component JSON',
         name: 'taskComponentJSON',
@@ -30,18 +31,17 @@ export function useTaskComponentsDetailModel() {
   }
 
   function setDefineTableData(taskComponentId: string) {
-    const taskComponent =
-      taskComponentsStore.getTaskComponentById(taskComponentId);
+    const taskComponent = workflowStore.getTaskComponentById(taskComponentId);
     let data: Partial<Record<TaskComponentTableType, any>> = {};
 
     if (taskComponent) {
       data = {
         name: taskComponent.name,
         id: taskComponent.id,
-        description: taskComponent.description,
-        createdDatetime: taskComponent.createdDatetime,
-        updatedDatetime: taskComponent.updatedDatetime,
-        taskComponentJSON: taskComponent.taskComponentJSON,
+        description: '',
+        created_at: taskComponent.created_at,
+        updated_at: taskComponent.updated_at,
+        taskComponentJSON: {},
       };
     }
     return data;
@@ -60,8 +60,9 @@ export function useTaskComponentsDetailModel() {
   });
 
   return {
+    taskComponentId,
     setTaskComponentId,
-    taskComponentsStore,
+    workflowStore,
     initTable,
     tableModel,
   };

@@ -62,5 +62,6 @@ export function useWorkflowDetailModel() {
     workflowStore,
     initTable,
     tableModel,
+    workflowId,
   };
 }

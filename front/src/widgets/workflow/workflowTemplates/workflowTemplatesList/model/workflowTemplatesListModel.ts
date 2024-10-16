@@ -1,24 +1,20 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
-import type { IWorkflowTemplate } from '@/entities';
-import { useWorkflowTemplatesStore } from '@/entities';
-import { WorkflowTableType } from '@/entities/workflowManagement';
+import { IWorkflow, useWorkflowStore } from '@/entities';
+import { WorkflowTemplateTableType } from '@/entities';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 
 export function useWorkflowTemplatesListModel() {
   const tableModel =
-    useToolboxTableModel<Partial<Record<WorkflowTableType, any>>>();
-  const workflowTemplatesStore = useWorkflowTemplatesStore();
-  const { workflowTemplates } = storeToRefs(workflowTemplatesStore);
+    useToolboxTableModel<Partial<Record<WorkflowTemplateTableType, any>>>();
+  const workflowStore = useWorkflowStore();
+  const { workflowTemplates } = storeToRefs(workflowStore);
 
   function initToolBoxTableModel() {
     tableModel.tableState.fields = [
       { name: 'name', label: 'Name' },
       { name: 'id', label: 'ID' },
       { name: 'description', label: 'Description' },
-      { name: 'data', label: 'Data' },
-      { name: 'createdDatetime', label: 'Created Date Time' },
-      { name: 'updatedDatetime', label: 'Updated Date Time' },
     ];
 
     tableModel.querySearchState.keyItemSet = [
@@ -28,26 +24,18 @@ export function useWorkflowTemplatesListModel() {
           { name: 'name', label: 'Name' },
           { name: 'id', label: 'ID' },
           { name: 'description', label: 'Description' },
-          { name: 'data', label: 'Data' },
-          { name: 'createdDatetime', label: 'Created Date Time' },
-          { name: 'updatedDatetime', label: 'Updated Date Time' },
         ],
       },
     ];
   }
 
-  function organizeWorkflowTemplatesTableItem(
-    workflowTemplate: IWorkflowTemplate,
-  ) {
+  function organizeWorkflowTemplatesTableItem(workflowTemplate: IWorkflow) {
     const organizedDatum: Partial<
-      Record<WorkflowTableType | 'originalData', any>
+      Record<WorkflowTemplateTableType | 'originalData', any>
     > = {
       name: workflowTemplate.name,
       id: workflowTemplate.id,
       description: workflowTemplate.description,
-      data: workflowTemplate.data,
-      createdDatetime: workflowTemplate.createdDatetime,
-      updatedDatetime: workflowTemplate.updatedDatetime,
       originalData: workflowTemplate,
     };
     return organizedDatum;
@@ -63,6 +51,6 @@ export function useWorkflowTemplatesListModel() {
     tableModel,
     workflowTemplates,
     initToolBoxTableModel,
-    workflowTemplatesStore,
+    workflowStore,
   };
 }

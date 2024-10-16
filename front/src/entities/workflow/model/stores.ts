@@ -4,16 +4,62 @@ import {
   IWorkflowResponse,
 } from '@/entities/workflow/model/types.ts';
 import { ref } from 'vue';
+import { ITaskComponent } from '@/entities';
 
 const NAMESPACE = 'WORKFLOW';
 
 export const useWorkflowStore = defineStore(NAMESPACE, () => {
   // const workflows = ref<Record<string, IWorkflow>>({});
   const workflows = ref<IWorkflow[]>([]);
-  const workflowTemplates = ref<Record<string, IWorkflow>>({});
+  // const workflowTemplates = ref<Record<string, IWorkflow>>({});
+  const workflowTemplates = ref<IWorkflow[]>([]);
+  const taskComponents = ref<ITaskComponent[]>([]);
 
-  function getWorkflowById(workflowId: string) {
+  function getWorkflowById(workflowId: string | null | undefined) {
     return workflows.value.find(workflow => workflow.id === workflowId);
+  }
+
+  function setWorkFlows(_workflows: IWorkflowResponse[]) {
+    workflows.value = _workflows.map(workflow => ({
+      created_at: workflow.created_at,
+      data: workflow.data,
+      name: workflow.name,
+      updated_at: workflow.updated_at,
+      id: workflow.id,
+      description: '',
+    }));
+  }
+
+  function getWorkflowTemplateById(templateId: string | null | undefined) {
+    return workflowTemplates.value.find(template => template.id === templateId);
+  }
+
+  function setWorkflowTemplates(_workflowTemplates: IWorkflowResponse[]) {
+    workflowTemplates.value = _workflowTemplates.map(template => ({
+      created_at: template.created_at,
+      data: template.data,
+      name: template.name,
+      updated_at: template.updated_at,
+      id: template.id,
+      description: '',
+    }));
+  }
+
+  function getTaskComponentById(taskComponentId: string | null | undefined) {
+    return taskComponents.value.find(
+      taskComponent => taskComponent.id === taskComponentId,
+    );
+  }
+
+  function setTaskComponents(_taskComponents: ITaskComponent[]) {
+    taskComponents.value = _taskComponents.map(taskComponent => ({
+      created_at: taskComponent.created_at,
+      data: taskComponent.data,
+      id: taskComponent.id,
+      name: taskComponent.name,
+      description: '',
+      updated_at: taskComponent.updated_at,
+    }));
   }
 
   // function getWorkFlowById(
@@ -31,28 +77,6 @@ export const useWorkflowStore = defineStore(NAMESPACE, () => {
   //     setWorkFlow(state, el);
   //   });
   // }
-
-  function setWorkFlows(_workflows: IWorkflowResponse[]) {
-    workflows.value = _workflows.map(workflow => ({
-      created_at: workflow.created_at,
-      data: workflow.data,
-      name: workflow.name,
-      updated_at: workflow.updated_at,
-      id: workflow.id,
-      description: '',
-    }));
-    // workflows.value = [
-    //   ...workflows.value,
-    //   {
-    //     created_at: _workflows.created_at,
-    //     data: _workflows.data,
-    //     name: _workflows.name,
-    //     updated_at: _workflows.updated_at,
-    //     id: _workflows.id,
-    //     description: '',
-    //   },
-    // ];
-  }
 
   function setWorkFlow(
     state: Record<string, IWorkflow>,
@@ -79,8 +103,13 @@ export const useWorkflowStore = defineStore(NAMESPACE, () => {
   return {
     workflows,
     workflowTemplates,
+    taskComponents,
     setWorkFlows,
     getWorkflowById,
+    setWorkflowTemplates,
+    getWorkflowTemplateById,
+    setTaskComponents,
+    getTaskComponentById,
     // getWorkFlowById: (workflowId: string) =>
     //   getWorkFlowById(workflows.value, workflowId),
     // getTemplateById: (templateId: string) =>

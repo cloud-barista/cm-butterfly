@@ -7,13 +7,26 @@ import {
   TaskComponentsList,
   WorkflowJsonViewer,
 } from '@/widgets/workflow';
+import { useUpdateTaskComponent } from '@/entities';
+import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+
+const updateTaskComponent = useUpdateTaskComponent(null, null);
 
 const pageName = 'Task Components';
 
 const selectedTaskComponentId = ref<string>('');
 const taskComponentName = ref<string>('');
+const taskComponentJson = ref<object>({});
 
 const modalState = reactive({
+  addTaskComponent: {
+    open: false,
+    trigger: false,
+    updateTrigger() {
+      this.trigger = false;
+    },
+  },
+
   editModal: { open: false, trigger: false },
   taskComponentJsonModal: { open: false, trigger: false },
 });
@@ -28,8 +41,48 @@ const mainTabState = reactive({
   ],
 });
 
+const schema = {
+  json: true,
+  properties: {
+    options: {
+      type: 'object',
+      title: 'Options',
+    },
+    param_option: {
+      type: 'object',
+      title: 'Param Option',
+    },
+  },
+};
+
 function handleClickTemplateComponentId(id: string) {
   selectedTaskComponentId.value = id;
+}
+
+async function handleUpdateTaskComponent(updatedData: object) {
+  try {
+    const { data } = await updateTaskComponent.execute({
+      pathParams: {
+        tcId: selectedTaskComponentId.value,
+      },
+      request: {
+        data: updatedData,
+      },
+    });
+
+    if (updatedData !== null && Object.keys(updatedData).length > 0) {
+      modalState.addTaskComponent.trigger = true;
+      showSuccessMessage(
+        'success',
+        'Task Component data updated successfully.',
+      );
+    } else {
+      showErrorMessage('error', 'Task Component data cannot be null.');
+    }
+  } catch (error) {
+    console.error(error);
+    showErrorMessage('error', 'Task Component data cannot be null.');
+  }
 }
 </script>
 
@@ -39,7 +92,11 @@ function handleClickTemplateComponentId(id: string) {
       <p>{{ pageName }}</p>
     </header>
     <section :class="`${pageName}-page-body`">
-      <task-components-list @select-row="handleClickTemplateComponentId" />
+      <task-components-list
+        :trigger="modalState.addTaskComponent.trigger"
+        @select-row="handleClickTemplateComponentId"
+        @update:trigger="modalState.addTaskComponent.updateTrigger"
+      />
       <p v-if="!selectedTaskComponentId" class="more-details">
         Select an item for more details.
       </p>
@@ -62,6 +119,7 @@ function handleClickTemplateComponentId(id: string) {
                 e => (modalState.taskComponentJsonModal.open = e)
               "
               @update:task-component-name="e => (taskComponentName = e)"
+              @update:task-component-json="e => (taskComponentJson = e)"
             />
           </template>
         </p-tab>
@@ -80,9 +138,13 @@ function handleClickTemplateComponentId(id: string) {
     <div class="relative z-70">
       <workflow-json-viewer
         v-if="modalState.taskComponentJsonModal.open"
+        :read-only="false"
+        :name="taskComponentName"
+        :schema="schema"
         title="Custom & View Task Component"
-        :workflow-name="taskComponentName"
+        :json="taskComponentJson"
         @update:close-modal="modalState.taskComponentJsonModal.open = false"
+        @update:api="handleUpdateTaskComponent"
       />
     </div>
   </div>

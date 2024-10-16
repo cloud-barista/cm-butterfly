@@ -1,6 +1,6 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import type { IWorkflow } from '@/entities';
-import { WorkflowTableType } from '@/entities/workflowManagement';
+import { WorkflowTableType } from '@/entities';
 import { useWorkflowStore } from '@/entities';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
@@ -30,8 +30,8 @@ export function useWorkflowListModel() {
           { name: 'id', label: 'ID' },
           { name: 'description', label: 'Description' },
           // { name: 'data', label: 'Data' },
-          { name: 'createdDatetime', label: 'Created Date Time' },
-          { name: 'updatedDatetime', label: 'Updated Date Time' },
+          { name: 'created_at', label: 'Created Date Time' },
+          { name: 'updated_at', label: 'Updated Date Time' },
         ],
       },
     ];
@@ -44,7 +44,6 @@ export function useWorkflowListModel() {
       name: workflow.name,
       id: workflow.id,
       description: workflow.description,
-      data: workflow.data,
       created_at: workflow.created_at,
       updated_at: workflow.updated_at,
       originalData: workflow,
@@ -52,15 +51,11 @@ export function useWorkflowListModel() {
     return organizedDatum;
   }
 
-  watch(
-    () => Object.values(workflows.value),
-    workflowArr => {
-      tableModel.tableState.items = workflowArr.map(value => {
-        return organizeWorkflowsTableItem(value);
-      });
-    },
-    { immediate: true },
-  );
+  watch(workflows, nv => {
+    tableModel.tableState.items = nv.map(value =>
+      organizeWorkflowsTableItem(value),
+    );
+  });
 
   return {
     tableModel,

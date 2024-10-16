@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import { PTab, PButton } from '@cloudforet-test/mirinae';
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted, watchEffect, watch } from 'vue';
 import {
   WorkflowList,
   WorkflowDetail,
   WorkflowJsonViewer,
 } from '@/widgets/workflow';
 import { SimpleEditForm } from '@/widgets/layout';
+import { useGetWorkflow, useUpdateWorkflow } from '@/entities';
+import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+
+const getWorkflow = useGetWorkflow(null);
+const updateWorkflow = useUpdateWorkflow(null, null);
 
 const pageName = 'Workflows';
 
 const selectedWorkflowId = ref<string>('');
 const workflowName = ref<string>('');
 const workflowJson = ref<object>({});
+const wfIdData = ref<object>({});
 
 const modalState = reactive({
   addWorkflow: {
@@ -38,9 +44,113 @@ const mainTabState = reactive({
   ],
 });
 
+const schema = {
+  json: true,
+  properties: {
+    description: {
+      type: 'string',
+      title: 'Description',
+    },
+    task_groups: {
+      type: 'array',
+      title: 'Task Groups',
+    },
+  },
+};
+
 function handleClickWorkflowId(id: string) {
   selectedWorkflowId.value = id;
 }
+
+async function getWorkflowById() {
+  try {
+    const { data } = await getWorkflow.execute({
+      pathParams: {
+        wfId: selectedWorkflowId.value,
+      },
+    });
+
+    if (
+      data.responseData?.data &&
+      Object.values(data.responseData.data).length > 0
+    ) {
+      wfIdData.value = data.responseData?.data;
+    }
+  } catch (error) {
+    showErrorMessage('error', 'Failed to get the workflow.');
+  }
+}
+
+// watch(selectedWorkflowId, () => {
+//   getWorkflowById();
+// });
+
+async function handleUpdateWorkflowEdit() {
+  try {
+    // TODO: 뭔가 이상함.
+    if (selectedWorkflowId.value.length > 0) {
+      await getWorkflowById();
+
+      if (Object.values(wfIdData.value).length > 0) {
+        const { data } = await updateWorkflow.execute({
+          pathParams: {
+            wfId: selectedWorkflowId.value,
+          },
+          request: {
+            data: wfIdData.value,
+            name: workflowName.value,
+          },
+        });
+
+        if (data.responseData?.data !== null) {
+          showSuccessMessage('success', 'Workflow data updated successfully.');
+          modalState.addWorkflow.trigger = true;
+        }
+      }
+    }
+  } catch (error) {
+    showErrorMessage('error', 'Failed to update the workflow.');
+  }
+}
+
+async function handleUpdateWorkflow(updatedData: object) {
+  try {
+    const { data } = await updateWorkflow.execute({
+      pathParams: {
+        wfId: selectedWorkflowId.value,
+      },
+      request: {
+        data: updatedData,
+      },
+    });
+
+    if (
+      data.responseData?.data.description !== '' &&
+      data.responseData?.data.task_groups !== null
+    ) {
+      // modalState.addWorkflow.trigger = true;
+      showSuccessMessage('success', 'Workflow data updated successfully.');
+    } else {
+      // modalState.addWorkflow.trigger = true;
+      showErrorMessage('error', 'Workflow data cannot be null.');
+    }
+  } catch (error) {
+    showErrorMessage(
+      'error',
+      'Failed to update the workflow. (Error:wrong dependency found in migrate_infra.infra_get (infra_impor111t))',
+    );
+  }
+}
+
+watch(
+  () => modalState.addWorkflow.trigger,
+  nv => {
+    if (nv) {
+      modalState.addWorkflow.updateTrigger();
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -65,7 +175,11 @@ function handleClickWorkflowId(id: string) {
               <p-button
                 style-type="tertiary"
                 icon-left="ic_edit"
-                @click="modalState.editModal.open = true"
+                @click="
+                  () => {
+                    modalState.editModal.open = true;
+                  }
+                "
               >
                 Edit
               </p-button>
@@ -85,21 +199,31 @@ function handleClickWorkflowId(id: string) {
     <div class="relative z-60">
       <simple-edit-form
         v-if="modalState.editModal.open"
+        :trigger="modalState.addWorkflow.trigger"
+        :name="workflowName"
         header-title="Edit Workflow"
         name-label="Workflow Name"
         name-placeholder="Workflow Name"
-        @update:save-modal="modalState.editModal.open = false"
+        @update:save-modal="
+          () => {
+            modalState.editModal.open = false;
+            handleUpdateWorkflowEdit();
+          }
+        "
         @update:close-modal="modalState.editModal.open = false"
+        @update:name-value="e => (workflowName = e)"
       />
     </div>
     <div class="relative z-70">
       <workflow-json-viewer
         v-if="modalState.workflowJsonModal.open"
+        :name="workflowName"
         title="Custom & View Workflow"
-        :workflow-id="selectedWorkflowId"
-        :workflow-name="workflowName"
-        :workflow-json="workflowJson"
+        :json="workflowJson"
+        :schema="schema"
+        :read-only="false"
         @update:close-modal="e => (modalState.workflowJsonModal.open = e)"
+        @update:api="handleUpdateWorkflow"
       />
     </div>
   </div>

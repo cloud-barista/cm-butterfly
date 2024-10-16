@@ -1,12 +1,10 @@
-import {
-  useWorkflowTemplatesStore,
-  WorkflowTemplateTableType,
-} from '@/entities';
+import { WorkflowTemplateTableType } from '@/entities';
+import { useWorkflowStore } from '@/entities';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
 
 export function useWorkflowTemplatesDetailModel() {
-  const workflowTemplatesStore = useWorkflowTemplatesStore();
+  const workflowStore = useWorkflowStore();
   const workflowTemplateId = ref<string | null>();
   const tableModel =
     useDefinitionTableModel<Record<WorkflowTemplateTableType, any>>();
@@ -22,8 +20,6 @@ export function useWorkflowTemplatesDetailModel() {
       { label: 'Workflow Template Information', name: 'name' },
       { label: 'ID', name: 'id' },
       { label: 'Description', name: 'description' },
-      { label: 'Created Date Time', name: 'createdDatetime' },
-      { label: 'Updated Date Time', name: 'updatedDatetime' },
       {
         label: 'Workflow Template JSON',
         name: 'workflowTemplateJSON',
@@ -34,7 +30,7 @@ export function useWorkflowTemplatesDetailModel() {
 
   function setDefineTableData(workflowTemplateId: string) {
     const workflowTemplate =
-      workflowTemplatesStore.getWorkflowTemplateById(workflowTemplateId);
+      workflowStore.getWorkflowTemplateById(workflowTemplateId);
     let data: Partial<Record<WorkflowTemplateTableType, any>> = {};
 
     if (workflowTemplate) {
@@ -42,9 +38,7 @@ export function useWorkflowTemplatesDetailModel() {
         name: workflowTemplate.name,
         id: workflowTemplate.id,
         description: workflowTemplate.description,
-        createdDatetime: workflowTemplate.createdDatetime,
-        updatedDatetime: workflowTemplate.updatedDatetime,
-        workflowTemplateJSON: workflowTemplate.workflowTemplateJSON,
+        workflowTemplateJSON: {},
       };
     }
     return data;
@@ -66,8 +60,9 @@ export function useWorkflowTemplatesDetailModel() {
 
   return {
     setWorkflowTemplateId,
-    workflowTemplatesStore,
+    workflowStore,
     initTable,
     tableModel,
+    workflowTemplateId,
   };
 }

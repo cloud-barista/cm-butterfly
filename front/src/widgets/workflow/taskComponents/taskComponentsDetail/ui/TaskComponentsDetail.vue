@@ -12,10 +12,16 @@ const props = defineProps<iProps>();
 const emit = defineEmits([
   'update:task-component-name',
   'update:task-component-json-modal',
+  'update:task-component-json',
 ]);
 
-const { taskComponentsStore, setTaskComponentId, initTable, tableModel } =
-  useTaskComponentsDetailModel();
+const {
+  workflowStore,
+  setTaskComponentId,
+  initTable,
+  tableModel,
+  taskComponentId,
+} = useTaskComponentsDetailModel();
 
 onBeforeMount(() => {
   initTable();
@@ -24,7 +30,7 @@ onBeforeMount(() => {
 watch(
   props,
   () => {
-    setTaskComponentId(props.selectedTaskComponentId);
+    taskComponentId.value = props.selectedTaskComponentId;
   },
   { immediate: true },
 );
@@ -32,14 +38,20 @@ watch(
 watchEffect(() => {
   emit(
     'update:task-component-name',
-    taskComponentsStore.getTaskComponentById(props.selectedTaskComponentId)
-      ?.name,
+    workflowStore.getTaskComponentById(props.selectedTaskComponentId)?.name,
   );
 });
 
 function handleJsonModal() {
   emit('update:task-component-json-modal', true);
 }
+
+watchEffect(() => {
+  emit(
+    'update:task-component-json',
+    workflowStore.getTaskComponentById(taskComponentId.value)?.data,
+  );
+});
 </script>
 
 <template>

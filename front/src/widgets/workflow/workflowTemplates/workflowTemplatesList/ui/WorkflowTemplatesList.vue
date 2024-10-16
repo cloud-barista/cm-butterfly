@@ -8,12 +8,21 @@ import {
 import { useWorkflowTemplatesListModel } from '../model/workflowTemplatesListModel';
 import { insertDynamicComponent } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, reactive, watchEffect } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
+import { useGetWorkflowTemplateList } from '@/entities';
 
-const { tableModel, initToolBoxTableModel, workflowTemplates } =
+interface iProps {
+  trigger: boolean;
+}
+
+const props = defineProps<iProps>();
+
+const getworkflowTemplateList = useGetWorkflowTemplateList();
+
+const { tableModel, initToolBoxTableModel, workflowStore } =
   useWorkflowTemplatesListModel();
 
-const emit = defineEmits(['select-row']);
+const emit = defineEmits(['select-row', 'update:trigger']);
 
 const modals = reactive({
   alertModalState: { open: false },
@@ -26,6 +35,7 @@ onBeforeMount(() => {
 
 onMounted(function (this: any) {
   addDeleteIconAtTable.bind(this)();
+  fetchWorkflowTemplateList();
 });
 
 function addDeleteIconAtTable(this: any) {
@@ -51,6 +61,8 @@ function addDeleteIconAtTable(this: any) {
 
 function handleRefreshTable() {
   tableModel.initState();
+  emit('select-row', '');
+  fetchWorkflowTemplateList();
 }
 
 function handleSelectedIndex(selectedIndex: number) {
@@ -62,10 +74,30 @@ function handleSelectedIndex(selectedIndex: number) {
   }
 }
 
-watchEffect(() => {
-  // TODO: api 연결 후 수정
-  tableModel.tableState.items = workflowTemplates.value;
-});
+async function fetchWorkflowTemplateList() {
+  try {
+    const { data } = await getworkflowTemplateList.execute();
+    if (
+      data.status?.code === 200 &&
+      data.responseData &&
+      data.responseData.length > 0
+    ) {
+      workflowStore.setWorkflowTemplates(data.responseData);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+watch(
+  () => props.trigger,
+  nv => {
+    if (nv) {
+      handleRefreshTable();
+      emit('update:trigger');
+    }
+  },
+);
 </script>
 
 <template>

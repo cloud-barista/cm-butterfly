@@ -12,9 +12,10 @@ const props = defineProps<iProps>();
 const emit = defineEmits([
   'update:workflow-template-name',
   'update:workflow-template-json-modal',
+  'update:workflow-template-json',
 ]);
 
-const { workflowTemplatesStore, setWorkflowTemplateId, initTable, tableModel } =
+const { workflowStore, initTable, tableModel, workflowTemplateId } =
   useWorkflowTemplatesDetailModel();
 
 onBeforeMount(() => {
@@ -24,7 +25,7 @@ onBeforeMount(() => {
 watch(
   props,
   () => {
-    setWorkflowTemplateId(props.selectedWorkflowTemplateId);
+    workflowTemplateId.value = props.selectedWorkflowTemplateId;
   },
   { immediate: true },
 );
@@ -32,15 +33,21 @@ watch(
 watchEffect(() => {
   emit(
     'update:workflow-template-name',
-    workflowTemplatesStore.getWorkflowTemplateById(
-      props.selectedWorkflowTemplateId,
-    )?.name,
+    workflowStore.getWorkflowTemplateById(props.selectedWorkflowTemplateId)
+      ?.name,
   );
 });
 
 function handleJsonModal() {
   emit('update:workflow-template-json-modal', true);
 }
+
+watchEffect(() => {
+  emit(
+    'update:workflow-template-json',
+    workflowStore.getWorkflowTemplateById(workflowTemplateId.value)?.data,
+  );
+});
 </script>
 
 <template>

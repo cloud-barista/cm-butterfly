@@ -1,23 +1,22 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import type { ITaskComponent } from '@/entities';
-import { useTaskComponentsStore, TaskComponentTableType } from '@/entities';
+import { useWorkflowStore, TaskComponentTableType } from '@/entities';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 
 export function useTaskComponentsListModel() {
   const tableModel =
     useToolboxTableModel<Partial<Record<TaskComponentTableType, any>>>();
-  const taskComponentsStore = useTaskComponentsStore();
-  const { taskComponents } = storeToRefs(taskComponentsStore);
+  const workflowStore = useWorkflowStore();
+  const { taskComponents } = storeToRefs(workflowStore);
 
   function initToolBoxTableModel() {
     tableModel.tableState.fields = [
       { name: 'name', label: 'Name' },
       { name: 'id', label: 'ID' },
       { name: 'description', label: 'Description' },
-      { name: 'data', label: 'Data' },
-      { name: 'createdDatetime', label: 'Created Date Time' },
-      { name: 'updatedDatetime', label: 'Updated Date Time' },
+      { name: 'created_at', label: 'Created Date Time' },
+      { name: 'updated_at', label: 'Updated Date Time' },
     ];
 
     tableModel.querySearchState.keyItemSet = [
@@ -27,9 +26,8 @@ export function useTaskComponentsListModel() {
           { name: 'name', label: 'Name' },
           { name: 'id', label: 'ID' },
           { name: 'description', label: 'Description' },
-          { name: 'data', label: 'Data' },
-          { name: 'createdDatetime', label: 'Created Date Time' },
-          { name: 'updatedDatetime', label: 'Updated Date Time' },
+          { name: 'created_at', label: 'Created Date Time' },
+          { name: 'updated_at', label: 'Updated Date Time' },
         ],
       },
     ];
@@ -41,10 +39,9 @@ export function useTaskComponentsListModel() {
     > = {
       name: taskComponent.name,
       id: taskComponent.id,
-      description: taskComponent.description,
-      data: taskComponent.data,
-      createdDatetime: taskComponent.createdDatetime,
-      updatedDatetime: taskComponent.updatedDatetime,
+      description: '',
+      created_at: taskComponent.created_at,
+      updated_at: taskComponent.updated_at,
       originalData: taskComponent,
     };
     return organizedDatum;
@@ -60,6 +57,6 @@ export function useTaskComponentsListModel() {
     tableModel,
     taskComponents,
     initToolBoxTableModel,
-    taskComponentsStore,
+    workflowStore,
   };
 }

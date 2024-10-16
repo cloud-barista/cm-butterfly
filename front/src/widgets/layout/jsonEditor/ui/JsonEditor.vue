@@ -7,6 +7,7 @@ interface iProps {
   json: boolean;
   shemaProperties: any;
   formData: any;
+  readOnly: boolean;
 }
 
 const props = defineProps<iProps>();
@@ -33,6 +34,8 @@ function handleUpdateFormData(value: any) {
   <p-pane-layout class="json-editor-layout">
     <p>{{ title }}</p>
     <p-json-schema-form
+      class="p-json-schema-form"
+      :read-only="readOnly"
       :form-data.sync="_formData"
       :schema="schema"
       @update:form-data="handleUpdateFormData"
@@ -40,4 +43,9 @@ function handleUpdateFormData(value: any) {
   </p-pane-layout>
 </template>
 
-<style scoped lang="postcss"></style>
+<style scoped lang="postcss">
+.p-json-schema-form {
+  @apply overflow-y-scroll;
+  max-height: 900px;
+}
+</style>

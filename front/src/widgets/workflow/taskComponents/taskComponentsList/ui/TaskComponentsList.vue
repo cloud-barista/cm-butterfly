@@ -6,14 +6,29 @@ import {
   PButtonModal,
 } from '@cloudforet-test/mirinae';
 import { useTaskComponentsListModel } from '../model/taskComponenetsListModel';
-import { insertDynamicComponent } from '@/shared/utils';
+import {
+  insertDynamicComponent,
+  showErrorMessage,
+  showSuccessMessage,
+} from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, reactive, watchEffect } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
+import {
+  useBulkDeleteTaskComponent,
+  useGetTaskComponentList,
+} from '@/entities';
 
-const { tableModel, initToolBoxTableModel, taskComponents } =
+const getTaskComponentList = useGetTaskComponentList();
+
+const { tableModel, initToolBoxTableModel, workflowStore } =
   useTaskComponentsListModel();
 
-const emit = defineEmits(['select-row']);
+interface iProps {
+  trigger: boolean;
+}
+
+const props = defineProps<iProps>();
+const emit = defineEmits(['select-row', 'update:trigger']);
 
 const modal = reactive({
   alertModalState: { open: false },
@@ -25,6 +40,7 @@ onBeforeMount(() => {
 
 onMounted(function (this: any) {
   addDeleteIconAtTable.bind(this)();
+  fetchTaskComponentsList();
 });
 
 function addDeleteIconAtTable(this: any) {
@@ -48,8 +64,30 @@ function addDeleteIconAtTable(this: any) {
   return instance;
 }
 
+function handleDeleteTaskComponent() {
+  const selectedTaskComponentsIds: any[] = [];
+
+  tableModel.tableState.selectIndex.reduce((acc, selectIndex) => {
+    acc.push(tableModel.tableState.displayItems[selectIndex].id);
+    return acc;
+  }, selectedTaskComponentsIds);
+
+  if (selectedTaskComponentsIds.length > 0) {
+    useBulkDeleteTaskComponent(selectedTaskComponentsIds)
+      .then(res => {
+        handleRefreshTable();
+        showSuccessMessage('success', 'Delete Success');
+      })
+      .catch(err => {
+        showErrorMessage('Error', err);
+      });
+  }
+}
+
 function handleRefreshTable() {
   tableModel.initState();
+  emit('select-row', '');
+  fetchTaskComponentsList();
 }
 
 function handleSelectedIndex(selectedIndex: number) {
@@ -60,11 +98,30 @@ function handleSelectedIndex(selectedIndex: number) {
     emit('select-row', '');
   }
 }
+async function fetchTaskComponentsList() {
+  try {
+    const { data } = await getTaskComponentList.execute();
+    if (
+      data.status?.code === 200 &&
+      data.responseData &&
+      data.responseData.length > 0
+    )
+      workflowStore.setTaskComponents(data.responseData);
+  } catch (e) {
+    console.log(e);
+  }
+}
 
-watchEffect(() => {
-  // TODO: api 연결 후 수정
-  tableModel.tableState.items = taskComponents.value;
-});
+watch(
+  () => props.trigger,
+  nv => {
+    if (nv) {
+      handleRefreshTable();
+      emit('update:trigger');
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -109,6 +166,7 @@ watchEffect(() => {
       @confirm="
         () => {
           modal.alertModalState.open = false;
+          handleDeleteTaskComponent();
         }
       "
     />
