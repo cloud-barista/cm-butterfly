@@ -15,6 +15,7 @@ const openIndex = ref<number | null>(null);
 
 const toggleAccordion = (index: number) => {
   openIndex.value = openIndex.value === index ? null : index;
+  console.log(index);
 };
 
 const isOpen = (index: number) => {
@@ -26,7 +27,7 @@ const start = (el: any) => {
 };
 
 const end = (el: any) => {
-  el.style.height = '';
+  el.style.height = 'auto';
 };
 </script>
 
@@ -34,9 +35,14 @@ const end = (el: any) => {
   <div class="accordion-box">
     <div v-for="(item, index) in items" :key="index" class="accordion-item">
       <div class="accordion-header">
-        <slot name="header" :item="item" :click="() => toggleAccordion(index)">
+        <slot
+          name="header"
+          :header="item.header"
+          :item="{ header: item.header, content: item.content }"
+          :click="() => toggleAccordion(index)"
+        >
           <div class="w-full h-full" @click="toggleAccordion(index)">
-            {{ item.header }}
+            {{ index }}
           </div>
         </slot>
       </div>
@@ -49,18 +55,31 @@ const end = (el: any) => {
         @after-leave="end"
       >
         <div v-show="isOpen(index)" class="accordion-content">
-          <slot name="content" :content="item.content">
-            {{ item.content }}
+          <slot
+            name="content"
+            :content="item.content"
+            :item="{ header: item.header, content: item.content }"
+          >
+            {{ index }}
           </slot>
           <BAccordion
             v-if="item.children && item.children.length"
             :items="item.children"
           >
-            <template #header="{ item }">
-              <slot :name="item" :item="item"></slot>
+            <template #header="{ item, click }">
+              <slot
+                name="header"
+                :header="item.header"
+                :item="{ header: item.header, content: item.content }"
+                :click="click"
+              ></slot>
             </template>
-            <template #content="{ content }">
-              <slot :name="content" :content="content"></slot>
+            <template #content="{ item }">
+              <slot
+                name="content"
+                :content="item.content"
+                :item="{ header: item.header, content: item.content }"
+              ></slot>
             </template>
           </BAccordion>
         </div>
