@@ -66,17 +66,8 @@ export function useStepEditorProviderModel() {
         },
         rootDiskType: {
           title: 'Root Disk Type',
-          options: [
-            { value: null, text: 'Select Root Disk Type' },
-            { value: 'a', text: 'This is First option' },
-            { value: 'b', text: 'Selected Option' },
-            {
-              value: { C: '3PO' },
-              text: 'This is an option with object value',
-            },
-          ],
-          type: 'select',
-          selected: null,
+          model: useInputModel<string>(''),
+          type: 'text',
         },
         rootDiskSize: {
           title: 'Root Disk Size',

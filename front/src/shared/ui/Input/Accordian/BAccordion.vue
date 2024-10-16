@@ -88,20 +88,17 @@ const end = (el: any) => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="postcss">
 .accordion-item {
-  border: 1px solid #ccc;
+  @apply border border-solid border-gray-200;
 }
 
 .accordion-header {
-  background-color: transparent;
-  padding: 10px;
+  @apply border-b border-solid border-gray-200;
   cursor: pointer;
-  border-bottom: 1px solid #ccc;
 }
 
 .accordion-content {
-  background-color: #fff;
   padding-left: 10px;
   overflow: hidden;
 }

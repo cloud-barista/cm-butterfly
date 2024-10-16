@@ -4,125 +4,86 @@ import { PButton } from '@cloudforet-test/mirinae';
 import { useFlowChartModel } from '@/features/workflow/workflowDesigner/model/flowChartModel.ts';
 import { useWorkflowToolModel } from '@/features/workflow/model/workflowToolModel.ts';
 import { IWorkflow } from '@/entities/workflow/model/types.ts';
+import {
+  getTaskComponentList,
+  ITaskInfoResponse,
+  ITaskRequestBody,
+} from '@/features/workflow/workflowDesigner/api';
+import { parseRequestBody } from '@/shared/utils/stringToObject';
+import { toolboxSteps } from '@/features/workflow/workflowDesigner/model/toolboxSteps.ts';
+import { Step } from '@/features/workflow/model/types.ts';
+import getRandomId from '@/shared/utils/uuid';
 
 let flowChart;
-const name = reactive({ _name: 'Vue 컴포넌트' });
 
 //클릭시 해당 데이터를 저장할 변수
 const targetModel = ref({});
-
 const workflowToolModel = useWorkflowToolModel();
+// let tt = workflowToolModel.setWorkflowSequenceModel(t2);
+//TODO task 정보 등록 (api호출)
+const resGetTaskComponentList = getTaskComponentList();
+const loadStepsFunc = toolboxSteps();
 
-let t: IWorkflow = {
-  createdDatetime: '',
-  data: {
-    description: 'Create Server',
-    task_groups: [
-      {
-        description: 'Migrate Server',
-        name: 'migrate_infra',
-        tasks: [
-          {
-            dependencies: [],
-            name: 'infra_create',
-            path_params: 's',
-            request_body: {
-              name: 'recommended-infra01',
-              installMonAgent: 'no',
-              label: 'DynamicVM',
-              systemLabel: '',
-              description: 'Made in CB-TB',
-              vm: [
-                {
-                  name: 'recommended-vm01',
-                  subGroupSize: '3',
-                  label: 'DynamicVM',
-                  description: 'Description',
-                  commonSpec: 'azure-koreacentral-standard-b4ms',
-                  commonImage: 'ubuntu22-04',
-                  rootDiskType: 'default',
-                  rootDiskSize: 'default',
-                  vmUserPassword: 'test',
-                  connectionName: 'azure-koreacentral',
-                },
-              ],
-            },
-            task_component: 'beetle_task_infra_migration',
-          },
-        ],
-      },
-    ],
-  },
-  description: '',
-  id: '',
-  name: '',
-  updateDatetime: '',
-};
+const taskStepsModels: Step[] = [];
 
-let t2: IWorkflow = {
-  createdDatetime: '',
-  data: {
-    description: '',
-    task_groups: [
-      {
-        description: 'string',
-        name: 'Task Group',
-        tasks: [
-          {
-            dependencies: ['any[]'],
-            name: 'bettle_task',
-            path_params: 'any',
-            request_body: {
-              name: 'bettle_task',
-              installMonAgent: 'string',
-              label: 'string',
-              systemLabel: 'string',
-              description: 'string',
-              vm: [],
-            },
-            task_component: 'string',
-          },
-        ],
-        task_groups: [
-          {
-            description: 'string',
-            name: 'Task Group',
-            tasks: [
-              {
-                dependencies: ['any[]'],
-                name: 'bettle_task',
-                path_params: 'any',
-                request_body: {
-                  name: 'string',
-                  installMonAgent: 'string',
-                  label: 'string',
-                  systemLabel: 'string',
-                  description: 'string',
-                  vm: [],
-                },
-                task_component: 'string',
-              },
-            ],
-            task_groups: [],
-          },
-        ],
-      },
-    ],
-  },
-  description: '',
-  id: '',
-  name: '',
-  updateDatetime: '',
-};
+function convertTaskGroupStep() {}
 
-let tt = workflowToolModel.setWorkflowSequenceModel(t2);
+function convertTaskStep() {}
+
 onMounted(function () {
   let refs = this.$refs;
 
-  flowChart = useFlowChartModel(refs);
-  flowChart.setDefaultSequence(tt.sequence);
-  flowChart.initDesigner();
-  flowChart.draw();
+  resGetTaskComponentList.execute().then(res => {
+    res.data.responseData?.forEach((res: ITaskInfoResponse) => {
+      res.data.options.request_body = parseRequestBody(
+        res.data.options.request_body,
+      );
+
+      const taskRequestData: ITaskRequestBody = res.data.options.request_body;
+      console.log(taskRequestData);
+      taskStepsModels.push(
+        loadStepsFunc.defineBettleTaskStep(
+          getRandomId(),
+          taskRequestData.name ?? 'undefined',
+          taskRequestData.label ?? 'undefined',
+          {
+            mci: {
+              name: taskRequestData.name,
+              description: taskRequestData.description,
+              vms: taskRequestData.vm
+                ? taskRequestData.vm.map(vm => ({
+                    id: getRandomId(),
+                    name: vm.name,
+                    serverQuantity: vm.subGroupSize,
+                    commonSpec: vm.commonSpec,
+                    osImage: vm.commonImage,
+                    diskType: vm.rootDiskType,
+                    diskSize: vm.rootDiskSize,
+                    password: vm.vmUserPassword,
+                    connectionName: vm.connectionName,
+                  }))
+                : [],
+            },
+          },
+        ),
+      );
+    });
+    flowChart = useFlowChartModel(refs);
+    flowChart.setToolboxGroupsSteps(
+      [],
+      [
+        loadStepsFunc.defineTaskGroupStep(
+          getRandomId(),
+          'TaskGroup',
+          'taskGroup',
+        ),
+        ...taskStepsModels,
+      ],
+    );
+    // flowChart.setDefaultSequence(tt.sequence);
+    flowChart.initDesigner();
+    flowChart.draw();
+  });
 });
 </script>
 
@@ -131,8 +92,6 @@ onMounted(function () {
     <section class="w-[100%] h-[100%] workflow-box">
       <div ref="placeholder" class="w-[100%] h-[100%]"></div>
     </section>
-
-    <!--    editor 관련 template 작성 -->
   </div>
 </template>
 

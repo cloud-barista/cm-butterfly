@@ -14,67 +14,24 @@ const emit = defineEmits(['button-click']);
 
 const stepEditorProviderModel = useStepEditorProviderModel();
 
-const t = [
-  {
-    title: 'test',
-    content: '1',
-    children: [
-      {
-        title: 'test2',
-        content: '12',
-        children: [
-          {
-            title: 'test24',
-            content: '124',
-            children: [
-              {
-                title: 'test24',
-                content: '124',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    title: 'test',
-    content: '1',
-    children: [
-      {
-        title: 'test2',
-        content: '12',
-      },
-    ],
-  },
-  {
-    title: 'test3',
-    content: '3',
-  },
-];
+watch(props, nv => {});
 
-watch(props, nv => {
-  console.log('update!');
-  console.log(nv);
-  // props.id.value = nv;
-});
-
-onMounted(() => {
-  console.log(props);
-  console.log('Mount!');
-});
+onMounted(() => {});
 </script>
 
 <template>
   <div class="task-editor-form">
-    <div class="header">
-      test
+    <div class="header flex gap-3 mt-[32px] h-[40px] justify-end pr-[16px]">
+      <p-button :style-type="'secondary'" icon-left="ic_plus" :size="'sm'">
+        Add Entity
+      </p-button>
       <p-button
         :style-type="'secondary'"
         icon-left="ic_plus"
+        :size="'sm'"
         @click="stepEditorProviderModel.addAccordionSlot"
       >
-        Add Entity
+        Add VM
       </p-button>
     </div>
     <div
@@ -87,9 +44,9 @@ onMounted(() => {
       </div>
       <div class="field-content-box">
         <p-text-input
+          v-model="entity.model.value"
           :size="'md'"
           block
-          v-model="entity.model.value"
           :invalid="!entity.model.isValid"
           @blur="entity.model.onBlur"
         ></p-text-input>
@@ -98,58 +55,50 @@ onMounted(() => {
 
     <section class="vm-list">
       <BAccordion :items="stepEditorProviderModel.formValues.accordions">
-        <template #header="{ item, click }">
+        <template #header="{ header, item, click }">
           <div class="field-group flex justify-between align-items-center">
             <div class="field-title-box">
-              <PIconButton :name="item.header.icon" :size="'sm'"></PIconButton>
+              <PIconButton
+                :name="item.header.icon"
+                :size="'sm'"
+                @click="click"
+              ></PIconButton>
               {{ item.header.title }}
             </div>
             <div class="field-content-box">
               <p-text-input
+                v-model="item.content.vms.header.vmName.model.value"
                 :size="'md'"
+                :invalid="!item.content.vms.header.vmName.model.isValid"
                 block
-                v-model="vms.header.vmName.model.value"
-                :invalid="!vms.header.vmName.model.isValid"
-                @blur="vms.header.vmName.model.onBlur"
+                @blur="item.content.vms.header.vmName.model.onBlur"
               ></p-text-input>
             </div>
           </div>
         </template>
-        <template #content="{ content }">
-          <!--          <div class="custom-content">{{ content }} - 부모 기본 콘텐츠</div>-->
+        <template #content="{ content, item }">
           <div
-            class="field-group flex justify-between align-items-center"
-            v-for="vms in accordion.value.vms.body"
+            v-for="(key, index) in item.content.vms.body"
+            :key="index"
+            class="field-group flex justify-between align-items-center item-content"
           >
             <div class="field-title-box">
-              {{ vms.title }}
+              {{ key.title }}
             </div>
             <div class="field-content-box">
-              <template v-if="vms.type === 'text'">
+              <template v-if="key.type === 'text'">
                 <p-text-input
+                  v-model="key['model'].value"
                   :size="'md'"
                   block
-                  v-model="vms['model'].value"
-                  :invalid="!vms['model'].isValid"
-                  @blur="vms['model'].onBlur"
+                  :invalid="!key['model'].isValid"
+                  @blur="key['model'].onBlur"
                 ></p-text-input>
-              </template>
-
-              <template v-else-if="vms.type === 'select'">
-                <b-form-select
-                  v-model="vms['selected']"
-                  :options="vms['options']"
-                  :required="true"
-                ></b-form-select>
               </template>
             </div>
           </div>
         </template>
       </BAccordion>
-      <div class="header">
-        test
-        <button @click="stepEditorProviderModel.addAccordionSlot">tests</button>
-      </div>
     </section>
   </div>
 </template>
@@ -179,55 +128,32 @@ onMounted(() => {
       padding: 6px 16px 6px 16px;
     }
   }
+}
+:deep(.accordion-item) {
+  border-color: transparent;
+}
+:deep(.accordion-content) {
+  padding-left: 0;
+}
+:deep(.accordion-header) {
+  border-color: transparent;
+}
 
-  .accordion {
-    .card {
-      border: none;
+.accordion-box {
+  .item-content.field-group {
+    border-color: transparent;
 
-      .card-header {
-        height: 44px;
-        background-color: transparent;
-        padding: 0;
-
-        .field-group {
-          border-bottom: none;
-
-          .field-title-box {
-            padding-left: 10px;
-          }
-        }
-
-        .p-button {
-          transition: transform 0.1s;
-        }
-
-        .p-button.collapsed {
-        }
-
-        .p-button.not-collapsed {
-          transform: rotate(180deg);
-        }
-      }
-
-      .card-body {
-        padding: 0;
-
-        .field-group {
-          border-bottom: none;
-
-          .field-title-box {
-            padding-left: 34px;
-          }
-        }
-
-        .field-content-box {
-          .custom-select {
-            @apply border border-gray-300 w-[100%] h-[100%];
-            border-radius: 4px;
-          }
-        }
-      }
+    .field-title-box {
+      padding-left: 40px;
     }
+  }
+
+  .field-content-box {
+    padding-left: 10px;
+  }
+
+  .item-content.field-group:last-child {
+    border-color: inherit;
   }
 }
 </style>

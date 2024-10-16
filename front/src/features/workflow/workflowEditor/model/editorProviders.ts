@@ -29,9 +29,9 @@ export function editorProviders() {
       //각각에 만들어야할 Vue component 정의
       if (step.componentType === 'switch' && step.type == 'if') {
       }
-      if (step.componentType === 'container' && step.type == 'MCI') {
+      if (step.componentType === 'container') {
       }
-      if (step.componentType === 'task' && step.type == 'bettle_task') {
+      if (step.componentType === 'task') {
         insertDynamicComponent(
           StepEditorProvider,
           { id: 'tst' },

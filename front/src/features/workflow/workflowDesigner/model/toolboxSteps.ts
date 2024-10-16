@@ -1,4 +1,4 @@
-import { Step } from 'sequential-workflow-model';
+import { IMci, Step } from '@/features/workflow/model/types.ts';
 
 export function toolboxSteps() {
   return {
@@ -17,12 +17,12 @@ export function toolboxSteps() {
         },
       };
     },
-    defineTaskGroupStep(id: string) {
+    defineTaskGroupStep(id: string, name: string, type: string): Step {
       return {
         componentType: 'container',
         id,
-        type: 'MCI',
-        name: 'Task Group',
+        type,
+        name,
         properties: {
           isDeletable: true,
         },
@@ -31,14 +31,20 @@ export function toolboxSteps() {
         ],
       };
     },
-    defineBettleTaskStep(id: string) {
+    defineBettleTaskStep(
+      id: string,
+      name: string,
+      type: string,
+      properties: { mci: IMci },
+    ): Step {
       return {
         componentType: 'task',
         id,
-        type: 'bettle_task',
-        name: 'bettle_task',
+        type,
+        name,
         properties: {
           isDeletable: true,
+          ...properties,
         },
         sequence: [
           // 없어야함.

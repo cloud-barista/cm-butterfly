@@ -6,7 +6,7 @@ import {
 import { Definition, Step } from 'sequential-workflow-model';
 import getRandomId from '@/shared/utils/uuid';
 import { toolboxSteps } from '@/features/workflow/workflowDesigner/model/toolboxSteps.ts';
-import { editorProviders } from '@/features/workflow/workflowDesigner/model/editorProviders.ts';
+import { editorProviders } from '@/features/workflow/workflowEditor/model/editorProviders.ts';
 
 export function useFlowChartModel(refs: any) {
   let designer: Designer | null = null;
@@ -32,7 +32,16 @@ export function useFlowChartModel(refs: any) {
   };
   let definition: Definition;
   let configuration: DesignerConfiguration<Definition>;
-
+  let toolBoxGroup: Array<{ name: string; steps: Step[] }> = [
+    {
+      name: 'Tool',
+      steps: [],
+    },
+    {
+      name: 'Components',
+      steps: [],
+    },
+  ];
   function defineDefaultDefinition(workflowName: string, sequence: Step[]) {
     return {
       properties: {
@@ -75,6 +84,8 @@ export function useFlowChartModel(refs: any) {
       // all validators are optional
 
       step: (step, parentSequence, definition) => {
+        console.log('parentSequence');
+        console.log(parentSequence);
         return true;
       },
       root: definition => {
@@ -83,29 +94,43 @@ export function useFlowChartModel(refs: any) {
     };
   }
 
-  function defineToolboxGroups() {
-    return [
+  //FIXME 백엔드에서 받아온 데이터를 넣어줘야함.
+  function setToolboxGroupsSteps(toolSteps: Step[], componentSteps: Step[]) {
+    toolBoxGroup = [
       {
         name: 'Tool',
-        steps: [toolboxSteps().defineIfStep(getRandomId(), [], [])],
+        steps: toolSteps,
       },
       {
         name: 'Components',
-        steps: [
-          toolboxSteps().defineTaskGroupStep(getRandomId()),
-          toolboxSteps().defineBettleTaskStep(getRandomId()),
-        ],
+        steps: componentSteps,
       },
     ];
+    console.log(toolBoxGroup);
   }
 
+  // function defineToolboxGroups() {
+  //   return [
+  //     {
+  //       name: 'Tool',
+  //       steps: [toolboxSteps().defineIfStep(getRandomId(), [], [])],
+  //     },
+  //     {
+  //       name: 'Components',
+  //       steps: [
+  //         toolboxSteps().defineTaskGroupStep(getRandomId()),
+  //         toolboxSteps().defineBettleTaskStep(getRandomId()),
+  //       ],
+  //     },
+  //   ];
+  // }
   function loadConfiguration() {
     return {
       steps: defineStepEvent(),
       validator: defineStepValidate(),
       toolbox: {
         isCollapsed: designerOptionsState.toolbox.isCollapsed,
-        groups: defineToolboxGroups(),
+        groups: toolBoxGroup,
       },
 
       editors: {
@@ -157,6 +182,7 @@ export function useFlowChartModel(refs: any) {
     designer,
     designerOptionsState,
     setDefaultSequence,
+    setToolboxGroupsSteps,
     initDesigner,
     draw,
   };

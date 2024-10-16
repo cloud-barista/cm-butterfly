@@ -14,7 +14,6 @@ const pageName = 'sourceTemplate';
       <section :class="`${pageName}-page-body`">
         <header class="h-[54px]"></header>
         <section class="workflow-body">
-          <WorkflowTemplate></WorkflowTemplate>
           <WorkflowTool></WorkflowTool>
         </section>
       </section>
