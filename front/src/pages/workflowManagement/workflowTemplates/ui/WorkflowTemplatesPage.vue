@@ -5,8 +5,8 @@ import {
   WorkflowTemplatesDetail,
   WorkflowJsonViewer,
 } from '@/widgets/workflow';
-import { SimpleEditForm } from '@/widgets/layout';
 import { reactive, ref } from 'vue';
+// import { SimpleEditForm } from '@/widgets/layout';
 
 const pageName = 'Workflow Templates';
 
@@ -37,12 +37,22 @@ const mainTabState = {
   ],
 };
 
+const schema = {
+  json: true,
+  properties: {
+    description: {
+      type: 'string',
+      title: 'Description',
+    },
+    task_groups: {
+      type: 'array',
+      title: 'Task Groups',
+    },
+  },
+};
+
 function handleClickWorkflowTemplateId(id: string) {
   selectedWorkflowTemplateId.value = id;
-}
-
-function handleUpdateWorkflowTemplate(updatedData: object) {
-  console.log(updatedData);
 }
 </script>
 
@@ -65,9 +75,11 @@ function handleUpdateWorkflowTemplate(updatedData: object) {
           <template #details>
             <div class="tab-section-header">
               <p>Workflow Template Information</p>
+              <!-- TODO: -->
               <p-button
                 style-type="tertiary"
                 icon-left="ic_edit"
+                disabled
                 @click="modalState.editModal.open = true"
               >
                 Edit
@@ -86,25 +98,26 @@ function handleUpdateWorkflowTemplate(updatedData: object) {
       </div>
     </section>
     <div class="relative z-60">
-      <simple-edit-form
+      <!-- <simple-edit-form
         v-if="modalState.editModal.open"
         header-title="Edit Workflow Template"
         name-label="Workflow Template Name"
         name-placeholder="Workflow Template Name"
         @update:save-modal="modalState.editModal.open = false"
         @update:close-modal="modalState.editModal.open = false"
-      />
+      /> -->
     </div>
     <div class="relative z-70">
       <workflow-json-viewer
         v-if="modalState.workflowTemplateJsonModal.open"
+        :read-only="true"
+        :schema="schema"
         :name="workflowTemplateName"
         title="Custom & View Workflow Template"
         :json="workflowTemplateJson"
         @update:close-modal="
           e => (modalState.workflowTemplateJsonModal.open = e)
         "
-        @update:api="handleUpdateWorkflowTemplate"
       />
     </div>
   </div>

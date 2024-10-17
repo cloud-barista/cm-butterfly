@@ -10,7 +10,6 @@ import { i18n } from '@/app/i18n';
 import { ref, watch, watchEffect } from 'vue';
 
 interface iProps {
-  trigger?: boolean;
   headerTitle: string;
   nameLabel: string;
   namePlaceholder: string;
@@ -24,7 +23,6 @@ const emit = defineEmits([
   'update:close-modal',
   'update:name-value',
   'update:description',
-  'update:trigger',
 ]);
 
 const _name = ref<string>(props.name);
@@ -43,7 +41,6 @@ watchEffect(
 
 function handleConfirm() {
   emit('update:save-modal');
-  // emit('update:name-value', _name.value);
   emit('update:description', description.value);
 }
 
@@ -51,16 +48,6 @@ watch(
   _name,
   () => {
     emit('update:name-value', _name.value);
-  },
-  { immediate: true },
-);
-
-watch(
-  () => props.trigger,
-  nv => {
-    if (nv) {
-      emit('update:trigger');
-    }
   },
   { immediate: true },
 );

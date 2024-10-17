@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { PTab, PButton } from '@cloudforet-test/mirinae';
-import { ref, reactive } from 'vue';
+import { ref, reactive, watchEffect } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
 import {
   TaskComponentsDetail,
   TaskComponentsList,
   WorkflowJsonViewer,
 } from '@/widgets/workflow';
-import { useUpdateTaskComponent } from '@/entities';
+import { useGetTaskComponent, useUpdateTaskComponent } from '@/entities';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 
+const getTaskComponent = useGetTaskComponent(null);
 const updateTaskComponent = useUpdateTaskComponent(null, null);
 
 const pageName = 'Task Components';
@@ -17,6 +18,7 @@ const pageName = 'Task Components';
 const selectedTaskComponentId = ref<string>('');
 const taskComponentName = ref<string>('');
 const taskComponentJson = ref<object>({});
+const tcIdData = ref<object>({});
 
 const modalState = reactive({
   addTaskComponent: {
@@ -70,7 +72,11 @@ async function handleUpdateTaskComponent(updatedData: object) {
       },
     });
 
-    if (updatedData !== null && Object.keys(updatedData).length > 0) {
+    if (
+      data.responseData &&
+      updatedData !== null &&
+      Object.keys(updatedData).length > 0
+    ) {
       modalState.addTaskComponent.trigger = true;
       showSuccessMessage(
         'success',
@@ -84,6 +90,75 @@ async function handleUpdateTaskComponent(updatedData: object) {
     showErrorMessage('error', 'Task Component data cannot be null.');
   }
 }
+
+async function getTaskComponentById() {
+  try {
+    const { data } = await getTaskComponent.execute({
+      pathParams: {
+        tcId: selectedTaskComponentId.value,
+      },
+    });
+
+    if (
+      data.responseData?.data &&
+      Object.values(data.responseData.data).length > 0
+    ) {
+      tcIdData.value = data.responseData?.data;
+    }
+  } catch (error) {
+    showErrorMessage('error', 'Failed to get the task component.');
+  }
+}
+
+// watchEffect(async () => {
+//   if (selectedTaskComponentId.value.length > 0) {
+//     await getTaskComponentById();
+//     console.log(tcIdData.value);
+//   }
+// });
+
+async function handleUpdateTaskComponentEdit() {
+  try {
+    //get api true??
+    // TODO: api
+    if (selectedTaskComponentId.value.length > 0) {
+      await getTaskComponentById()
+        .then(async r => {
+          const { data } = await updateTaskComponent.execute({
+            pathParams: {
+              tcId: selectedTaskComponentId.value,
+            },
+            request: {
+              data: tcIdData.value,
+              name: taskComponentName.value,
+            },
+          });
+
+          console.log('jere');
+          if (data.responseData?.data !== null) {
+            showSuccessMessage(
+              'success',
+              'Task Component data updated successfully.',
+            );
+            modalState.addTaskComponent.trigger = true;
+          }
+        })
+        .catch(error => {
+          showErrorMessage('error', 'Failed to get the task component.');
+        });
+    }
+    // updateTaskComponent.execute({
+    //   pathParams: {
+    //     tcId: selectedTaskComponentId.value,
+    //   },
+    //   request: {
+    //     data: updatedData
+    //   }
+    // })
+  } catch (error) {
+    showErrorMessage('error', 'Failed to update the task component.');
+  }
+}
 </script>
 
 <template>
@@ -95,7 +170,7 @@ async function handleUpdateTaskComponent(updatedData: object) {
       <task-components-list
         :trigger="modalState.addTaskComponent.trigger"
         @select-row="handleClickTemplateComponentId"
-        @update:trigger="modalState.addTaskComponent.updateTrigger"
+        @update:trigger="modalState.addTaskComponent.updateTrigger()"
       />
       <p v-if="!selectedTaskComponentId" class="more-details">
         Select an item for more details.
@@ -131,18 +206,25 @@ async function handleUpdateTaskComponent(updatedData: object) {
         header-title="Edit Task Component"
         name-label="Task Component name"
         name-placeholder="Task Component Name"
-        @update:save-modal="modalState.editModal.open = false"
+        :name="taskComponentName"
+        @update:save-modal="
+          () => {
+            modalState.editModal.open = false;
+            handleUpdateTaskComponentEdit();
+          }
+        "
         @update:close-modal="modalState.editModal.open = false"
+        @update:name-value="e => (taskComponentName = e)"
       />
     </div>
     <div class="relative z-70">
       <workflow-json-viewer
         v-if="modalState.taskComponentJsonModal.open"
-        :read-only="false"
         :name="taskComponentName"
         :schema="schema"
         title="Custom & View Task Component"
         :json="taskComponentJson"
+        :read-only="false"
         @update:close-modal="modalState.taskComponentJsonModal.open = false"
         @update:api="handleUpdateTaskComponent"
       />

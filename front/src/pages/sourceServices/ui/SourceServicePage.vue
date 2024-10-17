@@ -17,6 +17,10 @@ import { storeToRefs } from 'pinia';
 import MetaViewer from '@/widgets/source/sourceConnections/sourceConnectionDetail/metaViewer/ui/MetaViewer.vue';
 import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
 import EditSourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/EditSourceConnectionModal.vue';
+import { showSuccessMessage } from '@/shared/utils';
+const updatedName = ref<string>('');
+const updatedDescription = ref<string>('');
+const sourceConnectionName = ref<string>('');
 
 const { sourceConnectionStore } = useSourceInfraCollectModel();
 
@@ -121,8 +125,6 @@ const data = computed(() => {
   return sourceConnectionStore.getConnectionById(selectedConnectionId.value)
     ?.softwareData;
 });
-
-const sourceConnectionName = ref<string>('');
 </script>
 
 <template>
@@ -232,6 +234,12 @@ const sourceConnectionName = ref<string>('');
           e => {
             modalStates.addServiceGroup.open = e;
             isServiceEditBtnClicked = e;
+          }
+        "
+        @update:trigger="
+          () => {
+            modalStates.addServiceGroup.trigger = true;
+            showSuccessMessage('success', 'Edit Success');
           }
         "
       />

@@ -11,12 +11,16 @@ import {
 import { axiosInstance } from '@/shared/libs/api/instance.ts';
 
 const CREATE_SOURCE_CONNECTION = 'create-connection-info';
+const UPDATE_SOURCE_CONNECTION = 'update-connection-info';
 const GET_SOURCE_CONNECTION_LIST = 'list-connection-info';
 const COLLECT_INFRA = 'import-infra';
 const COLLECT_SW = 'import-software';
 const DELETE_SOURCE_CONNECTION = 'delete-connection-info';
 
-export function useCreateConnectionInfo(sgId: string, requestData: null | any) {
+export function useCreateConnectionInfo(
+  sgId: string | null,
+  requestData: null | any,
+) {
   const requestBodyWrapper = {
     pathParams: {
       sgId: sgId || null,
@@ -26,6 +30,23 @@ export function useCreateConnectionInfo(sgId: string, requestData: null | any) {
 
   return useAxiosPost(CREATE_SOURCE_CONNECTION, requestBodyWrapper);
 }
+
+export function useUpdateConnectionInfo(
+  sgId: string | null,
+  connId: string | null,
+  requestData: null | any,
+) {
+  const requestBodyWrapper = {
+    pathParams: {
+      sgId: sgId || null,
+      connId: connId || null,
+    },
+    request: requestData,
+  };
+
+  return useAxiosPost(UPDATE_SOURCE_CONNECTION, requestBodyWrapper);
+}
+
 export function useGetSourceConnectionList(sourceGroupId: string | null) {
   const requestWrapper: Required<
     Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>

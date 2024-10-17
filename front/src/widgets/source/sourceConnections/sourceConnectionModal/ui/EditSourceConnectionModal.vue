@@ -7,8 +7,10 @@ import { ref, watchEffect } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 import { useCreateConnectionInfo } from '@/entities/sourceConnection/api';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+import { useUpdateConnectionInfo } from '@/entities/sourceConnection/api';
 
 const sourceConnectionStore = useSourceConnectionStore();
+const updateConnectionInfo = useUpdateConnectionInfo(null, null, null);
 
 interface iProps {
   selectedConnectionId: any;
@@ -43,31 +45,67 @@ const handleCancel = () => {
 const saveLoading = ref<boolean>(false);
 
 const handleAddSourceConnection = async () => {
-  saveLoading.value = true;
-  try {
-    if (props.selectedConnectionId.length === 0) {
-      const { data } = await createConnectionInfo.execute({
+  if (props.selectedConnectionId.length > 0) {
+    saveLoading.value = true;
+    try {
+      const { data } = await updateConnectionInfo.execute({
         pathParams: {
           sgId: props.sourceServiceId,
+          connId: props.selectedConnectionId,
         },
         request: {
-          ...connectionInfoData.value,
+          description: connectionInfoData.value.description,
+          ip_address: connectionInfoData.value.ip_address,
+          password: connectionInfoData.value.password,
+          private_key: connectionInfoData.value.private_key,
+          ssh_port: connectionInfoData.value.ssh_port,
+          user: connectionInfoData.value.user,
         },
       });
-
       if (data) {
         saveLoading.value = false;
-        showSuccessMessage('success', 'Connection Created Successfully');
-
+        showSuccessMessage('success', 'Connection Modified Successfully');
         emit('update:trigger');
         emit('update:is-connection-modal-opened', false);
         emit('update:is-service-modal-opened', false);
       }
+    } catch (error) {
+      saveLoading.value = false;
+      showErrorMessage('failed', 'Connection Modified Failed');
     }
-  } catch (error) {
-    saveLoading.value = false;
-    showErrorMessage('failed', 'Connection Creation Failed');
-    console.log(error);
+  } else {
+    saveLoading.value = true;
+    try {
+      if (props.selectedConnectionId.length === 0) {
+        const { data } = await createConnectionInfo.execute({
+          pathParams: {
+            sgId: props.sourceServiceId,
+          },
+          request: {
+            // ...connectionInfoData.value,
+            description: connectionInfoData.value.description,
+            ip_address: connectionInfoData.value.ip_address,
+            password: connectionInfoData.value.password,
+            private_key: connectionInfoData.value.private_key,
+            ssh_port: connectionInfoData.value.ssh_port,
+            user: connectionInfoData.value.user,
+          },
+        });
+
+        if (data) {
+          saveLoading.value = false;
+          showSuccessMessage('success', 'Connection Created Successfully');
+
+          emit('update:trigger');
+          emit('update:is-connection-modal-opened', false);
+          emit('update:is-service-modal-opened', false);
+        }
+      }
+    } catch (error) {
+      saveLoading.value = false;
+      showErrorMessage('failed', 'Connection Creation Failed');
+      console.log(error);
+    }
   }
 };
 
@@ -93,7 +131,7 @@ watchEffect(() => {
 
 watchEffect(() => {
   if (props.selectedConnectionId.length > 0) {
-    isDisabled.value = false;
+    isDisabled.value = true;
   }
 });
 </script>

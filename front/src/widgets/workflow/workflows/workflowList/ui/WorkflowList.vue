@@ -12,9 +12,11 @@ import {
   showErrorMessage,
 } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, reactive, watch } from 'vue';
+import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
 import { useGetWorkflowList, useBulkDeleteWorkflow } from '@/entities';
+import { useRunWorkflow } from '@/entities';
 
+const runWorkflow = useRunWorkflow('');
 const getWorkflowList = useGetWorkflowList();
 
 const { tableModel, initToolBoxTableModel, workflowStore } =
@@ -22,6 +24,7 @@ const { tableModel, initToolBoxTableModel, workflowStore } =
 
 interface iProps {
   trigger: boolean;
+  selectedWfId: any;
 }
 
 const props = defineProps<iProps>();
@@ -31,6 +34,7 @@ const emit = defineEmits(['select-row', 'update:trigger']);
 const modal = reactive({
   alertModalState: { open: false },
 });
+const isRunLoading = ref<boolean>(false);
 
 onBeforeMount(() => {
   initToolBoxTableModel();
@@ -111,6 +115,32 @@ async function fetchWorkflowList() {
   }
 }
 
+async function handleRunWorkflow(e: any) {
+  const selectedWfId: string =
+    e.target.parentNode.parentNode.children[2].textContent.split(' ')[1];
+  try {
+    isRunLoading.value = true;
+
+    const { data } = await runWorkflow.execute({
+      pathParams: {
+        wfId: selectedWfId,
+      },
+    });
+
+    // @ts-ignore
+    if (data.responseData?.message === 'success') {
+      isRunLoading.value = false;
+      showSuccessMessage(
+        'success',
+        `Workflow ID: ${selectedWfId} run successfully`,
+      );
+    }
+  } catch (error) {
+    console.log(error);
+    showErrorMessage('failed', 'Workflow Run Failed');
+  }
+}
+
 watch(
   () => props.trigger,
   nv => {
@@ -142,6 +172,7 @@ watch(
           :query-tag="tableModel.querySearchState.queryTag"
           :select-index.sync="tableModel.tableState.selectIndex"
           :page-size="tableModel.tableOptions.pageSize"
+          :loading="isRunLoading"
           @change="tableModel.handleChange"
           @refresh="handleRefreshTable"
           @select="handleSelectedIndex"
@@ -151,7 +182,13 @@ watch(
           </template>
           <template #th-run> &nbsp; </template>
           <template #col-run-format>
-            <p-button style-type="tertiary" size="sm">Run</p-button>
+            <p-button
+              style-type="tertiary"
+              size="sm"
+              @click="handleRunWorkflow"
+            >
+              Run
+            </p-button>
           </template>
         </p-toolbox-table>
       </template>

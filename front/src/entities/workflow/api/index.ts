@@ -6,11 +6,13 @@ const GET_WORKFLOW_LIST = 'list-workflow';
 const GET_WORKFLOW = 'get-workflow';
 const CREATE_WORKFLOW = 'create-workflow';
 const UPDATE_WORKFLOW = 'update-workflow';
+const RUN_WORKFLOW = 'run-workflow';
 const DELETE_WORKFLOW = 'delete-workflow';
 
 const GET_WORKFLOW_TEMPLATE_LIST = 'list-workflow-template';
 
 const GET_TASK_COMPONENT_LIST = 'list-task-component';
+const GET_TASK_COMPONENT = 'get-task-component';
 const CREATE_TASK_COMPONENT = 'cm-cicada/create-task-component';
 const UPDATE_TASK_COMPONENT = 'update-task-component';
 const DELETE_TASK_COMPONENT = 'delete-task-component';
@@ -48,6 +50,14 @@ export function useUpdateWorkflow<T, D>(
     UPDATE_WORKFLOW,
     requestBodyWrapper,
   );
+}
+
+export function useRunWorkflow(wfId: string) {
+  return useAxiosPost<IAxiosResponse<IWorkflowResponse>, any>(RUN_WORKFLOW, {
+    pathParams: {
+      wfId,
+    },
+  });
 }
 
 export function useBulkDeleteWorkflow(wfIds: string[]) {
@@ -94,6 +104,17 @@ export function useGetTaskComponentList() {
   return useAxiosPost<IAxiosResponse<IWorkflowResponse[]>, null>(
     GET_TASK_COMPONENT_LIST,
     null,
+  );
+}
+
+export function useGetTaskComponent(tcId: string | null) {
+  return useAxiosPost<IAxiosResponse<IWorkflowResponse>, any>(
+    GET_TASK_COMPONENT,
+    {
+      pathParams: {
+        tcId,
+      },
+    },
   );
 }
 

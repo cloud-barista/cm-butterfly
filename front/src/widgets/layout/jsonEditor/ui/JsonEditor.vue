@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PPaneLayout, PJsonSchemaForm } from '@cloudforet-test/mirinae';
-import { computed, ref } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 
 interface iProps {
   title: string;
@@ -28,6 +28,18 @@ function handleUpdateFormData(value: any) {
 }
 
 // TODO: validation 추가 (key부분 변경 못하게 할 수 있는지 확인해보기)
+const isValid = ref<boolean>(true);
+
+watchEffect(
+  () => {
+    const invalidFeedbackDom = document.querySelector('.invalid-feedback');
+    if (invalidFeedbackDom) {
+      isValid.value = false;
+      // emit('disable:save-button');
+    }
+  },
+  { flush: 'post' },
+);
 </script>
 
 <template>
@@ -38,6 +50,7 @@ function handleUpdateFormData(value: any) {
       :read-only="readOnly"
       :form-data.sync="_formData"
       :schema="schema"
+      validation-mode="all"
       @update:form-data="handleUpdateFormData"
     />
   </p-pane-layout>

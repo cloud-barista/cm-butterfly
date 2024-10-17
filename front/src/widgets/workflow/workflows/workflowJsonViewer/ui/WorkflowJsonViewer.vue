@@ -2,7 +2,7 @@
 import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { JsonEditor } from '@/widgets/layout';
-import { ref } from 'vue';
+import { readonly, ref } from 'vue';
 
 interface iProps {
   title: string;
@@ -17,9 +17,14 @@ interface iProps {
 
 const props = defineProps<iProps>();
 
-const emit = defineEmits(['update:close-modal', 'update:api']);
+const emit = defineEmits([
+  'update:close-modal',
+  'update:api',
+  'update:trigger',
+]);
 
 const updatedData = ref(props.json);
+const isSaveAble = ref<boolean>(true);
 
 function handleModal() {
   emit('update:close-modal', false);
@@ -53,9 +58,10 @@ async function handleSave() {
         :shema-properties="schema.properties"
         :form-data="updatedData"
         @update:form-data="handleSchemaUpdate"
+        @disable:save-button="isSaveAble = false"
       />
     </template>
-    <template #buttons>
+    <template v-if="!readOnly" #buttons>
       <p-button
         style-type="tertiary"
         @click="emit('update:close-modal', false)"

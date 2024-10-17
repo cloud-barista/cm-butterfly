@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PTab, PButton } from '@cloudforet-test/mirinae';
-import { ref, reactive, onMounted, watchEffect, watch } from 'vue';
+import { ref, reactive } from 'vue';
 import {
   WorkflowList,
   WorkflowDetail,
@@ -29,9 +29,9 @@ const modalState = reactive({
     },
   },
 
-  editModal: { open: false, trigger: false },
-  workflowToolModal: { open: false, trigger: false },
-  workflowJsonModal: { open: false, trigger: false },
+  editModal: { open: false },
+  workflowToolModal: { open: false },
+  workflowJsonModal: { open: false },
 });
 
 const mainTabState = reactive({
@@ -87,7 +87,6 @@ async function getWorkflowById() {
 
 async function handleUpdateWorkflowEdit() {
   try {
-    // TODO: 뭔가 이상함.
     if (selectedWorkflowId.value.length > 0) {
       await getWorkflowById();
 
@@ -128,7 +127,7 @@ async function handleUpdateWorkflow(updatedData: object) {
       data.responseData?.data.description !== '' &&
       data.responseData?.data.task_groups !== null
     ) {
-      // modalState.addWorkflow.trigger = true;
+      modalState.addWorkflow.trigger = true;
       showSuccessMessage('success', 'Workflow data updated successfully.');
     } else {
       // modalState.addWorkflow.trigger = true;
@@ -141,16 +140,6 @@ async function handleUpdateWorkflow(updatedData: object) {
     );
   }
 }
-
-watch(
-  () => modalState.addWorkflow.trigger,
-  nv => {
-    if (nv) {
-      modalState.addWorkflow.updateTrigger();
-    }
-  },
-  { immediate: true },
-);
 </script>
 
 <template>
@@ -161,8 +150,9 @@ watch(
     <section :class="`${pageName}-page-body`">
       <workflow-list
         :trigger="modalState.addWorkflow.trigger"
+        :selected-wf-id="selectedWorkflowId"
         @select-row="handleClickWorkflowId"
-        @update:trigger="modalState.addWorkflow.updateTrigger"
+        @update:trigger="modalState.addWorkflow.updateTrigger()"
       />
       <p v-if="!selectedWorkflowId" class="more-details">
         Select an item for more details.
@@ -199,7 +189,6 @@ watch(
     <div class="relative z-60">
       <simple-edit-form
         v-if="modalState.editModal.open"
-        :trigger="modalState.addWorkflow.trigger"
         :name="workflowName"
         header-title="Edit Workflow"
         name-label="Workflow Name"
@@ -212,6 +201,7 @@ watch(
         "
         @update:close-modal="modalState.editModal.open = false"
         @update:name-value="e => (workflowName = e)"
+        @update:trigger="modalState.addWorkflow.trigger = true"
       />
     </div>
     <div class="relative z-70">

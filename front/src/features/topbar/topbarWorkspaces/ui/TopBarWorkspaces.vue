@@ -208,6 +208,7 @@ const selectWorkspace = (name: string) => {
       is-filterable
       hide-header-without-items
       show-delete-all-button
+      disabled
     >
       <template #dropdown-button-icon>
         <p-i

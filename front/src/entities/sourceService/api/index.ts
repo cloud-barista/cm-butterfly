@@ -11,6 +11,7 @@ import { axiosInstance } from '@/shared/libs/api/instance.ts';
 import type { ISourceGroup } from '@/entities/sourceService/model/types.ts';
 
 const REGISTER_SOURCE_GROUP = 'cm-honeybee/register-source-group';
+const UPDATE_SOURCE_GROUP = 'Update-Source-Group';
 const GET_SOURCE_SERVICE_LIST = 'list-source-group';
 const GET_SOURCE_SERVICE_STATUS = 'agent-and-connection-check';
 const DELETE_SOURCE_SERVICE = 'delete-source-group';
@@ -28,6 +29,20 @@ export function useRegisterSourceGroup<T, D>(
     REGISTER_SOURCE_GROUP,
     requestBodyWrapper,
   );
+}
+
+export function useUpdateSourceGroup(
+  sourceGroupId: string | null,
+  sourceGroupData: { name: string; description: string } | null,
+) {
+  const requestBodyWrapper = {
+    pathParams: {
+      sgId: sourceGroupId,
+    },
+    request: sourceGroupData,
+  };
+
+  return useAxiosPost(UPDATE_SOURCE_GROUP, requestBodyWrapper);
 }
 
 export function useGetSourceServiceList() {
