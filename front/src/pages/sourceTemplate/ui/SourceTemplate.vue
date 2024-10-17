@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import WorkflowTemplate from '@/features/workflow/workflowDesigner/ui/WorkflowDesigner.vue';
-import WorkflowTool from '@/features/workflow/ui/WorkflowTool.vue';
+import WorkflowTemplate from '@/features/workflow/temp/workflowEditor/sequential/designer/ui/SequentialDesigner.vue';
+import WorkflowTool from '@/features/workflow/temp/workflowEditor/ui/WorkflowEditor.vue';
 
 const pageName = 'sourceTemplate';
 </script>

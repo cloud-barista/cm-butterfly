@@ -2,14 +2,14 @@ import { useWorkflowStore } from '@/entities/workflow/model/stores.ts';
 import {
   IWorkFlowDesignerFormData,
   Step,
-} from '@/features/workflow/model/types.ts';
+} from '@/features/workflow/temp/workflowEditor/model/types.ts';
 import {
   ITaskGroupResponse,
   ITaskResponse,
   IWorkflow,
 } from '@/entities/workflow/model/types.ts';
 import getRandomId from '@/shared/utils/uuid';
-import { toolboxSteps } from '@/features/workflow/workflowDesigner/model/toolboxSteps.ts';
+import { toolboxSteps } from '@/features/workflow/temp/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();

@@ -1,7 +1,7 @@
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import { reactive } from 'vue';
 
-export function useStepEditorProviderModel() {
+export function useTaskEditorModel() {
   const formValues = reactive({
     entity: {
       targetModel: {

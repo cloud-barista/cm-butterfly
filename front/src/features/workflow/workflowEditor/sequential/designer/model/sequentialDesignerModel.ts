@@ -5,8 +5,8 @@ import {
 } from 'sequential-workflow-designer';
 import { Definition, Step } from 'sequential-workflow-model';
 import getRandomId from '@/shared/utils/uuid';
-import { toolboxSteps } from '@/features/workflow/workflowDesigner/model/toolboxSteps.ts';
-import { editorProviders } from '@/features/workflow/workflowEditor/model/editorProviders.ts';
+import { toolboxSteps } from '@/features/workflow/temp/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
+import { editorProviders } from '@/features/workflow/temp/workflowEditor/sequential/designer/editor/model/editorProviders.ts';
 
 export function useFlowChartModel(refs: any) {
   let designer: Designer | null = null;
@@ -59,38 +59,37 @@ export function useFlowChartModel(refs: any) {
   function defineStepEvent() {
     return {
       // all properties in this section are optional
-      iconUrlProvider: (componentType, type) => {
+      iconUrlProvider: (componentType: any, type: any) => {
         return `/src/shared/asset/image/testSvg.svg`;
       },
-
-      isDraggable: (step, parentSequence) => {
-        return step.name !== 'y';
-      },
+      //
+      // isDraggable: (step, parentSequence) => {
+      //   return step.name !== 'y';
+      // },
       isDeletable: (step, parentSequence) => {
         return step.properties['isDeletable'];
       },
-      isDuplicable: (step, parentSequence) => {
-        return true;
-      },
-      canInsertStep: (step, targetSequence, targetIndex) => {
-        return true;
-      },
-      canMoveStep: (sourceSequence, step, targetSequence, targetIndex) => {
-        return !step.properties['isLocked'];
-      },
-      canDeleteStep: (step, parentSequence) => {
-        return confirm('Are you sure?');
-      },
+      // isDuplicable: (step, parentSequence) => {
+      //   return true;
+      // },
+      // canInsertStep: (step, targetSequence, targetIndex) => {
+      //   return true;
+      // },
+      // canMoveStep: (sourceSequence, step, targetSequence, targetIndex) => {
+      //   return !step.properties['isLocked'];
+      // },
+      // canDeleteStep: (step, parentSequence) => {
+      //   return confirm('Are you sure?');
+      // },
     };
   }
 
   function defineStepValidate() {
     return {
-      // all validators are optional
-
       step: (step, parentSequence, definition) => {
         console.log('parentSequence');
         console.log(parentSequence);
+        console.log(definition);
         return true;
       },
       root: definition => {
@@ -99,7 +98,6 @@ export function useFlowChartModel(refs: any) {
     };
   }
 
-  //FIXME 백엔드에서 받아온 데이터를 넣어줘야함.
   function setToolboxGroupsSteps(
     toolSteps: Step[] | null,
     taskGroupSteps: Step[] | null,
@@ -128,21 +126,6 @@ export function useFlowChartModel(refs: any) {
     console.log(toolBoxGroup);
   }
 
-  // function defineToolboxGroups() {
-  //   return [
-  //     {
-  //       name: 'Tool',
-  //       steps: [toolboxSteps().defineIfStep(getRandomId(), [], [])],
-  //     },
-  //     {
-  //       name: 'Components',
-  //       steps: [
-  //         toolboxSteps().defineTaskGroupStep(getRandomId()),
-  //         toolboxSteps().defineBettleTaskStep(getRandomId()),
-  //       ],
-  //     },
-  //   ];
-  // }
   function loadConfiguration() {
     return {
       steps: defineStepEvent(),

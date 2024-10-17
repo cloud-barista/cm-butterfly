@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useWorkflowToolModel } from '../model/workflowToolModel.ts';
+import { useWorkflowToolModel } from '../model/workflowEditorModel.ts';
 import {
   ITaskResponse,
   ITaskVmResponse,
   IWorkflow,
 } from '@/entities/workflow/model/types.ts';
-import WorkflowEditor from '@/features/workflow/workflowDesigner/ui/WorkflowDesigner.vue';
+import WorkflowEditor from '@/features/workflow/temp/workflowEditor/sequential/designer/ui/SequentialDesigner.vue';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import {
   PTextInput,
@@ -35,7 +35,7 @@ const workflowToolModel = useWorkflowToolModel();
 
 const workflowName = useInputModel<string>('');
 const description = useInputModel<string>('');
-const templatesModel = '';
+
 if (props.toolType === 'edit') {
   workflowToolModel.getWorkflowToolData(props.wftId);
 } else if (props.toolType === 'add') {

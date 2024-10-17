@@ -1,6 +1,6 @@
 import { insertDynamicComponent } from '@/shared/utils';
-import { getSequencePath } from '@/features/workflow/workflowEditor/model/utils.ts';
-import StepEditorProvider from '@/features/workflow/workflowEditor/ui/StepEditorProvider.vue';
+import { getSequencePath } from '@/features/workflow/temp/workflowEditor/sequential/designer/editor/model/utils.ts';
+import BeetleTaskEditor from '@/features/workflow/temp/workflowEditor/sequential/designer/editor/ui/BeetleTaskEditor.vue';
 
 export function editorProviders() {
   const editor = document.createElement('div');
@@ -33,7 +33,7 @@ export function editorProviders() {
       }
       if (step.componentType === 'task') {
         insertDynamicComponent(
-          StepEditorProvider,
+          BeetleTaskEditor,
           { id: 'tst' },
           {
             'button-click': () => {

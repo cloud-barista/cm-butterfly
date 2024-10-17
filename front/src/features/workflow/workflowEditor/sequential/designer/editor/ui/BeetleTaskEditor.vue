@@ -2,7 +2,7 @@
 import { PButton, PIconButton, PTextInput } from '@cloudforet-test/mirinae';
 import { onMounted, onUnmounted, reactive, ref, toRef, watch } from 'vue';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
-import { useStepEditorProviderModel } from '@/features/workflow/workflowEditor/model/stepEditorProviderModel.ts';
+import { useTaskEditorModel } from '@/features/workflow/temp/workflowEditor/sequential/designer/editor/model/beetleTaskEditorModel.ts';
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
 
 interface IProps {
@@ -12,7 +12,7 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['button-click']);
 
-const stepEditorProviderModel = useStepEditorProviderModel();
+const stepEditorProviderModel = useTaskEditorModel();
 
 watch(props, nv => {});
 

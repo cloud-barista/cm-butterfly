@@ -1,4 +1,7 @@
-import { IMci, Step } from '@/features/workflow/model/types.ts';
+import {
+  IMci,
+  Step,
+} from '@/features/workflow/temp/workflowEditor/model/types.ts';
 
 export function toolboxSteps() {
   return {

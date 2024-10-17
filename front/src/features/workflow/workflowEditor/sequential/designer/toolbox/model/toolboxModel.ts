@@ -1,17 +1,25 @@
-import { toolboxSteps } from '@/features/workflow/workflowDesigner/model/toolboxSteps.ts';
 import {
+  getTaskComponentList,
   ITaskInfoResponse,
   ITaskRequestBody,
-} from '@/features/workflow/workflowDesigner/api';
-import { Step } from '@/features/workflow/model/types.ts';
+} from '@/features/workflow/temp/workflowEditor/sequential/designer/toolbox/model/api';
+import { useFlowChartModel } from '@/features/workflow/temp/workflowEditor/sequential/designer/model/sequentialDesignerModel.ts';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import getRandomId from '@/shared/utils/uuid';
+import { Step } from '@/features/workflow/temp/workflowEditor/model/types.ts';
+import { toolboxSteps } from '@/features/workflow/temp/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 
-export function useWorkflowDesignerModel() {
+export function useSequentialToolboxModel() {
+  const resGetTaskComponentList = getTaskComponentList();
   const loadStepsFunc = toolboxSteps();
-  const taskStepsModels: Step[] = [];
+
+  async function getTaskComponents() {
+    const res = await resGetTaskComponentList.execute();
+    return processToolBoxTaskListResponse(res.data.responseData!);
+  }
 
   function processToolBoxTaskListResponse(res: ITaskInfoResponse[]) {
+    const taskStepsModels: Step[] = [];
     res.forEach((res: ITaskInfoResponse) => {
       res.data.options.request_body = parseRequestBody(
         res.data.options.request_body,
@@ -44,10 +52,9 @@ export function useWorkflowDesignerModel() {
         ),
       );
     });
-  }
 
-  function getTaskStepsModels() {
     return taskStepsModels;
   }
-  return { processToolBoxTaskListResponse, getTaskStepsModels };
+
+  return getTaskComponents();
 }
