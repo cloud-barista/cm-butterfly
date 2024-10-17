@@ -12,8 +12,8 @@
     ],
     "skipLibCheck": true,
     /* Bundler mode */
-    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "moduleDetection": "force",
@@ -25,9 +25,11 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny" : false,
-    "baseUrl": ".",
+    "baseUrl": "src",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "./*",
+      ]
     }
   },
   "include": [

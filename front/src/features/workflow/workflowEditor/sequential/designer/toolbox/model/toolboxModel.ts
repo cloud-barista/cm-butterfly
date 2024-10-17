@@ -2,12 +2,11 @@ import {
   getTaskComponentList,
   ITaskInfoResponse,
   ITaskRequestBody,
-} from '@/features/workflow/temp/workflowEditor/sequential/designer/toolbox/model/api';
-import { useFlowChartModel } from '@/features/workflow/temp/workflowEditor/sequential/designer/model/sequentialDesignerModel.ts';
+} from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import getRandomId from '@/shared/utils/uuid';
-import { Step } from '@/features/workflow/temp/workflowEditor/model/types.ts';
-import { toolboxSteps } from '@/features/workflow/temp/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
+import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
+import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 
 export function useSequentialToolboxModel() {
   const resGetTaskComponentList = getTaskComponentList();
@@ -31,7 +30,7 @@ export function useSequentialToolboxModel() {
           res.name ?? 'undefined',
           'task',
           {
-            mci: {
+            entities: {
               name: taskRequestData.name,
               description: taskRequestData.description,
               vms: taskRequestData.vm

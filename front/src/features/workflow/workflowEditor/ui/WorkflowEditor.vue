@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { useWorkflowToolModel } from '../model/workflowEditorModel.ts';
-import {
-  ITaskResponse,
-  ITaskVmResponse,
-  IWorkflow,
-} from '@/entities/workflow/model/types.ts';
-import WorkflowEditor from '@/features/workflow/temp/workflowEditor/sequential/designer/ui/SequentialDesigner.vue';
+import WorkflowEditor from '@/features/workflow/workflowEditor/sequential/designer/ui/SequentialDesigner.vue';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import {
   PTextInput,

@@ -2,14 +2,14 @@ import { useWorkflowStore } from '@/entities/workflow/model/stores.ts';
 import {
   IWorkFlowDesignerFormData,
   Step,
-} from '@/features/workflow/temp/workflowEditor/model/types.ts';
+} from '@/features/workflow/workflowEditor/model/types.ts';
 import {
   ITaskGroupResponse,
   ITaskResponse,
   IWorkflow,
 } from '@/entities/workflow/model/types.ts';
 import getRandomId from '@/shared/utils/uuid';
-import { toolboxSteps } from '@/features/workflow/temp/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
+import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
@@ -78,7 +78,7 @@ export function useWorkflowToolModel() {
 
   function convertToDesignerTask(task: ITaskResponse): Step {
     return defineBettleTaskStep(getRandomId(), task.name, 'bettle_task', {
-      mci: {
+      entities: {
         name: task.request_body.name,
         description: task.request_body.description,
         vms: task.request_body.vm.map(vm => ({

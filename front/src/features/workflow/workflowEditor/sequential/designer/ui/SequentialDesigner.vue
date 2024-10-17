@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
-import { useFlowChartModel } from '@/features/workflow/temp/workflowEditor/sequential/designer/model/sequentialDesignerModel.ts';
+import { useFlowChartModel } from '@/features/workflow/workflowEditor/sequential/designer/model/sequentialDesignerModel.ts';
 
-import { useSequentialToolboxModel } from '@/features/workflow/temp/workflowEditor/sequential/designer/toolbox/model/toolboxModel.ts';
+import { useSequentialToolboxModel } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxModel.ts';
 
 let flowChartModel;
 
@@ -33,9 +33,9 @@ onMounted(function () {
 </template>
 
 <style lang="postcss">
-@import '../../../../../../../../node_modules/sequential-workflow-designer/css/designer.css';
-@import '../../../../../../../../node_modules/sequential-workflow-designer/css/designer-light.css';
-@import '../../../../../../../../node_modules/sequential-workflow-designer/css/designer-dark.css';
+@import '@/../node_modules/sequential-workflow-designer/css/designer.css';
+@import '@/../node_modules/sequential-workflow-designer/css/designer-light.css';
+@import '@/../node_modules/sequential-workflow-designer/css/designer-dark.css';
 
 .source-template-workflow-edit-container {
   .workflow-box {

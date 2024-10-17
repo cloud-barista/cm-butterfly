@@ -1,7 +1,7 @@
 import {
-  IMci,
+  IEntity,
   Step,
-} from '@/features/workflow/temp/workflowEditor/model/types.ts';
+} from '@/features/workflow/workflowEditor/model/types.ts';
 
 export function toolboxSteps() {
   return {
@@ -38,7 +38,7 @@ export function toolboxSteps() {
       id: string,
       name: string,
       type: string,
-      properties: { mci: IMci },
+      properties: { entities: IEntity },
     ): Step {
       return {
         componentType: 'task',

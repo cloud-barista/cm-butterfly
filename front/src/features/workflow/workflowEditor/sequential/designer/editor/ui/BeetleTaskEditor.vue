@@ -2,19 +2,40 @@
 import { PButton, PIconButton, PTextInput } from '@cloudforet-test/mirinae';
 import { onMounted, onUnmounted, reactive, ref, toRef, watch } from 'vue';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
-import { useTaskEditorModel } from '@/features/workflow/temp/workflowEditor/sequential/designer/editor/model/beetleTaskEditorModel.ts';
+import { useTaskEditorModel } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/beetleTaskEditorModel.ts';
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
 
-interface IProps {
-  id: ref<string>;
+export interface FormValuesProps {
+  targetModel: string;
+  mciName: string;
+  mciDescription: string;
+  vms: Array<vm>;
 }
 
-const props = defineProps<IProps>();
-const emit = defineEmits(['button-click']);
-
-const stepEditorProviderModel = useTaskEditorModel();
-
-watch(props, nv => {});
+interface vm {
+  vmName: string;
+  serverQuantity: string;
+  commonSpec: string;
+  commonOsImage: string;
+  rootDiskType: string;
+  rootDiskSize: string;
+  userPassword: string;
+  connectionName: string;
+}
+const props = defineProps<FormValuesProps>();
+const emit = defineEmits(['addVmClick']);
+const stepEditorProviderModel = useTaskEditorModel(props);
+function test() {
+  stepEditorProviderModel.addAccordionSlot();
+  emit('addVmClick');
+}
+watch(
+  props,
+  nv => {
+    console.log(nv);
+  },
+  { deep: true },
+);
 
 onMounted(() => {});
 </script>
@@ -29,7 +50,7 @@ onMounted(() => {});
         :style-type="'secondary'"
         icon-left="ic_plus"
         :size="'sm'"
-        @click="stepEditorProviderModel.addAccordionSlot"
+        @click="test"
       >
         Add VM
       </p-button>

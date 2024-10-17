@@ -1,7 +1,6 @@
 import { Step as _Step } from 'sequential-workflow-model';
 
-//TODO MCI to Entities로
-export interface IMci {
+export interface IEntity {
   name: string;
   description: string;
   vms: IVm[];
@@ -26,7 +25,7 @@ export interface Step extends _Step {
   type: string;
   properties: {
     isDeletable: boolean;
-    mci?: IMci;
+    entities?: IEntity;
   };
 }
 

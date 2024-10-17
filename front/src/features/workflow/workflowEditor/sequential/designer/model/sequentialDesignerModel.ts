@@ -5,8 +5,8 @@ import {
 } from 'sequential-workflow-designer';
 import { Definition, Step } from 'sequential-workflow-model';
 import getRandomId from '@/shared/utils/uuid';
-import { toolboxSteps } from '@/features/workflow/temp/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
-import { editorProviders } from '@/features/workflow/temp/workflowEditor/sequential/designer/editor/model/editorProviders.ts';
+import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
+import { editorProviders } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/editorProviders.ts';
 
 export function useFlowChartModel(refs: any) {
   let designer: Designer | null = null;
