@@ -38,10 +38,15 @@ export function useFlowChartModel(refs: any) {
       steps: [],
     },
     {
+      name: 'taskGroup',
+      steps: [],
+    },
+    {
       name: 'Components',
       steps: [],
     },
   ];
+
   function defineDefaultDefinition(workflowName: string, sequence: Step[]) {
     return {
       properties: {
@@ -95,11 +100,25 @@ export function useFlowChartModel(refs: any) {
   }
 
   //FIXME 백엔드에서 받아온 데이터를 넣어줘야함.
-  function setToolboxGroupsSteps(toolSteps: Step[], componentSteps: Step[]) {
+  function setToolboxGroupsSteps(
+    toolSteps: Step[] | null,
+    taskGroupSteps: Step[] | null,
+    componentSteps: Step[],
+  ) {
     toolBoxGroup = [
       {
         name: 'Tool',
-        steps: toolSteps,
+        steps: toolSteps ?? [],
+      },
+      {
+        name: 'TaskGroup',
+        steps: taskGroupSteps ?? [
+          toolboxSteps().defineTaskGroupStep(
+            getRandomId(),
+            'TaskGroup',
+            'taskGroup',
+          ),
+        ],
       },
       {
         name: 'Components',

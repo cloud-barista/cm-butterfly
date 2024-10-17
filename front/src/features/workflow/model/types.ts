@@ -1,5 +1,6 @@
 import { Step as _Step } from 'sequential-workflow-model';
 
+//TODO MCI to Entities로
 export interface IMci {
   name: string;
   description: string;

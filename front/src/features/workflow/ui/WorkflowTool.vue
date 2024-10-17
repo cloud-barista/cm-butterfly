@@ -5,7 +5,7 @@ import {
   ITaskVmResponse,
   IWorkflow,
 } from '@/entities/workflow/model/types.ts';
-import WorkflowTemplate from '@/features/workflow/workflowDesigner/ui/WorkflowDesigner.vue';
+import WorkflowEditor from '@/features/workflow/workflowDesigner/ui/WorkflowDesigner.vue';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import {
   PTextInput,
@@ -22,6 +22,8 @@ interface IProps {
 
 const props = defineProps<IProps>();
 
+//목적: 서버에서 받아온 workflow관련 데이터를 flowchart 라이브러리에 맞게 변환후 props로 내려주는 역할.
+
 watch(
   () => props.toolType,
   nv => {
@@ -34,7 +36,6 @@ const workflowToolModel = useWorkflowToolModel();
 const workflowName = useInputModel<string>('');
 const description = useInputModel<string>('');
 const templatesModel = '';
-
 if (props.toolType === 'edit') {
   workflowToolModel.getWorkflowToolData(props.wftId);
 } else if (props.toolType === 'add') {
@@ -57,7 +58,7 @@ if (props.toolType === 'edit') {
       </PFieldGroup>
     </header>
     <section class="workflow-tool-body">
-      <WorkflowTemplate></WorkflowTemplate>
+      <WorkflowEditor></WorkflowEditor>
     </section>
     <footer class="h-[40px]">
       <PButton>Cancel</PButton>

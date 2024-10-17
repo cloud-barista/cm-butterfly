@@ -13,76 +13,31 @@ import { parseRequestBody } from '@/shared/utils/stringToObject';
 import { toolboxSteps } from '@/features/workflow/workflowDesigner/model/toolboxSteps.ts';
 import { Step } from '@/features/workflow/model/types.ts';
 import getRandomId from '@/shared/utils/uuid';
+import { useWorkflowDesignerModel } from '@/features/workflow/workflowDesigner/model/workflowDesignerModel.ts';
 
-let flowChart;
+let flowChartModel;
 
 //클릭시 해당 데이터를 저장할 변수
-const targetModel = ref({});
-const workflowToolModel = useWorkflowToolModel();
-// let tt = workflowToolModel.setWorkflowSequenceModel(t2);
-//TODO task 정보 등록 (api호출)
 const resGetTaskComponentList = getTaskComponentList();
-const loadStepsFunc = toolboxSteps();
-
-const taskStepsModels: Step[] = [];
-
-function convertTaskGroupStep() {}
-
-function convertTaskStep() {}
+const workflowDesignerModel = useWorkflowDesignerModel();
 
 onMounted(function () {
   let refs = this.$refs;
 
   resGetTaskComponentList.execute().then(res => {
-    res.data.responseData?.forEach((res: ITaskInfoResponse) => {
-      res.data.options.request_body = parseRequestBody(
-        res.data.options.request_body,
-      );
-
-      const taskRequestData: ITaskRequestBody = res.data.options.request_body;
-      console.log(taskRequestData);
-      taskStepsModels.push(
-        loadStepsFunc.defineBettleTaskStep(
-          getRandomId(),
-          taskRequestData.name ?? 'undefined',
-          taskRequestData.label ?? 'undefined',
-          {
-            mci: {
-              name: taskRequestData.name,
-              description: taskRequestData.description,
-              vms: taskRequestData.vm
-                ? taskRequestData.vm.map(vm => ({
-                    id: getRandomId(),
-                    name: vm.name,
-                    serverQuantity: vm.subGroupSize,
-                    commonSpec: vm.commonSpec,
-                    osImage: vm.commonImage,
-                    diskType: vm.rootDiskType,
-                    diskSize: vm.rootDiskSize,
-                    password: vm.vmUserPassword,
-                    connectionName: vm.connectionName,
-                  }))
-                : [],
-            },
-          },
-        ),
-      );
-    });
-    flowChart = useFlowChartModel(refs);
-    flowChart.setToolboxGroupsSteps(
-      [],
-      [
-        loadStepsFunc.defineTaskGroupStep(
-          getRandomId(),
-          'TaskGroup',
-          'taskGroup',
-        ),
-        ...taskStepsModels,
-      ],
+    workflowDesignerModel.processToolBoxTaskListResponse(
+      res.data.responseData!,
     );
+
+    flowChartModel = useFlowChartModel(refs);
+    flowChartModel.setToolboxGroupsSteps(null, null, [
+      ...workflowDesignerModel.getTaskStepsModels(),
+    ]);
+
+    //TODO 초기 디자이너를 그리기위한 작업
     // flowChart.setDefaultSequence(tt.sequence);
-    flowChart.initDesigner();
-    flowChart.draw();
+    flowChartModel.initDesigner();
+    flowChartModel.draw();
   });
 });
 </script>
