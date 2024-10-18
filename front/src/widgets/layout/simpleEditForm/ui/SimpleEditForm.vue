@@ -7,12 +7,13 @@ import {
   PTextarea,
 } from '@cloudforet-test/mirinae';
 import { i18n } from '@/app/i18n';
-import { ref, watchEffect } from 'vue';
+import { ref, watch, watchEffect } from 'vue';
 
 interface iProps {
   headerTitle: string;
   nameLabel: string;
   namePlaceholder: string;
+  name: string;
 }
 
 const props = defineProps<iProps>();
@@ -24,14 +25,14 @@ const emit = defineEmits([
   'update:description',
 ]);
 
-const name = ref<string>('');
+const _name = ref<string>(props.name);
 const description = ref<string>('');
 
 const isTextInputBlank = ref<boolean>(false);
 
 watchEffect(
   () => {
-    name.value !== ''
+    _name.value !== ''
       ? (isTextInputBlank.value = true)
       : (isTextInputBlank.value = false);
   },
@@ -40,9 +41,16 @@ watchEffect(
 
 function handleConfirm() {
   emit('update:save-modal');
-  emit('update:name-value', name.value);
   emit('update:description', description.value);
 }
+
+watch(
+  _name,
+  () => {
+    emit('update:name-value', _name.value);
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -59,7 +67,7 @@ function handleConfirm() {
       <p-pane-layout class="layout">
         <p-pane-layout class="text-input-layout">
           <p-field-group :label="nameLabel" required>
-            <p-text-input v-model="name" :placeholder="namePlaceholder" />
+            <p-text-input v-model="_name" :placeholder="namePlaceholder" />
           </p-field-group>
           <p-field-group label="Description">
             <p-textarea v-model="description" />

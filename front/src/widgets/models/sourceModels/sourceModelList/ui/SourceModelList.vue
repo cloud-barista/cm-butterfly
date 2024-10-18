@@ -45,7 +45,7 @@ function addDeleteIconAtTable() {
     targetElement,
     'prepend',
   );
-  targetElement.appendChild(instance.$el);
+  return instance;
 }
 
 function handleRefreshTable() {

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PTooltip, PI } from '@cloudforet-test/mirinae';
 import { reactive } from 'vue';
 import { MenuCategory } from '@/widgets/layout';
 import { useSidebar } from '@/shared/libs/store/sidebar';
@@ -15,10 +14,6 @@ const state = reactive({
   isMenuDescription: undefined as boolean | undefined,
 });
 
-const clickMinimizeBtn = () => {
-  sidebar.toggleMinimize();
-};
-
 const handleMouseEvent = (value: boolean) => {
   state.isHovered = value;
 };
@@ -31,23 +26,6 @@ const handleMouseEvent = (value: boolean) => {
     @mouseover="handleMouseEvent(true)"
     @mouseleave="handleMouseEvent(false)"
   >
-    <!-- <p-tooltip
-      v-if="!isCollapsed"
-      class="minimize-button-wrapper"
-      position="bottom"
-      :contents="!isMinimized ? 'Minimize menu' : 'Expand menu'"
-      @click="clickMinimizeBtn"
-    >
-      <p-i
-        :name="
-          isMinimized ? 'ic_double-chevron-right' : 'ic_double-chevron-left'
-        "
-        class="menu-button"
-        height="1.5rem"
-        width="1.5rem"
-        color="inherit"
-      />
-    </p-tooltip> -->
     <div class="navigation-rail-container">
       <div class="navigation-rail-wrapper">
         <menu-category />
@@ -132,7 +110,6 @@ const handleMouseEvent = (value: boolean) => {
     border-top-left-radius: 6.25rem;
     border-bottom-left-radius: 6.25rem;
     transition: padding 0.1s ease;
-    /* z-index: 50; */
     &:hover {
       @apply bg-violet-200 text-violet-600;
       padding-right: 0.75rem;

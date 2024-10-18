@@ -13,7 +13,7 @@ export const useMigratorMenuStore = defineStore('MIGRATOR_MENU', {
           {
             category: {
               id: MENU_ID.MIGRATIONS,
-              name: 'Migrations',
+              name: 'Overview',
             },
             menu: [],
           },

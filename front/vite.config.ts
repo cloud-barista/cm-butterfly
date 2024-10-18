@@ -9,11 +9,10 @@ export default ({ mode }: any) => {
   return defineConfig({
     plugins: [vue(), viteCommonjs()],
     resolve: {
-      alias: {
-        vue: 'vue/dist/vue.esm.js',
-        find: '@',
-        '@': path.resolve(__dirname, './src'),
-      },
+      alias: [
+        { find: 'vue', replacement: 'vue/dist/vue.esm.js' },
+        { find: '@', replacement: path.resolve(__dirname, './src') },
+      ],
     },
     server: {
       proxy: {
