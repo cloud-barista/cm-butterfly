@@ -10,7 +10,10 @@ interface IProps {
   step: {
     id: string;
     name: string;
-    properties: any;
+    properties: {
+      isDeletable: boolean;
+      model?: object;
+    };
     sequence: [];
     type: string;
   };
@@ -23,10 +26,15 @@ const taskEditorModel = useTaskEditorModel();
 watch(
   props,
   nv => {
-    taskEditorModel.setFormValues(nv);
+    taskEditorModel.setFormContext(nv.step.properties.model ?? '');
+    console.log(taskEditorModel.fromContext.value);
   },
   { deep: true, immediate: true },
 );
+
+onUnmounted(() => {
+  taskEditorModel.setFormContext(props.step.properties.model ?? '');
+});
 
 onMounted(() => {});
 </script>
@@ -41,76 +49,115 @@ onMounted(() => {});
         :style-type="'secondary'"
         icon-left="ic_plus"
         :size="'sm'"
-        @click="taskEditorModel.addVmSlot(taskEditorModel.formValues.vms[0])"
+        @click=""
       >
         Add VM
       </p-button>
     </div>
     <div
-      v-for="(entity, index) in taskEditorModel.formValues.entity"
+      v-for="(entity, index) of taskEditorModel.fromContext.value"
       :key="index"
       class="field-group flex justify-between align-items-center"
     >
-      <div class="field-title-box">
-        {{ entity.title }}
+      <div v-if="entity['type'] === 'input'">
+        <div class="field-title-box">
+          {{ entity['context'].title }}
+        </div>
+        <div class="field-content-box">
+          <p-text-input
+            v-model="entity['context'].model.value"
+            :size="'md'"
+            block
+            :invalid="!entity['context'].model.isValid"
+            @blur="entity['context'].model.onBlur"
+          ></p-text-input>
+        </div>
       </div>
-      <div class="field-content-box">
-        <p-text-input
-          v-model="entity.model.value"
-          :size="'md'"
-          block
-          :invalid="!entity.model.isValid"
-          @blur="entity.model.onBlur"
-        ></p-text-input>
+      <div v-if="entity['values']?.type === 'accordion'">
+        <BAccordion :items="[entity['values'].context]">
+          <template #header="{ header, item, click }">
+            <div class="field-group flex justify-between align-items-center">
+              <div class="field-title-box">
+                <PIconButton
+                  v-if="item.header?.icon"
+                  :name="item.header.icon"
+                  :size="'sm'"
+                  @click="click"
+                ></PIconButton>
+                {{ item.header?.title ?? '' }}
+              </div>
+            </div>
+          </template>
+          <template #content="{ content, item }">
+            <div
+              v-for="(element, index) in item.content"
+              :key="index"
+              class="field-group flex justify-between align-items-center item-content"
+            >
+              <div class="field-title-box">
+                {{ element.title }}
+              </div>
+              <div class="field-content-box">
+                <p-text-input
+                  v-model="element['context'].model.value"
+                  :size="'md'"
+                  block
+                  :invalid="!element['context'].model.isValid"
+                  @blur="element['context'].model.onBlur"
+                ></p-text-input>
+              </div>
+            </div>
+          </template>
+        </BAccordion>
       </div>
     </div>
 
     <section class="vm-list">
-      <BAccordion :items="taskEditorModel.formValues.vms">
-        <template #header="{ header, item, click }">
-          <div class="field-group flex justify-between align-items-center">
-            <div class="field-title-box">
-              <PIconButton
-                :name="item.header.icon"
-                :size="'sm'"
-                @click="click"
-              ></PIconButton>
-              {{ item.header.title }}
-            </div>
-            <div class="field-content-box">
-              <p-text-input
-                v-model="item.content.vms.header.vmName.model.value"
-                :size="'md'"
-                :invalid="!item.content.vms.header.vmName.model.isValid"
-                block
-                @blur="item.content.vms.header.vmName.model.onBlur"
-              ></p-text-input>
-            </div>
-          </div>
-        </template>
-        <template #content="{ content, item }">
-          <div
-            v-for="(key, index) in item.content.vms.body"
-            :key="index"
-            class="field-group flex justify-between align-items-center item-content"
-          >
-            <div class="field-title-box">
-              {{ key.title }}
-            </div>
-            <div class="field-content-box">
-              <template v-if="key.type === 'text'">
-                <p-text-input
-                  v-model="key['model'].value"
-                  :size="'md'"
-                  block
-                  :invalid="!key['model'].isValid"
-                  @blur="key['model'].onBlur"
-                ></p-text-input>
-              </template>
-            </div>
-          </div>
-        </template>
-      </BAccordion>
+      <!--      <BAccordion :items="taskEditorModel.formValues.vms">-->
+      <!--        <template #header="{ header, item, click }">-->
+      <!--          <div class="field-group flex justify-between align-items-center">-->
+      <!--            <div class="field-title-box">-->
+      <!--              <PIconButton-->
+      <!--                :name="item.header.icon"-->
+      <!--                :size="'sm'"-->
+      <!--                @click="click"-->
+      <!--              ></PIconButton>-->
+      <!--              {{ item.header.title }}-->
+      <!--            </div>-->
+      <!--            <div class="field-content-box">-->
+      <!--              <p-text-input-->
+      <!--                v-model="item.content.vms.header.vmName.model.value"-->
+      <!--                :size="'md'"-->
+      <!--                :invalid="!item.content.vms.header.vmName.model.isValid"-->
+      <!--                block-->
+      <!--                @blur="item.content.vms.header.vmName.model.onBlur"-->
+      <!--              ></p-text-input>-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--        </template>-->
+      <!--        <template #content="{ content, item }">-->
+      <!--          <div-->
+      <!--            v-for="(key, index) in item.content.vms.body"-->
+      <!--            :key="index"-->
+      <!--            class="field-group flex justify-between align-items-center item-content"-->
+      <!--          >-->
+      <!--            <div class="field-title-box">-->
+      <!--              {{ key.title }}-->
+      <!--            </div>-->
+      <!--            <div class="field-content-box">-->
+      <!--              <template v-if="key.type === 'text'">-->
+      <!--                <p-text-input-->
+      <!--                  v-model="key['model'].value"-->
+      <!--                  :size="'md'"-->
+      <!--                  block-->
+      <!--                  :invalid="!key['model'].isValid"-->
+      <!--                  @blur="key['model'].onBlur"-->
+      <!--                ></p-text-input>-->
+      <!--              </template>-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--        </template>-->
+      <!--      </BAccordion>-->
     </section>
   </div>
 </template>

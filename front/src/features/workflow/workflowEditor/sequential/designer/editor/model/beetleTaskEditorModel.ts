@@ -1,80 +1,7 @@
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
-import { computed, reactive, Ref } from 'vue';
-
-type ConvertedData = InputContext | AccordionContext;
-
-export function useTaskEditorModel() {
-  const fromContext = reactive({});
-
-  function setFromContext(object: object) {}
-
-  function loadInputContext(key, value): InputContext {
-    return {
-      type: 'input',
-      context: {
-        title: key,
-        model: useInputModel(value ?? ''),
-      },
-    };
-  }
-
-  function loadAccordionContext(arr: Array<object>): AccordionContext {
-    return {
-      type: 'accordion',
-      context: {
-        header:{
-          icon: 'ic_chevron-down',
-          title : Object.keys(arr[0])[0]
-        }
-        content : arr.map(el => loadInputContext(el))
-
-      },
-    };
-  }
-}
-//예시 flow
-let t = {
-  a: 'a',
-  b: 'b',
-  d: [
-    {
-      ㄱ: 'ㄱ',
-      ㄴ: 'ㄴ ',
-    },
-  ],
-  c: 'c',
-};
-
-//a,b,c 경우
-let t1: InputContext = {
-  type: 'input',
-  context: {
-    title: 'a or b or c',
-    model: useInputModel<string>('a or b or c'),
-  },
-};
-
-//d의 경우.
-let t2: AccordionContext = {
-  type: 'accordion',
-  context: {
-    header: {
-      icon: 'ic_chevron-down',
-      title: 'index',
-    },
-    content: [
-      {
-        type: 'input',
-        context: {
-          title: 'ㄱ or ㄴ',
-          model: useInputModel('ㄱ or ㄴ'),
-        },
-      },
-    ],
-  },
-};
-
-const result = [t1, t2];
+import { computed, reactive, ref, Ref } from 'vue';
+import object from 'async-validator/dist-types/validator/object';
+import { values } from 'lodash';
 
 type InputContext = {
   type: 'input';
@@ -94,3 +21,68 @@ type AccordionContext = {
     content: Array<InputContext>;
   };
 };
+
+type ConvertedData =
+  | InputContext
+  | { subject: string; values: AccordionContext };
+
+export function useTaskEditorModel() {
+  const fromContext = ref<ConvertedData[]>([]);
+
+  function loadInputContext(
+    key: string,
+    value: string | '' | null,
+  ): InputContext {
+    return {
+      type: 'input',
+      context: {
+        title: key,
+        model: useInputModel(value ?? ''),
+      },
+    };
+  }
+
+  function loadAccordionContext(
+    object: object,
+    index: number,
+  ): AccordionContext {
+    return {
+      type: 'accordion',
+      context: {
+        header: {
+          icon: 'ic_chevron-down',
+          title: index.toString(),
+        },
+        content: Object.entries(object).map(
+          ([key, value]: [key: string, value: string]) => {
+            return loadInputContext(key, value);
+          },
+        ),
+      },
+    };
+  }
+
+  function setFormContext(object: object | '') {
+    const context: ConvertedData[] = [];
+    if (typeof object === 'object') {
+      Object.entries(object).forEach(
+        ([key, value]: [key: string, value: string | object], index) => {
+          console.log(key);
+          console.log(value);
+          if (typeof value === 'string') {
+            context.push(loadInputContext(key, value));
+          } else if (typeof value === 'object') {
+            context.push({
+              subject: key,
+              values: loadAccordionContext(value, index),
+            });
+          }
+        },
+      );
+    }
+    // @ts-ignore
+    fromContext.value = context;
+  }
+
+  return { fromContext, setFormContext };
+}

@@ -1,7 +1,4 @@
-import {
-  IEntity,
-  Step,
-} from '@/features/workflow/workflowEditor/model/types.ts';
+import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 
 export function toolboxSteps() {
   return {
@@ -38,7 +35,7 @@ export function toolboxSteps() {
       id: string,
       name: string,
       type: string,
-      properties: { entities: IEntity },
+      properties: { model: object },
     ): Step {
       return {
         componentType: 'task',

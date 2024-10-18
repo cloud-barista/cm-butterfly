@@ -16,27 +16,8 @@ export interface ITaskResponse {
   dependencies: any[];
   name: string;
   path_params: any;
-  request_body: {
-    name: string;
-    installMonAgent: string;
-    label: string;
-    systemLabel: string;
-    description: string;
-    vm: Array<ITaskVmResponse>;
-  };
+  request_body: string;
   task_component: string;
-}
-export interface ITaskVmResponse {
-  name: string;
-  subGroupSize: string;
-  label: string;
-  description: string;
-  commonSpec: string;
-  commonImage: string;
-  rootDiskType: string;
-  rootDiskSize: string;
-  vmUserPassword: string;
-  connectionName: string;
 }
 
 export interface IWorkflowResponse {

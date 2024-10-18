@@ -1,7 +1,6 @@
 import {
   getTaskComponentList,
   ITaskInfoResponse,
-  ITaskRequestBody,
 } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import getRandomId from '@/shared/utils/uuid';
@@ -20,33 +19,17 @@ export function useSequentialToolboxModel() {
   function processToolBoxTaskListResponse(res: ITaskInfoResponse[]) {
     const taskStepsModels: Step[] = [];
     res.forEach((res: ITaskInfoResponse) => {
-      res.data.options.request_body = parseRequestBody(
+      const parsedString: object = parseRequestBody(
         res.data.options.request_body,
       );
-      const taskRequestData: ITaskRequestBody = res.data.options.request_body;
+
       taskStepsModels.push(
         loadStepsFunc.defineBettleTaskStep(
           getRandomId(),
           res.name ?? 'undefined',
           'task',
           {
-            entities: {
-              name: taskRequestData.name,
-              description: taskRequestData.description,
-              vms: taskRequestData.vm
-                ? taskRequestData.vm.map(vm => ({
-                    id: getRandomId(),
-                    name: vm.name,
-                    serverQuantity: vm.subGroupSize,
-                    commonSpec: vm.commonSpec,
-                    osImage: vm.commonImage,
-                    diskType: vm.rootDiskType,
-                    diskSize: vm.rootDiskSize,
-                    password: vm.vmUserPassword,
-                    connectionName: vm.connectionName,
-                  }))
-                : [],
-            },
+            model: parsedString,
           },
         ),
       );
