@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, watchEffect } from 'vue';
+import { computed, reactive } from 'vue';
 import { useRoute } from 'vue-router/composables';
 import { LSBMenuItem } from '@/features/LSB';
 
@@ -11,22 +11,12 @@ interface Props {
   lsbTitle: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  backLink: () => ({}) as any,
-  topTitle: () => ({}) as any,
-  menuSet: () => [],
-  // hideHeader: false,
-});
-const emit = defineEmits<{
-  (e: 'select', id: string, selected: string | number): void;
-}>();
+const props = defineProps<Props>();
+
 const route = useRoute();
 const state = reactive({
   currentPath: computed(() => route.fullPath),
 });
-const handleSelect = (id: string, selected: string) => {
-  emit('select', id, selected);
-};
 </script>
 
 <template>

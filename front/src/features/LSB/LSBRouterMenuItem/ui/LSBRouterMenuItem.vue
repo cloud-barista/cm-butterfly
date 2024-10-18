@@ -22,7 +22,6 @@ const state = reactive({
   hoveredItem: '' as string,
 });
 
-// TODO: Route 완료 후 수정 필요
 const isSelectedMenu = (selectedMenuRoute: string): boolean => {
   let currentPath = props.currentPath;
   const resolvedHref = McmpRouter.router?.resolve({
@@ -35,7 +34,6 @@ const isSelectedMenu = (selectedMenuRoute: string): boolean => {
 </script>
 
 <template>
-  <!-- @click.native="$event.stopImmediatePropagation()" -->
   <div>
     <p class="px-[8px] pt-[25px] pb-[12px] font-[700]">{{ lsbTitle }}</p>
     <div v-for="(it, i) in item" :key="i">
@@ -47,15 +45,10 @@ const isSelectedMenu = (selectedMenuRoute: string): boolean => {
         @mouseenter.native="state.hoveredItem = it.id"
         @mouseleave.native="state.hoveredItem = ''"
       >
-        <!-- @click.native="setSelectedSubmenus(submenu)" -->
         <slot name="before-text" v-bind="{ ...props, it, index: it?.id }" />
         <div ref="textEl" class="text-wrapper">
           <slot>
             <div class="text">
-              <!-- <p-tooltip position="bottom-start" :contents="item.displayname">
-            {{ item.displayname }}
-          </p-tooltip> -->
-              <!-- <span>{{ item.displayname.split(' ')[0] }}</span> -->
               <span class="p-[8px]">{{ it.name }}</span>
             </div>
           </slot>
