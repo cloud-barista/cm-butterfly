@@ -145,10 +145,13 @@ watchEffect(() => {
       title="Source Connection"
       subtitle="Add or edit a source connection."
       add-button-text=""
-      @update:is-connection-modal-opened="handleConnectionModal"
-      @update:is-service-modal-opened="
-        e => emit('update:is-service-modal-opened', false)
+      @update:modal-state="
+        () => {
+          emit('update:is-service-modal-opened', false);
+          emit('update:is-connection-modal-opened', false);
+        }
       "
+      @update:is-connection-modal-opened="handleConnectionModal"
     >
       <template #add-info>
         <edit-source-connection-info

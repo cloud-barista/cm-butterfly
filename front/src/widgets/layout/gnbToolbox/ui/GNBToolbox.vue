@@ -24,8 +24,11 @@ const dictionary = [
   'templates',
   'task',
   'components',
+  'workloads',
   'workload',
   'operations',
+  'mci',
+  'wls',
 ];
 
 const { isCollapsed } = storeToRefs(sidebar);

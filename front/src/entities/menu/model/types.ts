@@ -15,23 +15,26 @@ export const MENU_ID = Object.freeze({
   WORKFLOW_TEMPLATES: 'workflowtemplates',
   TASK_COMPONENTS: 'taskcomponents',
   WORKLOAD_OPERATIONS: 'workloadoperations',
+  MCI_WLS: 'mciwls',
   WORKLOADS: 'workloads',
 });
-export interface IMenu {
+
+export interface ICategory {
   id: string;
   name: TranslateResult;
-  icon?: string;
+}
+export interface IMenu extends ICategory {
+  submenus: any[] | null;
 }
 export interface MigratorMenu {
-  category: IMenu;
+  category: ICategory;
   menu: IMenu[] | null | any;
-  submenus?: any[];
 }
 
 export interface IMigratorMenu {
   displayname: string;
   id: string;
-  isaction: boolean;
+  isaction: string;
   menus: IMigratorMenu[] | null;
   parentid: string | null;
   priority: number;

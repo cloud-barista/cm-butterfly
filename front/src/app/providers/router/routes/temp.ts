@@ -1,5 +1,4 @@
 import NotFoundVue from '@/pages/error/404/NotFound.vue';
-import { SourceServicePage } from '@/pages/sourceServices';
 import { RouteConfig } from 'vue-router';
 
 export const tempRoutes: RouteConfig[] = [
@@ -17,30 +16,6 @@ export const tempRoutes: RouteConfig[] = [
     component: NotFoundVue,
     meta: {
       menuId: 'sourcemetas',
-    },
-  },
-  {
-    path: 'workflows',
-    name: 'workflows',
-    component: NotFoundVue,
-    meta: {
-      menuId: 'workflows',
-    },
-  },
-  {
-    path: 'workflow-templates',
-    name: 'workflowtemplates',
-    component: NotFoundVue,
-    meta: {
-      menuId: 'workflowtemplates',
-    },
-  },
-  {
-    path: 'task-components',
-    name: 'taskcomponents',
-    component: NotFoundVue,
-    meta: {
-      menuId: 'taskcomponents',
     },
   },
   {

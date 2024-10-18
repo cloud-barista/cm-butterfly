@@ -14,6 +14,7 @@ interface iProps {
   nameLabel: string;
   namePlaceholder: string;
   name: string;
+  description?: string;
 }
 
 const props = defineProps<iProps>();
@@ -26,7 +27,7 @@ const emit = defineEmits([
 ]);
 
 const _name = ref<string>(props.name);
-const description = ref<string>('');
+const _description = ref<string>(props.description ?? '');
 
 const isTextInputBlank = ref<boolean>(false);
 
@@ -41,7 +42,7 @@ watchEffect(
 
 function handleConfirm() {
   emit('update:save-modal');
-  emit('update:description', description.value);
+  emit('update:description', _description.value);
 }
 
 watch(
@@ -70,7 +71,7 @@ watch(
             <p-text-input v-model="_name" :placeholder="namePlaceholder" />
           </p-field-group>
           <p-field-group label="Description">
-            <p-textarea v-model="description" />
+            <p-textarea v-model="_description" />
           </p-field-group>
         </p-pane-layout>
       </p-pane-layout>

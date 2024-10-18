@@ -23,6 +23,7 @@ const props = defineProps<iProps>();
 .json-editor-layout {
   @apply overflow-y-scroll;
   min-width: 770px;
+  max-width: 770px;
   border-bottom: 1px solid #dddddf;
   p {
     @apply text-[0.75rem] text-gray-500 font-[700] bg-[#F7F7F7] px-[0.75rem] py-[0.25rem];

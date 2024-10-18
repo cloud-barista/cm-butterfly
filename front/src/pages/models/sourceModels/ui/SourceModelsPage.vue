@@ -11,6 +11,7 @@ const pageName = 'Source Models';
 
 const selectedSourceModelId = ref<string>('');
 const sourceModelName = ref<string>('');
+const sourceModelDescription = ref<string>('');
 
 const mainTabState = reactive({
   activeTab: 'details',
@@ -71,6 +72,9 @@ const recommendedModelList = ref<any>([]);
                 e => (modalState.viewRecommendedListModal.open = e)
               "
               @update:source-model-name="e => (sourceModelName = e)"
+              @update:source-model-description="
+                e => (sourceModelDescription = e)
+              "
               @update:recommended-model-list="e => (recommendedModelList = e)"
             />
           </template>
@@ -82,6 +86,8 @@ const recommendedModelList = ref<any>([]);
         v-if="modalState.editModelModal.open"
         header-title="Edit Model"
         name-label="Model Name"
+        :name="sourceModelName"
+        :description="sourceModelDescription"
         :name-placeholder="'Model Name'"
         @update:save-modal="modalState.editModelModal.open = false"
         @update:close-modal="modalState.editModelModal.open = false"

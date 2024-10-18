@@ -33,9 +33,7 @@ const handleMetaViewer = () => {
     <create-form
       title="Source Connection Viewer"
       :badge-title="sourceConnectionName"
-      @update:is-meta-viewer-opened="
-        e => emit('update:is-meta-viewer-opened', e)
-      "
+      @update:modal-state="emit('update:is-meta-viewer-opened', false)"
     >
       <template #add-info>
         <json-viewer
@@ -57,6 +55,7 @@ const handleMetaViewer = () => {
     </create-form>
     <simple-edit-form
       v-if="isSaveModal"
+      name=""
       header-title="Save Source Modal"
       name-label="Name"
       name-placeholder="Source Service name"

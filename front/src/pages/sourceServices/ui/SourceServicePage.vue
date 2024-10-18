@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch, watchEffect } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { PButton, PButtonTab, PTab } from '@cloudforet-test/mirinae';
 import SourceServiceList from '@/widgets/source/sourceServices/sourceServiceList/ui/SourceServiceList.vue';
 import SourceServiceDetail from '@/widgets/source/sourceServices/sourceServiceDetail/ui/SourceServiceDetail.vue';
@@ -18,8 +18,6 @@ import MetaViewer from '@/widgets/source/sourceConnections/sourceConnectionDetai
 import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
 import EditSourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/EditSourceConnectionModal.vue';
 import { showSuccessMessage } from '@/shared/utils';
-const updatedName = ref<string>('');
-const updatedDescription = ref<string>('');
 const sourceConnectionName = ref<string>('');
 
 const { sourceConnectionStore } = useSourceInfraCollectModel();
@@ -274,7 +272,7 @@ const data = computed(() => {
         v-if="
           modalStates.addMetaViewer.open &&
           sourceConnectionStore.getConnectionById(selectedConnectionId)
-            ?.infraData
+              ?.infraData
         "
         :infra-data="
           sourceConnectionStore.getConnectionById(selectedConnectionId)

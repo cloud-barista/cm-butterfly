@@ -24,7 +24,7 @@ import { styleVariables } from '@cloudforet-test/mirinae';
               />
               <router-view />
             </div>
-            <!-- <template #title>
+            <template #title>
               <portal-target name="info-title" />
             </template>
             <template #sidebar>
@@ -32,7 +32,7 @@ import { styleVariables } from '@cloudforet-test/mirinae';
             </template>
             <template #footer>
               <portal-target name="widget-footer" />
-            </template> -->
+            </template>
           </p-sidebar>
         </template>
       </console-layout>

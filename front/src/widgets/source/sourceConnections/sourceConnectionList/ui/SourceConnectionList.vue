@@ -1,24 +1,11 @@
 <script setup lang="ts">
-import {
-  PToolboxTable,
-  PButton,
-  PIconButton,
-  PButtonModal,
-} from '@cloudforet-test/mirinae';
+import { PToolboxTable, PButton, PButtonModal } from '@cloudforet-test/mirinae';
 import {
   insertDynamicComponent,
   showErrorMessage,
   showSuccessMessage,
 } from '@/shared/utils';
-import {
-  computed,
-  onBeforeMount,
-  onMounted,
-  reactive,
-  ref,
-  watch,
-  watchEffect,
-} from 'vue';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model/sourceConnectionListModel.ts';
 import { useBulkDeleteSourceConnection } from '@/entities/sourceConnection/api';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
@@ -166,7 +153,7 @@ function handleSourceConnectionList() {
         ref="toolboxTable"
         :loading="
           tableModel.tableState.loading ||
-          resSourceConnectionList.isLoading.value
+            resSourceConnectionList.isLoading.value
         "
         :items="tableModel.tableState.displayItems"
         :fields="tableModel.tableState.fields"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import type { Ref } from 'vue';
 import { useElementSize } from '@vueuse/core';
 import { McmpRouter } from '@/app/providers/router';
@@ -8,13 +8,10 @@ interface Props {
   submenu: string;
   currentPath?: string;
   item: any;
+  lsbTitle: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  submenu: '',
-  currentPath: '',
-  item: () => {},
-});
+const props = defineProps<Props>();
 
 const itemEl = ref<HTMLElement | null>(null);
 const textEl = ref<HTMLElement | null>(null);
@@ -39,28 +36,34 @@ const isSelectedMenu = (selectedMenuRoute: string): boolean => {
 
 <template>
   <!-- @click.native="$event.stopImmediatePropagation()" -->
-  <router-link
-    ref="itemEl"
-    class="l-s-b-router-menu-item"
-    :class="{ selected: isSelectedMenu(item.name) }"
-    :to="{ name: item.name }"
-    @mouseenter.native="state.hoveredItem = item.name"
-    @mouseleave.native="state.hoveredItem = ''"
-  >
-    <!-- @click.native="setSelectedSubmenus(submenu)" -->
-    <slot name="before-text" v-bind="{ ...props, item, index: item?.id }" />
-    <div ref="textEl" class="text-wrapper">
-      <slot>
-        <div class="text">
-          <!-- <p-tooltip position="bottom-start" :contents="item.displayname">
+  <div>
+    <p class="px-[8px] pt-[25px] pb-[12px] font-[700]">{{ lsbTitle }}</p>
+    <div v-for="(it, i) in item" :key="i">
+      <router-link
+        ref="itemEl"
+        class="l-s-b-router-menu-item"
+        :class="{ selected: isSelectedMenu(it.id) }"
+        :to="{ name: it.id }"
+        @mouseenter.native="state.hoveredItem = it.id"
+        @mouseleave.native="state.hoveredItem = ''"
+      >
+        <!-- @click.native="setSelectedSubmenus(submenu)" -->
+        <slot name="before-text" v-bind="{ ...props, it, index: it?.id }" />
+        <div ref="textEl" class="text-wrapper">
+          <slot>
+            <div class="text">
+              <!-- <p-tooltip position="bottom-start" :contents="item.displayname">
             {{ item.displayname }}
           </p-tooltip> -->
-          <span>{{ item.displayname.split(' ')[0] }}</span>
+              <!-- <span>{{ item.displayname.split(' ')[0] }}</span> -->
+              <span class="p-[8px]">{{ it.name }}</span>
+            </div>
+          </slot>
+          <slot name="after-text" v-bind="{ ...props, it, index: it?.id }" />
         </div>
-      </slot>
-      <slot name="after-text" v-bind="{ ...props, item, index: item?.id }" />
+      </router-link>
     </div>
-  </router-link>
+  </div>
 </template>
 
 <style scoped lang="postcss">
@@ -70,7 +73,7 @@ const isSelectedMenu = (selectedMenuRoute: string): boolean => {
   line-height: 125%;
   border-radius: 4px;
   box-sizing: border-box;
-  padding-left: 0.5rem;
+  /* padding-left: 0.5rem; */
   padding-right: 0.5rem;
   outline: 0;
   height: 2rem;

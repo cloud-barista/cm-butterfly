@@ -69,6 +69,7 @@ function handleModelName(value: string) {
     <simple-edit-form
       v-if="modalState"
       header-title="Save Target Model"
+      name=""
       name-label="Model Name"
       name-placeholder="Model Name"
       @update:save-modal="handleSaveModal"

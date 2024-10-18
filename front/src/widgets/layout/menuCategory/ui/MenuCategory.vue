@@ -37,18 +37,18 @@ onMounted(async () => {
   await fetchMenuTree();
 });
 
-onMounted(() => {
-  document
-    .querySelector('.g-n-b-navigation-rail')
-    ?.addEventListener('mouseover', () => {
-      sidebar.toggleHover(true);
-    });
-  document
-    .querySelector('.g-n-b-navigation-rail')
-    ?.addEventListener('mouseleave', () => {
-      sidebar.toggleHover(false);
-    });
-});
+// onMounted(() => {
+//   document
+//     .querySelector('.g-n-b-navigation-rail')
+//     ?.addEventListener('mouseover', () => {
+//       sidebar.toggleHover(true);
+//     });
+//   document
+//     .querySelector('.g-n-b-navigation-rail')
+//     ?.addEventListener('mouseleave', () => {
+//       sidebar.toggleHover(false);
+//     });
+// });
 
 async function fetchMenuTree() {
   if (!isDataLoaded.value && loadedCnt.value < 1) {
@@ -90,7 +90,8 @@ async function fetchMenuTree() {
             n.id === 'targetmodels' ||
             n.id === 'workflows' ||
             n.id === 'workflowtemplates' ||
-            n.id === 'taskcomponents'
+            n.id === 'taskcomponents' ||
+            n.id === 'workloads'
           ),
         }"
       >
@@ -155,11 +156,11 @@ async function fetchMenuTree() {
   &.is-selected {
     @apply relative bg-violet-100 text-violet-600;
     &::before {
-      @apply absolute;
+      @apply absolute bg-violet-500;
       content: '';
       top: 0.125rem;
       left: -0.75rem;
-      width: fit-content;
+      width: 0.25rem;
       height: 1.75rem;
       border-top-right-radius: 0.25rem;
       border-bottom-right-radius: 0.25rem;
