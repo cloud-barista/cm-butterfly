@@ -10,7 +10,6 @@ interface AccordionItem {
 const props = defineProps<{
   items: AccordionItem[];
 }>();
-
 const openIndex = ref<number | null>(null);
 
 const toggleAccordion = (index: number) => {
