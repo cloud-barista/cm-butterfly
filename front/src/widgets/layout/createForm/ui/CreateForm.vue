@@ -3,7 +3,6 @@ import { PButton, PIconButton, PBadge } from '@cloudforet-test/mirinae';
 import { WidgetLayout } from '@/widgets/layout';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 
 const sidebar = useSidebar();
@@ -23,34 +22,20 @@ defineProps<Props>();
 const emit = defineEmits([
   'addSourceConnection',
   'deleteSourceConnection',
-  'update:is-connection-modal-opened',
-  'update:is-service-modal-opened',
-  'update:is-meta-viewer-opened',
-  // TODO: 이 위로 모두 없애기
   'update:modal-state',
-  'on-click:button',
 ]);
 
 const handleAddSourceConnection = () => {
   emit('addSourceConnection', true);
-  // 이 위로 모두 없애기
 };
-
-// TODO: change api response
-
-const isServiceModalOpened = ref<boolean>(true);
 
 const handleGoBack = () => {
   emit('deleteSourceConnection', true);
-  emit('update:is-connection-modal-opened', false);
-  emit('update:is-service-modal-opened', isServiceModalOpened.value);
-  emit('update:is-meta-viewer-opened', false);
   isCollapsed.value = false;
   isGnbToolboxShown.value = true;
   isMinimized.value = false;
   sourceConnectionStore.setWithSourceConnection(true);
 
-  // 이 위로 모두 없애기
   emit('update:modal-state');
 };
 </script>
