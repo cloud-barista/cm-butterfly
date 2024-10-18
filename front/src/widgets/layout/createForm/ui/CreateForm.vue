@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PButton, PIconButton } from '@cloudforet-test/mirinae';
+import { PButton, PIconButton, PBadge } from '@cloudforet-test/mirinae';
 import { WidgetLayout } from '@/widgets/layout';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
@@ -13,6 +13,8 @@ const { isCollapsed, isGnbToolboxShown, isMinimized } = storeToRefs(sidebar);
 
 interface Props {
   title: string;
+  badgeTitle?: string;
+  firstTitle?: string;
   subtitle?: string;
   addButtonText?: string;
 }
@@ -24,10 +26,14 @@ const emit = defineEmits([
   'update:is-connection-modal-opened',
   'update:is-service-modal-opened',
   'update:is-meta-viewer-opened',
+  // TODO: 이 위로 모두 없애기
+  'update:modal-state',
+  'on-click:button',
 ]);
 
 const handleAddSourceConnection = () => {
   emit('addSourceConnection', true);
+  // 이 위로 모두 없애기
 };
 
 // TODO: change api response
@@ -35,7 +41,7 @@ const handleAddSourceConnection = () => {
 const isServiceModalOpened = ref<boolean>(true);
 
 const handleGoBack = () => {
-  emit('deleteSourceConnection', true); //TODO: true로 바꿔야함. 임시...
+  emit('deleteSourceConnection', true);
   emit('update:is-connection-modal-opened', false);
   emit('update:is-service-modal-opened', isServiceModalOpened.value);
   emit('update:is-meta-viewer-opened', false);
@@ -43,6 +49,9 @@ const handleGoBack = () => {
   isGnbToolboxShown.value = true;
   isMinimized.value = false;
   sourceConnectionStore.setWithSourceConnection(true);
+
+  // 이 위로 모두 없애기
+  emit('update:modal-state');
 };
 </script>
 
@@ -56,9 +65,25 @@ const handleGoBack = () => {
         height="2rem"
         @click="handleGoBack"
       />
-      <p>{{ title }}</p>
+      <p class="page-title">{{ title }}</p>
+      <p-badge
+        v-if="badgeTitle"
+        class="badge"
+        shape="square"
+        style-type="primary1"
+        text-color="#6738b7"
+        background-color="#E1E0FA"
+        font-weight="regular"
+      >
+        <div>{{ badgeTitle }}</div>
+      </p-badge>
     </div>
-    <widget-layout class="widget-layout" :title="subtitle" overflow="auto">
+    <widget-layout
+      class="widget-layout"
+      overflow="visible"
+      :first-title="firstTitle"
+      :title="subtitle"
+    >
       <template #default>
         <p-button
           v-if="addButtonText"
@@ -82,11 +107,14 @@ const handleGoBack = () => {
 .page-layer {
   @apply p-[1.5rem];
   .page-top {
-    @apply flex gap-[0.75rem];
-    p {
+    @apply flex gap-[0.75rem] items-center;
+    margin-bottom: 1.375rem;
+    .badge {
+      max-height: 20px;
+    }
+    .page-title {
       font-size: 1.5rem;
       font-weight: 700;
-      margin-bottom: 1.375rem;
     }
     .go-back {
       cursor: pointer;

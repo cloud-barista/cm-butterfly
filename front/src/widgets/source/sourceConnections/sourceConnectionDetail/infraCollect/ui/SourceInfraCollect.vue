@@ -66,7 +66,7 @@ function handleCollectInfra() {
       block
     >
       <template #data-collectInfraStatus="{ data }">
-        <p-status :theme="data.color" :text="data.text"></p-status>
+        <p-status :theme="data.color" :text="data.text" />
       </template>
       <template #data-viewInfra="{ data }">
         <p

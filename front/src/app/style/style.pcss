@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 html:lang(ko), body:lang(ko) {
     font-family: Noto Sans, Roboto, Noto Sans KR, sans-serif;
 }
@@ -23,15 +24,22 @@ pre {
     padding: 24px;
     display: flex;
     flex-direction: column;
+    height: 100%;
+    width: 100%;
 
-    header {
+    > header {
         display: flex;
         align-items: center;
         margin-bottom: 18px;
+
         p {
             @apply text-display-lg;
             font-weight: 700;
         }
+    }
+
+    .more-details {
+        @apply flex justify-center text-gray-300 text-sm font-normal;
     }
 
     .tab-section-header {
@@ -56,4 +64,27 @@ pre {
   left: 0;
   z-index: 99;
   background-color: $bg-color;
+}
+
+.link-button-text {
+  @apply text-sm text-blue-700;
+  font-weight: 400;
+  margin: unset;
+}
+
+.link-button-text:hover {
+  cursor: pointer;
+}
+
+.json-editor-layout {
+  @apply overflow-y-scroll;
+  min-width: 770px;
+  border-bottom: 1px solid #dddddf;
+  p {
+    @apply text-[0.75rem] text-gray-500 font-[700] bg-[#F7F7F7] px-[0.75rem] py-[0.25rem];
+    border-radius: 6px 0;
+  }
+  .data-wrapper {
+    @apply bg-white;
+  }
 }

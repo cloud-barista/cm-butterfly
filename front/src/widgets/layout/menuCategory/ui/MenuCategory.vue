@@ -1,20 +1,24 @@
 <script setup lang="ts">
 import { clone } from 'lodash';
-import { PI } from '@cloudforet-test/mirinae';
-import type { MigratorMenu } from '@/entities';
+import { IMigratorMenu, MENU_ID } from '@/entities';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+import { computed, onMounted, ref, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router/composables';
+import { useGetMenuTree } from '@/entities/menu/api';
+import { useMigratorMenuStore } from '@/entities/menu/model/stores';
+
+const migratorMenuStore = useMigratorMenuStore();
+const { migratorMenu } = storeToRefs(migratorMenuStore);
 
 const sidebar = useSidebar();
 const route = useRoute();
+const getMenuTree = useGetMenuTree();
 
-const { isMinimized, isCollapsed } = storeToRefs(sidebar);
+const { isCollapsed } = storeToRefs(sidebar);
 
-const props = defineProps<{
-  displayedMenu: MigratorMenu[];
-}>();
+const isDataLoaded = ref<boolean>(false);
+const loadedCnt = ref(0);
 
 const selectedMenuId = computed(() => {
   const reversedMatched = clone(route.matched).reverse();
@@ -24,34 +28,74 @@ const selectedMenuId = computed(() => {
   const targetMenuId: string | any = closestRoute?.meta.menuId;
   return targetMenuId;
 });
+
+onBeforeUnmount(() => {
+  migratorMenu.value = [];
+});
+
+onMounted(async () => {
+  await fetchMenuTree();
+});
+
+onMounted(() => {
+  document
+    .querySelector('.g-n-b-navigation-rail')
+    ?.addEventListener('mouseover', () => {
+      sidebar.toggleHover(true);
+    });
+  document
+    .querySelector('.g-n-b-navigation-rail')
+    ?.addEventListener('mouseleave', () => {
+      sidebar.toggleHover(false);
+    });
+});
+
+async function fetchMenuTree() {
+  if (!isDataLoaded.value && loadedCnt.value < 1) {
+    isDataLoaded.value = true;
+    loadedCnt.value += 1;
+    const { data } = await getMenuTree.execute();
+    if (
+      Array.isArray(data.responseData) &&
+      data.responseData.length > 0 &&
+      data.responseData[0].id === MENU_ID.MIGRATIONS
+    ) {
+      data.responseData[0].menus?.sort((a: IMigratorMenu, b: IMigratorMenu) => {
+        return a.priority - b.priority;
+      });
+      data.responseData[0].menus?.forEach((migratorMenu: IMigratorMenu) => {
+        migratorMenuStore.setMigratorMenu(migratorMenu);
+      });
+    }
+  }
+}
 </script>
 
 <template>
-  <!-- displayedMenu.parentMenuId === '' && displayedMenu.isAction === 'false' -->
   <div v-if="!isCollapsed">
-    <div v-for="(m, idx) in displayedMenu" :key="idx" class="menu">
-      <span v-if="!isMinimized" class="menu-category">{{
-        m.category.name
-      }}</span>
+    <div v-for="(m, idx) in migratorMenu" :key="idx" class="menu">
+      <span class="menu-category">
+        {{ m.category.name }}
+      </span>
       <router-link
         v-for="(n, i) in m.menu"
         :key="i"
         class="service-menu"
         :to="{ name: n.id }"
         :class="{
-          'is-selected': selectedMenuId === m.category.id,
+          'is-selected': selectedMenuId === n.id,
+          'is-disabled': !(
+            n.id === 'sourceservices' ||
+            n.id === 'sourcemodels' ||
+            n.id === 'targetmodels' ||
+            n.id === 'workflows' ||
+            n.id === 'workflowtemplates' ||
+            n.id === 'taskcomponents'
+          ),
         }"
       >
-        <!-- 'is-only-label': menu?.isAction === 'true', -->
         <div class="menu-wrapper">
-          <p-i
-            name="ic_member"
-            class="menu-button"
-            height="1.25rem"
-            width="1.25rem"
-            color="inherit"
-          />
-          <div v-if="!isMinimized" class="menu-container">
+          <div class="menu-container">
             <span class="menu-title">{{ n.name }}</span>
           </div>
         </div>
@@ -61,6 +105,10 @@ const selectedMenuId = computed(() => {
 </template>
 
 <style scoped lang="postcss">
+.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
 .menu {
   @apply mb-[1.7rem];
 }
@@ -111,7 +159,6 @@ const selectedMenuId = computed(() => {
       content: '';
       top: 0.125rem;
       left: -0.75rem;
-      /* width: 0.25rem; */
       width: fit-content;
       height: 1.75rem;
       border-top-right-radius: 0.25rem;

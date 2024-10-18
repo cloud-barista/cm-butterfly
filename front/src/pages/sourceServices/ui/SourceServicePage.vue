@@ -17,6 +17,10 @@ import { storeToRefs } from 'pinia';
 import MetaViewer from '@/widgets/source/sourceConnections/sourceConnectionDetail/metaViewer/ui/MetaViewer.vue';
 import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
 import EditSourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/EditSourceConnectionModal.vue';
+import { showSuccessMessage } from '@/shared/utils';
+const updatedName = ref<string>('');
+const updatedDescription = ref<string>('');
+const sourceConnectionName = ref<string>('');
 
 const { sourceConnectionStore } = useSourceInfraCollectModel();
 
@@ -162,7 +166,10 @@ const data = computed(() => {
                 Edit
               </p-button>
             </div>
-            <SourceServiceDetail :selected-service-id="selectedServiceId" />
+            <SourceServiceDetail
+              :selected-service-id="selectedServiceId"
+              @update:source-connection-name="e => (sourceConnectionName = e)"
+            />
           </template>
           <template #connections>
             <div class="tab-section-header">
@@ -229,6 +236,12 @@ const data = computed(() => {
             isServiceEditBtnClicked = e;
           }
         "
+        @update:trigger="
+          () => {
+            modalStates.addServiceGroup.trigger = true;
+            showSuccessMessage('success', 'Edit Success');
+          }
+        "
       />
     </div>
     <div class="relative z-70">
@@ -267,6 +280,7 @@ const data = computed(() => {
           sourceConnectionStore.getConnectionById(selectedConnectionId)
             ?.infraData
         "
+        :source-connection-name="sourceConnectionName"
         @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
       />
       <meta-viewer
@@ -275,10 +289,9 @@ const data = computed(() => {
           sourceConnectionStore.getConnectionById(selectedConnectionId)
             ?.softwareData
         "
+        :source-connection-name="sourceConnectionName"
         @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
       />
     </div>
   </div>
 </template>
-
-<style scoped lang="postcss"></style>

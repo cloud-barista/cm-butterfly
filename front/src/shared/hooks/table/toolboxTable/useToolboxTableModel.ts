@@ -1,9 +1,5 @@
 import { computed, reactive, watch } from 'vue';
-import {
-  ChangeEvent,
-  ITableField,
-  ITableItems,
-} from './types.ts';
+import { ChangeEvent, ITableField, ITableItems } from './types.ts';
 import { isNullOrUndefined } from '../../../utils';
 
 type ITableState<T> = {

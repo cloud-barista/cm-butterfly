@@ -3,7 +3,7 @@ import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
 import { SourceConnectionInfo } from '@/features/sourceServices';
-import { ref, reactive, watchEffect, computed } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 import { watch } from 'vue';
 
@@ -15,18 +15,6 @@ interface iProps {
 const props = defineProps<iProps>();
 
 const isDisabled = ref<boolean>(false);
-
-const state = ref<
-  {
-    name: string;
-    description?: string;
-    ip_address: string;
-    user: string;
-    private_key: string;
-    ssh_port: number;
-    password: string;
-  }[]
->([]);
 
 const addSourceConnection = () => {
   sourceConnectionStore.editConnections.push({
@@ -120,16 +108,3 @@ const handleAddSourceConnection = () => {
     </create-form>
   </div>
 </template>
-
-<style scoped lang="postcss">
-/* .page-modal-layout {
-  overflow-y: scroll;
-  position: fixed;
-  width: 100vw;
-  height: calc(100vh - $top-bar-height);
-  top: $top-bar-height;
-  left: 0;
-  z-index: 99;
-  background-color: $bg-color;
-} */
-</style>
