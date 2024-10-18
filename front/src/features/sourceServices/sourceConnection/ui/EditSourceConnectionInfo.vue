@@ -18,6 +18,8 @@ const emit = defineEmits([
   'update:values',
 ]);
 
+const ssh_port = ref<number | null>(null);
+
 // TODO: sourceconnectionId가 있으면 수정으로, 없으면 추가로 처리
 // 현재 수정 api는 없음
 
@@ -74,6 +76,16 @@ watchEffect(() => {
     emit('update:values', addedSourceConnectionInfo.value);
   }
 });
+
+watch(
+  ssh_port,
+  nv => {
+    if (nv !== null) {
+      addedSourceConnectionInfo.value.ssh_port = ssh_port.value;
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -100,7 +112,9 @@ watchEffect(() => {
           />
         </p-field-group>
         <p-field-group label="Port (for SSH)" invalid required>
+          <p-text-input v-if="selectedSourceConnectionId" v-model="ssh_port" />
           <p-text-input
+            v-else
             v-model="addedSourceConnectionInfo.ssh_port"
             placeholder="1~256"
             :invalid="!invalidState.isPortValid"
