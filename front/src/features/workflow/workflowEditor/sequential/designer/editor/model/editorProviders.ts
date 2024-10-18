@@ -10,24 +10,6 @@ export function editorProviders() {
   editor.style.height = '100%';
   editor.style.overflow = 'scroll';
 
-  function defaultBeetleTaskProperties(properties: any): FormValuesProps {
-    return {
-      targetModel: '',
-      mciName: properties.entities?.name,
-      mciDescription: properties.entities?.description,
-      vms: properties.entities?.vms?.map(vm => ({
-        vmName: vm?.name,
-        serverQuantity: vm?.serverQuantity,
-        commonSpec: vm?.commonSpec,
-        commonOsImage: vm?.osImage,
-        rootDiskType: vm?.diskType,
-        rootDiskSize: vm?.diskSize,
-        userPassword: vm?.password,
-        connectionName: vm?.connectionName,
-      })),
-    };
-  }
-
   return {
     defaultRootEditorProvider: function (definition, rootContext, isReadonly) {
       const textArea = document.createElement('textarea');
@@ -54,20 +36,8 @@ export function editorProviders() {
       }
       if (step.componentType === 'task') {
         //toolboxModel에서 가공하는곳 참고
-        let props = defaultBeetleTaskProperties(step.properties);
 
-        insertDynamicComponent(
-          BeetleTaskEditor,
-          props,
-          {
-            addVmClick: () => {
-              step.properties.entities?.vms?.push(
-                step.properties.entities?.vms[0] ?? {},
-              );
-            },
-          },
-          editor,
-        );
+        insertDynamicComponent(BeetleTaskEditor, { step }, {}, editor);
       }
       //instance, id와 value로 값저장 하는 방법도 있고 store에서 저장하는 방법도 있을듯
 

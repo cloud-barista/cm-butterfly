@@ -1,95 +1,96 @@
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
-import { computed, reactive } from 'vue';
-import { FormValuesProps } from '@/features/workflow/workflowEditor/sequential/designer/editor/ui/BeetleTaskEditor.vue';
+import { computed, reactive, Ref } from 'vue';
 
-export function useTaskEditorModel(props: Readonly<FormValuesProps>) {
-  const formValues = reactive({
-    entity: {
-      targetModel: {
-        title: 'Target Model ID',
-        model: useInputModel<string>(props.targetModel ?? ''),
-        type: 'text',
-      },
-      mciName: {
-        title: 'MCI Name',
-        model: useInputModel<string>(props.mciName ?? ''),
-        type: 'text',
-      },
-      mciDescription: {
-        title: 'MCI Description',
-        model: useInputModel<string>(props.mciDescription ?? ''),
-        type: 'text',
-      },
-    },
-    accordions:
-      props.vms.length === 0
-        ? [loadAccordionSlotModel({})]
-        : props.vms.map(vm => loadAccordionSlotModel(vm)),
-  });
+type ConvertedData = InputContext | AccordionContext;
 
-  function addAccordionSlot(vm: FormValuesProps['vms']) {
-    // @ts-ignore
-    formValues.accordions.push(loadAccordionSlotModel(vm));
-  }
-  function loadAccordionSlotModel(vm: FormValuesProps['vms']) {
+export function useTaskEditorModel() {
+  const fromContext = reactive({});
+
+  function setFromContext(object: object) {}
+
+  function loadInputContext(key, value): InputContext {
     return {
-      header: {
-        icon: 'ic_chevron-down',
-        title: 'VM Name',
-      },
-      content: {
-        vms: loadVmsModel(vm),
+      type: 'input',
+      context: {
+        title: key,
+        model: useInputModel(value ?? ''),
       },
     };
   }
 
-  function loadVmsModel(vm: FormValuesProps['vms']) {
+  function loadAccordionContext(arr: Array<object>): AccordionContext {
     return {
-      header: {
-        vmName: {
-          title: 'Vm Name',
-          model: useInputModel<string>(vm.vmName ?? ''),
-          type: 'text',
-        },
-      },
-      body: {
-        serverQuantity: {
-          title: 'Server Quantity',
-          model: useInputModel<string>(vm.serverQuantity ?? ''),
-          type: 'text',
-        },
-        commonSpec: {
-          title: 'Common Spec',
-          model: useInputModel<string>(vm.commonSpec ?? ''),
-          type: 'text',
-        },
-        commonOsImage: {
-          title: 'Common OS Image',
-          model: useInputModel<string>(vm.commonOsImage ?? ''),
-          type: 'text',
-        },
-        rootDiskType: {
-          title: 'Root Disk Type',
-          model: useInputModel<string>(vm.rootDiskType ?? ''),
-          type: 'text',
-        },
-        rootDiskSize: {
-          title: 'Root Disk Size',
-          model: useInputModel<string>(vm.rootDiskSize ?? ''),
-          type: 'text',
-        },
-        userPassword: {
-          title: 'User Password',
-          model: useInputModel<string>(vm.userPassword ?? ''),
-          type: 'text',
-        },
-        connectionName: {
-          title: 'Connection Name',
-          model: useInputModel<string>(vm.connectionName ?? ''),
-          type: 'text',
-        },
+      type: 'accordion',
+      context: {
+        header:{
+          icon: 'ic_chevron-down',
+          title : Object.keys(arr[0])[0]
+        }
+        content : arr.map(el => loadInputContext(el))
+
       },
     };
   }
-  return { formValues, addAccordionSlot };
 }
+//예시 flow
+let t = {
+  a: 'a',
+  b: 'b',
+  d: [
+    {
+      ㄱ: 'ㄱ',
+      ㄴ: 'ㄴ ',
+    },
+  ],
+  c: 'c',
+};
+
+//a,b,c 경우
+let t1: InputContext = {
+  type: 'input',
+  context: {
+    title: 'a or b or c',
+    model: useInputModel<string>('a or b or c'),
+  },
+};
+
+//d의 경우.
+let t2: AccordionContext = {
+  type: 'accordion',
+  context: {
+    header: {
+      icon: 'ic_chevron-down',
+      title: 'index',
+    },
+    content: [
+      {
+        type: 'input',
+        context: {
+          title: 'ㄱ or ㄴ',
+          model: useInputModel('ㄱ or ㄴ'),
+        },
+      },
+    ],
+  },
+};
+
+const result = [t1, t2];
+
+type InputContext = {
+  type: 'input';
+  context: {
+    title: string;
+    model: ReturnType<typeof useInputModel<string>>;
+  };
+};
+
+type AccordionContext = {
+  type: 'accordion';
+  context: {
+    header: {
+      icon: string;
+      title: string; // index
+    };
+    content: Array<InputContext>;
+  };
+};

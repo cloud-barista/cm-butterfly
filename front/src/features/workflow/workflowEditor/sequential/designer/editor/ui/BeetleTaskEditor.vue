@@ -4,37 +4,28 @@ import { onMounted, onUnmounted, reactive, ref, toRef, watch } from 'vue';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import { useTaskEditorModel } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/beetleTaskEditorModel.ts';
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
+import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 
-export interface FormValuesProps {
-  targetModel: string;
-  mciName: string;
-  mciDescription: string;
-  vms: Array<vm>;
+interface IProps {
+  step: {
+    id: string;
+    name: string;
+    properties: any;
+    sequence: [];
+    type: string;
+  };
 }
 
-interface vm {
-  vmName: string;
-  serverQuantity: string;
-  commonSpec: string;
-  commonOsImage: string;
-  rootDiskType: string;
-  rootDiskSize: string;
-  userPassword: string;
-  connectionName: string;
-}
-const props = defineProps<FormValuesProps>();
+const props = defineProps<IProps>();
 const emit = defineEmits(['addVmClick']);
-const stepEditorProviderModel = useTaskEditorModel(props);
-function test() {
-  stepEditorProviderModel.addAccordionSlot();
-  emit('addVmClick');
-}
+const taskEditorModel = useTaskEditorModel();
+
 watch(
   props,
   nv => {
-    console.log(nv);
+    taskEditorModel.setFormValues(nv);
   },
-  { deep: true },
+  { deep: true, immediate: true },
 );
 
 onMounted(() => {});
@@ -50,13 +41,13 @@ onMounted(() => {});
         :style-type="'secondary'"
         icon-left="ic_plus"
         :size="'sm'"
-        @click="test"
+        @click="taskEditorModel.addVmSlot(taskEditorModel.formValues.vms[0])"
       >
         Add VM
       </p-button>
     </div>
     <div
-      v-for="(entity, index) in stepEditorProviderModel.formValues.entity"
+      v-for="(entity, index) in taskEditorModel.formValues.entity"
       :key="index"
       class="field-group flex justify-between align-items-center"
     >
@@ -75,7 +66,7 @@ onMounted(() => {});
     </div>
 
     <section class="vm-list">
-      <BAccordion :items="stepEditorProviderModel.formValues.accordions">
+      <BAccordion :items="taskEditorModel.formValues.vms">
         <template #header="{ header, item, click }">
           <div class="field-group flex justify-between align-items-center">
             <div class="field-title-box">
@@ -150,12 +141,15 @@ onMounted(() => {});
     }
   }
 }
+
 :deep(.accordion-item) {
   border-color: transparent;
 }
+
 :deep(.accordion-content) {
   padding-left: 0;
 }
+
 :deep(.accordion-header) {
   border-color: transparent;
 }
