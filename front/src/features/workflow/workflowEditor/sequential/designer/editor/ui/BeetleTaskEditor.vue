@@ -61,30 +61,29 @@ onMounted(() => {});
     >
       <div v-if="entity['type'] === 'input'">
         <div class="field-title-box">
-          {{ entity['context'].title }}
+          {{ entity['context']['title'] }}
         </div>
         <div class="field-content-box">
           <p-text-input
-            v-model="entity['context'].model.value"
+            v-model="entity['context']['model'].value"
             :size="'md'"
             block
-            :invalid="!entity['context'].model.isValid"
-            @blur="entity['context'].model.onBlur"
+            :invalid="!entity['context']['model'].isValid"
+            @blur="entity['context']['model'].onBlur"
           ></p-text-input>
         </div>
       </div>
-      <div v-if="entity['values']?.type === 'accordion'">
-        <BAccordion :items="[entity['values'].context]">
+      <div v-if="entity['type'] === 'accordion'">
+        <BAccordion :items="entity['context']['values']">
           <template #header="{ header, item, click }">
             <div class="field-group flex justify-between align-items-center">
               <div class="field-title-box">
                 <PIconButton
-                  v-if="item.header?.icon"
                   :name="item.header.icon"
                   :size="'sm'"
                   @click="click"
                 ></PIconButton>
-                {{ item.header?.title ?? '' }}
+                {{ item.header.title ?? '' }}
               </div>
             </div>
           </template>
@@ -94,17 +93,19 @@ onMounted(() => {});
               :key="index"
               class="field-group flex justify-between align-items-center item-content"
             >
-              <div class="field-title-box">
-                {{ element.title }}
-              </div>
-              <div class="field-content-box">
-                <p-text-input
-                  v-model="element['context'].model.value"
-                  :size="'md'"
-                  block
-                  :invalid="!element['context'].model.isValid"
-                  @blur="element['context'].model.onBlur"
-                ></p-text-input>
+              <div v-if="element['type'] === 'input'">
+                <div class="field-title-box">
+                  {{ element['context'].title }}
+                </div>
+                <div class="field-content-box">
+                  <p-text-input
+                    v-model="element['context'].model.value"
+                    :size="'md'"
+                    block
+                    :invalid="!element['context'].model.isValid"
+                    @blur="element['context'].model.onBlur"
+                  ></p-text-input>
+                </div>
               </div>
             </div>
           </template>

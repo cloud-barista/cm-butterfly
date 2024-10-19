@@ -1,7 +1,7 @@
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import { computed, reactive, ref, Ref } from 'vue';
 import object from 'async-validator/dist-types/validator/object';
-import { values } from 'lodash';
+import { isArray, values } from 'lodash';
 
 type InputContext = {
   type: 'input';
@@ -11,20 +11,21 @@ type InputContext = {
   };
 };
 
-type AccordionContext = {
-  type: 'accordion';
-  context: {
-    header: {
-      icon: string;
-      title: string; // index
-    };
-    content: Array<InputContext>;
+type AccordionSlotContext = {
+  header: {
+    icon: string;
+    title: string; // index
   };
+  content: Array<InputContext>;
 };
 
-type ConvertedData =
-  | InputContext
-  | { subject: string; values: AccordionContext };
+type AccordionContext = {
+  type: 'accordion';
+  context: { [key: string]: AccordionSlotContext[] | number | string };
+  index: number;
+};
+
+type ConvertedData = InputContext | AccordionContext;
 
 export function useTaskEditorModel() {
   const fromContext = ref<ConvertedData[]>([]);
@@ -45,20 +46,17 @@ export function useTaskEditorModel() {
   function loadAccordionContext(
     object: object,
     index: number,
-  ): AccordionContext {
+  ): AccordionSlotContext {
     return {
-      type: 'accordion',
-      context: {
-        header: {
-          icon: 'ic_chevron-down',
-          title: index.toString(),
-        },
-        content: Object.entries(object).map(
-          ([key, value]: [key: string, value: string]) => {
-            return loadInputContext(key, value);
-          },
-        ),
+      header: {
+        icon: 'ic_chevron-down',
+        title: index.toString(),
       },
+      content: Object.entries(object).map(
+        ([key, value]: [key: string, value: string]) => {
+          return loadInputContext(key, value);
+        },
+      ),
     };
   }
 
@@ -66,15 +64,21 @@ export function useTaskEditorModel() {
     const context: ConvertedData[] = [];
     if (typeof object === 'object') {
       Object.entries(object).forEach(
-        ([key, value]: [key: string, value: string | object], index) => {
+        ([key, value]: [key: string, value: string | Array<object>], index) => {
           console.log(key);
           console.log(value);
           if (typeof value === 'string') {
             context.push(loadInputContext(key, value));
-          } else if (typeof value === 'object') {
+          } else if (isArray(value)) {
             context.push({
-              subject: key,
-              values: loadAccordionContext(value, index),
+              type: 'accordion',
+              context: {
+                subject: key,
+                values: value.map((el, index) =>
+                  loadAccordionContext(el, index),
+                ),
+              },
+              index,
             });
           }
         },
