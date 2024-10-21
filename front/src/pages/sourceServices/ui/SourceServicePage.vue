@@ -123,6 +123,46 @@ const data = computed(() => {
   return sourceConnectionStore.getConnectionById(selectedConnectionId.value)
     ?.softwareData;
 });
+
+const infraSchema = {
+  json: true,
+  properties: {
+    compute: {
+      type: 'string',
+      title: 'Compute',
+    },
+    network: {
+      type: 'string',
+      title: 'Network',
+    },
+    storage: {
+      type: 'string',
+      title: 'Storage',
+    },
+  },
+};
+
+const softwareSchema = {
+  json: true,
+  properties: {
+    deb: {
+      type: 'string',
+      title: 'Debian',
+    },
+    docker: {
+      type: 'string',
+      title: 'Docker',
+    },
+    podman: {
+      type: 'string',
+      title: 'Podman',
+    },
+    rpm: {
+      type: 'string',
+      title: 'RPM',
+    },
+  },
+};
 </script>
 
 <template>
@@ -279,6 +319,7 @@ const data = computed(() => {
             ?.infraData
         "
         :source-connection-name="sourceConnectionName"
+        :schema="infraSchema"
         @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
       />
       <meta-viewer
@@ -288,6 +329,7 @@ const data = computed(() => {
             ?.softwareData
         "
         :source-connection-name="sourceConnectionName"
+        :schema="softwareSchema"
         @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
       />
     </div>

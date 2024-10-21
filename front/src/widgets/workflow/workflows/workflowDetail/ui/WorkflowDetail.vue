@@ -12,6 +12,7 @@ const props = defineProps<iProps>();
 const emit = defineEmits([
   'update:workflow-name',
   'update:workflow-json-modal',
+  'update:workflow-tool-modal',
   'update:workflow-json',
 ]);
 
@@ -37,7 +38,9 @@ watchEffect(() => {
   );
 });
 
-function handleWorkflowTool() {}
+function handleWorkflowTool() {
+  emit('update:workflow-tool-modal', true);
+}
 
 function handleJsonModal() {
   emit('update:workflow-json-modal', true);

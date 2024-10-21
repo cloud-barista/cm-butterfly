@@ -5,6 +5,10 @@ interface iProps {
   formData: any;
   title: string;
   readOnly: boolean;
+  schema: {
+    json: boolean;
+    properties: object;
+  };
 }
 
 const props = defineProps<iProps>();
@@ -32,10 +36,5 @@ const props = defineProps<iProps>();
   .data-wrapper {
     @apply bg-white;
   }
-}
-
-:deep(.p-text-editor) {
-  min-height: 39rem;
-  max-height: 39rem;
 }
 </style>

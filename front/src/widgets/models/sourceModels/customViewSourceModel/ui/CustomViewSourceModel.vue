@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
-import { JsonEditor } from '@/features/sourceServices';
+// import { collectJsonEditor } from '@/features/sourceServices';
+import { JsonEditor } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
 import { ref } from 'vue';
@@ -39,6 +40,24 @@ function handleSaveModal() {
 function handleModelName(value: string) {
   modelName.value = value;
 }
+
+const schema = {
+  json: true,
+  properties: {
+    os_version: {
+      type: 'string',
+      title: 'OS Version',
+    },
+    os: {
+      type: 'string',
+      title: 'OS',
+    },
+    email: {
+      type: 'string',
+      title: 'Email',
+    },
+  },
+};
 </script>
 
 <template>
@@ -52,9 +71,11 @@ function handleModelName(value: string) {
     >
       <template #add-info>
         <json-editor
-          :form-data="JSON.stringify(formData)"
+          :form-data="formData"
           title="Source Model"
           :read-only="false"
+          :json="schema.json"
+          :shema-properties="schema.properties"
         />
       </template>
       <template #buttons>

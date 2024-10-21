@@ -9,6 +9,10 @@ import { ref } from 'vue';
 interface iProps {
   infraData: string | undefined;
   sourceConnectionName: string;
+  schema: {
+    json: boolean;
+    properties: object;
+  };
 }
 
 const props = defineProps<iProps>();
@@ -38,6 +42,7 @@ const handleMetaViewer = () => {
       <template #add-info>
         <json-viewer
           :form-data="infraData"
+          :schema="schema"
           @update:is-converted="isConverted = true"
         />
       </template>
