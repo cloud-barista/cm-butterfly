@@ -4,7 +4,6 @@ import {
   PTextInput,
   PTextarea,
   PPaneLayout,
-  PI,
 } from '@cloudforet-test/mirinae';
 import { reactive, ref, watch, watchEffect } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
@@ -18,10 +17,7 @@ const emit = defineEmits([
   'update:values',
 ]);
 
-// TODO: sourceconnectionId가 있으면 수정으로, 없으면 추가로 처리
-// 현재 수정 api는 없음
-
-// TODO: 이미 존재하는 source service에 하나의 source connection 추가하는 api
+const ssh_port = ref<number | null>(null);
 
 interface iProps {
   selectedSourceConnectionId: string;
@@ -74,6 +70,16 @@ watchEffect(() => {
     emit('update:values', addedSourceConnectionInfo.value);
   }
 });
+
+watch(
+  ssh_port,
+  nv => {
+    if (nv !== null) {
+      addedSourceConnectionInfo.value.ssh_port = ssh_port.value;
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -100,6 +106,8 @@ watchEffect(() => {
           />
         </p-field-group>
         <p-field-group label="Port (for SSH)" invalid required>
+          <!-- <p-text-input v-if="selectedSourceConnectionId" v-model="ssh_port" /> -->
+          <!-- v-else -->
           <p-text-input
             v-model="addedSourceConnectionInfo.ssh_port"
             placeholder="1~256"

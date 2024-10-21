@@ -9,7 +9,8 @@ import { reactive, ref } from 'vue';
 const pageName = 'Target Models';
 
 const selectedTargetModelId = ref<string>('');
-const targetModalName = ref<string>('');
+const targetModelName = ref<string>('');
+const targetModelDescription = ref<string>('');
 
 const mainTabState = reactive({
   activeTab: 'details',
@@ -57,7 +58,10 @@ function handleClickTargetModelId(id: string) {
               @update:custom-view-json-modal="
                 modalState.customViewJsonModal.open = true
               "
-              @update:target-model-name="e => (targetModalName = e)"
+              @update:target-model-name="e => (targetModelName = e)"
+              @update:target-model-description="
+                e => (targetModelDescription = e)
+              "
             />
           </template>
         </p-tab>
@@ -70,6 +74,8 @@ function handleClickTargetModelId(id: string) {
       <simple-edit-form
         v-if="modalState.editModelModal.open"
         header-title="Edit Model"
+        :name="targetModelName"
+        :description="targetModelDescription"
         name-label="Model Name"
         name-placeholder="Model Name"
         @update:save-modal="modalState.editModelModal.open = false"
@@ -79,11 +85,9 @@ function handleClickTargetModelId(id: string) {
     <div class="relative z-70">
       <custom-view-target-model
         v-if="modalState.customViewJsonModal.open"
-        :target-model-name="targetModalName"
+        :target-model-name="targetModelName"
         @update:close-modal="modalState.customViewJsonModal.open = false"
       />
     </div>
   </div>
 </template>
-
-<style scoped lang="postcss"></style>

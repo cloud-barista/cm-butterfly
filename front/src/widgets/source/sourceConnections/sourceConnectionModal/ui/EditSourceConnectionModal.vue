@@ -56,6 +56,7 @@ const handleAddSourceConnection = async () => {
         request: {
           description: connectionInfoData.value.description,
           ip_address: connectionInfoData.value.ip_address,
+          name: connectionInfoData.value.name,
           password: connectionInfoData.value.password,
           private_key: connectionInfoData.value.private_key,
           ssh_port: connectionInfoData.value.ssh_port,
@@ -85,6 +86,7 @@ const handleAddSourceConnection = async () => {
             // ...connectionInfoData.value,
             description: connectionInfoData.value.description,
             ip_address: connectionInfoData.value.ip_address,
+            name: connectionInfoData.value.name,
             password: connectionInfoData.value.password,
             private_key: connectionInfoData.value.private_key,
             ssh_port: connectionInfoData.value.ssh_port,
@@ -143,10 +145,13 @@ watchEffect(() => {
       title="Source Connection"
       subtitle="Add or edit a source connection."
       add-button-text=""
-      @update:is-connection-modal-opened="handleConnectionModal"
-      @update:is-service-modal-opened="
-        e => emit('update:is-service-modal-opened', false)
+      @update:modal-state="
+        () => {
+          emit('update:is-service-modal-opened', false);
+          emit('update:is-connection-modal-opened', false);
+        }
       "
+      @update:is-connection-modal-opened="handleConnectionModal"
     >
       <template #add-info>
         <edit-source-connection-info

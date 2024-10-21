@@ -38,3 +38,16 @@ export const WORKFLOW_MANAGEMENT_ROUTE = {
     _NAME: MENU_ID.TASK_COMPONENTS,
   },
 };
+
+export const WORKLOAD_OPERATIONS_ROUTE = {
+  _NAME: MENU_ID.WORKLOAD_OPERATIONS,
+  WORKLOADS: {
+    _NAME: MENU_ID.WORKLOADS,
+    MCI_WLS: {
+      _NAME: MENU_ID.MCI_WLS,
+    },
+    PMK_WLS: {
+      _NAME: MENU_ID.PMK_WLS,
+    },
+  },
+};

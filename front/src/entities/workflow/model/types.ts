@@ -61,33 +61,6 @@ export interface ITaskComponentResponse {
   name: string;
   updated_at: any;
 }
-
-// interface ITaskOptionResponse {
-//   options: {
-//     api_connection_id: string;
-//     endpoint: string;
-//     method: string;
-//     request_body: string;
-//   };
-//   param_option: {
-//     params: {
-//       properties: {
-//         description: {};
-//         installMonAgent: {};
-//         label: {};
-//         name: {};
-//         systemLabel: {};
-//         vm: {}
-//       };
-//       required: string[]
-//     };
-//     path_params: {
-//       properties: any;
-//       required: any;
-//     };
-//   };
-// }
-
 export interface ITaskComponent {
   created_at: any;
   updated_at: any;

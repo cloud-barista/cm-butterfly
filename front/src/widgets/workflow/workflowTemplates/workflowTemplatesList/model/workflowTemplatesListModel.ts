@@ -35,7 +35,7 @@ export function useWorkflowTemplatesListModel() {
     > = {
       name: workflowTemplate.name,
       id: workflowTemplate.id,
-      description: workflowTemplate.description,
+      description: '-',
       originalData: workflowTemplate,
     };
     return organizedDatum;

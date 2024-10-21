@@ -19,7 +19,7 @@ export function useWorkflowTemplatesDetailModel() {
     tableModel.tableState.fields = [
       { label: 'Workflow Template Information', name: 'name' },
       { label: 'ID', name: 'id' },
-      { label: 'Description', name: 'description' },
+      { label: 'Description', name: 'description', disableCopy: true },
       {
         label: 'Workflow Template JSON',
         name: 'workflowTemplateJSON',
@@ -37,7 +37,7 @@ export function useWorkflowTemplatesDetailModel() {
       data = {
         name: workflowTemplate.name,
         id: workflowTemplate.id,
-        description: workflowTemplate.description,
+        description: '-',
         workflowTemplateJSON: {},
       };
     }

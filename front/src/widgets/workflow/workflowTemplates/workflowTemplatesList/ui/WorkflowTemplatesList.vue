@@ -25,7 +25,7 @@ const { tableModel, initToolBoxTableModel, workflowStore } =
 const emit = defineEmits(['select-row', 'update:trigger']);
 
 const modals = reactive({
-  alertModalState: { open: false },
+  // alertModalState: { open: false },
   workflowTemplateAddModalState: { open: false },
 });
 
@@ -34,7 +34,7 @@ onBeforeMount(() => {
 });
 
 onMounted(function (this: any) {
-  addDeleteIconAtTable.bind(this)();
+  // addDeleteIconAtTable.bind(this)();
   fetchWorkflowTemplateList();
 });
 
@@ -49,7 +49,7 @@ function addDeleteIconAtTable(this: any) {
     {
       click: () => {
         if (tableModel.tableState.selectIndex.length > 0) {
-          modals.alertModalState.open = true;
+          // modals.alertModalState.open = true;
         }
       },
     },
@@ -130,7 +130,7 @@ watch(
         </p-toolbox-table>
       </template>
     </p-horizontal-layout>
-    <p-button-modal
+    <!-- <p-button-modal
       v-model="modals.alertModalState.open"
       :visible="modals.alertModalState.open"
       size="sm"
@@ -144,7 +144,7 @@ watch(
           modals.alertModalState.open = false;
         }
       "
-    />
+    /> -->
   </div>
 </template>
 

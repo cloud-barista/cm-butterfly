@@ -14,6 +14,7 @@ const emit = defineEmits([
   'update:custom-view-json-modal',
   'update:view-recommend-list-modal',
   'update:source-model-name',
+  'update:source-model-description',
   'update:recommended-model-list',
 ]);
 
@@ -21,6 +22,7 @@ const { sourceModelStore, setSourceModelId, initTable, tableModel } =
   useSourceModelDetailModel();
 
 const sourceModelName = ref<string | undefined>('');
+const sourceModelDescription = ref<string | undefined>('');
 const recommendedModelList = ref<any>([]);
 
 watchEffect(() => {
@@ -28,6 +30,28 @@ watchEffect(() => {
     props.selectedSourceModelId,
   )?.name;
 });
+
+watchEffect(() => {
+  sourceModelDescription.value = sourceModelStore.getModelById(
+    props.selectedSourceModelId,
+  )?.description;
+});
+
+watch(
+  sourceModelName,
+  nv => {
+    emit('update:source-model-name', nv);
+  },
+  { immediate: true },
+);
+
+watch(
+  sourceModelDescription,
+  nv => {
+    emit('update:source-model-description', nv);
+  },
+  { immediate: true },
+);
 
 watchEffect(() => {
   recommendedModelList.value = sourceModelStore.getModelById(

@@ -39,7 +39,7 @@ export function useTaskComponentsListModel() {
     > = {
       name: taskComponent.name,
       id: taskComponent.id,
-      description: '',
+      description: '-',
       created_at: taskComponent.created_at,
       updated_at: taskComponent.updated_at,
       originalData: taskComponent,

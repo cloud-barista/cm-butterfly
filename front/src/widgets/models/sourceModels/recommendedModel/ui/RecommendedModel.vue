@@ -49,26 +49,6 @@ function handleSave() {
   modalState.targetModal = false;
   modalState.checkModal = true;
 }
-
-watch(
-  [modelName, description],
-  nv => {
-    if (nv[0] !== '')
-      targetModelStore.setTargetModel({
-        name: nv[0],
-        id: '20001',
-        description: nv[1],
-        migrationType: 'Data',
-        custom: 'Custom',
-        createdDateTime: dateType,
-        updatedDateTime: dateType,
-        modelType: 'Target',
-        customAndViewJSON: {},
-        workflowTool: 'Airflow',
-      });
-  },
-  { immediate: true },
-);
 </script>
 
 <template>
@@ -96,6 +76,7 @@ watch(
     <simple-edit-form
       v-if="modalState.targetModal"
       header-title="Save Target Model"
+      name=""
       name-label="Model name"
       name-placeholder="Model name"
       @update:save-modal="handleSave"

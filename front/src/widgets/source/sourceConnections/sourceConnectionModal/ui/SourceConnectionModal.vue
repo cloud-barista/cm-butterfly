@@ -5,7 +5,6 @@ import { i18n } from '@/app/i18n';
 import { SourceConnectionInfo } from '@/features/sourceServices';
 import { ref, watchEffect } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
-import { watch } from 'vue';
 
 const sourceConnectionStore = useSourceConnectionStore();
 interface iProps {
@@ -81,9 +80,11 @@ const handleAddSourceConnection = () => {
       subtitle="Add or register a source connection."
       add-button-text="Add Source Connection"
       @addSourceConnection="addSourceConnection"
-      @update:is-connection-modal-opened="handleConnectionModal"
-      @update:is-service-modal-opened="
-        e => emit('update:is-service-modal-opened', e)
+      @update:modal-state="
+        () => {
+          emit('update:is-connection-modal-opened', false);
+          emit('update:is-service-modal-opened', true);
+        }
       "
     >
       <template #add-info>
