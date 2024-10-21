@@ -19,7 +19,7 @@ export function useTaskComponentsDetailModel() {
     tableModel.tableState.fields = [
       { label: 'Task Component Information', name: 'name' },
       { label: 'ID', name: 'id' },
-      { label: 'Description', name: 'description' },
+      { label: 'Description', name: 'description', disableCopy: true },
       { label: 'Created Date Time', name: 'created_at' },
       { label: 'Updated Date Time', name: 'updated_at' },
       {
@@ -38,7 +38,7 @@ export function useTaskComponentsDetailModel() {
       data = {
         name: taskComponent.name,
         id: taskComponent.id,
-        description: '',
+        description: '-',
         created_at: taskComponent.created_at,
         updated_at: taskComponent.updated_at,
         taskComponentJSON: {},
