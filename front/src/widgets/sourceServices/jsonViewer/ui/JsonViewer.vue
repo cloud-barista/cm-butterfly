@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { i18n } from '@/app/i18n';
-import { JsonEditor } from '@/features/sourceServices';
+// import { collect } from '@/features/sourceServices';
+import { collectJsonEditor } from '@/features/sourceServices';
 import { PI } from '@cloudforet-test/mirinae';
-import { ref } from 'vue';
+import { ref, watchEffect } from 'vue';
 
 interface iProps {
   formData: string | undefined;
+  schema: {
+    json: boolean;
+    properties: object;
+  };
 }
 
 const props = defineProps<iProps>();
@@ -23,7 +28,12 @@ const handleConvertJson = () => {
 
 <template>
   <div class="json-viewer-layout">
-    <json-editor :form-data="formData" title="Meta (data)" :read-only="true" />
+    <collect-json-editor
+      :form-data="formData"
+      title="Meta (data)"
+      :read-only="true"
+      :schema="schema"
+    />
     <button class="convert-btn" @click="handleConvertJson">
       <p-i
         class="icon"
@@ -34,7 +44,12 @@ const handleConvertJson = () => {
       />
       {{ i18n.t('COMPONENT.BUTTON_MODAL.CONVERT') }}
     </button>
-    <json-editor :form-data="convertedJson" title="Model" :read-only="false" />
+    <collect-json-editor
+      :form-data="convertedJson"
+      title="Model"
+      :read-only="false"
+      :schema="schema"
+    />
   </div>
 </template>
 
