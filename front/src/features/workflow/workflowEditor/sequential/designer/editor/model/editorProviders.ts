@@ -35,7 +35,17 @@ export function editorProviders() {
       if (step.componentType === 'task') {
         //toolboxModel에서 가공하는곳 참고
 
-        insertDynamicComponent(BeetleTaskEditor, { step }, {}, editor);
+        insertDynamicComponent(
+          BeetleTaskEditor,
+          { step },
+          {
+            // saveContext: e => {
+            //   console.log(e);
+            //   step.properties.model = e;
+            // },
+          },
+          editor,
+        );
       }
       //instance, id와 value로 값저장 하는 방법도 있고 store에서 저장하는 방법도 있을듯
 

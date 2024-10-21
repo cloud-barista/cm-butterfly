@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { PButton, PIconButton, PTextInput } from '@cloudforet-test/mirinae';
-import { onMounted, onUnmounted, reactive, ref, toRef, watch } from 'vue';
+import {
+  onBeforeUnmount,
+  onMounted,
+  onUnmounted,
+  onUpdated,
+  reactive,
+  ref,
+  toRef,
+  watch,
+} from 'vue';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import { useTaskEditorModel } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/beetleTaskEditorModel.ts';
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
@@ -20,61 +29,89 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['addVmClick']);
+const emit = defineEmits(['saveContext']);
 const taskEditorModel = useTaskEditorModel();
-
+console.log(props.step.properties.model);
 watch(
   props,
   nv => {
     taskEditorModel.setFormContext(nv.step.properties.model ?? '');
-    console.log(taskEditorModel.fromContext.value);
+    console.log(taskEditorModel.formContext.value);
   },
   { deep: true, immediate: true },
 );
-
-onUnmounted(() => {
-  taskEditorModel.setFormContext(props.step.properties.model ?? '');
+onMounted(() => {
+  console.log('mount!#######################');
+});
+onBeforeUnmount(() => {
+  console.log('t1@@@@@@@@@@@@@@@@@@@@@@@@@@');
 });
 
-onMounted(() => {});
+onUnmounted(() => {
+  console.log('t2@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+  // emit('saveContext', taskEditorModel.convertFormModelToStepProperties());
+});
+
+onUpdated(() => {
+  console.log('test@@@@@@@@@@@@@@@@@@@@@@@@');
+});
+
+function test() {
+  console.log(taskEditorModel.convertFormModelToStepProperties());
+}
 </script>
 
 <template>
   <div class="task-editor-form">
-    <div class="header flex gap-3 mt-[32px] h-[40px] justify-end pr-[16px]">
-      <p-button :style-type="'secondary'" icon-left="ic_plus" :size="'sm'">
-        Add Entity
-      </p-button>
-      <p-button
-        :style-type="'secondary'"
-        icon-left="ic_plus"
-        :size="'sm'"
-        @click=""
-      >
-        Add VM
-      </p-button>
-    </div>
     <div
-      v-for="(entity, index) of taskEditorModel.fromContext.value"
+      v-for="(formContext, index) of taskEditorModel.formContext.value"
       :key="index"
-      class="field-group flex justify-between align-items-center"
+      class="flex justify-between align-items-center"
     >
-      <div v-if="entity['type'] === 'input'">
-        <div class="field-title-box">
-          {{ entity['context']['title'] }}
+      <div
+        class="entity-box w-full h-full"
+        v-if="formContext.type === 'entity'"
+      >
+        <div class="subject-title border-bottom">
+          {{ formContext.context.subject }}
+          <p-button :style-type="'secondary'" icon-left="ic_plus" :size="'sm'">
+            Add Entity
+          </p-button>
         </div>
-        <div class="field-content-box">
-          <p-text-input
-            v-model="entity['context']['model'].value"
-            :size="'md'"
-            block
-            :invalid="!entity['context']['model'].isValid"
-            @blur="entity['context']['model'].onBlur"
-          ></p-text-input>
+        <div
+          class="field-group flex border-bottom"
+          v-for="(entity, index) of formContext.context.values"
+        >
+          <div class="field-title-box">
+            {{ entity.context.title }}
+          </div>
+          <div class="field-content-box">
+            <p-text-input
+              v-model="entity.context.model.value"
+              :size="'md'"
+              block
+              :invalid="!entity.context.model.isValid"
+              @blur="entity.context.model.onBlur"
+            ></p-text-input>
+          </div>
         </div>
       </div>
-      <div v-if="entity['type'] === 'accordion'">
-        <BAccordion :items="entity['context']['values']">
+      <div
+        class="accordion-part w-full h-full"
+        v-if="formContext.type === 'accordion'"
+      >
+        <div class="subject-title border-bottom">
+          {{ formContext.context.subject }}
+          <p-button
+            :style-type="'secondary'"
+            icon-left="ic_plus"
+            :size="'sm'"
+            @click=""
+          >
+            Add VM
+          </p-button>
+        </div>
+        <BAccordion class="border-bottom" :items="formContext.context.values">
           <template #header="{ header, item, click }">
             <div class="field-group flex justify-between align-items-center">
               <div class="field-title-box">
@@ -91,9 +128,12 @@ onMounted(() => {});
             <div
               v-for="(element, index) in item.content"
               :key="index"
-              class="field-group flex justify-between align-items-center item-content"
+              class="flex justify-between align-items-center item-content"
             >
-              <div v-if="element['type'] === 'input'">
+              <div
+                class="field-group flex w-full h-full"
+                v-if="element['type'] === 'input'"
+              >
                 <div class="field-title-box">
                   {{ element['context'].title }}
                 </div>
@@ -112,54 +152,6 @@ onMounted(() => {});
         </BAccordion>
       </div>
     </div>
-
-    <section class="vm-list">
-      <!--      <BAccordion :items="taskEditorModel.formValues.vms">-->
-      <!--        <template #header="{ header, item, click }">-->
-      <!--          <div class="field-group flex justify-between align-items-center">-->
-      <!--            <div class="field-title-box">-->
-      <!--              <PIconButton-->
-      <!--                :name="item.header.icon"-->
-      <!--                :size="'sm'"-->
-      <!--                @click="click"-->
-      <!--              ></PIconButton>-->
-      <!--              {{ item.header.title }}-->
-      <!--            </div>-->
-      <!--            <div class="field-content-box">-->
-      <!--              <p-text-input-->
-      <!--                v-model="item.content.vms.header.vmName.model.value"-->
-      <!--                :size="'md'"-->
-      <!--                :invalid="!item.content.vms.header.vmName.model.isValid"-->
-      <!--                block-->
-      <!--                @blur="item.content.vms.header.vmName.model.onBlur"-->
-      <!--              ></p-text-input>-->
-      <!--            </div>-->
-      <!--          </div>-->
-      <!--        </template>-->
-      <!--        <template #content="{ content, item }">-->
-      <!--          <div-->
-      <!--            v-for="(key, index) in item.content.vms.body"-->
-      <!--            :key="index"-->
-      <!--            class="field-group flex justify-between align-items-center item-content"-->
-      <!--          >-->
-      <!--            <div class="field-title-box">-->
-      <!--              {{ key.title }}-->
-      <!--            </div>-->
-      <!--            <div class="field-content-box">-->
-      <!--              <template v-if="key.type === 'text'">-->
-      <!--                <p-text-input-->
-      <!--                  v-model="key['model'].value"-->
-      <!--                  :size="'md'"-->
-      <!--                  block-->
-      <!--                  :invalid="!key['model'].isValid"-->
-      <!--                  @blur="key['model'].onBlur"-->
-      <!--                ></p-text-input>-->
-      <!--              </template>-->
-      <!--            </div>-->
-      <!--          </div>-->
-      <!--        </template>-->
-      <!--      </BAccordion>-->
-    </section>
   </div>
 </template>
 
@@ -176,9 +168,6 @@ onMounted(() => {});
       padding: 6px 16px 6px 16px;
     }
 
-    border-bottom: 1px solid;
-    @apply border-gray-200;
-
     .field-content-box {
       display: flex;
       justify-content: center;
@@ -188,6 +177,15 @@ onMounted(() => {});
       padding: 6px 16px 6px 16px;
     }
   }
+}
+
+.border-bottom {
+  border-bottom: 1px solid;
+  @apply border-gray-200;
+}
+
+.subject-title {
+  @apply pr-[16px] pl-[16px] mt-[16px] h-[44px] flex justify-between items-center text-gray-500;
 }
 
 :deep(.accordion-item) {
