@@ -18,12 +18,4 @@ export const tempRoutes: RouteConfig[] = [
       menuId: 'sourcemetas',
     },
   },
-  {
-    path: 'workloads',
-    name: 'workloads',
-    component: NotFoundVue,
-    meta: {
-      menuId: 'workloads',
-    },
-  },
 ];

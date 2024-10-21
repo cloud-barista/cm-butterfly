@@ -37,19 +37,6 @@ onMounted(async () => {
   await fetchMenuTree();
 });
 
-// onMounted(() => {
-//   document
-//     .querySelector('.g-n-b-navigation-rail')
-//     ?.addEventListener('mouseover', () => {
-//       sidebar.toggleHover(true);
-//     });
-//   document
-//     .querySelector('.g-n-b-navigation-rail')
-//     ?.addEventListener('mouseleave', () => {
-//       sidebar.toggleHover(false);
-//     });
-// });
-
 async function fetchMenuTree() {
   if (!isDataLoaded.value && loadedCnt.value < 1) {
     isDataLoaded.value = true;

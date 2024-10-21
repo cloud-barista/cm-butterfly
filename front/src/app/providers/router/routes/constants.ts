@@ -46,5 +46,8 @@ export const WORKLOAD_OPERATIONS_ROUTE = {
     MCI_WLS: {
       _NAME: MENU_ID.MCI_WLS,
     },
+    PMK_WLS: {
+      _NAME: MENU_ID.PMK_WLS,
+    },
   },
 };

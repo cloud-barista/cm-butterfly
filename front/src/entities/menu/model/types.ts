@@ -15,8 +15,9 @@ export const MENU_ID = Object.freeze({
   WORKFLOW_TEMPLATES: 'workflowtemplates',
   TASK_COMPONENTS: 'taskcomponents',
   WORKLOAD_OPERATIONS: 'workloadoperations',
-  MCI_WLS: 'mciwls',
   WORKLOADS: 'workloads',
+  MCI_WLS: 'mciwls',
+  PMK_WLS: 'pmkwls',
 });
 
 export interface ICategory {
