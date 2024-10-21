@@ -159,10 +159,13 @@ watchEffect(() => {
           :source-service-id="sourceServiceId"
           @update:values="e => (connectionInfoData = e)"
         />
-        <!-- @update:save-able="handleDisable" -->
       </template>
       <template #buttons>
-        <p-button style-type="tertiary" @click="handleCancel">
+        <p-button
+          style-type="tertiary"
+          :disabled="saveLoading"
+          @click="handleCancel"
+        >
           {{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}
         </p-button>
         <p-button

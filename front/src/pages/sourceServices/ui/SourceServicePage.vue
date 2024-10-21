@@ -114,7 +114,6 @@ function handleGroupModal(value: boolean) {
 
 function handleConnectionModal(value: boolean) {
   modalStates.addSourceConnection.open = value;
-  modalStates.addServiceGroup.open = !value;
   isCollapsed.value = value;
   isGnbToolboxShown.value = !value;
 }
