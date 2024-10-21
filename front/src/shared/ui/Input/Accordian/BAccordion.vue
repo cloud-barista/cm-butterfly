@@ -38,6 +38,8 @@ const end = (el: any) => {
           name="header"
           :header="item.header"
           :item="{ header: item.header, content: item.content }"
+          :index="index"
+          :isOpen="isOpen(index)"
           :click="() => toggleAccordion(index)"
         >
           <div class="w-full h-full" @click="toggleAccordion(index)">

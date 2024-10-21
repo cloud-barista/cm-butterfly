@@ -1,5 +1,5 @@
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
-import { computed, reactive, ref, Ref } from 'vue';
+import { computed, reactive, ref, Ref, UnwrapRef } from 'vue';
 import object from 'async-validator/dist-types/validator/object';
 import { isArray, values } from 'lodash';
 
@@ -7,7 +7,7 @@ type EntityContext = {
   type: 'entity';
   context: {
     subject: 'Entity';
-    values: Array<InputContext>;
+    values: Array<InputContext | KeyValueInputContext>;
   };
 };
 
@@ -15,6 +15,14 @@ type InputContext = {
   type: 'input';
   context: {
     title: string;
+    model: ReturnType<typeof useInputModel<string>>;
+  };
+};
+
+type KeyValueInputContext = {
+  type: 'keyValueInput';
+  context: {
+    title: ReturnType<typeof useInputModel<string>>;
     model: ReturnType<typeof useInputModel<string>>;
   };
 };
@@ -34,12 +42,14 @@ type AccordionContext = {
     values: Array<AccordionSlotContext>;
   };
   index: number;
+  originalData: Array<any>;
 };
 
 type ConvertedData = EntityContext | AccordionContext;
 
 export function useTaskEditorModel() {
   const formContext = ref<ConvertedData[]>([]);
+  const saveFormContext = ref<ConvertedData[]>([]);
 
   function loadInputContext(
     key: string,
@@ -50,6 +60,16 @@ export function useTaskEditorModel() {
       context: {
         title: key,
         model: useInputModel(value ?? ''),
+      },
+    };
+  }
+
+  function loadKeyValueInputContext(): KeyValueInputContext {
+    return {
+      type: 'keyValueInput',
+      context: {
+        title: useInputModel(''),
+        model: useInputModel(''),
       },
     };
   }
@@ -91,6 +111,7 @@ export function useTaskEditorModel() {
           } else if (isArray(value)) {
             context.push({
               type: 'accordion',
+              originalData: value,
               context: {
                 subject: key,
                 values: value.map((el, index) =>
@@ -105,6 +126,7 @@ export function useTaskEditorModel() {
     }
     // @ts-ignore
     formContext.value = context;
+    saveFormContext.value = JSON.parse(JSON.stringify(context));
   }
 
   // unMount시 modelContext를 StepProperties로 하고 반환된 properties를 Step으로 저장
@@ -144,5 +166,36 @@ export function useTaskEditorModel() {
     };
   }
 
-  return { formContext, setFormContext, convertFormModelToStepProperties };
+  function addEntity(
+    target: UnwrapRef<Array<InputContext | KeyValueInputContext>>,
+  ) {
+    // formContext.value[0].context.values.push(loadKeyValueInputContext());
+    // @ts-ignore
+    target.push(loadKeyValueInputContext());
+  }
+
+  function addArray(parentIndex: number) {
+    // console.log(formContext.value[targetIndex].context.values);
+    // console.log(
+    //   JSON.parse(
+    //     JSON.stringify(saveFormContext.value[targetIndex].context.values[0]),
+    //   ),
+    // );
+    //기존에 저장되어져 있는 데이터 그대로
+    console.log(formContext.value[parentIndex]);
+    if (formContext.value[parentIndex].type === 'accordion') {
+      formContext.value[parentIndex].context.values.push(
+        // @ts-ignore
+        loadAccordionContext(formContext.value[parentIndex].originalData[0], 0),
+      );
+    }
+  }
+
+  return {
+    formContext,
+    setFormContext,
+    convertFormModelToStepProperties,
+    addEntity,
+    addArray,
+  };
 }

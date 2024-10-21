@@ -74,16 +74,33 @@ function test() {
       >
         <div class="subject-title border-bottom">
           {{ formContext.context.subject }}
-          <p-button :style-type="'secondary'" icon-left="ic_plus" :size="'sm'">
+          <p-button
+            :style-type="'secondary'"
+            icon-left="ic_plus"
+            :size="'sm'"
+            @click="taskEditorModel.addEntity(formContext.context.values)"
+          >
             Add Entity
           </p-button>
         </div>
         <div
           class="field-group flex border-bottom"
-          v-for="(entity, index) of formContext.context.values"
+          v-for="(entity, j) of formContext.context.values"
         >
-          <div class="field-title-box">
+          <div class="field-title-box" v-if="entity.type === 'input'">
             {{ entity.context.title }}
+          </div>
+          <div
+            class="field-title-box"
+            v-else-if="entity.type === 'keyValueInput'"
+          >
+            <p-text-input
+              v-model="entity.context.title.value"
+              :size="'md'"
+              block
+              :invalid="!entity.context.title.isValid"
+              @blur="entity.context.title.onBlur"
+            ></p-text-input>
           </div>
           <div class="field-content-box">
             <p-text-input
@@ -106,45 +123,51 @@ function test() {
             :style-type="'secondary'"
             icon-left="ic_plus"
             :size="'sm'"
-            @click=""
+            @click="taskEditorModel.addArray(index)"
           >
-            Add VM
+            Add Object
           </p-button>
         </div>
-        <BAccordion class="border-bottom" :items="formContext.context.values">
-          <template #header="{ header, item, click }">
-            <div class="field-group flex justify-between align-items-center">
+        <BAccordion :items="formContext.context.values">
+          <template #header="{ header, item, click, index: j, isOpen }">
+            <div
+              class="field-group flex justify-between align-items-center"
+              :class="isOpen || 'border-bottom'"
+            >
               <div class="field-title-box">
                 <PIconButton
+                  :class="isOpen && 'accordion-isOpen'"
                   :name="item.header.icon"
                   :size="'sm'"
                   @click="click"
                 ></PIconButton>
-                {{ item.header.title ?? '' }}
+                {{ j ?? '' }}
               </div>
             </div>
           </template>
           <template #content="{ content, item }">
-            <div
-              v-for="(element, index) in item.content"
-              :key="index"
-              class="flex justify-between align-items-center item-content"
-            >
+            <div class="border-bottom">
               <div
-                class="field-group flex w-full h-full"
-                v-if="element['type'] === 'input'"
+                v-for="(element, index) in item.content"
+                :key="index"
+                class="flex justify-between align-items-center item-content"
               >
-                <div class="field-title-box">
-                  {{ element['context'].title }}
-                </div>
-                <div class="field-content-box">
-                  <p-text-input
-                    v-model="element['context'].model.value"
-                    :size="'md'"
-                    block
-                    :invalid="!element['context'].model.isValid"
-                    @blur="element['context'].model.onBlur"
-                  ></p-text-input>
+                <div
+                  class="field-group flex w-full h-full"
+                  v-if="element['type'] === 'input'"
+                >
+                  <div class="field-title-box">
+                    {{ element['context'].title }}
+                  </div>
+                  <div class="field-content-box">
+                    <p-text-input
+                      v-model="element['context'].model.value"
+                      :size="'md'"
+                      block
+                      :invalid="!element['context'].model.isValid"
+                      @blur="element['context'].model.onBlur"
+                    ></p-text-input>
+                  </div>
                 </div>
               </div>
             </div>
