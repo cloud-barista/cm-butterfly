@@ -49,7 +49,6 @@ type ConvertedData = EntityContext | AccordionContext;
 
 export function useTaskEditorModel() {
   const formContext = ref<ConvertedData[]>([]);
-  const saveFormContext = ref<ConvertedData[]>([]);
 
   function loadInputContext(
     key: string,
@@ -126,22 +125,30 @@ export function useTaskEditorModel() {
     }
     // @ts-ignore
     formContext.value = context;
-    saveFormContext.value = JSON.parse(JSON.stringify(context));
   }
 
-  // unMount시 modelContext를 StepProperties로 하고 반환된 properties를 Step으로 저장
-  // 겹치는 key가 있으면 경고나 제외 하는 로직도 추가해야함.
   function convertFormModelToStepProperties(): object {
     const properties = {};
 
     formContext.value.forEach(data => {
       if (data.type === 'entity') {
-        let t = data.context.values.map(value => {
-          // @ts-ignore
-          return getInputData(value.context);
+        let convertedObject = [];
+        data.context.values.forEach(value => {
+          if (value.type === 'keyValueInput') {
+            if (
+              value.context.title.value !== '' &&
+              !entityKeyValidation(value.context.title)
+            ) {
+              //@ts-ignore
+              convertedObject.push(getKeyValueInputData(value.context));
+            }
+          } else if (value.type === 'input') {
+            //@ts-ignore
+            convertedObject.push(getInputData(value.context));
+          }
         });
 
-        Object.assign(properties, ...t);
+        Object.assign(properties, ...convertedObject);
       } else if (data.type === 'accordion') {
         const accordionData = {
           [data.context.subject]: data.context.values.map(value =>
@@ -156,11 +163,22 @@ export function useTaskEditorModel() {
   }
 
   function getAccordionSlotData(accordionSlotContext: AccordionSlotContext) {
-    return accordionSlotContext.content.map(data => getInputData(data.context));
+    const object = {};
+    accordionSlotContext.content.forEach(data => {
+      Object.assign(object, getInputData(data.context));
+    });
+
+    return object;
+  }
+
+  function getKeyValueInputData(object: KeyValueInputContext['context']) {
+    return {
+      // @ts-ignore
+      [object.title.value]: object.model.value,
+    };
   }
 
   function getInputData(inputContext: InputContext['context']) {
-    console.log(inputContext);
     return {
       [inputContext.title]: inputContext.model.value,
     };
@@ -169,26 +187,35 @@ export function useTaskEditorModel() {
   function addEntity(
     target: UnwrapRef<Array<InputContext | KeyValueInputContext>>,
   ) {
-    // formContext.value[0].context.values.push(loadKeyValueInputContext());
     // @ts-ignore
     target.push(loadKeyValueInputContext());
   }
 
   function addArray(parentIndex: number) {
-    // console.log(formContext.value[targetIndex].context.values);
-    // console.log(
-    //   JSON.parse(
-    //     JSON.stringify(saveFormContext.value[targetIndex].context.values[0]),
-    //   ),
-    // );
-    //기존에 저장되어져 있는 데이터 그대로
-    console.log(formContext.value[parentIndex]);
     if (formContext.value[parentIndex].type === 'accordion') {
       formContext.value[parentIndex].context.values.push(
         // @ts-ignore
         loadAccordionContext(formContext.value[parentIndex].originalData[0], 0),
       );
     }
+  }
+  //return 같은게 있으면 true 없으면 false
+  function entityKeyValidation(
+    model: UnwrapRef<ReturnType<typeof useInputModel<string>>>,
+  ): boolean {
+    if (formContext.value[0].type === 'entity') {
+      let valid = formContext.value[0].context.values.some(value => {
+        // @ts-ignore
+        if (value.type === 'input') {
+          // @ts-ignore
+          return value.context.title === model.value;
+        }
+        return false;
+      });
+      model.isValid = !valid;
+      return valid;
+    }
+    return false;
   }
 
   return {
@@ -197,5 +224,6 @@ export function useTaskEditorModel() {
     convertFormModelToStepProperties,
     addEntity,
     addArray,
+    entityKeyValidation,
   };
 }

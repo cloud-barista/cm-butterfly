@@ -39,10 +39,10 @@ export function editorProviders() {
           BeetleTaskEditor,
           { step },
           {
-            // saveContext: e => {
-            //   console.log(e);
-            //   step.properties.model = e;
-            // },
+            saveContext: e => {
+              console.log(e);
+              step.properties.model = e;
+            },
           },
           editor,
         );

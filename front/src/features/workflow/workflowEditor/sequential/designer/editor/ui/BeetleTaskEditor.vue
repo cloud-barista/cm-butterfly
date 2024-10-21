@@ -8,6 +8,7 @@ import {
   reactive,
   ref,
   toRef,
+  UnwrapRef,
   watch,
 } from 'vue';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
@@ -29,36 +30,21 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
+console.log(props);
 const emit = defineEmits(['saveContext']);
 const taskEditorModel = useTaskEditorModel();
-console.log(props.step.properties.model);
-watch(
-  props,
-  nv => {
-    taskEditorModel.setFormContext(nv.step.properties.model ?? '');
-    console.log(taskEditorModel.formContext.value);
-  },
-  { deep: true, immediate: true },
-);
+
 onMounted(() => {
-  console.log('mount!#######################');
-});
-onBeforeUnmount(() => {
-  console.log('t1@@@@@@@@@@@@@@@@@@@@@@@@@@');
+  taskEditorModel.setFormContext(props.step.properties.model ?? '');
 });
 
-onUnmounted(() => {
-  console.log('t2@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
-  // emit('saveContext', taskEditorModel.convertFormModelToStepProperties());
-});
-
-onUpdated(() => {
-  console.log('test@@@@@@@@@@@@@@@@@@@@@@@@');
-});
-
-function test() {
-  console.log(taskEditorModel.convertFormModelToStepProperties());
-}
+watch(
+  taskEditorModel.formContext,
+  nv => {
+    emit('saveContext', taskEditorModel.convertFormModelToStepProperties());
+  },
+  { deep: true },
+);
 </script>
 
 <template>
@@ -99,7 +85,7 @@ function test() {
               :size="'md'"
               block
               :invalid="!entity.context.title.isValid"
-              @blur="entity.context.title.onBlur"
+              @blur="taskEditorModel.entityKeyValidation(entity.context.title)"
             ></p-text-input>
           </div>
           <div class="field-content-box">
