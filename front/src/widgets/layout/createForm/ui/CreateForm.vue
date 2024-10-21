@@ -63,7 +63,9 @@ const handleGoBack = () => {
         <div>{{ badgeTitle }}</div>
       </p-badge>
     </div>
+    <slot name="add-content" />
     <widget-layout
+      v-if="firstTitle || subtitle"
       class="widget-layout"
       overflow="visible"
       :first-title="firstTitle"

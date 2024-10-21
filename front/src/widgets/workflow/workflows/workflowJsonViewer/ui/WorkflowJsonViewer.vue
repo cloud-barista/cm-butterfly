@@ -2,7 +2,7 @@
 import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { JsonEditor } from '@/widgets/layout';
-import { readonly, ref } from 'vue';
+import { ref } from 'vue';
 
 interface iProps {
   title: string;
