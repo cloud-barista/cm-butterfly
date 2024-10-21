@@ -118,6 +118,13 @@ function handleConnectionModal(value: boolean) {
   isGnbToolboxShown.value = !value;
 }
 
+function handleNewConnectionModal(value: boolean) {
+  modalStates.addServiceGroup.open = !value;
+  modalStates.addSourceConnection.open = value;
+  isCollapsed.value = value;
+  isGnbToolboxShown.value = !value;
+}
+
 const data = computed(() => {
   return sourceConnectionStore.getConnectionById(selectedConnectionId.value)
     ?.softwareData;
@@ -261,7 +268,7 @@ const softwareSchema = {
       <add-source-service-modal
         v-if="modalStates.addServiceGroup.open && !isServiceEditBtnClicked"
         @update:isModalOpened="handleGroupModal"
-        @update:is-connection-modal-opened="handleConnectionModal"
+        @update:is-connection-modal-opened="handleNewConnectionModal"
         @update:trigger="modalStates.addServiceGroup.trigger = true"
       />
       <edit-source-service-modal
