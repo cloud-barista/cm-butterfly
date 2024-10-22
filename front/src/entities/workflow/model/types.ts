@@ -9,15 +9,18 @@ export interface IWorkflow {
 export interface ITaskGroupResponse {
   description: string;
   name: string;
+  id?: string;
   tasks: Array<ITaskResponse>;
   task_groups?: Array<ITaskGroupResponse>;
 }
 export interface ITaskResponse {
-  dependencies: any[];
+  dependencies: any;
   name: string;
   path_params: any;
   request_body: string;
   task_component: string;
+  query_params?: any;
+  id?: string;
 }
 
 export interface IWorkflowResponse {

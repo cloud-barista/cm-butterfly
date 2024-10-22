@@ -1,27 +1,46 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
-import { useFlowChartModel } from '@/features/workflow/workflowEditor/sequential/designer/model/sequentialDesignerModel.ts';
+import { useSequentialDesignerModel } from '@/features/workflow/workflowEditor/sequential/designer/model/sequentialDesignerModel.ts';
 
 import { useSequentialToolboxModel } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxModel.ts';
+import { Designer } from 'sequential-workflow-designer';
 
-let flowChartModel;
+interface Step {
+  id: string;
+  name: string;
+  properties: {
+    isDeletable: boolean;
+    model?: object;
+  };
+  sequence: [];
+  type: string;
+}
+interface IProps {
+  sequence: Step[];
+}
 
+const props = defineProps<IProps>();
+const emit = defineEmits(['getDesigner']);
 const sequentialToolBoxModel = useSequentialToolboxModel();
-
+let sequentialDesignerModel;
 onMounted(function () {
   let refs = this.$refs;
 
   sequentialToolBoxModel.then(taskComponents => {
-    console.log(taskComponents);
-    flowChartModel = useFlowChartModel(refs);
-    flowChartModel.setToolboxGroupsSteps(null, null, [...taskComponents]);
+    sequentialDesignerModel = useSequentialDesignerModel(refs);
+    sequentialDesignerModel.setToolboxGroupsSteps(null, null, [
+      ...taskComponents,
+    ]);
 
-    //TODO 초기 디자이너를 그리기위한 작업
-    // flowChart.setDefaultSequence(tt.sequence);
-    flowChartModel.initDesigner();
-    flowChartModel.draw();
+    sequentialDesignerModel.setDefaultSequence(props.sequence);
+    sequentialDesignerModel.initDesigner();
+    sequentialDesignerModel.draw();
   });
 });
+
+function getDesigner(): Designer | null {
+  return sequentialDesignerModel.designer;
+}
 </script>
 
 <template>

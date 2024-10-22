@@ -6,7 +6,7 @@ import {
 
 // const GET_DISK_TYPE = 'GET_DISK_TYPE';
 const GET_WORKFLOW_LIST = 'GET_WORKFLOW_LIST';
-const GET_WORKFLOW_TEMPLATE_LIST = 'GET_WORKFLOW_TEMPLATE_LIST';
+const GET_WORKFLOW_TEMPLATE_LIST = 'list-workflow-template';
 
 export function getWorkFlowList() {
   return useAxiosPost<IAxiosResponse<IWorkflowResponse[]>, null>(

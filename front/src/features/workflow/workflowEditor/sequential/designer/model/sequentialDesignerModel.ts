@@ -8,7 +8,7 @@ import getRandomId from '@/shared/utils/uuid';
 import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 import { editorProviders } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/editorProviders.ts';
 
-export function useFlowChartModel(refs: any) {
+export function useSequentialDesignerModel(refs: any) {
   let designer: Designer | null = null;
 
   const placeholder = refs.placeholder;

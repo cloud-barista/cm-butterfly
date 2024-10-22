@@ -10,6 +10,7 @@ import {
 } from '@/entities/workflow/model/types.ts';
 import getRandomId from '@/shared/utils/uuid';
 import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
+import { parseRequestBody } from '@/shared/utils/stringToObject';
 
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
@@ -77,22 +78,10 @@ export function useWorkflowToolModel() {
   }
 
   function convertToDesignerTask(task: ITaskResponse): Step {
-    return defineBettleTaskStep(getRandomId(), task.name, 'bettle_task', {
-      entities: {
-        name: task.request_body.name,
-        description: task.request_body.description,
-        vms: task.request_body.vm.map(vm => ({
-          id: vm.label,
-          name: vm.name,
-          serverQuantity: vm.subGroupSize,
-          commonSpec: vm.commonSpec,
-          osImage: vm.commonImage,
-          diskType: vm.rootDiskType,
-          diskSize: vm.rootDiskSize,
-          password: vm.vmUserPassword,
-          connectionName: vm.connectionName,
-        })),
-      },
+    const parsedString: object = parseRequestBody(task.request_body);
+
+    return defineBettleTaskStep(getRandomId(), task.name, 'task', {
+      model: parsedString,
     });
   }
 
@@ -102,6 +91,6 @@ export function useWorkflowToolModel() {
 
   return {
     getWorkflowToolData,
-    setWorkflowSequenceModel: convertWorkFlowToDesignerFormData,
+    convertWorkFlowToDesignerFormData,
   };
 }
