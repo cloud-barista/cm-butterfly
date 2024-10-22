@@ -22,7 +22,10 @@ const handleOpenMenu = (menuId: any) => {
 
 <template>
   <div class="top-bar">
-    <top-bar-workspaces ref="topBarWorkspaceRef" class="top-bar-workspace" />
+    <!-- <top-bar-workspaces ref="topBarWorkspaceRef" class="top-bar-workspace" /> -->
+    <div class="top-bar-workspacc">
+      <!-- TODO: temporary -->
+    </div>
     <top-bar-toolset
       ref="topBarToolsetRef"
       class="toolset"
