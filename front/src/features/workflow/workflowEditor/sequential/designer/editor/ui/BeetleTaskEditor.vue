@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PButton, PIconButton, PTextInput } from '@cloudforet-test/mirinae';
-import {
+import Vue, {
   onBeforeUnmount,
   onMounted,
   onUnmounted,
@@ -15,6 +15,8 @@ import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import { useTaskEditorModel } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/beetleTaskEditorModel.ts';
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
+import SequentialShortCut from '@/features/workflow/workflowEditor/sequential/designer/shortcut/ui/SequentialShortCut.vue';
+import { insertDynamicComponent } from '@/shared/utils';
 
 interface IProps {
   step: {
@@ -30,12 +32,29 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-console.log(props);
+
 const emit = defineEmits(['saveContext']);
 const taskEditorModel = useTaskEditorModel();
 
+const shortCutModel = ref({
+  open: false,
+  xPos: 0,
+  yPos: 0,
+  delete: {
+    label: 'Delete',
+    callback: function () {},
+  },
+});
+const editorFormElement = ref(null);
+let shortCut;
+
 onMounted(() => {
   taskEditorModel.setFormContext(props.step.properties.model ?? '');
+  document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 
 watch(
@@ -45,33 +64,77 @@ watch(
   },
   { deep: true },
 );
+
+function openShortCut(e) {
+  //@ts-ignore
+  const container = editorFormElement.value.getBoundingClientRect();
+
+  shortCutModel.value.open = true;
+  shortCutModel.value.xPos = e.clientX - container.left;
+  shortCutModel.value.yPos = e.clientY - container.top;
+}
+
+function closeShortCut() {
+  shortCutModel.value.open = false;
+}
+
+function deleteEntity(e, index) {
+  e.preventDefault();
+  shortCutModel.value.delete.callback = () =>
+    taskEditorModel.deleteEntity(index);
+  openShortCut(e);
+}
+
+function deleteArrayElement(
+  e: MouseEvent,
+  targetArr: Array<any>,
+  targetIndex: number,
+) {
+  e.preventDefault();
+  shortCutModel.value.delete.callback = () =>
+    taskEditorModel.deleteArrayElement(targetArr, targetIndex);
+  openShortCut(e);
+}
+function handleClickOutside(event: MouseEvent) {
+  const sequentialShortCutElement = document.querySelector(
+    '.sequential-shortcut',
+  );
+  if (
+    sequentialShortCutElement &&
+    !sequentialShortCutElement.contains(event.target as Node)
+  ) {
+    closeShortCut();
+  }
+}
 </script>
 
 <template>
-  <div class="task-editor-form">
+  <div class="task-editor-form" ref="editorFormElement">
     <div
-      v-for="(formContext, index) of taskEditorModel.formContext.value"
+      v-for="(currentContext, index) of taskEditorModel.formContext.value"
       :key="index"
       class="flex justify-between align-items-center"
     >
       <div
         class="entity-box w-full h-full"
-        v-if="formContext.type === 'entity'"
+        v-if="currentContext.type === 'entity'"
       >
         <div class="subject-title border-bottom">
-          {{ formContext.context.subject }}
+          {{ currentContext.context.subject }}
           <p-button
             :style-type="'secondary'"
             icon-left="ic_plus"
             :size="'sm'"
-            @click="taskEditorModel.addEntity(formContext.context.values)"
+            @click="taskEditorModel.addEntity(currentContext.context.values)"
           >
             Add Entity
           </p-button>
         </div>
         <div
           class="field-group flex border-bottom"
-          v-for="(entity, j) of formContext.context.values"
+          v-for="(entity, j) of currentContext.context.values"
+          :key="j"
+          @click.right="e => deleteEntity(e, j)"
         >
           <div class="field-title-box" v-if="entity.type === 'input'">
             {{ entity.context.title }}
@@ -100,11 +163,11 @@ watch(
         </div>
       </div>
       <div
+        v-if="currentContext.type === 'accordion'"
         class="accordion-part w-full h-full"
-        v-if="formContext.type === 'accordion'"
       >
         <div class="subject-title border-bottom">
-          {{ formContext.context.subject }}
+          {{ currentContext.context.subject }}
           <p-button
             :style-type="'secondary'"
             icon-left="ic_plus"
@@ -114,11 +177,14 @@ watch(
             Add Object
           </p-button>
         </div>
-        <BAccordion :items="formContext.context.values">
+        <BAccordion :items="currentContext.context.values">
           <template #header="{ header, item, click, index: j, isOpen }">
             <div
               class="field-group flex justify-between align-items-center"
               :class="isOpen || 'border-bottom'"
+              @click.right="
+                e => deleteArrayElement(e, currentContext.context.values, j)
+              "
             >
               <div class="field-title-box">
                 <PIconButton
@@ -161,11 +227,24 @@ watch(
         </BAccordion>
       </div>
     </div>
+    <SequentialShortCut
+      :open="shortCutModel.open"
+      :x-pos="shortCutModel.xPos"
+      :y-pos="shortCutModel.yPos"
+      :items="[
+        {
+          label: shortCutModel.delete.label,
+          callback: shortCutModel.delete.callback,
+        },
+      ]"
+    ></SequentialShortCut>
   </div>
 </template>
 
 <style scoped lang="postcss">
 .task-editor-form {
+  position: relative;
+
   .field-group {
     .field-title-box {
       display: flex;

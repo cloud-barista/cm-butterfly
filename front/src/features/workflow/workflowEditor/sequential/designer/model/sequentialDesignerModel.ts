@@ -69,9 +69,9 @@ export function useFlowChartModel(refs: any) {
       isDeletable: (step, parentSequence) => {
         return step.properties['isDeletable'];
       },
-      // isDuplicable: (step, parentSequence) => {
-      //   return true;
-      // },
+      isDuplicable: (step, parentSequence) => {
+        return true;
+      },
       // canInsertStep: (step, targetSequence, targetIndex) => {
       //   return true;
       // },

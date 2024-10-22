@@ -218,6 +218,20 @@ export function useTaskEditorModel() {
     return false;
   }
 
+  function deleteEntity(index: number) {
+    if (formContext.value[0].type === 'entity') {
+      formContext.value[0].context.values.splice(index, 1);
+    }
+  }
+  function deleteArrayElement(
+    targetArr:
+      | UnwrapRef<Array<InputContext | KeyValueInputContext>>
+      | UnwrapRef<Array<AccordionSlotContext>>,
+    targetIndex: number,
+  ) {
+    targetArr.splice(targetIndex, 1);
+  }
+
   return {
     formContext,
     setFormContext,
@@ -225,5 +239,7 @@ export function useTaskEditorModel() {
     addEntity,
     addArray,
     entityKeyValidation,
+    deleteEntity,
+    deleteArrayElement,
   };
 }
