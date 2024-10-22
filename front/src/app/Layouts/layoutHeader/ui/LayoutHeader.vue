@@ -2,6 +2,7 @@
 import TopBarWorkspaces from '@/features/topbar/topbarWorkspaces/ui/TopBarWorkspaces.vue';
 import TopBarToolset from '@/features/topbar/topbarToolset/ui/TopBarToolset.vue';
 import { reactive } from 'vue';
+import { PI } from '@cloudforet-test/mirinae';
 
 const state = reactive({
   openedMenu: '',
@@ -18,13 +19,16 @@ const handleOpenMenu = (menuId: any) => {
     state.openedMenu = menuId;
   }
 };
+
+const imgName =
+  import.meta.env.VITE_PROJECT_NAME === 'MCMP' ? 'M-CMP' : 'CLOUD-MIGRATOR';
 </script>
 
 <template>
   <div class="top-bar">
     <!-- <top-bar-workspaces ref="topBarWorkspaceRef" class="top-bar-workspace" /> -->
     <div class="top-bar-workspacc">
-      <!-- TODO: temporary -->
+      <span class="logo-name">{{ imgName }}</span>
     </div>
     <top-bar-toolset
       ref="topBarToolsetRef"
@@ -37,6 +41,9 @@ const handleOpenMenu = (menuId: any) => {
 </template>
 
 <style lang="postcss" scoped>
+.logo-name {
+  @apply text-xl font-medium pl-[18px];
+}
 .top-bar {
   @apply bg-white items-center justify-between border-b border-gray-200;
   display: flex !important;
