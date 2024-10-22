@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch, watchEffect } from 'vue';
 import { PButton, PButtonTab, PTab } from '@cloudforet-test/mirinae';
 import SourceServiceList from '@/widgets/source/sourceServices/sourceServiceList/ui/SourceServiceList.vue';
 import SourceServiceDetail from '@/widgets/source/sourceServices/sourceServiceDetail/ui/SourceServiceDetail.vue';
@@ -18,7 +18,9 @@ import MetaViewer from '@/widgets/source/sourceConnections/sourceConnectionDetai
 import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
 import EditSourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/EditSourceConnectionModal.vue';
 import { showSuccessMessage } from '@/shared/utils';
+
 const sourceConnectionName = ref<string>('');
+const multiSelectedConnectionIds = ref<string[]>([]);
 
 const { sourceConnectionStore } = useSourceInfraCollectModel();
 
@@ -228,6 +230,7 @@ const softwareSchema = {
               @update:title="
                 e => (modalStates.addSourceConnection.category = e)
               "
+              @select:multi-row="e => (multiSelectedConnectionIds = e)"
             >
               <template v-if="selectedConnectionId" #sourceConnectionDetail>
                 <p-button-tab
@@ -267,7 +270,7 @@ const softwareSchema = {
     <div class="relative z-60">
       <add-source-service-modal
         v-if="modalStates.addServiceGroup.open && !isServiceEditBtnClicked"
-        @update:isModalOpened="handleGroupModal"
+        @update:isModalOpened="() => (modalStates.addServiceGroup.open = false)"
         @update:is-connection-modal-opened="handleNewConnectionModal"
         @update:trigger="modalStates.addServiceGroup.trigger = true"
       />
@@ -307,6 +310,7 @@ const softwareSchema = {
         "
         :source-service-id="selectedServiceId"
         :selected-connection-id="selectedConnectionId"
+        :multi-selected-connection-ids="multiSelectedConnectionIds"
         @update:is-connection-modal-opened="handleConnectionModal"
         @update:is-service-modal-opened="
           e => (modalStates.addServiceGroup.open = e)

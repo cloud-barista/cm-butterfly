@@ -31,14 +31,7 @@ watchEffect(
   () => {
     if (sourceConnectionStore.editConnections.length > 0) {
       sourceConnectionStore.editConnections.forEach(s => {
-        if (
-          s.ip_address &&
-          s.name &&
-          s.password &&
-          s.private_key &&
-          s.ssh_port &&
-          s.user
-        ) {
+        if (s.ip_address && s.name && s.password && s.ssh_port && s.user) {
           isDisabled.value = true;
         } else {
           isDisabled.value = false;
@@ -58,17 +51,13 @@ const emit = defineEmits([
   'update:is-service-modal-opened',
 ]);
 
-const handleConnectionModal = (value: boolean) => {
-  !value ? emit('update:is-connection-modal-opened', value) : null;
-};
-
 const handleCancel = () => {
   emit('update:is-connection-modal-opened', false);
 };
 
 const handleAddSourceConnection = () => {
-  // sourceConnectionStore.setEditConnections(state.value);
   emit('update:is-connection-modal-opened', false);
+  emit('update:is-service-modal-opened', true);
 };
 </script>
 

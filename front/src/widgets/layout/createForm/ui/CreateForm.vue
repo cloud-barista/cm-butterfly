@@ -16,6 +16,7 @@ interface Props {
   firstTitle?: string;
   subtitle?: string;
   addButtonText?: string;
+  loading?: boolean;
 }
 
 defineProps<Props>();
@@ -48,6 +49,7 @@ const handleGoBack = () => {
         name="ic_arrow-left"
         width="2rem"
         height="2rem"
+        :disabled="loading"
         @click="handleGoBack"
       />
       <p class="page-title">{{ title }}</p>

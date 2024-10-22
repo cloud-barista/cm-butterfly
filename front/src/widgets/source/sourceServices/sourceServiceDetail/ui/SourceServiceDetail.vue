@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { PDefinitionTable, PButton, PStatus } from '@cloudforet-test/mirinae';
-import { onBeforeMount, watch, watchEffect } from 'vue';
+import { onBeforeMount, onMounted, ref, watch, watchEffect } from 'vue';
 import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
 import { useGetSourceGroupStatus } from '@/entities/sourceService/api';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+import { useGetSourceService } from '@/entities/sourceService/api';
+
+const getSourceService = useGetSourceService(null);
 
 interface IProps {
   selectedServiceId: string;
@@ -44,6 +47,8 @@ watch(
   { immediate: true },
 );
 
+const checkAble = ref<boolean>(false);
+
 onBeforeMount(() => {
   initTable();
 });
@@ -54,6 +59,27 @@ watchEffect(() => {
     sourceServiceStore.getServiceById(props.selectedServiceId)?.name,
   );
 });
+
+watchEffect(
+  async () => {
+    try {
+      const { data } = await getSourceService.execute({
+        pathParams: {
+          sgId: props.selectedServiceId,
+        },
+      });
+
+      if (data.status && data.status.code === 200) {
+        data.responseData.connection_info_status_count.connection_info_total > 0
+          ? (checkAble.value = true)
+          : (checkAble.value = false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  { flush: 'post' },
+);
 
 function handleSourceGroupStatusCheck() {
   resGetSourceGroupStatus
@@ -91,6 +117,7 @@ function handleSourceGroupStatusCheck() {
             style-type="tertiary"
             size="sm"
             :loading="resGetSourceGroupStatus.status.value === 'loading'"
+            :disabled="!checkAble"
             @click="handleSourceGroupStatusCheck"
           >
             Check
