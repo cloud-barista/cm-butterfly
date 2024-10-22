@@ -14,10 +14,11 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-
+const emit = defineEmits(['close']);
 function handleClick(e, item: item) {
   e.preventDefault();
   item.callback();
+  emit('close');
 }
 </script>
 

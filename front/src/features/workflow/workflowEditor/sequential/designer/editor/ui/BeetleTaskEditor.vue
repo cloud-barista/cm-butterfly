@@ -95,6 +95,7 @@ function deleteArrayElement(
     taskEditorModel.deleteArrayElement(targetArr, targetIndex);
   openShortCut(e);
 }
+
 function handleClickOutside(event: MouseEvent) {
   const sequentialShortCutElement = document.querySelector(
     '.sequential-shortcut',
@@ -237,6 +238,7 @@ function handleClickOutside(event: MouseEvent) {
           callback: shortCutModel.delete.callback,
         },
       ]"
+      @close="closeShortCut"
     ></SequentialShortCut>
   </div>
 </template>
@@ -244,6 +246,10 @@ function handleClickOutside(event: MouseEvent) {
 <style scoped lang="postcss">
 .task-editor-form {
   position: relative;
+  overflow: hidden;
+  overflow-y: scroll;
+  width: 100%;
+  height: calc(100% - 20px);
 
   .field-group {
     .field-title-box {
