@@ -68,10 +68,10 @@ watch(
 function openShortCut(e) {
   //@ts-ignore
   const container = editorFormElement.value.getBoundingClientRect();
-
+  console.log(e);
   shortCutModel.value.open = true;
-  shortCutModel.value.xPos = e.clientX - container.left;
-  shortCutModel.value.yPos = e.clientY - container.top;
+  shortCutModel.value.xPos = e.offsetX + e.srcElement.offsetLeft;
+  shortCutModel.value.yPos = e.offsetY + e.srcElement.offsetTop;
 }
 
 function closeShortCut() {

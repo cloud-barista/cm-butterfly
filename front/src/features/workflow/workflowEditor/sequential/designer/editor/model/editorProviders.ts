@@ -6,7 +6,6 @@ export function editorProviders() {
   const editor = document.createElement('div');
   editor.style.width = '100%';
   editor.style.height = '100%';
-  editor.style.overflow = 'scroll';
 
   return {
     defaultRootEditorProvider: function (definition, rootContext, isReadonly) {
