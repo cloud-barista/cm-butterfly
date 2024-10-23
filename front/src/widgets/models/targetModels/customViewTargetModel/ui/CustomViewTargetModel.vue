@@ -56,6 +56,7 @@ const schema = {
     <create-form
       class="page-modal-layout"
       :badge-title="targetModelName"
+      :need-widget-layout="true"
       title="Custom & View Target Model"
       first-title="JSON Viewer"
       @update:modal-state="handleModal"

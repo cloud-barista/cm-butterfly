@@ -68,6 +68,7 @@ const handleAddSourceConnection = () => {
       title="Source Connection"
       subtitle="Add or register a source connection."
       add-button-text="Add Source Connection"
+      :need-widget-layout="true"
       @addSourceConnection="addSourceConnection"
       @update:modal-state="
         () => {

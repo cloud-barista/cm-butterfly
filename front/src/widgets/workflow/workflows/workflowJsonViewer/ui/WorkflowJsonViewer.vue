@@ -47,6 +47,7 @@ async function handleSave() {
     class="page-modal-layout"
     :badge-title="name"
     :title="title"
+    :need-widget-layout="true"
     first-title="JSON Viewer"
     @update:modal-state="handleModal"
   >

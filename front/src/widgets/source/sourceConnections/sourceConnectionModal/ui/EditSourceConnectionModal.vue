@@ -159,6 +159,7 @@ watchEffect(() => {
       title="Source Connection"
       subtitle="Add or edit a source connection."
       add-button-text=""
+      :need-widget-layout="true"
       :loading="saveLoading"
       @update:is-connection-modal-opened="handleConnectionModal"
       @update:modal-state="

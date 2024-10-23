@@ -56,6 +56,7 @@ function handleSave() {
     <create-form
       class="page-modal-layout"
       title="Recommend Model"
+      :need-widget-layout="true"
       :badge-title="sourceModelName"
       first-title="Recommend Model List"
       @update:modal-state="handleModal"
