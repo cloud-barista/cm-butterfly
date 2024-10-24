@@ -2,57 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-
-html:lang(ko), body:lang(ko) {
-    font-family: Noto Sans, Roboto, Noto Sans KR, sans-serif;
+html:lang(ko),
+body:lang(ko) {
+  font-family:
+    Noto Sans,
+    Roboto,
+    Noto Sans KR,
+    sans-serif;
 }
 
-html:lang(en), body:lang(en) {
-    font-family: Noto Sans, Roboto, sans-serif;
+html:lang(en),
+body:lang(en) {
+  font-family:
+    Noto Sans,
+    Roboto,
+    sans-serif;
 }
 
-html:lang(ja), body:lang(ja) {
-    font-family: Noto Sans, Roboto, Noto Sans JP, sans-serif;
+html:lang(ja),
+body:lang(ja) {
+  font-family:
+    Noto Sans,
+    Roboto,
+    Noto Sans JP,
+    sans-serif;
 }
 
 pre {
-    font-family: Noto Sans, Roboto, sans-serif;
+  font-family:
+    Noto Sans,
+    Roboto,
+    sans-serif;
 }
 
 .page {
-    @apply bg-gray-100;
-    padding: 24px;
+  @apply bg-gray-100;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+
+  > header {
     display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
+    align-items: center;
+    margin-bottom: 18px;
 
-    > header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 18px;
-
-        p {
-            @apply text-display-lg;
-            font-weight: 700;
-        }
+    p {
+      @apply text-display-lg;
+      font-weight: 700;
     }
+  }
 
-    .more-details {
-        @apply flex justify-center text-gray-300 text-sm font-normal;
+  .more-details {
+    @apply flex justify-center text-gray-300 text-sm font-normal;
+  }
+
+  .tab-section-header {
+    padding: 2rem 1rem 1.5rem 1rem;
+    margin-top: 0.625rem;
+    display: flex;
+    justify-content: space-between;
+
+    p {
+      font-size: 1.5rem;
+      font-weight: 400;
     }
-
-    .tab-section-header {
-        padding: 2rem 1rem 1.5rem 1rem;
-        margin-top: 0.625rem;
-        display: flex;
-        justify-content: space-between;
-
-        p {
-            font-size: 1.5rem;
-            font-weight: 400;
-        }
-    }
+  }
 }
 
 .page-modal-layout {
@@ -102,4 +118,10 @@ pre {
 .p-text-editor {
   min-height: 52rem;
   max-height: 52rem;
+}
+
+.p-definition {
+  .value-wrapper {
+    padding: 0 1rem;
+  }
 }
