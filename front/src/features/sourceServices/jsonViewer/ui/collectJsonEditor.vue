@@ -18,7 +18,7 @@ const props = defineProps<iProps>();
   <p-pane-layout class="json-editor-layout">
     <p>{{ title }}</p>
     <div class="editor">
-      <p-text-editor :code="formData" :read-only="readOnly" />
+      <p-text-editor :code="formData" :read-only="readOnly" folded />
     </div>
   </p-pane-layout>
 </template>
@@ -26,7 +26,7 @@ const props = defineProps<iProps>();
 <style scoped lang="postcss">
 .json-editor-layout {
   @apply overflow-y-scroll;
-  min-width: 770px;
+  min-width: 740px;
   max-width: 770px;
   border-bottom: 1px solid #dddddf;
   p {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch, watchEffect } from 'vue';
+import { computed, reactive, ref, watchEffect } from 'vue';
 import { PButton, PButtonTab, PTab } from '@cloudforet-test/mirinae';
 import SourceServiceList from '@/widgets/source/sourceServices/sourceServiceList/ui/SourceServiceList.vue';
 import SourceServiceDetail from '@/widgets/source/sourceServices/sourceServiceDetail/ui/SourceServiceDetail.vue';
@@ -21,6 +21,11 @@ import { showSuccessMessage } from '@/shared/utils';
 
 const sourceConnectionName = ref<string>('');
 const multiSelectedConnectionIds = ref<string[]>([]);
+const isServiceEditBtnClicked = ref<boolean>(false);
+const infraData = ref<string>();
+const softwareData = ref<string>();
+const selectedServiceId = ref<string>('');
+const selectedConnectionId = ref<string>('');
 
 const { sourceConnectionStore } = useSourceInfraCollectModel();
 
@@ -87,23 +92,33 @@ const modalStates = reactive({
       modalStates.addSourceConnection.trigger = false;
     },
   },
-  addMetaViewer: {
+  addInfraMetaViewer: {
     open: false,
     confirm() {
-      modalStates.addMetaViewer.open = false;
+      modalStates.addInfraMetaViewer.open = false;
+    },
+  },
+  addSoftwareMetaViewer: {
+    open: false,
+    confirm() {
+      modalStates.addSoftwareMetaViewer.open = false;
     },
   },
 });
 
-const isServiceEditBtnClicked = ref<boolean>(false);
+watchEffect(() => {
+  infraData.value = sourceConnectionStore.getConnectionById(
+    selectedConnectionId.value,
+  )?.infraData;
+  softwareData.value = sourceConnectionStore.getConnectionById(
+    selectedConnectionId.value,
+  )?.softwareData;
+});
 
 const handleSourceGroupEdit = () => {
   modalStates.addServiceGroup.open = true;
   isServiceEditBtnClicked.value = true;
 };
-
-const selectedServiceId = ref<string>('');
-const selectedConnectionId = ref<string>('');
 
 function handleClickServiceId(id: string) {
   selectedServiceId.value = id;
@@ -244,9 +259,11 @@ const softwareSchema = {
                     <SourceInfraCollect
                       :source-group-id="selectedServiceId"
                       :connection-id="selectedConnectionId"
-                      :meta-viewer-modal-state="modalStates.addMetaViewer.open"
+                      :meta-viewer-modal-state="
+                        modalStates.addInfraMetaViewer.open
+                      "
                       @update:metaViewerModalState="
-                        e => (modalStates.addMetaViewer.open = e)
+                        e => (modalStates.addInfraMetaViewer.open = e)
                       "
                     />
                   </template>
@@ -254,9 +271,11 @@ const softwareSchema = {
                     <SourceSoftwareCollect
                       :source-group-id="selectedServiceId"
                       :connection-id="selectedConnectionId"
-                      :meta-viewer-modal-state="modalStates.addMetaViewer.open"
+                      :meta-viewer-modal-state="
+                        modalStates.addSoftwareMetaViewer.open
+                      "
                       @update:metaViewerModalState="
-                        e => (modalStates.addMetaViewer.open = e)
+                        e => (modalStates.addSoftwareMetaViewer.open = e)
                       "
                     />
                   </template>
@@ -320,27 +339,23 @@ const softwareSchema = {
 
       <meta-viewer
         v-if="
-          modalStates.addMetaViewer.open &&
-          sourceConnectionStore.getConnectionById(selectedConnectionId)
-              ?.infraData
-        "
-        :infra-data="
+          modalStates.addInfraMetaViewer.open &&
           sourceConnectionStore.getConnectionById(selectedConnectionId)
             ?.infraData
         "
+        :collect-data="infraData"
         :source-connection-name="sourceConnectionName"
         :schema="infraSchema"
-        @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
+        @update:is-meta-viewer-opened="modalStates.addInfraMetaViewer.confirm()"
       />
       <meta-viewer
-        v-else-if="modalStates.addMetaViewer.open && data"
-        :infra-data="
-          sourceConnectionStore.getConnectionById(selectedConnectionId)
-            ?.softwareData
-        "
+        v-else-if="modalStates.addSoftwareMetaViewer.open && data"
+        :collect-data="softwareData"
         :source-connection-name="sourceConnectionName"
         :schema="softwareSchema"
-        @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
+        @update:is-meta-viewer-opened="
+          modalStates.addSoftwareMetaViewer.confirm()
+        "
       />
     </div>
   </div>
