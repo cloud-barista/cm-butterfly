@@ -15,6 +15,7 @@ import { ROLE_TYPE } from '../../../shared/libs/accessControl/pageAccessHelper/c
 import { RoleType } from '../../../shared/libs/accessControl/pageAccessHelper/types';
 import { getMinimalPageAccessPermissionList } from '../../../shared/libs';
 import { toLower } from 'lodash';
+import { tempRoutes } from './routes/temp.ts';
 import WorkflowTemplate from '@/features/workflow/workflowDesigner/ui/WorkflowDesigner.vue';
 import NotFound from '@/pages/error/404/NotFound.vue';
 //TODO admin부분 고려
@@ -38,6 +39,7 @@ export class McmpRouter {
         ...modelRoutes,
         ...workflowManagementRoutes,
         ...workloadsRoutes,
+        ...tempRoutes,
       ],
     },
     ...authRoutes,

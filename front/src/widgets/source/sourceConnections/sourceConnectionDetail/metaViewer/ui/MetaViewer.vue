@@ -7,7 +7,7 @@ import { SimpleEditForm } from '@/widgets/layout';
 import { ref } from 'vue';
 
 interface iProps {
-  infraData: string | undefined;
+  collectData: string | undefined;
   sourceConnectionName: string;
   schema: {
     json: boolean;
@@ -37,11 +37,12 @@ const handleMetaViewer = () => {
     <create-form
       title="Source Connection Viewer"
       :badge-title="sourceConnectionName"
+      :need-widget-layout="true"
       @update:modal-state="emit('update:is-meta-viewer-opened', false)"
     >
       <template #add-info>
         <json-viewer
-          :form-data="infraData"
+          :form-data="collectData"
           :schema="schema"
           @update:is-converted="isConverted = true"
         />

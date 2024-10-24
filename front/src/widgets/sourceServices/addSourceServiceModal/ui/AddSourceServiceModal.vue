@@ -26,6 +26,8 @@ const emit = defineEmits([
   'update:trigger',
 ]);
 
+const isDisabled = ref<boolean>(false);
+
 const registerSourceGroup = useRegisterSourceGroup<{ request: any }, any>(null);
 
 const state = reactive({
@@ -60,7 +62,7 @@ const handleConfirm = async () => {
       request: requestData,
     });
 
-    if (data) {
+    if (data.status && data.status.code === 200) {
       showSuccessMessage('success', 'Register Success');
 
       sourceServiceInfo.value = {
@@ -73,11 +75,14 @@ const handleConfirm = async () => {
       emit('update:trigger');
       emit('update:isModalOpened', false);
     }
-  } catch (err: any) {
-    if (err?.error.value.code === 'ERR_BAD_RESPONSE') {
-      showErrorMessage('failed', 'already existed source group');
-      console.log(err);
+  } catch (error) {
+    if (
+      (error as any).errorMsg.value ===
+      'constraint failed: UNIQUE constraint failed: source_groups.name (2067)'
+    ) {
+      showErrorMessage('failed', 'Service Name Already Exists');
     }
+    showErrorMessage('failed', 'Service Registering Failed');
   }
 };
 
@@ -94,7 +99,6 @@ const handleCancel = () => {
 const handleConnectionModal = (value: boolean) => {
   emit('update:is-connection-modal-opened', value);
 };
-const isDisabled = ref<boolean>(false);
 </script>
 
 <template>

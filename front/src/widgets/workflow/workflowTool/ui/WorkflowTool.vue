@@ -19,6 +19,7 @@ function handleSave() {
     <create-form
       class="page-modal-layout"
       title="Workflow Tool"
+      :need-widget-layout="false"
       @update:modal-state="handleModal"
     >
       <template #add-content>

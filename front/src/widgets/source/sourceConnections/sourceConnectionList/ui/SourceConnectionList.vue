@@ -5,7 +5,7 @@ import {
   showErrorMessage,
   showSuccessMessage,
 } from '@/shared/utils';
-import { onBeforeMount, onMounted, reactive, watch } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
 import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model/sourceConnectionListModel.ts';
 import { useBulkDeleteSourceConnection } from '@/entities/sourceConnection/api';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
@@ -18,6 +18,7 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits([
   'selectRow',
+  'select:multi-row',
   'update:trigger',
   'update:addModalState',
   'update:title',
@@ -72,12 +73,17 @@ function getSourceConnectionList() {
 }
 
 function handleSelectedIndex(index: number[]) {
+  let arr: string[] = [];
   const selectedData = tableModel.tableState.displayItems[index];
   if (selectedData) {
     emit('selectRow', selectedData.id);
   } else {
     emit('selectRow', '');
   }
+  index.forEach((i: number) => {
+    arr.push(tableModel.tableState.displayItems[i].id);
+  });
+  emit('select:multi-row', arr);
 }
 
 function handleDeleteConnections() {

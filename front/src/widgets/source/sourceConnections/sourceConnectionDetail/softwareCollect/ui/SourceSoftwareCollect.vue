@@ -64,7 +64,7 @@ function handleClickCollectSW() {
       block
     >
       <template #data-collectSwStatus="{ data }">
-        <p-status :theme="data.color" :text="data.text"></p-status>
+        <p-status :theme="data.color" :text="data.text" />
       </template>
       <template #data-viewSW="{ data }">
         <p

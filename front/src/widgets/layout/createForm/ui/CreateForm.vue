@@ -16,6 +16,8 @@ interface Props {
   firstTitle?: string;
   subtitle?: string;
   addButtonText?: string;
+  loading?: boolean;
+  needWidgetLayout?: boolean;
 }
 
 defineProps<Props>();
@@ -48,6 +50,7 @@ const handleGoBack = () => {
         name="ic_arrow-left"
         width="2rem"
         height="2rem"
+        :disabled="loading"
         @click="handleGoBack"
       />
       <p class="page-title">{{ title }}</p>
@@ -63,9 +66,9 @@ const handleGoBack = () => {
         <div>{{ badgeTitle }}</div>
       </p-badge>
     </div>
-    <slot name="add-content" />
+    <slot v-if="!needWidgetLayout" name="add-content" />
     <widget-layout
-      v-if="firstTitle || subtitle"
+      v-else-if="needWidgetLayout"
       class="widget-layout"
       overflow="visible"
       :first-title="firstTitle"

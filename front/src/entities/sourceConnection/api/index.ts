@@ -4,6 +4,7 @@ import {
   useAxiosPost,
 } from '@/shared/libs';
 import {
+  ISourceConnectionInfo,
   ISourceConnectionResponse,
   ISourceInfraInfoResponse,
   ISourceSoftwareCollectResponse,
@@ -19,16 +20,31 @@ const DELETE_SOURCE_CONNECTION = 'delete-connection-info';
 
 export function useCreateConnectionInfo(
   sgId: string | null,
-  requestData: null | any,
+  requestData: null | ISourceConnectionInfo,
 ) {
-  const requestBodyWrapper = {
+  const requestBodyWrapper: Pick<
+    RequestBodyWrapper<{
+      sgId: string | null;
+      requestData: null | ISourceConnectionInfo;
+    }>,
+    'pathParams' & 'request'
+  > = {
     pathParams: {
       sgId: sgId || null,
     },
     request: requestData,
   };
 
-  return useAxiosPost(CREATE_SOURCE_CONNECTION, requestBodyWrapper);
+  return useAxiosPost<
+    IAxiosResponse<ISourceConnectionResponse>,
+    Pick<
+      RequestBodyWrapper<{
+        sgId: string | null;
+        connId: string | null;
+      }>,
+      'pathParams' & 'request'
+    >
+  >(CREATE_SOURCE_CONNECTION, requestBodyWrapper);
 }
 
 export function useUpdateConnectionInfo(
@@ -36,7 +52,13 @@ export function useUpdateConnectionInfo(
   connId: string | null,
   requestData: null | any,
 ) {
-  const requestBodyWrapper = {
+  const requestBodyWrapper: Pick<
+    RequestBodyWrapper<{
+      sgId: string | null;
+      connId: string | null;
+    }>,
+    'pathParams' & 'request'
+  > = {
     pathParams: {
       sgId: sgId || null,
       connId: connId || null,
@@ -44,7 +66,16 @@ export function useUpdateConnectionInfo(
     request: requestData,
   };
 
-  return useAxiosPost(UPDATE_SOURCE_CONNECTION, requestBodyWrapper);
+  return useAxiosPost<
+    IAxiosResponse<ISourceConnectionResponse>,
+    Pick<
+      RequestBodyWrapper<{
+        sgId: string | null;
+        connId: string | null;
+      }>,
+      'pathParams' & 'request'
+    >
+  >(UPDATE_SOURCE_CONNECTION, requestBodyWrapper);
 }
 
 export function useGetSourceConnectionList(sourceGroupId: string | null) {
