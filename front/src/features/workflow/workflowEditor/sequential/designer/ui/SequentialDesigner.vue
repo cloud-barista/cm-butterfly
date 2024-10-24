@@ -7,13 +7,14 @@ import { Designer } from 'sequential-workflow-designer';
 
 interface Step {
   id: string;
-  name: string;
+  sequence?: Step[];
+  branches?: { true: Step[]; false: Step[] };
+  componentType: 'switch' | 'container' | 'task';
+  type: string;
   properties: {
     isDeletable: boolean;
     model?: object;
   };
-  sequence: [];
-  type: string;
 }
 
 interface IProps {
@@ -43,6 +44,7 @@ onMounted(function () {
 watch(
   () => props.trigger,
   nv => {
+    console.log(nv);
     if (nv) emit('getDesigner', sequentialDesignerModel.value.getDesigner());
   },
   { deep: true },

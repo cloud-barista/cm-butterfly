@@ -22,8 +22,6 @@ interface IProps {
 
 const props = defineProps<IProps>();
 
-//목적: 서버에서 받아온 workflow관련 데이터를 flowchart 라이브러리에 맞게 변환후 props로 내려주는 역할.
-
 watch(
   () => props.toolType,
   nv => {
@@ -179,10 +177,10 @@ if (props.toolType === 'edit') {
 } else if (props.toolType === 'add') {
   workflowToolModel.getWorkflowToolData(props.wftId, 'template');
 }
-const trigger = reactive({ trigger: false });
+const trigger = reactive({ value: false });
 
 function getDesigner(designer: Designer | null) {
-  trigger.trigger = false;
+  trigger.value = false;
 
   const workflow = {};
   if (designer) {
@@ -200,15 +198,16 @@ function getDesigner(designer: Designer | null) {
       name: '',
     });
   }
+  console.log(workflow);
   return workflow;
 }
 
 function handleSave() {
-  trigger.trigger = true;
+  trigger.value = true;
 }
 
 function handleCancel() {
-  trigger.trigger = true;
+  trigger.value = true;
 }
 
 //TODO workflow template get api
@@ -230,7 +229,7 @@ function handleCancel() {
     <section class="workflow-tool-body">
       <SequentialDesigner
         :sequence="sequence"
-        :trigger="trigger"
+        :trigger="trigger.value"
         @getDesigner="getDesigner"
       ></SequentialDesigner>
     </section>
