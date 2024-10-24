@@ -17,7 +17,13 @@ export function toolboxSteps() {
         },
       };
     },
-    defineTaskGroupStep(id: string, name: string, type: string): Step {
+
+    defineTaskGroupStep(
+      id: string,
+      name: string,
+      type: string,
+      properties: { model: object },
+    ): Step {
       return {
         componentType: 'container',
         id,
@@ -25,6 +31,7 @@ export function toolboxSteps() {
         name,
         properties: {
           isDeletable: true,
+          ...properties,
         },
         sequence: [
           //task

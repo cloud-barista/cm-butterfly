@@ -1,6 +1,8 @@
 import { insertDynamicComponent } from '@/shared/utils';
 import { getSequencePath } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/utils.ts';
 import BeetleTaskEditor from '@/features/workflow/workflowEditor/sequential/designer/editor/ui/BeetleTaskEditor.vue';
+import Vue from 'vue';
+import { SourceServicePage } from '@/pages/sourceServices';
 
 export function editorProviders() {
   const editor = document.createElement('div');
@@ -24,8 +26,8 @@ export function editorProviders() {
       definition,
       isReadonly,
     ) {
-      console.log('step !');
-      console.log(step.properties);
+      // console.log('step !');
+      // console.log(step.properties);
       //각각에 만들어야할 Vue component 정의
       if (step.componentType === 'switch' && step.type == 'if') {
       }
@@ -33,7 +35,6 @@ export function editorProviders() {
       }
       if (step.componentType === 'task') {
         //toolboxModel에서 가공하는곳 참고
-
         insertDynamicComponent(
           BeetleTaskEditor,
           { step },

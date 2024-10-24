@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, triggerRef, watch } from 'vue';
 import { useSequentialDesignerModel } from '@/features/workflow/workflowEditor/sequential/designer/model/sequentialDesignerModel.ts';
 
 import { useSequentialToolboxModel } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxModel.ts';
@@ -15,32 +15,38 @@ interface Step {
   sequence: [];
   type: string;
 }
+
 interface IProps {
   sequence: Step[];
+  trigger: any;
 }
 
 const props = defineProps<IProps>();
 const emit = defineEmits(['getDesigner']);
 const sequentialToolBoxModel = useSequentialToolboxModel();
-let sequentialDesignerModel;
+const sequentialDesignerModel = ref();
 onMounted(function () {
   let refs = this.$refs;
 
   sequentialToolBoxModel.then(taskComponents => {
-    sequentialDesignerModel = useSequentialDesignerModel(refs);
-    sequentialDesignerModel.setToolboxGroupsSteps(null, null, [
+    sequentialDesignerModel.value = useSequentialDesignerModel(refs);
+    sequentialDesignerModel.value.setToolboxGroupsSteps(null, null, [
       ...taskComponents,
     ]);
 
-    sequentialDesignerModel.setDefaultSequence(props.sequence);
-    sequentialDesignerModel.initDesigner();
-    sequentialDesignerModel.draw();
+    sequentialDesignerModel.value.setDefaultSequence(props.sequence);
+    sequentialDesignerModel.value.initDesigner();
+    sequentialDesignerModel.value.draw();
   });
 });
 
-function getDesigner(): Designer | null {
-  return sequentialDesignerModel.designer;
-}
+watch(
+  () => props.trigger,
+  nv => {
+    if (nv) emit('getDesigner', sequentialDesignerModel.value.getDesigner());
+  },
+  { deep: true },
+);
 </script>
 
 <template>

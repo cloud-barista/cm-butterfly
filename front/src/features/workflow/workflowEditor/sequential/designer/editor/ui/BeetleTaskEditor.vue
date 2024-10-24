@@ -14,9 +14,6 @@ import Vue, {
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import { useTaskEditorModel } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/beetleTaskEditorModel.ts';
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
-import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
-import SequentialShortCut from '@/features/workflow/workflowEditor/sequential/designer/shortcut/ui/SequentialShortCut.vue';
-import { insertDynamicComponent } from '@/shared/utils';
 
 interface IProps {
   step: {
@@ -32,7 +29,6 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-
 const emit = defineEmits(['saveContext']);
 const taskEditorModel = useTaskEditorModel();
 
@@ -66,12 +62,9 @@ watch(
 );
 
 function openShortCut(e) {
-  //@ts-ignore
-  const container = editorFormElement.value.getBoundingClientRect();
-  console.log(e);
   shortCutModel.value.open = true;
-  shortCutModel.value.xPos = e.offsetX + e.srcElement.offsetLeft;
-  shortCutModel.value.yPos = e.offsetY + e.srcElement.offsetTop;
+  shortCutModel.value.xPos = e.offsetX + e.target.offsetLeft;
+  shortCutModel.value.yPos = e.offsetY + e.target.offsetTop;
 }
 
 function closeShortCut() {
@@ -110,7 +103,15 @@ function handleClickOutside(event: MouseEvent) {
 </script>
 
 <template>
-  <div class="task-editor-form" ref="editorFormElement">
+  <div
+    class="task-editor-form"
+    ref="editorFormElement"
+    @click.right="
+      e => {
+        e.preventDefault();
+      }
+    "
+  >
     <div
       v-for="(currentContext, index) of taskEditorModel.formContext.value"
       :key="index"
@@ -228,18 +229,18 @@ function handleClickOutside(event: MouseEvent) {
         </BAccordion>
       </div>
     </div>
-    <SequentialShortCut
-      :open="shortCutModel.open"
-      :x-pos="shortCutModel.xPos"
-      :y-pos="shortCutModel.yPos"
-      :items="[
-        {
-          label: shortCutModel.delete.label,
-          callback: shortCutModel.delete.callback,
-        },
-      ]"
-      @close="closeShortCut"
-    ></SequentialShortCut>
+    <!--    <SequentialShortCut-->
+    <!--      :open="shortCutModel.open"-->
+    <!--      :x-pos="shortCutModel.xPos"-->
+    <!--      :y-pos="shortCutModel.yPos"-->
+    <!--      :items="[-->
+    <!--        {-->
+    <!--          label: shortCutModel.delete.label,-->
+    <!--          callback: shortCutModel.delete.callback,-->
+    <!--        },-->
+    <!--      ]"-->
+    <!--      @close="closeShortCut"-->
+    <!--    ></SequentialShortCut>-->
   </div>
 </template>
 

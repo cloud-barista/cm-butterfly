@@ -11,10 +11,12 @@ import {
 import getRandomId from '@/shared/utils/uuid';
 import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
+import { Sequence } from 'sequential-workflow-designer';
 
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
   const { defineTaskGroupStep, defineBettleTaskStep } = toolboxSteps();
+
   function getWorkflowToolData(
     workflowId: string,
     type: 'template' | 'data' = 'data',
@@ -27,11 +29,11 @@ export function useWorkflowToolModel() {
     }
 
     if (workflow) {
-      convertWorkFlowToDesignerFormData(workflow);
+      convertCicadaToDesignerFormData(workflow);
     }
   }
 
-  function convertWorkFlowToDesignerFormData(
+  function convertCicadaToDesignerFormData(
     workflow: IWorkflow,
   ): IWorkFlowDesignerFormData {
     const sequence: Step[] = [];
@@ -86,11 +88,81 @@ export function useWorkflowToolModel() {
   }
 
   function convertToDesignerTaskGroup(taskGroup: ITaskGroupResponse): Step {
-    return defineTaskGroupStep(getRandomId(), taskGroup.name, 'MCI');
+    return defineTaskGroupStep(getRandomId(), taskGroup.name, 'MCI', {
+      model: { description: taskGroup.description },
+    });
+  }
+
+  function convertDesignerSequenceToCicada(sequence: Step[]) {
+    if (!validationSequence(sequence)) {
+      throw new Error();
+    }
+
+    const cicadaObject: ITaskGroupResponse[] = [];
+
+    const stack: {
+      parentNode: ITaskGroupResponse | null;
+      currentNode: Step;
+    }[] = sequence.map((step: Step) => ({
+      parentNode: null,
+      currentNode: step,
+    }));
+
+    while (stack.length) {
+      const { parentNode, currentNode } = stack.pop()!;
+
+      const taskGroup: ITaskGroupResponse = {
+        description: '',
+        name: '',
+        tasks: [],
+      };
+
+      if (currentNode.componentType === 'container') {
+        const tasks: any = [];
+
+        currentNode.sequence?.forEach(step => {
+          if (step.componentType === 'container') {
+            stack.push({ parentNode: taskGroup, currentNode: step });
+          } else if (step.componentType === 'task') {
+            tasks.push(convertToCicadaTask(step));
+          }
+        });
+
+        taskGroup.description =
+          currentNode.properties.model?.['description'] ?? '';
+        taskGroup.name = currentNode.name;
+        taskGroup.tasks = tasks;
+      }
+
+      if (parentNode === null) {
+        cicadaObject.push(taskGroup);
+      } else {
+        parentNode.task_groups = parentNode.task_groups || [];
+        parentNode.task_groups.push(taskGroup);
+      }
+    }
+
+    return cicadaObject;
+  }
+
+  function convertToCicadaTask(step: Step) {
+    if (step.componentType === 'task') {
+      return {
+        name: step.name,
+        request_body: JSON.stringify(step.properties.model, null, 2),
+      };
+    }
+  }
+
+  function validationSequence(sequence: Step[]): boolean {
+    return !sequence.some(step => {
+      return step.componentType === 'task';
+    });
   }
 
   return {
     getWorkflowToolData,
-    convertWorkFlowToDesignerFormData,
+    convertCicadaToDesignerFormData,
+    convertDesignerSequenceToCicada,
   };
 }

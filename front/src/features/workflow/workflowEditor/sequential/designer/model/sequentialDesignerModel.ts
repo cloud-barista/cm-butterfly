@@ -87,9 +87,9 @@ export function useSequentialDesignerModel(refs: any) {
   function defineStepValidate() {
     return {
       step: (step, parentSequence, definition) => {
-        console.log('parentSequence');
-        console.log(parentSequence);
-        console.log(definition);
+        // console.log('parentSequence');
+        // console.log(parentSequence);
+        // console.log(definition);
         return true;
       },
       root: definition => {
@@ -123,7 +123,7 @@ export function useSequentialDesignerModel(refs: any) {
         steps: componentSteps,
       },
     ];
-    console.log(toolBoxGroup);
+    // console.log(toolBoxGroup);
   }
 
   function loadConfiguration() {
@@ -180,6 +180,9 @@ export function useSequentialDesignerModel(refs: any) {
     });
   }
 
+  function getDesigner() {
+    return designer;
+  }
   return {
     designer,
     designerOptionsState,
@@ -187,5 +190,6 @@ export function useSequentialDesignerModel(refs: any) {
     setToolboxGroupsSteps,
     initDesigner,
     draw,
+    getDesigner,
   };
 }

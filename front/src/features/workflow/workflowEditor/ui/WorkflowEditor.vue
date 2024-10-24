@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useWorkflowToolModel } from '../model/workflowEditorModel.ts';
-import WorkflowEditor from '@/features/workflow/workflowEditor/sequential/designer/ui/SequentialDesigner.vue';
+import SequentialDesigner from '@/features/workflow/workflowEditor/sequential/designer/ui/SequentialDesigner.vue';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import {
   PTextInput,
@@ -8,10 +8,12 @@ import {
   PFieldGroup,
   PButton,
 } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive, Ref, ref, watch } from 'vue';
+import Vue, { onBeforeMount, onMounted, reactive, Ref, ref, watch } from 'vue';
 import { getWorkflowTemplateList } from '@/entities/workflow/api';
 import { IWorkflow } from '@/entities/workflow/model/types.ts';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
+import { SourceServicePage } from '@/pages/sourceServices';
+import { Designer } from 'sequential-workflow-designer';
 
 interface IProps {
   wftId: string;
@@ -34,10 +36,11 @@ const workflowToolModel = useWorkflowToolModel();
 const workflowName = useInputModel<string>('');
 const description = useInputModel<string>('');
 const sequence: Ref<Step[]> = ref<Step[]>([]);
+
 onBeforeMount(() => {
   //TODO 실제 workflowTemplate 넣어야함.
   sequence.value =
-    workflowToolModel.convertWorkFlowToDesignerFormData(temp2).sequence;
+    workflowToolModel.convertCicadaToDesignerFormData(temp).sequence;
 });
 onMounted(() => {
   resWorkflowTemplate.execute();
@@ -144,17 +147,70 @@ let temp2: IWorkflow = {
   updateDatetime: 'string;',
 };
 
+// let temp3: IWorkflow = {
+//   data: {
+//     description: 'Create Server',
+//     task_groups: [
+//       {
+//         description: 'Migrate Server',
+//         name: 'migrate_infra',
+//         tasks: [
+//           {
+//             dependencies: [],
+//             name: 'infra_create',
+//             path_params: null,
+//             request_body:
+//
+//             task_component: 'beetle_task_infra_migration',
+//           },
+//         ],
+//       },
+//     ],
+//   },
+//   id: '15a47239-0080-4eb6-b530-9a54a189c506',
+//   name: 'create_infra_workflow',
+//   description: 'test',
+//   createdDatetime: 'set',
+//   updateDatetime: 'string;',
+// };
+
 if (props.toolType === 'edit') {
   workflowToolModel.getWorkflowToolData(props.wftId);
 } else if (props.toolType === 'add') {
   workflowToolModel.getWorkflowToolData(props.wftId, 'template');
 }
-const workflowEditorRef = ref();
-function handleSave() {
-  console.log(workflowEditorRef);
-  let designer = workflowEditorRef.value.getDesigner();
-  console.log(designer);
+const trigger = reactive({ trigger: false });
+
+function getDesigner(designer: Designer | null) {
+  trigger.trigger = false;
+
+  const workflow = {};
+  if (designer) {
+    const definition = designer.getDefinition();
+
+    Object.assign(workflow, {
+      data: {
+        description: '',
+        task_groups: workflowToolModel.convertDesignerSequenceToCicada(
+          definition.sequence as Step[],
+        ),
+      },
+      description: '',
+      id: '',
+      name: '',
+    });
+  }
+  return workflow;
 }
+
+function handleSave() {
+  trigger.trigger = true;
+}
+
+function handleCancel() {
+  trigger.trigger = true;
+}
+
 //TODO workflow template get api
 </script>
 
@@ -172,13 +228,14 @@ function handleSave() {
       </PFieldGroup>
     </header>
     <section class="workflow-tool-body">
-      <WorkflowEditor
+      <SequentialDesigner
         :sequence="sequence"
-        ref="workflowEditorRef"
-      ></WorkflowEditor>
+        :trigger="trigger"
+        @getDesigner="getDesigner"
+      ></SequentialDesigner>
     </section>
     <footer class="h-[40px]">
-      <PButton>Cancel</PButton>
+      <PButton @click="handleCancel">Cancel</PButton>
       <PButton @click="handleSave">Save</PButton>
     </footer>
   </div>
