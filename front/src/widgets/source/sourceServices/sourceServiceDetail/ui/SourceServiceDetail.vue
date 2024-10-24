@@ -2,11 +2,13 @@
 import { PDefinitionTable, PButton, PStatus } from '@cloudforet-test/mirinae';
 import { onBeforeMount, onMounted, ref, watch, watchEffect } from 'vue';
 import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
-import { useGetSourceGroupStatus } from '@/entities/sourceService/api';
+import {
+  useGetSourceGroupStatus,
+  useGetSourceService,
+} from '@/entities/sourceService/api';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
-import { useGetSourceService } from '@/entities/sourceService/api';
-
-const getSourceService = useGetSourceService(null);
+import { storeToRefs } from 'pinia';
+import { useRefreshSourceGroupConnectionInfoStatus } from '@/entities/sourceConnection/api';
 
 interface IProps {
   selectedServiceId: string;
@@ -23,9 +25,14 @@ const {
   tableModel,
   setServiceId,
 } = useSourceServiceDetailModel();
-const resGetSourceGroupStatus = useGetSourceGroupStatus(null);
 
-watch(resGetSourceGroupStatus.status, nv => {
+const resGetSourceGroupStatus = useGetSourceGroupStatus(null); // deprecated
+const refreshSourceGroupConnectionInfoStatus =
+  useRefreshSourceGroupConnectionInfoStatus(null);
+const getSourceService = useGetSourceService(null);
+const { serviceWithStatus } = storeToRefs(sourceServiceStore);
+
+watch(refreshSourceGroupConnectionInfoStatus.status, nv => {
   if (nv === 'error') {
     showErrorMessage(
       'Error',
@@ -60,42 +67,41 @@ watchEffect(() => {
   );
 });
 
-watchEffect(
-  async () => {
-    try {
-      const { data } = await getSourceService.execute({
-        pathParams: {
-          sgId: props.selectedServiceId,
-        },
-      });
-
-      if (data.status && data.status.code === 200) {
-        data.responseData.connection_info_status_count.connection_info_total > 0
-          ? (checkAble.value = true)
-          : (checkAble.value = false);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  },
-  { flush: 'post' },
-);
-
-function handleSourceGroupStatusCheck() {
-  resGetSourceGroupStatus
-    .execute({
+watchEffect(async () => {
+  try {
+    const { data } = await getSourceService.execute({
       pathParams: {
         sgId: props.selectedServiceId,
       },
-    })
-    .then(res => {
-      sourceServiceStore.setServiceStatus(
-        props.selectedServiceId,
-        res.data.responseData?.agentConnectionStatus,
-      );
-
-      loadSourceServiceData(props.selectedServiceId);
     });
+    if (data.status && data.status.code === 200) {
+      sourceServiceStore.setServiceWithConnectionStatus(data.responseData);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+/**
+ * TODO: 문제점: refresh한다고해서 바로 반영이 되지 않음 -> 근데 connections에서 add / edit하면 바로 반영됨...
+ * 뭔가 refresh btn의 의미가 없음....
+ * 그렇다고
+ */
+
+async function handleSourceGroupStatusRefresh() {
+  try {
+    const { data } = await refreshSourceGroupConnectionInfoStatus.execute({
+      pathParams: {
+        sgId: props.selectedServiceId,
+      },
+    });
+
+    if (data.status && data.status.code === 200) {
+      loadSourceServiceData(props.selectedServiceId);
+    }
+  } catch (err) {
+    console.log(err);
+  }
 }
 </script>
 
@@ -116,16 +122,15 @@ function handleSourceGroupStatusCheck() {
           <p-button
             style-type="tertiary"
             size="sm"
-            :loading="resGetSourceGroupStatus.status.value === 'loading'"
-            :disabled="!checkAble"
-            @click="handleSourceGroupStatusCheck"
+            :loading="
+              refreshSourceGroupConnectionInfoStatus.status.value === 'loading'
+            "
+            @click="handleSourceGroupStatusRefresh"
           >
-            Check
+            Refresh
           </p-button>
         </div>
       </template>
     </p-definition-table>
   </div>
 </template>
-
-<style scoped lang="postcss"></style>
