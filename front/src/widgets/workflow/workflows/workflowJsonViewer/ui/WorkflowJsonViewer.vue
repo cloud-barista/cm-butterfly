@@ -2,7 +2,7 @@
 import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { JsonEditor } from '@/widgets/layout';
-import { readonly, ref } from 'vue';
+import { ref } from 'vue';
 
 interface iProps {
   title: string;
@@ -47,6 +47,7 @@ async function handleSave() {
     class="page-modal-layout"
     :badge-title="name"
     :title="title"
+    :need-widget-layout="true"
     first-title="JSON Viewer"
     @update:modal-state="handleModal"
   >

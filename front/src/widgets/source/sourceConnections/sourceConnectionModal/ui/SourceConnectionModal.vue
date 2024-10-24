@@ -5,7 +5,6 @@ import { i18n } from '@/app/i18n';
 import { SourceConnectionInfo } from '@/features/sourceServices';
 import { ref, watchEffect } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
-import { watch } from 'vue';
 
 const sourceConnectionStore = useSourceConnectionStore();
 interface iProps {
@@ -32,14 +31,7 @@ watchEffect(
   () => {
     if (sourceConnectionStore.editConnections.length > 0) {
       sourceConnectionStore.editConnections.forEach(s => {
-        if (
-          s.ip_address &&
-          s.name &&
-          s.password &&
-          s.private_key &&
-          s.ssh_port &&
-          s.user
-        ) {
+        if (s.ip_address && s.name && s.password && s.ssh_port && s.user) {
           isDisabled.value = true;
         } else {
           isDisabled.value = false;
@@ -59,17 +51,13 @@ const emit = defineEmits([
   'update:is-service-modal-opened',
 ]);
 
-const handleConnectionModal = (value: boolean) => {
-  !value ? emit('update:is-connection-modal-opened', value) : null;
-};
-
 const handleCancel = () => {
   emit('update:is-connection-modal-opened', false);
 };
 
 const handleAddSourceConnection = () => {
-  // sourceConnectionStore.setEditConnections(state.value);
   emit('update:is-connection-modal-opened', false);
+  emit('update:is-service-modal-opened', true);
 };
 </script>
 
@@ -80,10 +68,13 @@ const handleAddSourceConnection = () => {
       title="Source Connection"
       subtitle="Add or register a source connection."
       add-button-text="Add Source Connection"
+      :need-widget-layout="true"
       @addSourceConnection="addSourceConnection"
-      @update:is-connection-modal-opened="handleConnectionModal"
-      @update:is-service-modal-opened="
-        e => emit('update:is-service-modal-opened', e)
+      @update:modal-state="
+        () => {
+          emit('update:is-connection-modal-opened', false);
+          emit('update:is-service-modal-opened', true);
+        }
       "
     >
       <template #add-info>

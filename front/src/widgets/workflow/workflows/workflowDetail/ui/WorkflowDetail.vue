@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PDefinitionTable } from '@cloudforet-test/mirinae';
-import { useWorkflowDetailModel } from '@/widgets/workflow';
+import { useWorkflowDetailModel } from '../model/workflowDetailModel';
 import { onBeforeMount, watch, watchEffect } from 'vue';
 
 interface iProps {
@@ -12,6 +12,7 @@ const props = defineProps<iProps>();
 const emit = defineEmits([
   'update:workflow-name',
   'update:workflow-json-modal',
+  'update:workflow-tool-modal',
   'update:workflow-json',
 ]);
 
@@ -37,7 +38,9 @@ watchEffect(() => {
   );
 });
 
-function handleWorkflowTool() {}
+function handleWorkflowTool() {
+  emit('update:workflow-tool-modal', true);
+}
 
 function handleJsonModal() {
   emit('update:workflow-json-modal', true);

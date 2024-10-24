@@ -7,8 +7,12 @@ import { SimpleEditForm } from '@/widgets/layout';
 import { ref } from 'vue';
 
 interface iProps {
-  infraData: string | undefined;
+  collectData: string | undefined;
   sourceConnectionName: string;
+  schema: {
+    json: boolean;
+    properties: object;
+  };
 }
 
 const props = defineProps<iProps>();
@@ -33,13 +37,13 @@ const handleMetaViewer = () => {
     <create-form
       title="Source Connection Viewer"
       :badge-title="sourceConnectionName"
-      @update:is-meta-viewer-opened="
-        e => emit('update:is-meta-viewer-opened', e)
-      "
+      :need-widget-layout="true"
+      @update:modal-state="emit('update:is-meta-viewer-opened', false)"
     >
       <template #add-info>
         <json-viewer
-          :form-data="infraData"
+          :form-data="collectData"
+          :schema="schema"
           @update:is-converted="isConverted = true"
         />
       </template>
@@ -57,6 +61,7 @@ const handleMetaViewer = () => {
     </create-form>
     <simple-edit-form
       v-if="isSaveModal"
+      name=""
       header-title="Save Source Modal"
       name-label="Name"
       name-placeholder="Source Service name"

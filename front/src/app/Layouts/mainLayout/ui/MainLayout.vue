@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { LayoutHeader } from '../../layoutHeader';
 import { ConsoleLayout } from '../../consoleLayout';
-import { styleVariables } from '@cloudforet-test/mirinae';
+import { styleVariables, PSidebar } from '@cloudforet-test/mirinae';
 </script>
 
 <template>
@@ -17,11 +17,11 @@ import { styleVariables } from '@cloudforet-test/mirinae';
         <template #main>
           <p-sidebar :visible="false">
             <div class="main-content">
-              <portal-target
+              <!-- <portal-target
                 ref="topNotiRef"
                 name="top-notification"
                 :slot-props="{ hasDefaultMessage: true }"
-              />
+              /> -->
               <router-view />
             </div>
             <!-- <template #title>

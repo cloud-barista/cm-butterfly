@@ -1,24 +1,11 @@
 <script setup lang="ts">
-import {
-  PToolboxTable,
-  PButton,
-  PIconButton,
-  PButtonModal,
-} from '@cloudforet-test/mirinae';
+import { PToolboxTable, PButton, PButtonModal } from '@cloudforet-test/mirinae';
 import {
   insertDynamicComponent,
   showErrorMessage,
   showSuccessMessage,
 } from '@/shared/utils';
-import {
-  computed,
-  onBeforeMount,
-  onMounted,
-  reactive,
-  ref,
-  watch,
-  watchEffect,
-} from 'vue';
+import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
 import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model/sourceConnectionListModel.ts';
 import { useBulkDeleteSourceConnection } from '@/entities/sourceConnection/api';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
@@ -31,6 +18,7 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits([
   'selectRow',
+  'select:multi-row',
   'update:trigger',
   'update:addModalState',
   'update:title',
@@ -85,12 +73,17 @@ function getSourceConnectionList() {
 }
 
 function handleSelectedIndex(index: number[]) {
+  let arr: string[] = [];
   const selectedData = tableModel.tableState.displayItems[index];
   if (selectedData) {
     emit('selectRow', selectedData.id);
   } else {
     emit('selectRow', '');
   }
+  index.forEach((i: number) => {
+    arr.push(tableModel.tableState.displayItems[i].id);
+  });
+  emit('select:multi-row', arr);
 }
 
 function handleDeleteConnections() {
@@ -166,7 +159,7 @@ function handleSourceConnectionList() {
         ref="toolboxTable"
         :loading="
           tableModel.tableState.loading ||
-          resSourceConnectionList.isLoading.value
+            resSourceConnectionList.isLoading.value
         "
         :items="tableModel.tableState.displayItems"
         :fields="tableModel.tableState.fields"

@@ -5,6 +5,7 @@ import {
   WorkflowList,
   WorkflowDetail,
   WorkflowJsonViewer,
+  WorkflowTool,
 } from '@/widgets/workflow';
 import { SimpleEditForm } from '@/widgets/layout';
 import { useGetWorkflow, useUpdateWorkflow } from '@/entities';
@@ -179,6 +180,9 @@ async function handleUpdateWorkflow(updatedData: object) {
               @update:workflow-json-modal="
                 modalState.workflowJsonModal.open = true
               "
+              @update:workflow-tool-modal="
+                e => (modalState.workflowToolModal.open = e)
+              "
               @update:workflow-name="e => (workflowName = e)"
               @update:workflow-json="e => (workflowJson = e)"
             />
@@ -214,6 +218,10 @@ async function handleUpdateWorkflow(updatedData: object) {
         :read-only="false"
         @update:close-modal="e => (modalState.workflowJsonModal.open = e)"
         @update:api="handleUpdateWorkflow"
+      />
+      <workflow-tool
+        v-if="modalState.workflowToolModal.open"
+        @update:close-modal="e => (modalState.workflowToolModal.open = e)"
       />
     </div>
   </div>

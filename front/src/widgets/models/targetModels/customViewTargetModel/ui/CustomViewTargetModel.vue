@@ -2,7 +2,7 @@
 import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { SimpleEditForm } from '@/widgets/layout';
-import { JsonEditor } from '@/features/sourceServices';
+import { JsonEditor } from '@/widgets/layout';
 import { ref } from 'vue';
 
 const formData = {
@@ -31,6 +31,24 @@ function handleModal() {
 function handleModelName(value: string) {
   modelName.value = value;
 }
+
+const schema = {
+  json: true,
+  properties: {
+    os_version: {
+      type: 'string',
+      title: 'OS Version',
+    },
+    os: {
+      type: 'string',
+      title: 'OS',
+    },
+    email: {
+      type: 'string',
+      title: 'Email',
+    },
+  },
+};
 </script>
 
 <template>
@@ -38,15 +56,18 @@ function handleModelName(value: string) {
     <create-form
       class="page-modal-layout"
       :badge-title="targetModelName"
+      :need-widget-layout="true"
       title="Custom & View Target Model"
       first-title="JSON Viewer"
       @update:modal-state="handleModal"
     >
       <template #add-info>
         <json-editor
-          :form-data="JSON.stringify(formData, null, 2)"
+          :form-data="formData"
           title="Target Model"
           :read-only="false"
+          :json="schema.json"
+          :shema-properties="schema.properties"
         />
       </template>
       <template #buttons>
@@ -62,6 +83,7 @@ function handleModelName(value: string) {
     <simple-edit-form
       v-if="targetModalState"
       header-title="Save Target Model"
+      name=""
       name-label="Name"
       name-placeholder="Target Model Name"
       @update:save-modal="handleModal"

@@ -5,6 +5,10 @@ interface iProps {
   formData: any;
   title: string;
   readOnly: boolean;
+  schema: {
+    json: boolean;
+    properties: object;
+  };
 }
 
 const props = defineProps<iProps>();
@@ -14,7 +18,7 @@ const props = defineProps<iProps>();
   <p-pane-layout class="json-editor-layout">
     <p>{{ title }}</p>
     <div class="editor">
-      <p-text-editor :code="formData" :read-only="readOnly" />
+      <p-text-editor :code="formData" :read-only="readOnly" folded />
     </div>
   </p-pane-layout>
 </template>
@@ -22,7 +26,8 @@ const props = defineProps<iProps>();
 <style scoped lang="postcss">
 .json-editor-layout {
   @apply overflow-y-scroll;
-  min-width: 770px;
+  min-width: 740px;
+  max-width: 770px;
   border-bottom: 1px solid #dddddf;
   p {
     @apply text-[0.75rem] text-gray-500 font-[700] bg-[#F7F7F7] px-[0.75rem] py-[0.25rem];
@@ -31,10 +36,5 @@ const props = defineProps<iProps>();
   .data-wrapper {
     @apply bg-white;
   }
-}
-
-:deep(.p-text-editor) {
-  min-height: 39rem;
-  max-height: 39rem;
 }
 </style>

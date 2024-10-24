@@ -87,6 +87,9 @@ function handleSourceServiceInfo(value: {
         :source-service-name="state.name"
         :description="state.description"
         @update:source-servie-info="handleSourceServiceInfo"
+        @update:is-connection-modal-opened="
+          emit('update:is-service-modal-opened', false)
+        "
       />
     </template>
     <template #close-button>

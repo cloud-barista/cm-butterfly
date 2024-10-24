@@ -10,7 +10,7 @@ const imgName =
 <template>
   <div class="login-left-container">
     <div class="logo-container">
-      <img class="logo" alt="logo" :src="imgSrc" />
+      <!-- <img class="logo" alt="logo" :src="imgSrc" /> -->
       <span class="logo-name">{{ imgName }}</span>
     </div>
   </div>

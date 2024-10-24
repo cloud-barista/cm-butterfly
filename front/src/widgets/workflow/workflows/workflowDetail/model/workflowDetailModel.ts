@@ -1,5 +1,5 @@
 import { useWorkflowStore } from '@/entities';
-import { WorkflowTableType } from '@/entities/workflowManagement';
+import { WorkflowTableType } from '@/entities';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
 
@@ -19,7 +19,7 @@ export function useWorkflowDetailModel() {
     tableModel.tableState.fields = [
       { label: 'Workflow Name', name: 'name' },
       { label: 'ID', name: 'id' },
-      { label: 'Description', name: 'description' },
+      { label: 'Description', name: 'description', disableCopy: true },
       { label: 'Created Date Time', name: 'created_at' },
       { label: 'Updated Date Time', name: 'updated_at' },
       { label: 'Workflow Tool', name: 'workflowTool', disableCopy: true },
@@ -35,7 +35,7 @@ export function useWorkflowDetailModel() {
       data = {
         name: workflow.name,
         id: workflow.id,
-        description: workflow.description,
+        description: '-',
         created_at: workflow.created_at,
         updated_at: workflow.updated_at,
         workflowTool: {},

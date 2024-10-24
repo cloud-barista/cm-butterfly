@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PDefinitionTable, PButton } from '@cloudforet-test/mirinae';
+import { PDefinitionTable } from '@cloudforet-test/mirinae';
 import { useTargetModelDetailModel } from '@/widgets/models/targetModels/targetModelDetail';
 import { onBeforeMount, watch, watchEffect, ref } from 'vue';
 
@@ -12,6 +12,7 @@ const props = defineProps<iProps>();
 const emit = defineEmits([
   'update:custom-view-json-modal',
   'update:target-model-name',
+  'update:target-model-description',
 ]);
 
 const { targetModelStore, setTargetModelId, initTable, tableModel } =
@@ -30,12 +31,35 @@ onBeforeMount(() => {
 });
 
 const targetModelName = ref<string | undefined>('');
+const targetModelDescription = ref<string | undefined>('');
 
 watchEffect(() => {
   targetModelName.value = targetModelStore.getTargetModelById(
     props.selectedTargetModelId,
   )?.name;
 });
+
+watchEffect(() => {
+  targetModelDescription.value = targetModelStore.getTargetModelById(
+    props.selectedTargetModelId,
+  )?.description;
+});
+
+watch(
+  targetModelName,
+  nv => {
+    emit('update:target-model-name', nv);
+  },
+  { immediate: true },
+);
+
+watch(
+  targetModelDescription,
+  nv => {
+    emit('update:target-model-description', nv);
+  },
+  { immediate: true },
+);
 
 function handleJsonModal() {
   emit('update:custom-view-json-modal', true);
