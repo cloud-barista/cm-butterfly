@@ -92,6 +92,9 @@
     },
     "COPY_BUTTON": {
       "COPIED": "Copy!"
+    },
+    "SELECT_DROPDOWN": {
+      "SELECT" : "select item"
     }
   }
 }
