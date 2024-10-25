@@ -20,7 +20,8 @@ services:
   cm-beetle:
     version: 0.2.2
     baseurl: http://cm-beetle:8056/beetle
-    type: basic
+    auth:
+      type: basic
       username: default
       password: default
 
