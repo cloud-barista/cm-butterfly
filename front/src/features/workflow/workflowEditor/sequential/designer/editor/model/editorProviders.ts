@@ -1,12 +1,14 @@
 import { insertDynamicComponent } from '@/shared/utils';
-import { getSequencePath } from '@/features/workflow/workflowEditor/model/utils.ts';
-import StepEditorProvider from '@/features/workflow/workflowEditor/ui/StepEditorProvider.vue';
+import { getSequencePath } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/utils.ts';
+import BeetleTaskEditor from '@/features/workflow/workflowEditor/sequential/designer/editor/ui/BeetleTaskEditor.vue';
+import Vue from 'vue';
+import { SourceServicePage } from '@/pages/sourceServices';
 
 export function editorProviders() {
   const editor = document.createElement('div');
   editor.style.width = '100%';
   editor.style.height = '100%';
-  editor.style.overflow = 'scroll';
+
   return {
     defaultRootEditorProvider: function (definition, rootContext, isReadonly) {
       const textArea = document.createElement('textarea');
@@ -24,20 +26,22 @@ export function editorProviders() {
       definition,
       isReadonly,
     ) {
-      console.log(step);
-      console.log(definition);
+      // console.log('step !');
+      // console.log(step.properties);
       //각각에 만들어야할 Vue component 정의
       if (step.componentType === 'switch' && step.type == 'if') {
       }
-      if (step.componentType === 'container' && step.type == 'MCI') {
+      if (step.componentType === 'container') {
       }
-      if (step.componentType === 'task' && step.type == 'bettle_task') {
+      if (step.componentType === 'task') {
+        //toolboxModel에서 가공하는곳 참고
         insertDynamicComponent(
-          StepEditorProvider,
-          { id: 'tst' },
+          BeetleTaskEditor,
+          { step },
           {
-            'button-click': () => {
-              console.log('event 발생');
+            saveContext: e => {
+              console.log(e);
+              step.properties.model = e;
             },
           },
           editor,
