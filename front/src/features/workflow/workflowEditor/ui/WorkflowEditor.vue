@@ -9,7 +9,6 @@ import {
   PButton,
 } from '@cloudforet-test/mirinae';
 import Vue, { onBeforeMount, onMounted, reactive, Ref, ref, watch } from 'vue';
-import { getWorkflowTemplateList } from '@/entities/workflow/api';
 import { IWorkflow } from '@/entities/workflow/model/types.ts';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 import { SourceServicePage } from '@/pages/sourceServices';
@@ -28,7 +27,6 @@ watch(
     nv;
   },
 );
-const resWorkflowTemplate = getWorkflowTemplateList();
 
 const workflowToolModel = useWorkflowToolModel();
 const workflowName = useInputModel<string>('');
@@ -40,9 +38,7 @@ onBeforeMount(() => {
   sequence.value =
     workflowToolModel.convertCicadaToDesignerFormData(temp).sequence;
 });
-onMounted(() => {
-  resWorkflowTemplate.execute();
-});
+onMounted(() => {});
 
 let temp: IWorkflow = {
   data: {
@@ -67,8 +63,8 @@ let temp: IWorkflow = {
   id: '15a47239-0080-4eb6-b530-9a54a189c506',
   name: 'create_infra_workflow',
   description: 'test',
-  createdDatetime: 'set',
-  updateDatetime: 'string;',
+  created_at: 'set',
+  updated_at: 'string;',
 };
 
 let temp2: IWorkflow = {
@@ -141,8 +137,8 @@ let temp2: IWorkflow = {
   id: '15a47239-0080-4eb6-b530-9a54a189c506',
   name: 'create_infra_workflow',
   description: 'test',
-  createdDatetime: 'set',
-  updateDatetime: 'string;',
+  created_at: 'set',
+  updated_at: 'string;',
 };
 
 // let temp3: IWorkflow = {
@@ -168,8 +164,8 @@ let temp2: IWorkflow = {
 //   id: '15a47239-0080-4eb6-b530-9a54a189c506',
 //   name: 'create_infra_workflow',
 //   description: 'test',
-//   createdDatetime: 'set',
-//   updateDatetime: 'string;',
+//   created_at: 'set',
+//   updated_at: 'string;',
 // };
 
 if (props.toolType === 'edit') {
@@ -207,7 +203,8 @@ function handleSave() {
 }
 
 function handleCancel() {
-  trigger.value = true;
+  sequence.value =
+    workflowToolModel.convertCicadaToDesignerFormData(temp2).sequence;
 }
 
 //TODO workflow template get api

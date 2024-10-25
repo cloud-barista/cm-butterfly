@@ -26,6 +26,7 @@ const props = defineProps<IProps>();
 const emit = defineEmits(['getDesigner']);
 const sequentialToolBoxModel = useSequentialToolboxModel();
 const sequentialDesignerModel = ref();
+
 onMounted(function () {
   let refs = this.$refs;
 
@@ -39,6 +40,12 @@ onMounted(function () {
     sequentialDesignerModel.value.initDesigner();
     sequentialDesignerModel.value.draw();
   });
+});
+
+watch(props, () => {
+  sequentialDesignerModel.value.setDefaultSequence(props.sequence);
+  sequentialDesignerModel.value.initDesigner();
+  sequentialDesignerModel.value.draw();
 });
 
 watch(

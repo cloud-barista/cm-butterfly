@@ -8,7 +8,6 @@ export interface IWorkflow {
 }
 export interface ITaskGroupResponse {
   description: string;
-  id: string;
   name: string;
   id?: string;
   tasks: Array<ITaskResponse>;
