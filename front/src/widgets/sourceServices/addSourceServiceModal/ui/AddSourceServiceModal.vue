@@ -26,11 +26,19 @@ const emit = defineEmits([
   'update:trigger',
 ]);
 
+const isDisabled = ref<boolean>(false);
+
 const registerSourceGroup = useRegisterSourceGroup<{ request: any }, any>(null);
 
 const state = reactive({
   sourceServiceName: '',
   description: '',
+});
+
+watchEffect(() => {
+  state.sourceServiceName && state.sourceServiceName.length > 0
+    ? (isDisabled.value = true)
+    : (isDisabled.value = false);
 });
 
 const handleSourceServiceInfo = (value: any) => {
@@ -54,7 +62,7 @@ const handleConfirm = async () => {
       request: requestData,
     });
 
-    if (data) {
+    if (data.status && data.status.code === 200) {
       showSuccessMessage('success', 'Register Success');
 
       sourceServiceInfo.value = {
@@ -62,15 +70,19 @@ const handleConfirm = async () => {
         description: '',
       };
       sourceConnectionStore.editConnections = [];
+      sourceConnectionStore.withSourceConnection = false;
 
       emit('update:trigger');
       emit('update:isModalOpened', false);
     }
-  } catch (err: any) {
-    if (err?.error.value.code === 'ERR_BAD_RESPONSE') {
-      showErrorMessage('failed', 'already existed source group');
-      console.log(err);
+  } catch (error) {
+    if (
+      (error as any).errorMsg.value ===
+      'constraint failed: UNIQUE constraint failed: source_groups.name (2067)'
+    ) {
+      showErrorMessage('failed', 'Service Name Already Exists');
     }
+    showErrorMessage('failed', 'Service Registering Failed');
   }
 };
 
@@ -87,13 +99,6 @@ const handleCancel = () => {
 const handleConnectionModal = (value: boolean) => {
   emit('update:is-connection-modal-opened', value);
 };
-const isDisabled = ref<boolean>(false);
-
-watchEffect(() => {
-  state.sourceServiceName && state.sourceServiceName.length > 0
-    ? (isDisabled.value = true)
-    : (isDisabled.value = false);
-});
 </script>
 
 <template>
@@ -103,6 +108,7 @@ watchEffect(() => {
       header-title="Add Source Service"
       size="md"
       :disabled="!isDisabled"
+      :loading="registerSourceGroup.isLoading.value"
       @confirm="handleConfirm"
       @cancel="handleCancel"
       @close="handleCancel"

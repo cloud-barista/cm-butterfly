@@ -25,10 +25,10 @@ FROM debian:buster-slim as deploy
 
 COPY --from=build /src/cm-butterfly/ .
 
-ENV API_ADDR=0.0.0.0\
-    API_PORT=4000\
+ENV API_ADDR=0.0.0.0 \
+    API_PORT=4000 \
     USER_AUTH_DATA_PATH=conf/user.dat \
-    USER_AUTH_CONF_PATH=conf/authsetting.yaml\
+    USER_AUTH_CONF_PATH=conf/authsetting.yaml \
     MENU_CONF_DATA_PATH=conf/menu.yaml
 
 EXPOSE 4000

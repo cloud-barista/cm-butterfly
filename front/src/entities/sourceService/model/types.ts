@@ -1,4 +1,5 @@
 import type { SourceConnection } from '@/shared/libs';
+
 export interface ISourceGroup {
   name: string;
   description: string;
@@ -9,9 +10,10 @@ export interface ISourceService {
   id: string;
   name: string;
   description: string;
-  connectionCount: string;
+  connectionCount: string | number;
   connectionIds: string[];
-  status: SourceServiceStatusType;
+  // status: SourceServiceStatusType;
+  status: any;
 }
 
 export interface ISourceAgentAndConnectionStatusResponse {
@@ -24,6 +26,14 @@ export interface ISourceAgentAndConnectionStatusResponse {
     connectionStatus: SourceServiceStatusType;
   };
   agentConnectionStatus: SourceServiceStatusType;
+}
+
+export interface ISourceConnectionStatusCountResponse {
+  connection_info_total: number;
+  count_agent_failed: number;
+  count_agent_success: number;
+  count_connection_failed: number;
+  count_connection_success: number;
 }
 
 export const SourceServiceStatus = {
@@ -39,14 +49,12 @@ export interface ISourceServiceResponseElement {
   description: string;
   id: string;
   name: string;
-  connection: string;
-  target_info: {
-    mci_id: string;
-    ns_id: string;
-  };
+  connection_info_status_count: ISourceConnectionStatusCountResponse;
 }
-export interface ISourceServiceResponse
-  extends Array<ISourceServiceResponseElement> {}
+
+export interface ISourceServiceResponse {
+  source_group: Array<ISourceServiceResponseElement>;
+}
 
 export type SourceServiceTableType =
   | 'name'

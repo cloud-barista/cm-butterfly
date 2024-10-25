@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PI, PLazyImg } from '@cloudforet-test/mirinae';
 import { computed, reactive } from 'vue';
 import { useRoute } from 'vue-router/composables';
 import { LSBMenuItem } from '@/features/LSB';
@@ -9,44 +8,30 @@ interface Props {
   topTitle?: any;
   menuSet: any[];
   hideHeader?: boolean;
+  lsbTitle: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  backLink: () => ({}) as any,
-  topTitle: () => ({}) as any,
-  menuSet: () => [],
-  // hideHeader: false,
-});
-const emit = defineEmits<{
-  (e: 'select', id: string, selected: string | number): void;
-}>();
+const props = defineProps<Props>();
+
 const route = useRoute();
 const state = reactive({
   currentPath: computed(() => route.fullPath),
 });
-const handleSelect = (id: string, selected: string) => {
-  emit('select', id, selected);
-};
 </script>
 
 <template>
   <aside class="l-s-b">
     <div class="menu-wrapper">
       <slot />
-      <template v-for="(menuData, idx) in menuSet">
-        <div :key="`${idx}-${menuData.id}`" class="slot-menu-wrapper">
-          <slot :name="`slot-${menuData.id}`" v-bind="menuData" />
-        </div>
-        <l-s-b-menu-item
-          :key="`${idx}-${Math.random() * 1000}`"
-          :menu-data="menuData"
-          :current-path="state.currentPath"
-        >
-          <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
-            <slot :name="slot" v-bind="scope" />
-          </template>
-        </l-s-b-menu-item>
-      </template>
+      <l-s-b-menu-item
+        :menu-data="menuSet"
+        :current-path="state.currentPath"
+        :lsb-title="lsbTitle"
+      >
+        <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
+          <slot :name="slot" v-bind="scope" />
+        </template>
+      </l-s-b-menu-item>
     </div>
   </aside>
 </template>

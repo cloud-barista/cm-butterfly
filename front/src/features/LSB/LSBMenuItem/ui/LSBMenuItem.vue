@@ -4,21 +4,20 @@ import { LSBRouterMenuItem } from '../../LSBRouterMenuItem';
 interface Props {
   menuData: any;
   currentPath: string;
+  lsbTitle: string;
 }
 
-withDefaults(defineProps<Props>(), {
-  menuData: () => ({}),
-  currentPath: undefined,
-});
+const props = defineProps<Props>();
 </script>
 
 <template>
   <div class="l-s-b-menu-list">
     <div class="l-s-b-menu-item">
       <l-s-b-router-menu-item
-        :submenu="menuData.displayname"
+        :submenu="menuData.name"
         :current-path="currentPath"
         :item="menuData"
+        :lsb-title="lsbTitle"
       >
         <template #after-text>
           <slot :name="`after-text-${menuData.id}`" />

@@ -37,14 +37,14 @@ export function useSourceInformationModel() {
       data = {
         name: connection.name,
         id: connection.id,
-        description: connection.description,
-        type: connection.type,
+        description: connection.description || '-',
+        type: connection.type || '-',
         ip: connection.ip_address,
         port: connection.ssh_port,
         user: connection.user,
         password: connection.password,
         privateKey: connection.private_key,
-        publicKey: connection.public_key,
+        publicKey: connection.public_key || '-',
       };
     }
 

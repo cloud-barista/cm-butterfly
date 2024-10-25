@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { i18n } from '@/app/i18n';
 import { PButtonModal } from '@cloudforet-test/mirinae';
-import { reactive, watchEffect } from 'vue';
-import { UpdateSourceService } from '@/features/sourceServices';
+import { reactive, ref, watch, watchEffect } from 'vue';
 import EditSourceService from '@/features/sourceServices/updateSourceService/ui/EditSourceService.vue';
 import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
 import { ISourceService } from '@/entities/sourceService/model/types';
+import { useUpdateSourceGroup } from '@/entities/sourceService/api';
+import { showErrorMessage } from '@/shared/utils';
+
+const updateSourceGroup = useUpdateSourceGroup(null, {
+  name: '',
+  description: '',
+});
 
 interface iProps {
   selectedServiceId: string;
@@ -15,26 +21,35 @@ const props = defineProps<iProps>();
 
 const { sourceServiceStore } = useSourceServiceDetailModel();
 
-const emit = defineEmits(['update:is-service-modal-opened']);
+const state = reactive<any>({
+  name: '',
+  description: '',
+});
+
+const emit = defineEmits(['update:is-service-modal-opened', 'update:trigger']);
 
 const handleConfirm = () => {
-  /**
-   * TODO: 동기적으로 처리돼야 함
-   * 1. register-source-group api
-   * 2. 1번의 response가 오면 해당 source group의 sg name으로 (response값 이용)
-   *    create-connection-info api 호출
-   */
-  emit('update:is-service-modal-opened', false);
+  updateSourceGroup
+    .execute({
+      pathParams: { sgId: props.selectedServiceId },
+      request: {
+        name: state.name,
+        description: state.description,
+      },
+    })
+    .then(r => {
+      emit('update:trigger');
+      emit('update:is-service-modal-opened', false);
+    })
+    .catch(e => {
+      console.log(e);
+      showErrorMessage('error', 'Edit Failed');
+    });
 };
 
 const handleCancel = () => {
   emit('update:is-service-modal-opened', false);
 };
-
-const state = reactive<any>({
-  name: '',
-  description: '',
-});
 
 watchEffect(
   () => {
@@ -46,6 +61,14 @@ watchEffect(
   },
   { flush: 'post' },
 );
+
+function handleSourceServiceInfo(value: {
+  sourceServiceName: string;
+  description: string;
+}) {
+  state.name = value.sourceServiceName;
+  state.description = value.description;
+}
 </script>
 
 <template>
@@ -63,6 +86,10 @@ watchEffect(
         :is-edit="true"
         :source-service-name="state.name"
         :description="state.description"
+        @update:source-servie-info="handleSourceServiceInfo"
+        @update:is-connection-modal-opened="
+          emit('update:is-service-modal-opened', false)
+        "
       />
     </template>
     <template #close-button>

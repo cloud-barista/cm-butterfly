@@ -1,58 +1,114 @@
 <script setup lang="ts">
 import { i18n } from '@/app/i18n';
-import { JsonEditor } from '@/features/sourceServices';
-import { PI } from '@cloudforet-test/mirinae';
-import { reactive, ref } from 'vue';
+import { collectJsonEditor } from '@/features/sourceServices';
+import { PI, PSpinner } from '@cloudforet-test/mirinae';
+import { ref, watch } from 'vue';
 
 interface iProps {
   formData: string | undefined;
+  schema: {
+    json: boolean;
+    properties: object;
+  };
 }
 
 const props = defineProps<iProps>();
 const emit = defineEmits(['update:is-converted']);
 
 const convertedJson = ref<string | undefined>('');
-const isConverted = ref(false);
+const isConverted = ref<boolean>(false);
 
 const handleConvertJson = () => {
   // TODO: convert button action 미정
   convertedJson.value = props.formData;
-  // isConverted.value = true;
   emit('update:is-converted');
 };
+
+watch(
+  convertedJson,
+  nv => {
+    if (nv && nv.length > 0) {
+      isConverted.value = true;
+    } else {
+      isConverted.value = false;
+    }
+  },
+  { immediate: true },
+);
+
+watch(
+  isConverted,
+  nv => {
+    if (nv) {
+      setTimeout(() => {
+        isConverted.value = false;
+      }, 1000);
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
   <div class="json-viewer-layout">
-    <json-editor :form-data="formData" title="Meta (data)" :read-only="true" />
+    <collect-json-editor
+      :form-data="formData"
+      title="Meta (data)"
+      :read-only="true"
+      :schema="schema"
+    />
     <button class="convert-btn" @click="handleConvertJson">
-      <p-i
-        class="icon"
-        name="ic_arrow-right"
-        color="white"
-        width="1rem"
-        height="1rem"
-      />
-      {{ i18n.t('COMPONENT.BUTTON_MODAL.CONVERT') }}
+      <div class="flex flex-row">
+        <p-i
+          class="icon"
+          name="ic_arrow-right"
+          color="white"
+          width="1rem"
+          height="1rem"
+        />
+        <p>{{ i18n.t('COMPONENT.BUTTON_MODAL.CONVERT') }}</p>
+      </div>
+      <p-spinner v-if="isConverted" class="spinner" size="md" />
     </button>
-    <json-editor :form-data="convertedJson" title="Model" :read-only="false" />
+    <collect-json-editor
+      :form-data="convertedJson"
+      title="Model"
+      :read-only="false"
+      :schema="schema"
+    />
   </div>
 </template>
 
 <style scoped lang="postcss">
 .json-viewer-layout {
   @apply flex justify-center;
-  min-width: 480px;
   .convert-btn {
-    @apply flex justify-center items-center rounded-[4px] text-[#fff] bg-violet-400;
+    @apply flex flex-col justify-center items-center rounded-[4px] text-[#fff] bg-violet-400;
     font-size: 14px;
-    padding: 0 12px;
+    padding: 0 24px;
+    position: relative;
+    .spinner {
+      @apply pl-[8px];
+      position: absolute;
+      top: 450px;
+    }
+    .no-spinner {
+      @apply w-[8px] h-[8px];
+      position: absolute;
+    }
   }
   .convert-btn:hover {
     @apply bg-violet-500;
   }
+  .convert-btn:focus {
+    @apply bg-violet-400;
+  }
+  .disable-btn {
+    @apply bg-gray-300;
+    cursor: not-allowed;
+  }
   .icon {
-    @apply mr-[0.25rem];
+    @apply mt-[2px] mr-[0.25rem];
   }
 }
 </style>

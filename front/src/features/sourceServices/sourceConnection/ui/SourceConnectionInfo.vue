@@ -6,10 +6,7 @@ import {
   PPaneLayout,
   PI,
 } from '@cloudforet-test/mirinae';
-import { ref, reactive, watch, watchEffect } from 'vue';
-import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
-
-const sourceConnectionStore = useSourceConnectionStore();
+import { ref, reactive, watchEffect } from 'vue';
 
 const emit = defineEmits([
   'update:source-connection',
@@ -30,11 +27,6 @@ const handleDelete = () => {
   emit('delete:source-connection', true);
 };
 
-const handleInfo = () => {
-  emit('update:source-connection', true);
-};
-
-// const isIpAddressValid = ref(false);
 const invalidState = reactive({
   isIpAddressValid: false,
   isPortValid: false,
@@ -47,18 +39,10 @@ watchEffect(() => {
       ? false
       : true;
 
-  // invalidState.isPasswordValid =
-  //   state.sourceConnectionInfoList.password === '' ||
-  //   !state.sourceConnectionInfoList.password.match(
-  //     /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,16}$/,
-  //   )
-  //     ? false
-  //     : true;
-
   if (typeof Number(state.sourceConnectionInfoList.ssh_port) === 'number') {
     invalidState.isPortValid =
       Number(state.sourceConnectionInfoList.ssh_port) > 0 &&
-      Number(state.sourceConnectionInfoList.ssh_port) < 256
+      Number(state.sourceConnectionInfoList.ssh_port) < 65535
         ? true
         : false;
   }
@@ -91,7 +75,7 @@ watchEffect(() => {
         <p-field-group label="Port (for SSH)" invalid required>
           <p-text-input
             v-model="sourceConnection.ssh_port"
-            placeholder="1~256"
+            placeholder="1~65535"
             :invalid="!invalidState.isPortValid"
           />
         </p-field-group>
@@ -106,18 +90,14 @@ watchEffect(() => {
           <p-text-input
             v-model="sourceConnection.password"
             placeholder="Password"
-            :invalid="!invalidState.isPasswordValid"
+            :invalid="sourceConnection.password === ''"
           />
         </p-field-group>
-        <p-field-group class="private-key" label="Private Key" invalid required>
-          <p-text-input
-            v-model="sourceConnection.private_key"
-            :invalid="!sourceConnection.private_key"
-          />
+        <p-field-group class="private-key" label="Private Key">
+          <p-text-input v-model="sourceConnection.private_key" />
         </p-field-group>
       </div>
     </p-pane-layout>
-    <!-- <p-icon-button name="ic_close" /> -->
     <button @click="handleDelete">
       <p-i name="ic_close" />
     </button>
@@ -134,16 +114,12 @@ watchEffect(() => {
   min-height: 15.125rem;
   border-radius: 0.25rem 0 0 0.25rem;
   .left-layer {
-    /* @apply w-[450px] mr-[1.5rem]; */
     .p-text-input {
       @apply w-[450px];
     }
   }
   .right-layer {
     @apply grid grid-cols-2 gap-x-[1.5rem] ml-[1.5rem];
-    .p-text-input {
-      /* @apply w-[20rem]; */
-    }
     .private-key {
       @apply col-span-2;
       .p-text-input {

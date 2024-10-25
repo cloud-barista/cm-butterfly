@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { PTooltip, PI } from '@cloudforet-test/mirinae';
-import { reactive, ref } from 'vue';
+import { reactive } from 'vue';
 import { MenuCategory } from '@/widgets/layout';
-import { MigratorMenu } from '@/entities';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
-import { MIGRATOR_MENU_LIST } from '@/entities';
 
 const sidebar = useSidebar();
 
@@ -17,15 +14,9 @@ const state = reactive({
   isMenuDescription: undefined as boolean | undefined,
 });
 
-const clickMinimizeBtn = () => {
-  sidebar.toggleMinimize();
-};
-
 const handleMouseEvent = (value: boolean) => {
   state.isHovered = value;
 };
-
-const migratorMenuList = ref<MigratorMenu[]>(MIGRATOR_MENU_LIST);
 </script>
 
 <template>
@@ -35,33 +26,9 @@ const migratorMenuList = ref<MigratorMenu[]>(MIGRATOR_MENU_LIST);
     @mouseover="handleMouseEvent(true)"
     @mouseleave="handleMouseEvent(false)"
   >
-    <!-- <p-tooltip
-class="minimize-button-wrapper" position="bottom" /> -->
-    <!-- TODO: Sidebar shirnk & expand -->
-    <p-tooltip
-      v-if="!isCollapsed"
-      class="minimize-button-wrapper"
-      position="bottom"
-      :contents="!isMinimized ? 'Minimize menu' : 'Expand menu'"
-      @click="clickMinimizeBtn"
-    >
-      <!-- @click="isSidebarExpanded = !isSidebarExpanded" -->
-      <!-- storeState.isMinimizeNavRail
-          ? $t('COMMON.GNB.TOOLTIP.EXPAND_GNB_RAIL')
-          : $t('COMMON.GNB.TOOLTIP.MINIMIZE_GNB_RAIL') -->
-      <p-i
-        :name="
-          isMinimized ? 'ic_double-chevron-right' : 'ic_double-chevron-left'
-        "
-        class="menu-button"
-        height="1.5rem"
-        width="1.5rem"
-        color="inherit"
-      />
-    </p-tooltip>
     <div class="navigation-rail-container">
       <div class="navigation-rail-wrapper">
-        <menu-category :displayed-menu="migratorMenuList" />
+        <menu-category />
       </div>
     </div>
   </div>
@@ -143,7 +110,6 @@ class="minimize-button-wrapper" position="bottom" /> -->
     border-top-left-radius: 6.25rem;
     border-bottom-left-radius: 6.25rem;
     transition: padding 0.1s ease;
-    /* z-index: 50; */
     &:hover {
       @apply bg-violet-200 text-violet-600;
       padding-right: 0.75rem;

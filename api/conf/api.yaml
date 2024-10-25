@@ -3,7 +3,7 @@ cliSpecVersion: v1
 services:
   cb-spider: #service name
     version: 0.9.4
-    baseurl: http://localhost:1024/spider  # baseurl is Scheme + Host + Base Path
+    baseurl: http://cb-spider:1024/spider  # baseurl is Scheme + Host + Base Path
     auth: #If you need an authentication method, describe the type and username and password in the sub
       type: basic
       username: 
@@ -11,7 +11,7 @@ services:
   
   cb-tumblebug:
     version: 0.9.12
-    baseurl: http://localhost:1323/tumblebug
+    baseurl: http://cb-tumblebug:1323/tumblebug
     auth: 
       type: basic
       username: default
@@ -19,27 +19,34 @@ services:
 
   cm-beetle:
     version: 0.2.2
-    baseurl: http://localhost:8056/beetle
-    auth: 
+    baseurl: http://cm-beetle:8056/beetle
+    type: basic
+      username: default
+      password: default
 
   cm-ant:
     version: 0.2.2
-    baseurl: http://localhost:8880/ant
+    baseurl: http://cm-ant:8880/ant
     auth:  
 
   cm-honeybee:
-    version: 0.2.7
-    baseurl: http://localhost:8081/honeybee
+    version: 0.2.8
+    baseurl: http://cm-honeybee:8081/honeybee
     auth: 
 
   cm-cicada:
-    version: main
-    baseurl: http://localhost:8083/cicada
+    version: 0.2.1
+    baseurl: http://cm-cicada:8083/cicada
     auth: 
 
   cm-grasshopper:
     version: main
-    baseurl: http://localhost:8084/grasshopper
+    baseurl: http://cm-grasshopper:8084/grasshopper
+    auth: 
+
+  cm-damselfly:
+    version: main
+    baseurl: http://cm-damselfly:8088/damselfly
     auth: 
 
   # sample: #none authentication method
@@ -58,6 +65,7 @@ services:
   #   auth: 
   #     type: "bearer"
   #     token: "your-bearer-token-here"
+
 
 
 # Define rest api actions for each of the services defined above.
@@ -1497,26 +1505,62 @@ serviceActions:
 
   
   cm-honeybee:
+    Import-Software-Source-Group:
+      method: post
+      resourcePath: /source_group/{sgId}/import/software
+      description: "Import software information for all connections in the source group."
     Get-Infra-Info-Source-Group:
       method: get
       resourcePath: /source_group/{sgId}/infra
       description: "Get the infra information for all connections in the source group."
-    Get-Software-Info-Source-Group:
-      method: get
-      resourcePath: /source_group/{sgId}/software
-      description: "Get the software information for all connections in the source group."
-    Get-Benchmark-Info:
-      method: get
-      resourcePath: /bench/{connId}
-      description: "Get the benchmark information of the connection information."
     Run-Benchmark-Info:
       method: get
       resourcePath: /bench/{connId}/run
       description: "Run the benchmark information of the connection information. If no Benchmark Agent is present on the connected server, it will be automatically installed, and the benchmark will be executed."
-    Stop-Benchmark:
+    Health-Check-Readyz:
       method: get
-      resourcePath: /bench/{connId}/stop
-      description: "Stop the benchmark"
+      resourcePath: /readyz
+      description: "Check Honeybee is ready"
+    Get-Connection-Info:
+      method: get
+      resourcePath: /source_group/{sgId}/connection_info/{connId}
+      description: "Get the connection information."
+    Update-Connection-Info:
+      method: put
+      resourcePath: /source_group/{sgId}/connection_info/{connId}
+      description: "Update the connection information."
+    Delete-Connection-Info:
+      method: delete
+      resourcePath: /source_group/{sgId}/connection_info/{connId}
+      description: "Delete the connection information."
+    Import-Kubernetes:
+      method: post
+      resourcePath: /source_group/{sgId}/connection_info/{connId}/import/kubernetes
+      description: "Import the kubernetes information."
+    Get-Kubernetes-Info:
+      method: get
+      resourcePath: /source_group/{sgId}/connection_info/{connId}/kubernetes
+      description: "Get the kubernetes information of the connection information."
+    Get-Software-Info:
+      method: get
+      resourcePath: /source_group/{sgId}/connection_info/{connId}/software
+      description: "Get the software information of the connection information."
+    Get-Infra-Info-Source-Group-Refined:
+      method: get
+      resourcePath: /source_group/{sgId}/infra/refined
+      description: "Get the refined infra information for all connections in the source group."
+    Get-Connection-Info-Directly:
+      method: get
+      resourcePath: /connection_info/{connId}
+      description: "Get the connection information directly."
+    List-Source-Group:
+      method: get
+      resourcePath: /source_group
+      description: "Get a list of source group."
+    Register-Source-Group:
+      method: post
+      resourcePath: /source_group
+      description: "Register the source group."
     List-Connection-Info:
       method: get
       resourcePath: /source_group/{sgId}/connection_info
@@ -1529,70 +1573,34 @@ serviceActions:
       method: post
       resourcePath: /source_group/{sgId}/connection_info/{connId}/import/infra
       description: "Import the infra information."
-    Import-Infra-Source-Group:
-      method: post
-      resourcePath: /source_group/{sgId}/import/infra
-      description: "Import infra information for all connections in the source group."
-    Get-Connection-Info-Directly:
-      method: get
-      resourcePath: /connection_info/{connId}
-      description: "Get the connection information directly."
-    Health-Check-Readyz:
-      method: get
-      resourcePath: /readyz
-      description: "Check Honeybee is ready"
-    List-Source-Group:
-      method: get
-      resourcePath: /source_group
-      description: "Get a list of source group."
-    Register-Source-Group:
-      method: post
-      resourcePath: /source_group
-      description: "Register the source group."
     Import-Software:
       method: post
       resourcePath: /source_group/{sgId}/connection_info/{connId}/import/software
       description: "Import the software information."
-    Get-Infra-Info-Refined:
+    Get-Kubernetes-Info-Source-Group:
       method: get
-      resourcePath: /source_group/{sgId}/connection_info/{connId}/infra/refined
-      description: "Get the refined infra information of the connection information."
-    Get-Kubernetes-Info:
+      resourcePath: /source_group/{sgId}/kubernetes
+      description: "Get the kubernetes information for all connections in the source group."
+    Stop-Benchmark:
       method: get
-      resourcePath: /source_group/{sgId}/connection_info/{connId}/kubernetes
-      description: "Get the kubernetes information of the connection information."
-    Delete-Connection-Info:
-      method: delete
-      resourcePath: /source_group/{sgId}/connection_info/{connId}
-      description: "Delete the connection information."
-    Get-Connection-Info:
-      method: get
-      resourcePath: /source_group/{sgId}/connection_info/{connId}
-      description: "Get the connection information."
-    Update-Connection-Info:
-      method: put
-      resourcePath: /source_group/{sgId}/connection_info/{connId}
-      description: "Update the connection information."
+      resourcePath: /bench/{connId}/stop
+      description: "Stop the benchmark"
     Get-Infra-Info:
       method: get
       resourcePath: /source_group/{sgId}/connection_info/{connId}/infra
       description: "Get the infra information of the connection information."
-    Import-Kubernetes-Source-Group:
+    Import-Infra-Source-Group:
       method: post
-      resourcePath: /source_group/{sgId}/import/kubernetes
-      description: "Import kubernetes information for all connections in the source group."
-    Import-Software-Source-Group:
+      resourcePath: /source_group/{sgId}/import/infra
+      description: "Import infra information for all connections in the source group."
+    Register-Target-To-Source-Group:
       method: post
-      resourcePath: /source_group/{sgId}/import/software
-      description: "Import software information for all connections in the source group."
-    Get-Infra-Info-Source-Group-Refined:
+      resourcePath: /source_group/{sgId}/target
+      description: "Register target information to the source group."
+    Get-Benchmark-Info:
       method: get
-      resourcePath: /source_group/{sgId}/infra/refined
-      description: "Get the refined infra information for all connections in the source group."
-    Get-Source-Group:
-      method: get
-      resourcePath: /source_group/{sgId}
-      description: "Get the source group."
+      resourcePath: /bench/{connId}
+      description: "Get the benchmark information of the connection information."
     Update-Source-Group:
       method: put
       resourcePath: /source_group/{sgId}
@@ -1601,105 +1609,32 @@ serviceActions:
       method: delete
       resourcePath: /source_group/{sgId}
       description: "Delete the source group."
-    Import-Kubernetes:
-      method: post
-      resourcePath: /source_group/{sgId}/connection_info/{connId}/import/kubernetes
-      description: "Import the kubernetes information."
-    Get-Software-Info:
+    Get-Source-Group:
       method: get
-      resourcePath: /source_group/{sgId}/connection_info/{connId}/software
-      description: "Get the software information of the connection information."
-    Get-Kubernetes-Info-Source-Group:
+      resourcePath: /source_group/{sgId}
+      description: "Get the source group."
+    Get-Infra-Info-Refined:
       method: get
-      resourcePath: /source_group/{sgId}/kubernetes
-      description: "Get the kubernetes information for all connections in the source group."
-    Register-Target-To-Source-Group:
+      resourcePath: /source_group/{sgId}/connection_info/{connId}/infra/refined
+      description: "Get the refined infra information of the connection information."
+    Import-Kubernetes-Source-Group:
       method: post
-      resourcePath: /source_group/{sgId}/target
-      description: "Register target information to the source group."
-
+      resourcePath: /source_group/{sgId}/import/kubernetes
+      description: "Import kubernetes information for all connections in the source group."
+    Refresh-Source-Group-Connection-Info-Status:
+      method: put
+      resourcePath: /source_group/{sgId}/refresh
+      description: "Refresh connection info status of the source group."
+    Get-Software-Info-Source-Group:
+      method: get
+      resourcePath: /source_group/{sgId}/software
+      description: "Get the software information for all connections in the source group."
 
   cm-cicada:
-    Get-Task-Component-By-Name:
-      method: get
-      resourcePath: /task_component/name/{tcName}
-      description: "Get the task component by name."
     Get-Task:
       method: get
       resourcePath: /workflow/{wfId}/task/{taskId}
       description: "Get the task."
-    Get-Task-Component:
-      method: get
-      resourcePath: /task_component/{tcId}
-      description: "Get the task component."
-    Update-Task-Component:
-      method: put
-      resourcePath: /task_component/{tcId}
-      description: "Update the task component."
-    Delete-Task-Component:
-      method: delete
-      resourcePath: /task_component/{tcId}
-      description: "Delete the task component."
-    List-Workflow:
-      method: get
-      resourcePath: /workflow
-      description: "Get a workflow list."
-    Create-Workflow:
-      method: post
-      resourcePath: /workflow
-      description: "Create a workflow."
-    Get-Workflow:
-      method: get
-      resourcePath: /workflow/{wfId}
-      description: "Get the workflow."
-    Update-Workflow:
-      method: put
-      resourcePath: /workflow/{wfId}
-      description: "Update the workflow content."
-    Delete-Workflow:
-      method: delete
-      resourcePath: /workflow/{wfId}
-      description: "Delete the workflow."
-    Get-Workflow-Template-By-Name:
-      method: get
-      resourcePath: /workflow_template/name/{wfName}
-      description: "Get the workflow template by name."
-    List-Task:
-      method: get
-      resourcePath: /workflow/{wfId}/task
-      description: "Get a task list of the workflow."
-    List-Task-Group:
-      method: get
-      resourcePath: /workflow/{wfId}/task_group
-      description: "Get a task group list of the workflow."
-    Health-Check-Readyz:
-      method: get
-      resourcePath: /readyz
-      description: "Check Cicada is ready"
-    Get-Task-Directly:
-      method: get
-      resourcePath: /task/{taskId}
-      description: "Get the task directly."
-    List-Task-Component:
-      method: get
-      resourcePath: /task_component
-      description: "Get a list of task component."
-    Create-Task-Component:
-      method: post
-      resourcePath: /task_component
-      description: "Register the task component."
-    Get-Task-Group-Directly:
-      method: get
-      resourcePath: /task_group/{tgId}
-      description: "Get the task group directly."
-    Get-Workflow-By-Name:
-      method: get
-      resourcePath: /workflow/name/{wfName}
-      description: "Get the workflow by name."
-    Run-Workflow:
-      method: post
-      resourcePath: /workflow/{wfId}/run
-      description: "Run the workflow."
     List-Task-From-Task-Group:
       method: get
       resourcePath: /workflow/{wfId}/task_group/{tgId}/task
@@ -1708,18 +1643,118 @@ serviceActions:
       method: get
       resourcePath: /workflow/{wfId}/task_group/{tgId}/task/{taskId}
       description: "Get the task from the task group."
+    Health-Check-Readyz:
+      method: get
+      resourcePath: /readyz
+      description: "Check Cicada is ready"
+    Get-Task-Directly:
+      method: get
+      resourcePath: /task/{taskId}
+      description: "Get the task directly."
+    Get-Task-Component-By-Name:
+      method: get
+      resourcePath: /task_component/name/{tcName}
+      description: "Get the task component by name."
+    Run-Workflow:
+      method: post
+      resourcePath: /workflow/{wfId}/run
+      description: "Run the workflow."
+    Get-Workflow-Runs:
+      method: get
+      resourcePath: /workflow/{wfId}/runs
+      description: "Get the task Logs."
     List-Workflow-Template:
       method: get
       resourcePath: /workflow_template
       description: "Get a list of workflow template."
-    Get-Task-Group:
-      method: get
-      resourcePath: /workflow/{wfId}/task_group/{tgId}
-      description: "Get the task group."
     Get-Workflow-Template:
       method: get
       resourcePath: /workflow_template/{wftId}
       description: "Get the workflow template."
+    Get-Task-Group-Directly:
+      method: get
+      resourcePath: /task_group/{tgId}
+      description: "Get the task group directly."
+    Get-Event-Logs:
+      method: get
+      resourcePath: /workflow/{wfId}/eventlogs
+      description: "Get Eventlog."
+    Get-Task-Group:
+      method: get
+      resourcePath: /workflow/{wfId}/task_group/{tgId}
+      description: "Get the task group."
+    Clear-Task-Instances:
+      method: post
+      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/clear
+      description: "Clear the task Instance."
+    Get-Task-Logs:
+      method: get
+      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/taskTryNum/{taskTyNum}/logs
+      description: "Get the task Logs."
+    Get-Import-Errors:
+      method: get
+      resourcePath: /importErrors
+      description: "Get the importErrors."
+    Delete-Task-Component:
+      method: delete
+      resourcePath: /task_component/{tcId}
+      description: "Delete the task component."
+    Get-Task-Component:
+      method: get
+      resourcePath: /task_component/{tcId}
+      description: "Get the task component."
+    Update-Task-Component:
+      method: put
+      resourcePath: /task_component/{tcId}
+      description: "Update the task component."
+    Get-Workflow-By-Name:
+      method: get
+      resourcePath: /workflow/name/{wfName}
+      description: "Get the workflow by name."
+    List-Task:
+      method: get
+      resourcePath: /workflow/{wfId}/task
+      description: "Get a task list of the workflow."
+    List-Task-Group:
+      method: get
+      resourcePath: /workflow/{wfId}/task_group
+      description: "Get a task group list of the workflow."
+    List-Task-Component:
+      method: get
+      resourcePath: /task_component
+      description: "Get a list of task component."
+    Create-Task-Component:
+      method: post
+      resourcePath: /task_component
+      description: "Register the task component."
+    List-Workflow:
+      method: get
+      resourcePath: /workflow
+      description: "Get a workflow list."
+    Create-Workflow:
+      method: post
+      resourcePath: /workflow
+      description: "Create a workflow."
+    Update-Workflow:
+      method: put
+      resourcePath: /workflow/{wfId}
+      description: "Update the workflow content."
+    Delete-Workflow:
+      method: delete
+      resourcePath: /workflow/{wfId}
+      description: "Delete the workflow."
+    Get-Workflow:
+      method: get
+      resourcePath: /workflow/{wfId}
+      description: "Get the workflow."
+    Get-Task-Instances:
+      method: get
+      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/taskInstances
+      description: "Get the task Logs."
+    Get-Workflow-Template-By-Name:
+      method: get
+      resourcePath: /workflow_template/name/{wfName}
+      description: "Get the workflow template by name."
 
 
   cm-grasshopper:
@@ -1743,5 +1778,58 @@ serviceActions:
       method: delete
       resourcePath: /software/{softwareId}
       description: "Delete the software."
-
-
+  
+  
+  cm-damselfly:
+    Model{Istargetmodel}:
+      method: get
+      resourcePath: /model/{isTargetModel}
+      description: "Get a list of all user models."
+    Onpremmodel:
+      method: post
+      resourcePath: /onpremmodel
+      description: "Create a new on-premise model with the given information."
+    Onpremmodel:
+      method: get
+      resourcePath: /onpremmodel
+      description: "Get a list of on-premise models."
+    Onpremmodel{Id}:
+      method: put
+      resourcePath: /onpremmodel/{id}
+      description: "Update a on-premise model with the given information."
+    Onpremmodel{Id}:
+      method: delete
+      resourcePath: /onpremmodel/{id}
+      description: "Delete a on-premise model with the given information."
+    Onpremmodel{Id}:
+      method: get
+      resourcePath: /onpremmodel/{id}
+      description: "Get a specific on-premise model."
+    Readyz:
+      method: get
+      resourcePath: /readyz
+      description: "Check Damselfly is ready"
+    Cloudmodel:
+      method: post
+      resourcePath: /cloudmodel
+      description: "Create a new cloud model with the given information."
+    Cloudmodel:
+      method: get
+      resourcePath: /cloudmodel
+      description: "Get a list of cloud models."
+    Cloudmodel{Id}:
+      method: delete
+      resourcePath: /cloudmodel/{id}
+      description: "Delete a cloud model with the given information."
+    Cloudmodel{Id}:
+      method: get
+      resourcePath: /cloudmodel/{id}
+      description: "Get a specific cloud model."
+    Cloudmodel{Id}:
+      method: put
+      resourcePath: /cloudmodel/{id}
+      description: "Update a cloud model with the given information."
+    Httpversion:
+      method: get
+      resourcePath: /httpVersion
+      description: "Checks and logs the HTTP version of the incoming request to the server console."

@@ -208,6 +208,7 @@ const selectWorkspace = (name: string) => {
       is-filterable
       hide-header-without-items
       show-delete-all-button
+      disabled
     >
       <template #dropdown-button-icon>
         <p-i
@@ -322,6 +323,7 @@ const selectWorkspace = (name: string) => {
           text-overflow: ellipsis;
           display: -webkit-box;
           -webkit-line-clamp: 2;
+          line-clamp: 2;
           -webkit-box-orient: vertical;
         }
       }
