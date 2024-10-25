@@ -1,8 +1,9 @@
-import { ref, Ref } from 'vue';
+import { ref, Ref, watchEffect } from 'vue';
 import {
   ISourceService,
   ISourceServiceResponse,
   SourceServiceStatusType,
+  ISourceServiceResponseElement,
 } from '@/entities/sourceService/model/types.ts';
 import { defineStore } from 'pinia';
 
@@ -11,17 +12,22 @@ const NAMESPACE = 'SOURCESERVICE';
 export interface ISourceServiceStore {
   services: Ref<ISourceService[]>;
 
+  serviceWithStatus: any;
+
   setService(val: any): void;
 
   getServiceById: (id: string) => ISourceService | null;
 
   setServiceStatus(serviceId: string, status: any): void;
+
+  setServiceWithConnectionStatus(service: any): void;
 }
 
 export const useSourceServiceStore = defineStore(
   NAMESPACE,
   (): ISourceServiceStore => {
     const services = ref<ISourceService[]>([]);
+    const serviceWithStatus = ref<ISourceServiceResponseElement | null>();
 
     function setService(_services: ISourceServiceResponse) {
       services.value = _services.source_group.map(service => ({
@@ -32,7 +38,14 @@ export const useSourceServiceStore = defineStore(
           service.connection_info_status_count.connection_info_total,
         connectionIds: [],
         status: 'S0004',
+        // status:
       }));
+    }
+
+    function setServiceWithConnectionStatus(
+      service: ISourceServiceResponseElement,
+    ) {
+      serviceWithStatus.value = service;
     }
 
     function getServiceById(serviceId: string) {
@@ -43,10 +56,7 @@ export const useSourceServiceStore = defineStore(
       );
     }
 
-    function setServiceStatus(
-      serviceId: string,
-      status: SourceServiceStatusType,
-    ) {
+    function setServiceStatus(serviceId: string, status: any) {
       const service = getServiceById(serviceId);
       if (service) {
         service.status = status;
@@ -55,9 +65,11 @@ export const useSourceServiceStore = defineStore(
 
     return {
       services,
+      serviceWithStatus,
       setService,
       getServiceById,
       setServiceStatus,
+      setServiceWithConnectionStatus,
     };
   },
 );
