@@ -10,7 +10,6 @@ import { editorProviders } from '@/features/workflow/workflowEditor/sequential/d
 
 export function useSequentialDesignerModel(refs: any) {
   let designer: Designer | null = null;
-
   const placeholder = refs.placeholder;
   const designerOptionsState: any = {
     id: '',
@@ -115,6 +114,7 @@ export function useSequentialDesignerModel(refs: any) {
             getRandomId(),
             'TaskGroup',
             'taskGroup',
+            { model: {} },
           ),
         ],
       },
@@ -174,15 +174,13 @@ export function useSequentialDesignerModel(refs: any) {
 
   function draw() {
     designer = Designer.create(placeholder, definition, configuration);
-    designer.onDefinitionChanged.subscribe(newDefinition => {
-      // ...
-      // console.log(newDefinition);
-    });
+    designer.onDefinitionChanged.subscribe(newDefinition => {});
   }
 
   function getDesigner() {
     return designer;
   }
+
   return {
     designer,
     designerOptionsState,

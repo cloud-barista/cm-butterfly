@@ -14,6 +14,7 @@ interface Step {
   properties: {
     isDeletable: boolean;
     model?: object;
+    originalData?: object;
   };
 }
 
@@ -42,7 +43,7 @@ onMounted(function () {
   });
 });
 
-watch(props, () => {
+watch(props.sequence, () => {
   sequentialDesignerModel.value.setDefaultSequence(props.sequence);
   sequentialDesignerModel.value.initDesigner();
   sequentialDesignerModel.value.draw();
@@ -51,7 +52,6 @@ watch(props, () => {
 watch(
   () => props.trigger,
   nv => {
-    console.log(nv);
     if (nv) emit('getDesigner', sequentialDesignerModel.value.getDesigner());
   },
   { deep: true },

@@ -1,6 +1,15 @@
-import { IAxiosResponse, useAxiosPost } from '@/shared/libs';
-import { ITaskComponentResponse, IWorkflowResponse } from '../model/types';
+import {
+  IAxiosResponse,
+  RequestBodyWrapper,
+  useAxiosPost,
+} from '@/shared/libs';
+import {
+  ITaskComponentResponse,
+  IWorkflow,
+  IWorkflowResponse,
+} from '../model/types';
 import { axiosInstance } from '@/shared/libs/api/instance';
+import { IMciRequestParams } from '@/entities/mci/api';
 
 const GET_WORKFLOW_LIST = 'list-workflow';
 const GET_WORKFLOW = 'get-workflow';
@@ -53,6 +62,56 @@ export function useUpdateWorkflow<T, D>(
   );
 }
 
+export function useUpdateWorkflowV2(
+  wfId: string | null,
+  workflowData: IWorkflowResponse['data'] | null,
+  name: string | null,
+) {
+  const requestBodyWrapper: Required<
+    Pick<
+      RequestBodyWrapper<
+        | {
+            wfId: string | null;
+          }
+        | {
+            data: IWorkflowResponse['data'] | null;
+            name: string | null;
+          }
+      >,
+      'pathParams' | 'request'
+    >
+  > = {
+    pathParams: {
+      wfId: wfId,
+    },
+    request: {
+      data: workflowData,
+      name: name,
+    },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<IWorkflowResponse>,
+    Required<
+      Pick<
+        RequestBodyWrapper<
+          | {
+              wfId: string | null;
+            }
+          | {
+              data: IWorkflowResponse['data'] | null;
+              name: string | null;
+            }
+        >,
+        'pathParams' | 'request'
+      >
+    >
+  >(UPDATE_WORKFLOW, requestBodyWrapper);
+}
+
+// Required<
+//     Pick<RequestBodyWrapper<Pick<IMciRequestParams, 'nsId'>>, 'pathParams'>
+// >
 export function useRunWorkflow(wfId: string) {
   return useAxiosPost<IAxiosResponse<IWorkflowResponse>, any>(RUN_WORKFLOW, {
     pathParams: {

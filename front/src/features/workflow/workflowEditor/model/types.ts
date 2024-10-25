@@ -1,4 +1,5 @@
 import { Step as _Step } from 'sequential-workflow-model';
+import { ITaskResponse } from '@/entities';
 
 export interface Step extends _Step {
   sequence?: Step[];
@@ -8,6 +9,7 @@ export interface Step extends _Step {
   properties: {
     isDeletable: boolean;
     model?: object;
+    originalData?: ITaskResponse;
   };
 }
 

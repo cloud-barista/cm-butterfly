@@ -40,8 +40,8 @@ export function editorProviders() {
           { step },
           {
             saveContext: e => {
-              console.log(e);
               step.properties.model = e;
+              stepContext.notifyPropertiesChanged();
             },
           },
           editor,

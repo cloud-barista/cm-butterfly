@@ -14,6 +14,7 @@ import Vue, {
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import { useTaskEditorModel } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/beetleTaskEditorModel.ts';
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
+import SequentialShortCut from '@/features/workflow/workflowEditor/sequential/designer/shortcut/ui/SequentialShortCut.vue';
 
 interface IProps {
   step: {
@@ -22,6 +23,7 @@ interface IProps {
     properties: {
       isDeletable: boolean;
       model?: object;
+      originalData: object;
     };
     sequence: [];
     type: string;
@@ -229,18 +231,18 @@ function handleClickOutside(event: MouseEvent) {
         </BAccordion>
       </div>
     </div>
-    <!--    <SequentialShortCut-->
-    <!--      :open="shortCutModel.open"-->
-    <!--      :x-pos="shortCutModel.xPos"-->
-    <!--      :y-pos="shortCutModel.yPos"-->
-    <!--      :items="[-->
-    <!--        {-->
-    <!--          label: shortCutModel.delete.label,-->
-    <!--          callback: shortCutModel.delete.callback,-->
-    <!--        },-->
-    <!--      ]"-->
-    <!--      @close="closeShortCut"-->
-    <!--    ></SequentialShortCut>-->
+    <SequentialShortCut
+      :open="shortCutModel.open"
+      :x-pos="shortCutModel.xPos"
+      :y-pos="shortCutModel.yPos"
+      :items="[
+        {
+          label: shortCutModel.delete.label,
+          callback: shortCutModel.delete.callback,
+        },
+      ]"
+      @close="closeShortCut"
+    ></SequentialShortCut>
   </div>
 </template>
 

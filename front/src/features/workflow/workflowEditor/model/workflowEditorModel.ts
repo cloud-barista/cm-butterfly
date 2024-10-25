@@ -11,26 +11,17 @@ import {
 import getRandomId from '@/shared/utils/uuid';
 import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
-import { Sequence } from 'sequential-workflow-designer';
 
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
   const { defineTaskGroupStep, defineBettleTaskStep } = toolboxSteps();
 
-  function getWorkflowToolData(
-    workflowId: string,
-    type: 'template' | 'data' = 'data',
-  ) {
-    let workflow;
-    if (type === 'template') {
-      workflow = workflowStore.getTemplateById(workflowId);
-    } else {
-      workflow = workflowStore.getWorkFlowById(workflowId);
-    }
+  function getWorkflowData(workflowId: string) {
+    return workflowStore.getWorkflowById(workflowId);
+  }
 
-    if (workflow) {
-      convertCicadaToDesignerFormData(workflow);
-    }
+  function getWorkflowTemplateData(workflowTemplateId: string) {
+    return workflowStore.getWorkflowTemplateById(workflowTemplateId);
   }
 
   function convertCicadaToDesignerFormData(
@@ -81,9 +72,9 @@ export function useWorkflowToolModel() {
 
   function convertToDesignerTask(task: ITaskResponse): Step {
     const parsedString: object = parseRequestBody(task.request_body);
-
     return defineBettleTaskStep(getRandomId(), task.name, 'task', {
       model: parsedString,
+      originalData: task,
     });
   }
 
@@ -146,10 +137,14 @@ export function useWorkflowToolModel() {
   }
 
   function convertToCicadaTask(step: Step) {
+    console.log(step);
     if (step.componentType === 'task') {
       return {
         name: step.name,
-        request_body: JSON.stringify(step.properties.model, null, 2),
+        request_body: JSON.stringify(step.properties.model),
+        path_params: step.properties.originalData?.path_params,
+        task_component: step.properties.originalData?.task_component,
+        dependencies: step.properties.originalData?.dependencies,
       };
     }
   }
@@ -161,7 +156,8 @@ export function useWorkflowToolModel() {
   }
 
   return {
-    getWorkflowToolData,
+    getWorkflowTemplateData,
+    getWorkflowData,
     convertCicadaToDesignerFormData,
     convertDesignerSequenceToCicada,
   };

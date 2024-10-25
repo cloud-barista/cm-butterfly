@@ -42,7 +42,7 @@ export function toolboxSteps() {
       id: string,
       name: string,
       type: string,
-      properties: { model: object },
+      properties: { model: object; originalData: any },
     ): Step {
       return {
         componentType: 'task',
