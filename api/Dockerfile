@@ -28,7 +28,7 @@ COPY --from=build /src/cm-butterfly/ .
 
 ENV API_ADDR=${API_ADDR:-0.0.0.0}
 ENV API_PORT=${API_PORT:-4000}
-ENV USER_AUTH_DATA_PATH=${USER_AUTH_DATA_PATH:-conf/user.dat }
+ENV USER_AUTH_DATA_PATH=${USER_AUTH_DATA_PATH:-conf/user.dat}
 ENV USER_AUTH_CONF_PATH=${USER_AUTH_CONF_PATH:-conf/authsetting.yaml}
 ENV MENU_CONF_DATA_PATH=${MENU_CONF_DATA_PATH:-conf/menu.yaml}
 
