@@ -9,6 +9,7 @@ const UPDATE_WORKFLOW = 'update-workflow';
 const RUN_WORKFLOW = 'run-workflow';
 const DELETE_WORKFLOW = 'delete-workflow';
 
+// const GET_DISK_TYPE = 'GET_DISK_TYPE';
 const GET_WORKFLOW_TEMPLATE_LIST = 'list-workflow-template';
 
 const GET_TASK_COMPONENT_LIST = 'list-task-component';
