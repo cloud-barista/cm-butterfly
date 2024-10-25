@@ -12,7 +12,8 @@ export interface ISourceService {
   description: string;
   connectionCount: string | number;
   connectionIds: string[];
-  status: SourceServiceStatusType;
+  // status: SourceServiceStatusType;
+  status: any;
 }
 
 export interface ISourceAgentAndConnectionStatusResponse {
