@@ -18,19 +18,15 @@ const props = defineProps<IProps>();
 
 const emit = defineEmits(['update:source-connection-name']);
 
-const {
-  loadSourceServiceData,
-  sourceServiceStore,
-  initTable,
-  tableModel,
-  setServiceId,
-} = useSourceServiceDetailModel();
+// loadSourceServiceData,
+const { sourceServiceStore, initTable, tableModel, setServiceId } =
+  useSourceServiceDetailModel();
 
-const resGetSourceGroupStatus = useGetSourceGroupStatus(null); // deprecated
+// const resGetSourceGroupStatus = useGetSourceGroupStatus(null); // deprecated
 const refreshSourceGroupConnectionInfoStatus =
   useRefreshSourceGroupConnectionInfoStatus(null);
 const getSourceService = useGetSourceService(null);
-const { serviceWithStatus } = storeToRefs(sourceServiceStore);
+// const { serviceWithStatus } = storeToRefs(sourceServiceStore);
 
 watch(refreshSourceGroupConnectionInfoStatus.status, nv => {
   if (nv === 'error') {
@@ -67,7 +63,7 @@ watchEffect(() => {
   );
 });
 
-watchEffect(async () => {
+async function getSourceServiceWithStatus() {
   try {
     const { data } = await getSourceService.execute({
       pathParams: {
@@ -80,6 +76,10 @@ watchEffect(async () => {
   } catch (error) {
     console.log(error);
   }
+}
+
+watchEffect(() => {
+  getSourceServiceWithStatus();
 });
 
 /**
@@ -97,7 +97,8 @@ async function handleSourceGroupStatusRefresh() {
     });
 
     if (data.status && data.status.code === 200) {
-      loadSourceServiceData(props.selectedServiceId);
+      // loadSourceServiceData(props.selectedServiceId);
+      getSourceServiceWithStatus();
     }
   } catch (err) {
     console.log(err);
