@@ -23,25 +23,16 @@ export const useSourceServiceStore = defineStore(
   (): ISourceServiceStore => {
     const services = ref<ISourceService[]>([]);
 
-    function setService(_services: ISourceService[] | ISourceServiceResponse) {
-      if (isSourceServiceResponse(_services)) {
-        services.value = _services.map(service => ({
-          id: service.id,
-          name: service.name,
-          description: service.description,
-          connectionCount: service.connection,
-          connectionIds: [],
-          status: 'S0004',
-        }));
-      } else {
-        services.value = _services;
-      }
-    }
-
-    function isSourceServiceResponse(
-      _services: ISourceService[] | ISourceServiceResponse,
-    ): _services is ISourceServiceResponse {
-      return (_services as ISourceServiceResponse)[0].target_info !== undefined;
+    function setService(_services: ISourceServiceResponse) {
+      services.value = _services.source_group.map(service => ({
+        id: service.id,
+        name: service.name,
+        description: service.description,
+        connectionCount:
+          service.connection_info_status_count.connection_info_total,
+        connectionIds: [],
+        status: 'S0004',
+      }));
     }
 
     function getServiceById(serviceId: string) {

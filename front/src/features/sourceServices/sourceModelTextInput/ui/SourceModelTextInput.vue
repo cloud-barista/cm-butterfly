@@ -10,6 +10,12 @@ import { ref } from 'vue';
 const name = ref<string>('');
 const description = ref<string>('');
 
+interface iProps {
+  nameLabel: string;
+}
+
+const props = defineProps<iProps>();
+
 const emit = defineEmits(['update:model-name', 'update:model-description']);
 
 const handleNameInput = () => {
@@ -26,7 +32,7 @@ const handleDescriptionInput = () => {
     <p-field-group label="Name" required>
       <p-text-input
         v-model="name"
-        placeholder="Source Service Name"
+        :placeholder="nameLabel"
         @change="handleNameInput"
       />
     </p-field-group>

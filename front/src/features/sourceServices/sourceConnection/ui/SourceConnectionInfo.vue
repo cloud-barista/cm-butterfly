@@ -6,15 +6,7 @@ import {
   PPaneLayout,
   PI,
 } from '@cloudforet-test/mirinae';
-import { computed, reactive, ref, watch, watchEffect } from 'vue';
-
-import { useSourceServiceStore } from '@/shared/libs';
-import type { SourceConnection } from '@/shared/libs';
-import { storeToRefs } from 'pinia';
-
-const sourceServiceStore = useSourceServiceStore();
-
-const { sourceConnectionInfoList } = storeToRefs(sourceServiceStore);
+import { ref, reactive, watchEffect } from 'vue';
 
 const emit = defineEmits([
   'update:source-connection',
@@ -22,62 +14,39 @@ const emit = defineEmits([
 ]);
 
 interface iProps {
-  sourceConnection: SourceConnection;
+  sourceConnection: any;
 }
 
 const props = defineProps<iProps>();
 
 const state = reactive({
-  sourceConnectionInfoList: computed(() => props.sourceConnection),
+  sourceConnectionInfoList: ref(props.sourceConnection),
 });
 
 const handleDelete = () => {
   emit('delete:source-connection', true);
 };
 
-const handleInfo = () => {
-  emit('update:source-connection', state.sourceConnectionInfoList);
-};
-
-// const isIpAddressValid = ref(false);
 const invalidState = reactive({
   isIpAddressValid: false,
   isPortValid: false,
-  isUserValid: false,
-  isPasswordValid: false,
-  isPrivateKeyValid: false,
 });
 
-watchEffect(
-  () => {
-    invalidState.isIpAddressValid =
-      state.sourceConnectionInfoList.ip_address === '' ||
-      !state.sourceConnectionInfoList.ip_address.match(
-        /^(\d{1,3}\.){3}\d{1,3}$/,
-      )
-        ? false
-        : true;
+watchEffect(() => {
+  invalidState.isIpAddressValid =
+    state.sourceConnectionInfoList.ip_address === '' ||
+    !state.sourceConnectionInfoList.ip_address.match(/^(\d{1,3}\.){3}\d{1,3}$/)
+      ? false
+      : true;
 
-    // TODO: ssh_port가 0인 경우 제외 1~256 사이의 값만 유효하며 숫자여야함 (숫자가 아닌 경우 false)
-
+  if (typeof Number(state.sourceConnectionInfoList.ssh_port) === 'number') {
     invalidState.isPortValid =
-      (typeof state.sourceConnectionInfoList.ssh_port === 'number' &&
-        state.sourceConnectionInfoList.ssh_port !== 0) ||
-      state.sourceConnectionInfoList.ssh_port > 1 ||
-      state.sourceConnectionInfoList.ssh_port < 256
-        ? false
-        : true;
-
-    // invalidState.isPortValid =
-    //   (typeof state.sourceConnectionInfoList.ssh_port === 'number' &&
-    //     state.sourceConnectionInfoList.ssh_port !== 0) ||
-    //   state.sourceConnectionInfoList.ssh_port > 1 ||
-    //   state.sourceConnectionInfoList.ssh_port < 256
-    //     ? true
-    //     : false;
-  },
-  { flush: 'post' },
-);
+      Number(state.sourceConnectionInfoList.ssh_port) > 0 &&
+      Number(state.sourceConnectionInfoList.ssh_port) < 65535
+        ? true
+        : false;
+  }
+});
 </script>
 
 <template>
@@ -86,49 +55,49 @@ watchEffect(
       <div class="left-layer">
         <p-field-group label="Source Connection Name" invalid required>
           <p-text-input
-            v-model="state.sourceConnectionInfoList.name"
+            v-model="sourceConnection.name"
             placeholder="Source Connection Name"
-            :invalid="!state.sourceConnectionInfoList.name"
-            @change="handleInfo"
+            :invalid="!sourceConnection.name"
           />
         </p-field-group>
         <p-field-group label="Description">
-          <p-textarea v-model="state.sourceConnectionInfoList.description" />
+          <p-textarea v-model="sourceConnection.description" />
         </p-field-group>
       </div>
       <div class="right-layer">
         <p-field-group label="IP Address" invalid required>
           <p-text-input
-            v-model="state.sourceConnectionInfoList.ip_address"
+            v-model="sourceConnection.ip_address"
             :invalid="!invalidState.isIpAddressValid"
             placeholder="###.###.###.###"
           />
         </p-field-group>
         <p-field-group label="Port (for SSH)" invalid required>
           <p-text-input
-            v-model="state.sourceConnectionInfoList.ssh_port"
-            placeholder="1~256"
+            v-model="sourceConnection.ssh_port"
+            placeholder="1~65535"
             :invalid="!invalidState.isPortValid"
           />
         </p-field-group>
-        <p-field-group label="User" required>
+        <p-field-group label="User" invalid required>
           <p-text-input
-            v-model="state.sourceConnectionInfoList.user"
+            v-model="sourceConnection.user"
             placeholder="User ID"
+            :invalid="!sourceConnection.user"
           />
         </p-field-group>
-        <p-field-group label="Password" required>
+        <p-field-group label="Password" invalid required>
           <p-text-input
-            v-model="state.sourceConnectionInfoList.password"
+            v-model="sourceConnection.password"
             placeholder="Password"
+            :invalid="sourceConnection.password === ''"
           />
         </p-field-group>
-        <p-field-group class="private-key" label="Private Key" required>
-          <p-text-input v-model="state.sourceConnectionInfoList.private_key" />
+        <p-field-group class="private-key" label="Private Key">
+          <p-text-input v-model="sourceConnection.private_key" />
         </p-field-group>
       </div>
     </p-pane-layout>
-    <!-- <p-icon-button name="ic_close" /> -->
     <button @click="handleDelete">
       <p-i name="ic_close" />
     </button>
@@ -145,16 +114,12 @@ watchEffect(
   min-height: 15.125rem;
   border-radius: 0.25rem 0 0 0.25rem;
   .left-layer {
-    /* @apply w-[450px] mr-[1.5rem]; */
     .p-text-input {
       @apply w-[450px];
     }
   }
   .right-layer {
     @apply grid grid-cols-2 gap-x-[1.5rem] ml-[1.5rem];
-    .p-text-input {
-      @apply w-[37rem];
-    }
     .private-key {
       @apply col-span-2;
       .p-text-input {

@@ -4,16 +4,80 @@ import {
   useAxiosPost,
 } from '@/shared/libs';
 import {
+  ISourceConnectionInfo,
   ISourceConnectionResponse,
   ISourceInfraInfoResponse,
   ISourceSoftwareCollectResponse,
 } from '@/entities/sourceConnection/model/types.ts';
 import { axiosInstance } from '@/shared/libs/api/instance.ts';
 
+const CREATE_SOURCE_CONNECTION = 'create-connection-info';
+const UPDATE_SOURCE_CONNECTION = 'update-connection-info';
 const GET_SOURCE_CONNECTION_LIST = 'list-connection-info';
 const COLLECT_INFRA = 'import-infra';
 const COLLECT_SW = 'import-software';
 const DELETE_SOURCE_CONNECTION = 'delete-connection-info';
+
+export function useCreateConnectionInfo(
+  sgId: string | null,
+  requestData: null | ISourceConnectionInfo,
+) {
+  const requestBodyWrapper: Pick<
+    RequestBodyWrapper<{
+      sgId: string | null;
+      requestData: null | ISourceConnectionInfo;
+    }>,
+    'pathParams' & 'request'
+  > = {
+    pathParams: {
+      sgId: sgId || null,
+    },
+    request: requestData,
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<ISourceConnectionResponse>,
+    Pick<
+      RequestBodyWrapper<{
+        sgId: string | null;
+        connId: string | null;
+      }>,
+      'pathParams' & 'request'
+    >
+  >(CREATE_SOURCE_CONNECTION, requestBodyWrapper);
+}
+
+export function useUpdateConnectionInfo(
+  sgId: string | null,
+  connId: string | null,
+  requestData: null | any,
+) {
+  const requestBodyWrapper: Pick<
+    RequestBodyWrapper<{
+      sgId: string | null;
+      connId: string | null;
+    }>,
+    'pathParams' & 'request'
+  > = {
+    pathParams: {
+      sgId: sgId || null,
+      connId: connId || null,
+    },
+    request: requestData,
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<ISourceConnectionResponse>,
+    Pick<
+      RequestBodyWrapper<{
+        sgId: string | null;
+        connId: string | null;
+      }>,
+      'pathParams' & 'request'
+    >
+  >(UPDATE_SOURCE_CONNECTION, requestBodyWrapper);
+}
+
 export function useGetSourceConnectionList(sourceGroupId: string | null) {
   const requestWrapper: Required<
     Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>
@@ -22,7 +86,7 @@ export function useGetSourceConnectionList(sourceGroupId: string | null) {
   };
 
   return useAxiosPost<
-    IAxiosResponse<ISourceConnectionResponse[]>,
+    IAxiosResponse<ISourceConnectionResponse>,
     Required<Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>>
   >(GET_SOURCE_CONNECTION_LIST, requestWrapper);
 }

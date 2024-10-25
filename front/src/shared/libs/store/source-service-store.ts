@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 export interface SourceService {
   name: string;
-  description: string;
+  description: string | null | undefined;
 }
 export interface SourceConnection {
   name: string;

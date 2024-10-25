@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { PDefinitionTable, PButton, PStatus } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, watch } from 'vue';
+import { onBeforeMount, onMounted, ref, watch, watchEffect } from 'vue';
 import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
 import { useGetSourceGroupStatus } from '@/entities/sourceService/api';
-import {
-  showErrorMessage,
-  showLoadingMessage,
-  showSuccessMessage,
-} from '@/shared/utils';
-import { get } from '@vueuse/core';
-import { SourceServiceStatus } from '@/entities/sourceService/model/types.ts';
+import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+import { useGetSourceService } from '@/entities/sourceService/api';
+
+const getSourceService = useGetSourceService(null);
 
 interface IProps {
   selectedServiceId: string;
 }
 
 const props = defineProps<IProps>();
+
+const emit = defineEmits(['update:source-connection-name']);
+
 const {
   loadSourceServiceData,
   sourceServiceStore,
@@ -47,9 +47,39 @@ watch(
   { immediate: true },
 );
 
+const checkAble = ref<boolean>(false);
+
 onBeforeMount(() => {
   initTable();
 });
+
+watchEffect(() => {
+  emit(
+    'update:source-connection-name',
+    sourceServiceStore.getServiceById(props.selectedServiceId)?.name,
+  );
+});
+
+watchEffect(
+  async () => {
+    try {
+      const { data } = await getSourceService.execute({
+        pathParams: {
+          sgId: props.selectedServiceId,
+        },
+      });
+
+      if (data.status && data.status.code === 200) {
+        data.responseData.connection_info_status_count.connection_info_total > 0
+          ? (checkAble.value = true)
+          : (checkAble.value = false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  { flush: 'post' },
+);
 
 function handleSourceGroupStatusCheck() {
   resGetSourceGroupStatus
@@ -78,7 +108,7 @@ function handleSourceGroupStatusCheck() {
       :block="true"
     >
       <template #data-status="{ data }">
-        <p-status :theme="data.color" :text="data.text"></p-status>
+        <p-status :theme="data.color" :text="data.text" />
       </template>
 
       <template #extra="{ name }">
@@ -87,6 +117,7 @@ function handleSourceGroupStatusCheck() {
             style-type="tertiary"
             size="sm"
             :loading="resGetSourceGroupStatus.status.value === 'loading'"
+            :disabled="!checkAble"
             @click="handleSourceGroupStatusCheck"
           >
             Check

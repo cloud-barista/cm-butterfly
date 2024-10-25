@@ -5,3 +5,5 @@ export * from './menuCategory';
 export * from './topbarNotificationContextMenu';
 export * from './widgetLayout';
 export * from './createForm';
+export * from './simpleEditForm';
+export * from './jsonEditor';

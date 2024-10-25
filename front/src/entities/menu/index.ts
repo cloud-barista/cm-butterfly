@@ -1,2 +1,3 @@
 export * from './model/types';
-export * from './model/menu-architecture';
+export * from './model/stores';
+export * from './api';

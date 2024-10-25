@@ -36,12 +36,6 @@ const { isMinimized, isCollapsed, isGnbToolboxShown } = storeToRefs(sidebar);
   .g-n-b-item {
     @apply absolute flex border-gray-200;
   }
-  .g-n-b-rail {
-    /* z-index: 50; */
-  }
-  .g-n-b-toolbox {
-    /* z-index: 100; */
-  }
 }
 .main {
   @apply absolute;

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import {
   ISourceConnection,
+  ISourceConnectionInfo,
   ISourceConnectionResponse,
   ISourceInfraInfoResponse,
   ISourceSoftwareCollectResponse,
@@ -13,18 +14,28 @@ const NAMESPACE = 'SOURCECONNECTION';
 export const useSourceConnectionStore = defineStore(NAMESPACE, () => {
   //key : sourceConnection Id , value : sourceConnection Info
   const connections = ref<Record<string, ISourceConnection>>({});
+  const editConnections: any[] = [];
+  const withSourceConnection = ref(false);
+
+  function setEditConnections(value: any) {
+    return editConnections.push(value);
+  }
+
+  function setWithSourceConnection(value: boolean) {
+    withSourceConnection.value = value;
+  }
 
   function getConnectionById(connectId: string): ISourceConnection | null {
     return connections.value[connectId] || null;
   }
 
-  function setConnections(res: ISourceConnectionResponse[]) {
-    res.forEach(el => {
+  function setConnections(res: ISourceConnectionResponse) {
+    res.connection_info.forEach(el => {
       setConnection(el);
     });
   }
 
-  function setConnection(res: ISourceConnectionResponse) {
+  function setConnection(res: ISourceConnectionInfo) {
     const initAdditionalConnectionInfo = {
       collectSwStatus: '',
       collectSwDateTime: '',
@@ -74,10 +85,14 @@ export const useSourceConnectionStore = defineStore(NAMESPACE, () => {
   return {
     setConnection,
     connections,
+    editConnections,
+    setEditConnections,
     getConnectionById,
     setConnections,
     mapSourceConnectionCollectSWResponse,
     mapSourceConnectionCollectInfraResponse,
     clear,
+    withSourceConnection,
+    setWithSourceConnection,
   };
 });

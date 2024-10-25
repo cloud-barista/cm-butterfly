@@ -3,11 +3,16 @@ import { JsonViewer } from '@/widgets/sourceServices';
 import CreateForm from '@/widgets/layout/createForm/ui/CreateForm.vue';
 import { PButton } from '@cloudforet-test/mirinae';
 import { i18n } from '@/app/i18n';
-import { SaveSourceModelModal } from '@/widgets/sourceServices';
+import { SimpleEditForm } from '@/widgets/layout';
 import { ref } from 'vue';
 
 interface iProps {
-  infraData: string | undefined;
+  collectData: string | undefined;
+  sourceConnectionName: string;
+  schema: {
+    json: boolean;
+    properties: object;
+  };
 }
 
 const props = defineProps<iProps>();
@@ -29,10 +34,16 @@ const handleMetaViewer = () => {
 
 <template>
   <div class="page-modal-layout">
-    <create-form title="Source Connection Viewer">
+    <create-form
+      title="Source Connection Viewer"
+      :badge-title="sourceConnectionName"
+      :need-widget-layout="true"
+      @update:modal-state="emit('update:is-meta-viewer-opened', false)"
+    >
       <template #add-info>
         <json-viewer
-          :form-data="infraData"
+          :form-data="collectData"
+          :schema="schema"
           @update:is-converted="isConverted = true"
         />
       </template>
@@ -48,9 +59,20 @@ const handleMetaViewer = () => {
         </p-button>
       </template>
     </create-form>
-    <save-source-model-modal
+    <simple-edit-form
       v-if="isSaveModal"
+      name=""
+      header-title="Save Source Modal"
+      name-label="Name"
+      name-placeholder="Source Service name"
+      @update:close-modal="isSaveModal = false"
       @update:save-modal="handleMetaViewer"
     />
+    <!-- <save-source-model-modal
+      v-if="isSaveModal"
+      header-title="Save Source Model"
+      name-label="Source Service name"
+      @update:save-modal="handleMetaViewer"
+    /> -->
   </div>
 </template>

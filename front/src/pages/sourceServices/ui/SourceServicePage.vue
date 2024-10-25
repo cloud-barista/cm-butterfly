@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch, watchEffect } from 'vue';
+import { computed, reactive, ref, watchEffect } from 'vue';
 import { PButton, PButtonTab, PTab } from '@cloudforet-test/mirinae';
 import SourceServiceList from '@/widgets/source/sourceServices/sourceServiceList/ui/SourceServiceList.vue';
 import SourceServiceDetail from '@/widgets/source/sourceServices/sourceServiceDetail/ui/SourceServiceDetail.vue';
@@ -8,11 +8,24 @@ import SourceInformation from '@/widgets/source/sourceConnections/sourceConnecti
 import SourceInfraCollect from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/ui/SourceInfraCollect.vue';
 import SourceSoftwareCollect from '@/widgets/source/sourceConnections/sourceConnectionDetail/softwareCollect/ui/SourceSoftwareCollect.vue';
 import SourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/SourceConnectionModal.vue';
-import { AddSourceServiceModal } from '@/widgets/sourceServices';
+import {
+  AddSourceServiceModal,
+  EditSourceServiceModal,
+} from '@/widgets/sourceServices';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
 import MetaViewer from '@/widgets/source/sourceConnections/sourceConnectionDetail/metaViewer/ui/MetaViewer.vue';
 import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
+import EditSourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/EditSourceConnectionModal.vue';
+import { showSuccessMessage } from '@/shared/utils';
+
+const sourceConnectionName = ref<string>('');
+const multiSelectedConnectionIds = ref<string[]>([]);
+const isServiceEditBtnClicked = ref<boolean>(false);
+const infraData = ref<string>();
+const softwareData = ref<string>();
+const selectedServiceId = ref<string>('');
+const selectedConnectionId = ref<string>('');
 
 const { sourceConnectionStore } = useSourceInfraCollectModel();
 
@@ -58,6 +71,7 @@ const sourceConnectionDetailTabState = reactive({
 const modalStates = reactive({
   addServiceGroup: {
     open: false,
+    category: 'add',
     confirm() {
       modalStates.addServiceGroup.open = false;
     },
@@ -69,6 +83,7 @@ const modalStates = reactive({
 
   addSourceConnection: {
     open: false,
+    category: 'add',
     trigger: false,
     confirm() {
       modalStates.addSourceConnection.open = false;
@@ -77,16 +92,33 @@ const modalStates = reactive({
       modalStates.addSourceConnection.trigger = false;
     },
   },
-  addMetaViewer: {
+  addInfraMetaViewer: {
     open: false,
     confirm() {
-      modalStates.addMetaViewer.open = false;
+      modalStates.addInfraMetaViewer.open = false;
+    },
+  },
+  addSoftwareMetaViewer: {
+    open: false,
+    confirm() {
+      modalStates.addSoftwareMetaViewer.open = false;
     },
   },
 });
 
-const selectedServiceId = ref<string>('');
-const selectedConnectionId = ref<string>('');
+watchEffect(() => {
+  infraData.value = sourceConnectionStore.getConnectionById(
+    selectedConnectionId.value,
+  )?.infraData;
+  softwareData.value = sourceConnectionStore.getConnectionById(
+    selectedConnectionId.value,
+  )?.softwareData;
+});
+
+const handleSourceGroupEdit = () => {
+  modalStates.addServiceGroup.open = true;
+  isServiceEditBtnClicked.value = true;
+};
 
 function handleClickServiceId(id: string) {
   selectedServiceId.value = id;
@@ -99,7 +131,13 @@ function handleGroupModal(value: boolean) {
 
 function handleConnectionModal(value: boolean) {
   modalStates.addSourceConnection.open = value;
+  isCollapsed.value = value;
+  isGnbToolboxShown.value = !value;
+}
+
+function handleNewConnectionModal(value: boolean) {
   modalStates.addServiceGroup.open = !value;
+  modalStates.addSourceConnection.open = value;
   isCollapsed.value = value;
   isGnbToolboxShown.value = !value;
 }
@@ -109,11 +147,45 @@ const data = computed(() => {
     ?.softwareData;
 });
 
-// watchEffect(() => {
-//   console.log(
-//     sourceConnectionStore.getConnectionById(selectedConnectionId.value),
-//   );
-// });
+const infraSchema = {
+  json: true,
+  properties: {
+    compute: {
+      type: 'string',
+      title: 'Compute',
+    },
+    network: {
+      type: 'string',
+      title: 'Network',
+    },
+    storage: {
+      type: 'string',
+      title: 'Storage',
+    },
+  },
+};
+
+const softwareSchema = {
+  json: true,
+  properties: {
+    deb: {
+      type: 'string',
+      title: 'Debian',
+    },
+    docker: {
+      type: 'string',
+      title: 'Docker',
+    },
+    podman: {
+      type: 'string',
+      title: 'Podman',
+    },
+    rpm: {
+      type: 'string',
+      title: 'RPM',
+    },
+  },
+};
 </script>
 
 <template>
@@ -131,6 +203,10 @@ const data = computed(() => {
         @selectRow="handleClickServiceId"
         @update:addModalState="e => (modalStates.addServiceGroup.open = e)"
         @update:trigger="modalStates.addServiceGroup.updateTrigger"
+        @update:title="e => (modalStates.addServiceGroup.category = e)"
+        @update:connection-title="
+          e => (modalStates.addSourceConnection.category = e)
+        "
       />
       <p
         v-if="!selectedServiceId"
@@ -146,12 +222,15 @@ const data = computed(() => {
               <p-button
                 :style-type="'tertiary'"
                 icon-left="ic_edit"
-                @click="modalStates.addServiceGroup.open = true"
+                @click="handleSourceGroupEdit"
               >
                 Edit
               </p-button>
             </div>
-            <SourceServiceDetail :selected-service-id="selectedServiceId" />
+            <SourceServiceDetail
+              :selected-service-id="selectedServiceId"
+              @update:source-connection-name="e => (sourceConnectionName = e)"
+            />
           </template>
           <template #connections>
             <div class="tab-section-header">
@@ -163,6 +242,10 @@ const data = computed(() => {
               @selectRow="id => (selectedConnectionId = id)"
               @update:addModalState="handleConnectionModal"
               @update:trigger="modalStates.addSourceConnection.updateTrigger"
+              @update:title="
+                e => (modalStates.addSourceConnection.category = e)
+              "
+              @select:multi-row="e => (multiSelectedConnectionIds = e)"
             >
               <template v-if="selectedConnectionId" #sourceConnectionDetail>
                 <p-button-tab
@@ -176,9 +259,11 @@ const data = computed(() => {
                     <SourceInfraCollect
                       :source-group-id="selectedServiceId"
                       :connection-id="selectedConnectionId"
-                      :meta-viewer-modal-state="modalStates.addMetaViewer.open"
+                      :meta-viewer-modal-state="
+                        modalStates.addInfraMetaViewer.open
+                      "
                       @update:metaViewerModalState="
-                        e => (modalStates.addMetaViewer.open = e)
+                        e => (modalStates.addInfraMetaViewer.open = e)
                       "
                     />
                   </template>
@@ -186,9 +271,11 @@ const data = computed(() => {
                     <SourceSoftwareCollect
                       :source-group-id="selectedServiceId"
                       :connection-id="selectedConnectionId"
-                      :meta-viewer-modal-state="modalStates.addMetaViewer.open"
+                      :meta-viewer-modal-state="
+                        modalStates.addSoftwareMetaViewer.open
+                      "
                       @update:metaViewerModalState="
-                        e => (modalStates.addMetaViewer.open = e)
+                        e => (modalStates.addSoftwareMetaViewer.open = e)
                       "
                     />
                   </template>
@@ -201,42 +288,75 @@ const data = computed(() => {
     </section>
     <div class="relative z-60">
       <add-source-service-modal
-        v-if="modalStates.addServiceGroup.open"
-        save-button-name="Add"
-        @update:isModalOpened="handleGroupModal"
-        @update:is-connection-modal-opened="handleConnectionModal"
+        v-if="modalStates.addServiceGroup.open && !isServiceEditBtnClicked"
+        @update:isModalOpened="() => (modalStates.addServiceGroup.open = false)"
+        @update:is-connection-modal-opened="handleNewConnectionModal"
         @update:trigger="modalStates.addServiceGroup.trigger = true"
+      />
+      <edit-source-service-modal
+        v-if="modalStates.addServiceGroup.open && isServiceEditBtnClicked"
+        :selected-service-id="selectedServiceId"
+        @update:is-service-modal-opened="
+          e => {
+            modalStates.addServiceGroup.open = e;
+            isServiceEditBtnClicked = e;
+          }
+        "
+        @update:trigger="
+          () => {
+            modalStates.addServiceGroup.trigger = true;
+            showSuccessMessage('success', 'Edit Success');
+          }
+        "
       />
     </div>
     <div class="relative z-70">
       <source-connection-modal
-        v-if="modalStates.addSourceConnection.open"
+        v-if="
+          modalStates.addSourceConnection.open &&
+          modalStates.addSourceConnection.category === 'add'
+        "
         :selected-connection-id="selectedConnectionId"
         @update:is-connection-modal-opened="handleConnectionModal"
+        @update:is-service-modal-opened="
+          e => (modalStates.addServiceGroup.open = e)
+        "
+      />
+      <edit-source-connection-modal
+        v-else-if="
+          modalStates.addSourceConnection.open &&
+          modalStates.addSourceConnection.category === 'edit'
+        "
+        :source-service-id="selectedServiceId"
+        :selected-connection-id="selectedConnectionId"
+        :multi-selected-connection-ids="multiSelectedConnectionIds"
+        @update:is-connection-modal-opened="handleConnectionModal"
+        @update:is-service-modal-opened="
+          e => (modalStates.addServiceGroup.open = e)
+        "
+        @update:trigger="modalStates.addSourceConnection.trigger = true"
       />
 
       <meta-viewer
         v-if="
-          modalStates.addMetaViewer.open &&
+          modalStates.addInfraMetaViewer.open &&
           sourceConnectionStore.getConnectionById(selectedConnectionId)
             ?.infraData
         "
-        :infra-data="
-          sourceConnectionStore.getConnectionById(selectedConnectionId)
-            ?.infraData
-        "
-        @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
+        :collect-data="infraData"
+        :source-connection-name="sourceConnectionName"
+        :schema="infraSchema"
+        @update:is-meta-viewer-opened="modalStates.addInfraMetaViewer.confirm()"
       />
       <meta-viewer
-        v-else-if="modalStates.addMetaViewer.open && data"
-        :infra-data="
-          sourceConnectionStore.getConnectionById(selectedConnectionId)
-            ?.softwareData
+        v-else-if="modalStates.addSoftwareMetaViewer.open && data"
+        :collect-data="softwareData"
+        :source-connection-name="sourceConnectionName"
+        :schema="softwareSchema"
+        @update:is-meta-viewer-opened="
+          modalStates.addSoftwareMetaViewer.confirm()
         "
-        @update:is-meta-viewer-opened="modalStates.addMetaViewer.confirm()"
       />
     </div>
   </div>
 </template>
-
-<style scoped lang="postcss"></style>

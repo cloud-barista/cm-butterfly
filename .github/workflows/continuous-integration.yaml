@@ -20,14 +20,14 @@ on:
 
 jobs:
   # The job key (i.e., ID) is "build-source-code"
-  build-source-code:
+  build-source-code-api-server:
     # Job name is "Building source code"
     # This job runs on Ubuntu-latest (Ubuntu 22.04 LTS checked on 2023-12-13)
     # See https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
-    name: Build source code
+    name: Build source code for butterfly api
     strategy:
       matrix:
-        go-version: ["1.21"]
+        go-version: ["1.23"]
         os: [ubuntu-22.04]
         #os: [ubuntu-22.04, ubuntu-20.04, windows-2022, windows-2019]
     runs-on: ${{matrix.os}}
@@ -39,16 +39,21 @@ jobs:
         with:
           go-version: ${{matrix.go-version}}
 
-      - name: Build
-        run: make
+      - name: Install Buffalo CLI
+        run: go install github.com/gobuffalo/cli/cmd/buffalo@v0.18.14
 
-      # - name: Test
-      #   run: go test -v ./...
+      - name: Install Go dependencies
+        run: go mod download
+        working-directory: ./api
+    
+      - name: Build Buffalo application
+        run: buffalo build --static
+        working-directory: ./api
 
   # The job key is "build-container-image"
-  build-container-image:
+  build-container-image-api-server:
     # Job name is "Build a container image"
-    name: Build a container image
+    name: Build a container image for butterfly api
 
     # This job runs on Ubuntu-latest (Ubuntu 22.04 LTS checked on 2023-12-13)
     # See https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
@@ -61,5 +66,42 @@ jobs:
 
       - name: Build image
         env:
-          IMAGE_NAME: ${{ github.event.repository.name }}
-        run: docker build . --file Dockerfile --tag $IMAGE_NAME
+          IMAGE_NAME: ${{ github.event.repository.name }}-api
+        run: docker image build --file ./api/Dockerfile --tag $IMAGE_NAME ./api
+
+  build-source-code-front:
+    name: Build source code for butterfly front
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+    runs-on: ${{matrix.os}}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' 
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps --save-prod
+        working-directory: ./front
+
+      - name: Build application
+        run: npm run build
+        working-directory: ./front
+
+  build-container-image-front:
+    name: Build a container image for butterfly front
+
+    runs-on: ubuntu-22.04
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Build image
+        env:
+          IMAGE_NAME: ${{ github.event.repository.name }}-front
+        run: docker image build --file ./front/Dockerfile --tag $IMAGE_NAME ./front

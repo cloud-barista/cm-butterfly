@@ -5,40 +5,58 @@ import {
   PTextInput,
   PToggleButton,
   PDivider,
-  PLink,
-  PI,
-  PIconButton,
+  PButton,
   PTextarea,
 } from '@cloudforet-test/mirinae';
+import { watchEffect, ref, reactive, computed, watch } from 'vue';
+import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 import { useSourceServiceStore } from '@/shared/libs';
 import { storeToRefs } from 'pinia';
-import { watchEffect, ref } from 'vue';
-import { MENU_ID } from '@/entities';
-import { SOURCE_COMPUTING_ROUTE } from '@/app/providers/router/routes/constants';
 
+const sourceConnectionStore = useSourceConnectionStore();
 const sourceServiceStore = useSourceServiceStore();
 
-const { withSourceConnection, sourceConnectionNameList, sourceServiceInfo } =
-  storeToRefs(sourceServiceStore);
+const { sourceServiceInfo } = storeToRefs(sourceServiceStore);
+
+interface iProps {
+  sourceServiceName?: string;
+  description?: string | null;
+  isEdit: boolean;
+}
+
+const props = defineProps<iProps>();
 
 const emit = defineEmits([
-  'update:sourceServiceName',
+  'update:source-servie-info',
   'update:is-connection-modal-opened',
 ]);
 
+const state = reactive({
+  sourceServiceName: sourceServiceInfo.value.name,
+  description: sourceServiceInfo.value.description as string | null | undefined,
+});
+
 const handleCheckSourceConnection = () => {
-  sourceServiceStore.setWithSourceConnection();
+  sourceConnectionStore.setWithSourceConnection(
+    !sourceConnectionStore.withSourceConnection,
+  );
+};
+
+const handleLink = () => {
+  emit('update:is-connection-modal-opened', true);
 };
 
 const sourceConnectionNames = ref<string>('');
 
 watchEffect(
   () => {
-    sourceConnectionNameList.value.forEach(
-      (sourceConnectionName: string, idx: number) => {
-        idx === sourceConnectionNameList.value.length - 1
-          ? (sourceConnectionNames.value += sourceConnectionName)
-          : (sourceConnectionNames.value += sourceConnectionName + ', ');
+    sourceConnectionStore.editConnections.forEach(
+      (sourceConnection, idx: number) => {
+        if (sourceConnection.name.length > 0) {
+          idx === sourceConnectionStore.editConnections.length - 1
+            ? (sourceConnectionNames.value += sourceConnection.name)
+            : (sourceConnectionNames.value += sourceConnection.name + ', ');
+        }
       },
     );
   },
@@ -47,14 +65,47 @@ watchEffect(
 
 watchEffect(
   () => {
-    emit('update:sourceServiceName', sourceServiceInfo.value);
+    emit('update:source-servie-info', {
+      sourceServiceName: state.sourceServiceName,
+      description: state.description,
+    });
   },
   { flush: 'post' },
 );
 
-const handleAddSourceConnection = () => {
-  emit('update:is-connection-modal-opened', true);
-};
+watchEffect(() => {
+  if (
+    props.sourceServiceName ||
+    (props.sourceServiceName && props.description)
+  ) {
+    state.sourceServiceName = props.sourceServiceName;
+    state.description = props.description;
+  }
+});
+
+const isAddDisabled = computed(
+  () => sourceConnectionStore.withSourceConnection,
+);
+
+watchEffect(
+  () => {
+    sourceServiceInfo.value.name = state.sourceServiceName;
+    sourceServiceInfo.value.description = state.description;
+  },
+  { flush: 'post' },
+);
+
+const isToggleDisabled = ref<boolean>(true);
+
+watch(
+  () => isToggleDisabled,
+  () => {
+    if (props.isEdit) {
+      isToggleDisabled.value = false;
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -62,34 +113,36 @@ const handleAddSourceConnection = () => {
     <p-pane-layout class="layout">
       <p-field-group label="Source Service Name" required>
         <p-text-input
-          v-model="sourceServiceInfo.name"
+          v-model="state.sourceServiceName"
           placeholder="Source Service Name"
           :disabled="false"
         />
       </p-field-group>
       <p-field-group label="Description">
-        <p-textarea v-model="sourceServiceInfo.description" :disabled="false" />
+        <p-textarea
+          v-if="state.description !== null"
+          v-model="state.description"
+          :disabled="false"
+        />
       </p-field-group>
     </p-pane-layout>
     <p-pane-layout class="layout">
       <div class="toggle">
         <p-toggle-button
-          v-model="withSourceConnection"
+          :value="sourceConnectionStore.withSourceConnection"
+          :disabled="!isToggleDisabled"
           @change-toggle="handleCheckSourceConnection"
         />
         <span>With Source Connection</span>
       </div>
       <p-divider />
-      <!-- <p-link
-        text="Go add Source Connection"
-        action-icon="internal-link"
-        :highlight="withSourceConnection"
-        :disabled="!withSourceConnection"
-      /> -->
-      <p class="link" @click="handleAddSourceConnection">
+      <p-button
+        style-type="tertiary"
+        :disabled="!isAddDisabled"
+        @click="handleLink"
+      >
         Go add Source Connection
-        <p-i name="ic_arrow-right" width="1rem" height="1rem" />
-      </p>
+      </p-button>
       <p-field-group label="Source Connection" required>
         <p-text-input
           v-model="sourceConnectionNames"

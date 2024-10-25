@@ -45,8 +45,8 @@ export function useSourceServiceListModel() {
       Record<SourceServiceTableType | 'originalData', any>
     > = {
       name: sourceService.name,
-      description: sourceService.description,
-      connectionCount: sourceService.connectionCount || '',
+      description: sourceService.description || '-',
+      connectionCount: sourceService.connectionCount ?? '',
       id: sourceService.id,
       originalData: sourceService,
     };
