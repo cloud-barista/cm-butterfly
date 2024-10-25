@@ -23,6 +23,8 @@ RUN buffalo build --static -o /src/cm-butterfly/api
 ## Stage 2 - Application Deploy
 FROM debian:buster-slim as deploy
 
+WORKDIR /app
+
 COPY --from=build /src/cm-butterfly/ .
 
 
@@ -39,4 +41,4 @@ ENV POSTGRES_DB=${POSTGRES_DB:-butterfly-db}
 
 EXPOSE 4000
 
-CMD bash -c 'until /api migrate; do echo "Migration failed. Retrying in 10 seconds..."; sleep 10; done; /api > /api.log 2>&1 &  tail -f /api.log & wait'
+CMD bash -c 'until /app/api migrate; do echo "Migration failed. Retrying in 10 seconds..."; sleep 10; done; /app/api > /app/api.log 2>&1 &  tail -f /app/api.log & wait'
