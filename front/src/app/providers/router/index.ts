@@ -16,7 +16,6 @@ import { RoleType } from '../../../shared/libs/accessControl/pageAccessHelper/ty
 import { getMinimalPageAccessPermissionList } from '../../../shared/libs';
 import { toLower } from 'lodash';
 import { tempRoutes } from './routes/temp.ts';
-import WorkflowTemplate from '@/features/workflow/workflowDesigner/ui/WorkflowDesigner.vue';
 import NotFound from '@/pages/error/404/NotFound.vue';
 //TODO admin부분 고려
 
@@ -45,7 +44,7 @@ export class McmpRouter {
     ...authRoutes,
     {
       path: '/test',
-      component: WorkflowTemplate,
+      component: MainLayout,
     },
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
   ];

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CreateForm } from '@/widgets/layout';
 import { PButton } from '@cloudforet-test/mirinae';
+import WorkflowEditor from '@/features/workflow/workflowEditor/ui/WorkflowEditor.vue';
 
 const emit = defineEmits(['update:close-modal']);
 
@@ -23,7 +24,7 @@ function handleSave() {
       @update:modal-state="handleModal"
     >
       <template #add-content>
-        <!-- TODO: 여기에 구현하기 -->
+        <WorkflowEditor></WorkflowEditor>
       </template>
       <template #buttons>
         <p-button

@@ -1781,27 +1781,27 @@ serviceActions:
   
   
   cm-damselfly:
-    Model{Istargetmodel}:
+    GetUserModel:
       method: get
       resourcePath: /model/{isTargetModel}
       description: "Get a list of all user models."
-    Onpremmodel:
+    CreateOnpremmodel:
       method: post
       resourcePath: /onpremmodel
       description: "Create a new on-premise model with the given information."
-    Onpremmodel:
+    ListOnpremmodel:
       method: get
       resourcePath: /onpremmodel
       description: "Get a list of on-premise models."
-    Onpremmodel{Id}:
+    UpdateOnpremmodel:
       method: put
       resourcePath: /onpremmodel/{id}
       description: "Update a on-premise model with the given information."
-    Onpremmodel{Id}:
+    DeleteOnpremmodel:
       method: delete
       resourcePath: /onpremmodel/{id}
       description: "Delete a on-premise model with the given information."
-    Onpremmodel{Id}:
+    GetOnpremmodel:
       method: get
       resourcePath: /onpremmodel/{id}
       description: "Get a specific on-premise model."
@@ -1809,23 +1809,23 @@ serviceActions:
       method: get
       resourcePath: /readyz
       description: "Check Damselfly is ready"
-    Cloudmodel:
+    CreateCloudmodel:
       method: post
       resourcePath: /cloudmodel
       description: "Create a new cloud model with the given information."
-    Cloudmodel:
+    ListCloudmodel:
       method: get
       resourcePath: /cloudmodel
       description: "Get a list of cloud models."
-    Cloudmodel{Id}:
+    DeleteCloudmodel:
       method: delete
       resourcePath: /cloudmodel/{id}
       description: "Delete a cloud model with the given information."
-    Cloudmodel{Id}:
+    GetCloudmodel:
       method: get
       resourcePath: /cloudmodel/{id}
       description: "Get a specific cloud model."
-    Cloudmodel{Id}:
+    UpdateCloudmodel:
       method: put
       resourcePath: /cloudmodel/{id}
       description: "Update a cloud model with the given information."
