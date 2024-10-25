@@ -61,6 +61,7 @@ export function useGetSourceService(sgId: string | null) {
   );
 }
 
+// deprecated
 export function useGetSourceGroupStatus(sourceGroupId: string | null) {
   const requestWrapper: Required<
     Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>

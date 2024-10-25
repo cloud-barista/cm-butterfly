@@ -17,6 +17,8 @@ const GET_SOURCE_CONNECTION_LIST = 'list-connection-info';
 const COLLECT_INFRA = 'import-infra';
 const COLLECT_SW = 'import-software';
 const DELETE_SOURCE_CONNECTION = 'delete-connection-info';
+const REFRESH_SOURCE_GROUP_CONNECTION_INFO_STATUS =
+  'Refresh-Source-Group-Connection-Info-Status';
 
 export function useCreateConnectionInfo(
   sgId: string | null,
@@ -133,4 +135,17 @@ export function useBulkDeleteSourceConnection(params: params[]) {
   });
 
   return Promise.all(promiseArr);
+}
+
+export function useRefreshSourceGroupConnectionInfoStatus(sgId: string | null) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>
+  > = {
+    pathParams: { sgId: sgId || null },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<any>,
+    Required<Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>>
+  >(REFRESH_SOURCE_GROUP_CONNECTION_INFO_STATUS, requestWrapper);
 }
