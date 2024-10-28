@@ -10,6 +10,8 @@ import {
 import { Ref, ref, watch } from 'vue';
 import { i18n } from '@/app/i18n';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
+import { useSidebar } from '@/shared/libs/store/sidebar.ts';
+import { storeToRefs } from 'pinia';
 
 const emit = defineEmits(['handleLoginSuccess']);
 
@@ -23,6 +25,9 @@ const userPW = useInputModel<string | null>(
 );
 
 const resLogin = useGetLogin<IUserLoginResponse, IUserLogin | null>(null);
+const sidebar = useSidebar();
+
+const { isCollapsed, isGnbToolboxShown } = storeToRefs(sidebar);
 
 const handleLogin = async () => {
   if (!userId.touched.value || !userPW.touched.value) {
@@ -38,6 +43,8 @@ const handleLogin = async () => {
     null;
 
   if (userId.isValid.value && userPW.isValid.value) {
+    isCollapsed.value = false;
+    isGnbToolboxShown.value = true;
     resLogin.execute({
       request: {
         id: userId.value.value!,

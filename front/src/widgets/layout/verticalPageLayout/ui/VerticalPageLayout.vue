@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { PVerticalLayout } from '@cloudforet-test/mirinae';
 // import { styleVariables } from '@cloudforet-test/mirinae';
 import type { Breadcrumb } from '@/shared/types';
-import { useSidebar } from '@/shared/libs/store/sidebar';
-import { storeToRefs } from 'pinia';
-import { useWindowSize, useElementSize } from '@vueuse/core';
+// import { useSidebar } from '@/shared/libs/store/sidebar';
+// import { storeToRefs } from 'pinia';
+// import { useWindowSize, useElementSize } from '@vueuse/core';
 
 interface Props {
   breadcrumbs?: Breadcrumb[];
@@ -17,25 +17,25 @@ const props = withDefaults(defineProps<Props>(), {
 
 const containerRef = ref<HTMLElement | null>(null);
 
-const sidebar = useSidebar();
+// const sidebar = useSidebar();
 
-const { isMinimized, isCollapsed } = storeToRefs(sidebar);
+// const { isMinimized, isCollapsed } = storeToRefs(sidebar);
 
 const contentRef = ref<null | HTMLElement>(null);
-const { width } = useWindowSize();
-const { width: contentsWidth } = useElementSize(contentRef);
+// const { width } = useWindowSize();
+// const { width: contentsWidth } = useElementSize(contentRef);
 
-const storeState = reactive({
-  isMinimizeNavRail: computed(() => isMinimized),
-});
+// const storeState = reactive({
+//   isMinimizeNavRail: computed(() => isMinimized),
+// });
 
-const state = reactive({
-  padding: computed(() => {
-    if (contentsWidth.value <= 1920) return '0';
-    if (storeState.isMinimizeNavRail) return width.value - 1980;
-    return width.value - 2180;
-  }),
-});
+// const state = reactive({
+//   padding: computed(() => {
+//     if (contentsWidth.value <= 1920) return '0';
+//     if (storeState.isMinimizeNavRail) return width.value - 1980;
+//     return width.value - 2180;
+//   }),
+// });
 
 watch(
   () => props.breadcrumbs,
