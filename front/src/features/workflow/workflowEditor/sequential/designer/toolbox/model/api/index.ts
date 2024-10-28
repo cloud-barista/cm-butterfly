@@ -9,6 +9,7 @@ export interface ITaskInfoResponse {
   data: {
     options: {
       request_body: string;
+      path_params: object;
     };
   };
 }

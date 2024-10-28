@@ -4,13 +4,16 @@ import {
   Step,
 } from '@/features/workflow/workflowEditor/model/types.ts';
 import {
+  ITaskComponentResponse,
   ITaskGroupResponse,
   ITaskResponse,
   IWorkflow,
+  IWorkflowResponse,
 } from '@/entities/workflow/model/types.ts';
 import getRandomId from '@/shared/utils/uuid';
 import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
+import { ITaskInfoResponse } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
 
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
@@ -26,6 +29,7 @@ export function useWorkflowToolModel() {
 
   function convertCicadaToDesignerFormData(
     workflow: IWorkflow,
+    taskComponentList: Array<ITaskInfoResponse>,
   ): IWorkFlowDesignerFormData {
     const sequence: Step[] = [];
 
@@ -46,6 +50,7 @@ export function useWorkflowToolModel() {
 
       if (currentTaskGroup.tasks) {
         for (const task of currentTaskGroup.tasks) {
+          mappingWorkflowTaskComponent(task, taskComponentList);
           const currentDesignerTask = convertToDesignerTask(task);
           currentDesignerTaskGroup.sequence!.push(currentDesignerTask);
         }
@@ -155,10 +160,77 @@ export function useWorkflowToolModel() {
     });
   }
 
+  function mappingWorkflowTaskComponent(
+    task: ITaskResponse,
+    taskComponentList: Array<ITaskInfoResponse>,
+  ) {
+    if (task.request_body === '') {
+      task.request_body =
+        taskComponentList.find(
+          taskComponent => task.task_component === taskComponent.name,
+        )?.data.options.request_body ?? '';
+    }
+  }
+
+  function designerFormDataReordering(sequence: Step[]) {
+    console.log(sequence);
+    const newSequence: Step[] = [];
+    const taskGroupQueue: Step[] = [];
+
+    sequence.forEach(step => {
+      if (step.componentType === 'container') {
+        taskGroupQueue.push(step);
+      }
+    });
+
+    while (taskGroupQueue.length > 0) {
+      const rootTaskGroup = taskGroupQueue.pop()!;
+      const newTaskGroupSequence: Step[] = [];
+      const queue: Step[] = [];
+
+      const rootStep = rootTaskGroup.sequence?.find(
+        step => step.properties.originalData?.dependencies.length === 0,
+      );
+
+      if (rootStep) {
+        queue.push(rootStep);
+        newTaskGroupSequence.push(rootStep);
+      }
+
+      while (queue.length > 0) {
+        const dependencyTask = queue.pop()!;
+
+        const targetTask = rootTaskGroup.sequence?.find(
+          step =>
+            dependencyTask.name ===
+            step.properties.originalData?.dependencies[0],
+        );
+
+        if (targetTask) {
+          queue.push(targetTask);
+          newTaskGroupSequence.push(targetTask);
+        }
+
+        const taskGroup = rootTaskGroup.sequence?.find(
+          step => step.componentType === 'container',
+        );
+
+        if (taskGroup) {
+          taskGroupQueue.push(taskGroup);
+        }
+      }
+      rootTaskGroup.sequence = newTaskGroupSequence;
+      newSequence.push(rootTaskGroup);
+    }
+
+    return newSequence;
+  }
+
   return {
     getWorkflowTemplateData,
     getWorkflowData,
     convertCicadaToDesignerFormData,
     convertDesignerSequenceToCicada,
+    designerFormDataReordering,
   };
 }

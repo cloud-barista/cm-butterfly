@@ -14,7 +14,7 @@ export interface ITaskGroupResponse {
   task_groups?: Array<ITaskGroupResponse>;
 }
 export interface ITaskResponse {
-  dependencies: any;
+  dependencies: any[];
   name: string;
   path_params: any;
   request_body: string;

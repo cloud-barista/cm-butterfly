@@ -10,11 +10,17 @@ import { useWorkflowToolModel } from '@/features/workflow/workflowEditor/model/w
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import { onBeforeMount, reactive, ref, Ref } from 'vue';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
-import { IWorkflow, useUpdateWorkflow, useUpdateWorkflowV2 } from '@/entities';
+import {
+  IWorkflow,
+  useGetWorkflowTemplateList,
+  useUpdateWorkflow,
+  useUpdateWorkflowV2,
+} from '@/entities';
 import { Designer } from 'sequential-workflow-designer';
 import SequentialDesigner from '@/features/workflow/workflowEditor/sequential/designer/ui/SequentialDesigner.vue';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { Definition } from 'sequential-workflow-model';
+import { getTaskComponentList } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
 
 interface IProps {
   wftId: string;
@@ -29,11 +35,23 @@ const workflowName = useInputModel<string>('');
 const workflowDescription = useInputModel<string>('');
 const workflowData = ref<IWorkflow>();
 const sequentialSequence: Ref<Step[]> = ref<Step[]>([]);
+
+const resWorkflowTemplateData = useGetWorkflowTemplateList();
+const resTaskComponentList = getTaskComponentList();
 const resUpdateWorkflow = useUpdateWorkflowV2(null, null, null);
 
+const loading = ref<boolean>(true);
+
 onBeforeMount(function () {
-  loadWorkflow();
-  loadSequence();
+  Promise.all<any>([
+    resWorkflowTemplateData.execute(),
+    resTaskComponentList.execute(),
+  ]).then(() => {
+    loadWorkflow();
+    loadSequence();
+    reorderingSequence();
+    loading.value = false;
+  });
 });
 
 function loadWorkflow() {
@@ -52,8 +70,15 @@ function loadSequence() {
     sequentialSequence.value =
       workflowToolModel.convertCicadaToDesignerFormData(
         workflowData.value,
+        resTaskComponentList.data.value?.responseData!,
       ).sequence;
   }
+}
+
+function reorderingSequence() {
+  sequentialSequence.value = workflowToolModel.designerFormDataReordering(
+    sequentialSequence.value,
+  );
 }
 
 const trigger = reactive({ value: false });
@@ -127,10 +152,11 @@ function handleSave() {
       class="page-modal-layout"
       title="Workflow Tool"
       :need-widget-layout="false"
+      :loading="loading"
       @update:modal-state="handleCancel"
     >
-      <template #add-content>
-        <div class="workflow-tool-modal-page w-full h-full">
+      <template #add-content="{ loading }">
+        <div v-if="!loading" class="workflow-tool-modal-page w-full h-full">
           <header class="h-[54px] workflow-tool-header mb-[16px]">
             <PFieldGroup class="flex-1" :label="'Workflow Name'" required>
               <p-text-input

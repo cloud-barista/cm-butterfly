@@ -66,7 +66,7 @@ const handleGoBack = () => {
         <div>{{ badgeTitle }}</div>
       </p-badge>
     </div>
-    <slot v-if="!needWidgetLayout" name="add-content" />
+    <slot v-if="!needWidgetLayout" name="add-content" :loading="loading" />
     <widget-layout
       v-else-if="needWidgetLayout"
       class="widget-layout"

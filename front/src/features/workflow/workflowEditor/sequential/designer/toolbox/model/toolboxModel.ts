@@ -30,6 +30,7 @@ export function useSequentialToolboxModel() {
           'task',
           {
             model: parsedString,
+            originalData: res,
           },
         ),
       );
