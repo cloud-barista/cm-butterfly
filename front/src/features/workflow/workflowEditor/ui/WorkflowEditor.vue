@@ -92,7 +92,6 @@ function getCicadaData(designer: Designer | null): IWorkflow {
     name: '',
     updated_at: '',
   };
-
   if (designer) {
     const definition = designer.getDefinition();
     console.log(definition);
@@ -108,6 +107,7 @@ function getCicadaData(designer: Designer | null): IWorkflow {
       name: workflowName.value.value,
     });
   }
+  console.log(workflow);
   return workflow;
 }
 
@@ -131,11 +131,17 @@ function postWorkflow(workflow: IWorkflow) {
       });
   }
 }
+
 function handleSaveCallback(designer: Designer | null) {
   trigger.value = false;
-  const cicadaData = getCicadaData(designer);
-  postWorkflow(cicadaData);
+  try {
+    const cicadaData = getCicadaData(designer);
+    postWorkflow(cicadaData);
+  } catch (e) {
+    console.log(e);
+  }
 }
+
 function handleCancel() {
   emit('update:close-modal', false);
 }

@@ -14,6 +14,7 @@ import getRandomId from '@/shared/utils/uuid';
 import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import { ITaskInfoResponse } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
+import { showErrorMessage } from '@/shared/utils';
 
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
@@ -91,6 +92,10 @@ export function useWorkflowToolModel() {
 
   function convertDesignerSequenceToCicada(sequence: Step[]) {
     if (!validationSequence(sequence)) {
+      showErrorMessage(
+        'Error',
+        'task must have at least one taskGroup as its parent.',
+      );
       throw new Error();
     }
 
@@ -120,7 +125,7 @@ export function useWorkflowToolModel() {
           if (step.componentType === 'container') {
             stack.push({ parentNode: taskGroup, currentNode: step });
           } else if (step.componentType === 'task') {
-            tasks.push(convertToCicadaTask(step));
+            tasks.push(convertToCicadaTask(step, tasks[tasks.length - 1]));
           }
         });
 
@@ -141,15 +146,19 @@ export function useWorkflowToolModel() {
     return cicadaObject;
   }
 
-  function convertToCicadaTask(step: Step) {
+  function convertToCicadaTask(step: Step, dependenciesStep: Step) {
     console.log(step);
+    console.log(dependenciesStep);
     if (step.componentType === 'task') {
       return {
         name: step.name,
         request_body: JSON.stringify(step.properties.model),
         path_params: step.properties.originalData?.path_params,
         task_component: step.properties.originalData?.task_component,
-        dependencies: step.properties.originalData?.dependencies,
+        dependencies:
+          dependenciesStep && dependenciesStep.name
+            ? [dependenciesStep.name]
+            : [],
       };
     }
   }
@@ -197,14 +206,18 @@ export function useWorkflowToolModel() {
         newTaskGroupSequence.push(rootStep);
       }
 
+      //dependency 를 기준으로 정렬하기 위한 while
       while (queue.length > 0) {
         const dependencyTask = queue.pop()!;
 
-        const targetTask = rootTaskGroup.sequence?.find(
-          step =>
-            dependencyTask.name ===
-            step.properties.originalData?.dependencies[0],
-        );
+        const targetTask = rootTaskGroup.sequence?.find(step => {
+          if (Array.isArray(step.properties.originalData?.dependencies)) {
+            return (
+              dependencyTask.name ===
+              step.properties.originalData?.dependencies[0]
+            );
+          }
+        });
 
         if (targetTask) {
           queue.push(targetTask);
