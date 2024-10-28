@@ -129,11 +129,18 @@ const handleAddSourceConnection = async () => {
 watchEffect(() => {
   connectionInfoData.value.forEach(data => {
     if (
+      props.multiSelectedConnectionIds.length === 0 &&
       data.name !== '' &&
       data.ip_address !== '' &&
       data.user !== '' &&
       data.password !== '' &&
       data.ssh_port !== 0
+    ) {
+      isDisabled.value = true;
+    } else if (
+      props.multiSelectedConnectionIds.length > 0 &&
+      data.name !== '' &&
+      data.ip_address !== ''
     ) {
       isDisabled.value = true;
     } else if (typeof Number(data.ssh_port) !== 'number') {
