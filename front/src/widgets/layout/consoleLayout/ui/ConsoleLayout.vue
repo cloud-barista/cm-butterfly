@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { GNBToolbox } from '@/widgets/layout';
-import { GNBNavigationRail } from '@/widgets/layout';
+import { GNBToolbox, GNBNavigationRail } from '@/features/gnb';
 import { useSidebar } from '@/shared/libs/store/sidebar.ts';
 import { storeToRefs } from 'pinia';
 

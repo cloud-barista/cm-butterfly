@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { VerticalPageLayout } from '@/app/Layouts';
+import { VerticalPageLayout } from '@/widgets/layout';
 import { WorkloadsLSB } from '@/widgets/workloads';
 import { computed, reactive } from 'vue';
 import { MENU_ID, useMigratorMenuStore } from '@/entities';
