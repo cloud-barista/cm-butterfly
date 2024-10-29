@@ -14,6 +14,12 @@ import Vue, {
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import { useTaskEditorModel } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/beetleTaskEditorModel.ts';
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
+import SequentialShortCut from '@/features/workflow/workflowEditor/sequential/designer/shortcut/ui/SequentialShortCut.vue';
+
+export interface fixedModel {
+  path_params: Record<string, string>;
+  query_params: Record<string, string>;
+}
 
 interface IProps {
   step: {
@@ -22,6 +28,8 @@ interface IProps {
     properties: {
       isDeletable: boolean;
       model?: object;
+      originalData: object;
+      fixedModel?: fixedModel;
     };
     sequence: [];
     type: string;
@@ -29,9 +37,9 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['saveContext']);
+const emit = defineEmits(['saveContext', 'saveFixedModel']);
 const taskEditorModel = useTaskEditorModel();
-
+console.log(props);
 const shortCutModel = ref({
   open: false,
   xPos: 0,
@@ -46,6 +54,9 @@ let shortCut;
 
 onMounted(() => {
   taskEditorModel.setFormContext(props.step.properties.model ?? '');
+  if (props.step.properties.fixedModel) {
+    taskEditorModel.setParamsContext(props.step.properties.fixedModel);
+  }
   document.addEventListener('click', handleClickOutside);
 });
 
@@ -57,6 +68,16 @@ watch(
   taskEditorModel.formContext,
   nv => {
     emit('saveContext', taskEditorModel.convertFormModelToStepProperties());
+  },
+  { deep: true },
+);
+watch(
+  taskEditorModel.paramsContext,
+  () => {
+    emit(
+      'saveFixedModel',
+      taskEditorModel.convertParamsModelToStepProperties(),
+    );
   },
   { deep: true },
 );
@@ -113,13 +134,45 @@ function handleClickOutside(event: MouseEvent) {
     "
   >
     <div
+      v-for="(currentParams, index) of taskEditorModel.paramsContext.value"
+      :key="index"
+    >
+      <div class="params-box w-full h-full">
+        <div v-if="currentParams.type === 'params'">
+          <div v-if="currentParams.context.values.length > 0">
+            <div class="subject-title border-bottom">
+              {{ currentParams.context.subject }}
+            </div>
+            <div
+              v-for="(entity, j) of currentParams.context.values"
+              :key="j"
+              class="field-group flex border-bottom"
+            >
+              <div class="field-title-box" v-if="entity.type === 'input'">
+                {{ entity.context.title }}
+              </div>
+              <div class="field-content-box">
+                <p-text-input
+                  v-model="entity.context.model.value"
+                  :size="'md'"
+                  block
+                  :invalid="!entity.context.model.isValid"
+                  @blur="entity.context.model.onBlur"
+                ></p-text-input>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
       v-for="(currentContext, index) of taskEditorModel.formContext.value"
       :key="index"
       class="flex justify-between align-items-center"
     >
       <div
-        class="entity-box w-full h-full"
         v-if="currentContext.type === 'entity'"
+        class="entity-box w-full h-full"
       >
         <div class="subject-title border-bottom">
           {{ currentContext.context.subject }}
@@ -229,18 +282,18 @@ function handleClickOutside(event: MouseEvent) {
         </BAccordion>
       </div>
     </div>
-    <!--    <SequentialShortCut-->
-    <!--      :open="shortCutModel.open"-->
-    <!--      :x-pos="shortCutModel.xPos"-->
-    <!--      :y-pos="shortCutModel.yPos"-->
-    <!--      :items="[-->
-    <!--        {-->
-    <!--          label: shortCutModel.delete.label,-->
-    <!--          callback: shortCutModel.delete.callback,-->
-    <!--        },-->
-    <!--      ]"-->
-    <!--      @close="closeShortCut"-->
-    <!--    ></SequentialShortCut>-->
+    <SequentialShortCut
+      :open="shortCutModel.open"
+      :x-pos="shortCutModel.xPos"
+      :y-pos="shortCutModel.yPos"
+      :items="[
+        {
+          label: shortCutModel.delete.label,
+          callback: shortCutModel.delete.callback,
+        },
+      ]"
+      @close="closeShortCut"
+    ></SequentialShortCut>
   </div>
 </template>
 

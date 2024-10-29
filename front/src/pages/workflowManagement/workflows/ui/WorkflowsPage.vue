@@ -5,11 +5,11 @@ import {
   WorkflowList,
   WorkflowDetail,
   WorkflowJsonViewer,
-  WorkflowTool,
 } from '@/widgets/workflow';
 import { SimpleEditForm } from '@/widgets/layout';
 import { useGetWorkflow, useUpdateWorkflow } from '@/entities';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+import WorkflowEditor from '@/features/workflow/workflowEditor/ui/WorkflowEditor.vue';
 
 const getWorkflow = useGetWorkflow(null);
 const updateWorkflow = useUpdateWorkflow(null, null);
@@ -219,9 +219,11 @@ async function handleUpdateWorkflow(updatedData: object) {
         @update:close-modal="e => (modalState.workflowJsonModal.open = e)"
         @update:api="handleUpdateWorkflow"
       />
-      <workflow-tool
+      <WorkflowEditor
         v-if="modalState.workflowToolModal.open"
         @update:close-modal="e => (modalState.workflowToolModal.open = e)"
+        :tool-type="'edit'"
+        :wft-id="selectedWorkflowId"
       />
     </div>
   </div>

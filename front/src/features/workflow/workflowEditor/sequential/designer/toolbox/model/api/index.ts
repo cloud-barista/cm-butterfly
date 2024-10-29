@@ -1,6 +1,7 @@
 import { IAxiosResponse, useAxiosPost } from '@/shared/libs';
 
 const GET_TASK_COMPONENT_LIST = 'list-task-component';
+
 export interface ITaskInfoResponse {
   created_at: string;
   updated_at: string;
@@ -9,6 +10,27 @@ export interface ITaskInfoResponse {
   data: {
     options: {
       request_body: string;
+      path_params: object;
+    };
+    param_option: {
+      path_params: {
+        properties: Record<
+          string,
+          {
+            description: string;
+            type: string;
+          }
+        > | null;
+      };
+      query_params: {
+        properties: Record<
+          string,
+          {
+            description: string;
+            type: string;
+          }
+        > | null;
+      };
     };
   };
 }
