@@ -43,11 +43,14 @@ onMounted(function () {
   });
 });
 
-watch(props.sequence, () => {
-  sequentialDesignerModel.value.setDefaultSequence(props.sequence);
-  sequentialDesignerModel.value.initDesigner();
-  sequentialDesignerModel.value.draw();
-});
+watch(
+  () => props.sequence,
+  () => {
+    sequentialDesignerModel.value.setDefaultSequence(props.sequence);
+    sequentialDesignerModel.value.initDesigner();
+    sequentialDesignerModel.value.draw();
+  },
+);
 
 watch(
   () => props.trigger,

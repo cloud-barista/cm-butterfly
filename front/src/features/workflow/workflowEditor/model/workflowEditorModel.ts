@@ -15,10 +15,34 @@ import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/desi
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import { ITaskInfoResponse } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
 import { showErrorMessage } from '@/shared/utils';
-
+import { reactive } from 'vue';
+type dropDownType = {
+  name: string;
+  label: string;
+  type: 'item';
+};
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
   const { defineTaskGroupStep, defineBettleTaskStep } = toolboxSteps();
+  const dropDownModel = reactive<{
+    state: any;
+    data: dropDownType[];
+    selectedItemId: string;
+  }>({
+    state: { disabled: false },
+    data: [],
+    selectedItemId: '',
+  });
+
+  function setDropDownData(workspaceResponse: IWorkflowResponse[]) {
+    workspaceResponse.forEach(workspace => {
+      dropDownModel.data.push({
+        name: workspace.id,
+        label: workspace.name,
+        type: 'item',
+      });
+    });
+  }
 
   function getWorkflowData(workflowId: string) {
     return workflowStore.getWorkflowById(workflowId);
@@ -197,9 +221,12 @@ export function useWorkflowToolModel() {
       const newTaskGroupSequence: Step[] = [];
       const queue: Step[] = [];
 
-      const rootStep = rootTaskGroup.sequence?.find(
-        step => step.properties.originalData?.dependencies.length === 0,
-      );
+      const rootStep = rootTaskGroup.sequence?.find(step => {
+        return (
+          step.properties.originalData?.dependencies === null ||
+          step.properties.originalData?.dependencies.length === 0
+        );
+      });
 
       if (rootStep) {
         queue.push(rootStep);
@@ -240,6 +267,9 @@ export function useWorkflowToolModel() {
   }
 
   return {
+    workflowStore,
+    dropDownModel,
+    setDropDownData,
     getWorkflowTemplateData,
     getWorkflowData,
     convertCicadaToDesignerFormData,

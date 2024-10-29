@@ -6,6 +6,7 @@ import { parseRequestBody } from '@/shared/utils/stringToObject';
 import getRandomId from '@/shared/utils/uuid';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
+import { ITaskResponse } from '@/entities';
 
 export function useSequentialToolboxModel() {
   const resGetTaskComponentList = getTaskComponentList();
@@ -30,13 +31,26 @@ export function useSequentialToolboxModel() {
           'task',
           {
             model: parsedString,
-            originalData: res,
+            originalData: mappingTaskInfoResponseITaskResponse(res),
           },
         ),
       );
     });
 
     return taskStepsModels;
+  }
+
+  function mappingTaskInfoResponseITaskResponse(
+    taskInfoResponse: ITaskInfoResponse,
+  ): ITaskResponse {
+    return {
+      dependencies: [],
+      name: taskInfoResponse.name,
+      path_params: taskInfoResponse.data.options.path_params,
+      request_body: taskInfoResponse.data.options.request_body,
+      query_params: '',
+      task_component: taskInfoResponse.name,
+    };
   }
 
   return getTaskComponents();

@@ -222,7 +222,7 @@ async function handleUpdateWorkflow(updatedData: object) {
       <WorkflowEditor
         v-if="modalState.workflowToolModal.open"
         @update:close-modal="e => (modalState.workflowToolModal.open = e)"
-        tool-type="edit"
+        :tool-type="'edit'"
         :wft-id="selectedWorkflowId"
       />
     </div>

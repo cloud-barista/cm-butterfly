@@ -221,3 +221,30 @@ export function useBulkDeleteTaskComponent(tcIds: string[]) {
 
   return Promise.all(promiseArr);
 }
+
+export function useCreateWorkflow(data: IWorkflowResponse['data'] | null) {
+  const requestBodyWrapper: Required<
+    Pick<
+      RequestBodyWrapper<{
+        data: IWorkflowResponse['data'] | null;
+      }>,
+      'request'
+    >
+  > = {
+    request: {
+      data,
+    },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<any>,
+    Required<
+      Pick<
+        RequestBodyWrapper<{
+          data: IWorkflowResponse['data'] | null;
+        }>,
+        'request'
+      >
+    >
+  >(CREATE_WORKFLOW, requestBodyWrapper);
+}

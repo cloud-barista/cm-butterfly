@@ -12,6 +12,7 @@ import { onBeforeMount, reactive, ref, Ref } from 'vue';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 import {
   IWorkflow,
+  useCreateWorkflow,
   useGetWorkflowTemplateList,
   useUpdateWorkflow,
   useUpdateWorkflowV2,
@@ -21,6 +22,7 @@ import SequentialDesigner from '@/features/workflow/workflowEditor/sequential/de
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { Definition } from 'sequential-workflow-model';
 import { getTaskComponentList } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
+import { IAxiosResponse } from '@/shared/libs';
 
 interface IProps {
   wftId: string;
@@ -39,26 +41,41 @@ const sequentialSequence: Ref<Step[]> = ref<Step[]>([]);
 const resWorkflowTemplateData = useGetWorkflowTemplateList();
 const resTaskComponentList = getTaskComponentList();
 const resUpdateWorkflow = useUpdateWorkflowV2(null, null, null);
-
+const resAddWorkFlow = useCreateWorkflow(null);
 const loading = ref<boolean>(true);
+
+const trigger = reactive({ value: false });
 
 onBeforeMount(function () {
   Promise.all<any>([
     resWorkflowTemplateData.execute(),
     resTaskComponentList.execute(),
-  ]).then(() => {
-    loadWorkflow();
-    loadSequence();
-    reorderingSequence();
-    loading.value = false;
+  ]).then(res => {
+    workflowToolModel.workflowStore.setWorkflowTemplates(
+      res[0].data.responseData,
+    );
+    workflowToolModel.setDropDownData(
+      workflowToolModel.workflowStore.workflowTemplates,
+    );
+    load();
   });
 });
+
+function load() {
+  loading.value = true;
+  loadWorkflow();
+  loadSequence();
+  reorderingSequence();
+  loading.value = false;
+}
 
 function loadWorkflow() {
   if (props.toolType === 'edit') {
     workflowData.value = workflowToolModel.getWorkflowData(props.wftId);
   } else if (props.toolType === 'add') {
-    workflowData.value = workflowToolModel.getWorkflowTemplateData(props.wftId);
+    workflowData.value = workflowToolModel.getWorkflowTemplateData(
+      workflowToolModel.dropDownModel.selectedItemId,
+    );
   }
 
   workflowName.value.value = workflowData.value?.name || '';
@@ -81,8 +98,6 @@ function reorderingSequence() {
   );
 }
 
-const trigger = reactive({ value: false });
-
 function getCicadaData(designer: Designer | null): IWorkflow {
   const workflow: IWorkflow = {
     created_at: '',
@@ -94,7 +109,6 @@ function getCicadaData(designer: Designer | null): IWorkflow {
   };
   if (designer) {
     const definition = designer.getDefinition();
-    console.log(definition);
     Object.assign(workflow, {
       data: {
         description: '',
@@ -107,7 +121,6 @@ function getCicadaData(designer: Designer | null): IWorkflow {
       name: workflowName.value.value,
     });
   }
-  console.log(workflow);
   return workflow;
 }
 
@@ -118,6 +131,20 @@ function postWorkflow(workflow: IWorkflow) {
         pathParams: {
           wfId: props.wftId,
         },
+        request: {
+          data: workflow.data,
+          name: workflow.name,
+        },
+      })
+      .then(res => {
+        showSuccessMessage('Success', 'Success');
+      })
+      .catch(err => {
+        showErrorMessage('Error', err.errorMsg.value);
+      });
+  } else if (props.toolType === 'add') {
+    resAddWorkFlow
+      .execute({
         request: {
           data: workflow.data,
           name: workflow.name,
@@ -148,7 +175,11 @@ function handleCancel() {
 
 function handleSave() {
   trigger.value = true;
-  // TODO: update data with api
+}
+
+function handleSelectTemplate(e) {
+  workflowToolModel.dropDownModel.selectedItemId = e;
+  load();
 }
 </script>
 
@@ -162,7 +193,7 @@ function handleSave() {
       @update:modal-state="handleCancel"
     >
       <template #add-content="{ loading }">
-        <div v-if="!loading" class="workflow-tool-modal-page w-full h-full">
+        <div v-if="!loading" class="workflow-tool-modal-page w-full">
           <header class="h-[54px] workflow-tool-header mb-[16px]">
             <PFieldGroup class="flex-1" :label="'Workflow Name'" required>
               <p-text-input
@@ -177,7 +208,12 @@ function handleSave() {
               ></p-text-input>
             </PFieldGroup>
             <PFieldGroup class="flex-1" :label="'Workflow Template'" required>
-              <p-select-dropdown class="w-full"></p-select-dropdown>
+              <p-select-dropdown
+                class="w-full"
+                :menu="workflowToolModel.dropDownModel.data"
+                :disabled="props.toolType !== 'add'"
+                @select="handleSelectTemplate"
+              ></p-select-dropdown>
             </PFieldGroup>
           </header>
           <section class="workflow-tool-body">
@@ -203,9 +239,11 @@ function handleSave() {
 </template>
 
 <style scoped lang="postcss">
-.workflow-tool-modal-page {
-  max-height: calc(100% - 7rem);
+:deep(.workflow-tool-modal-page) {
+  height: calc(100% - 7.4rem);
+  max-height: calc(100% - 7.4rem);
 }
+
 .workflow-tool-header {
   @apply h-[54px] flex gap-[16px];
 }

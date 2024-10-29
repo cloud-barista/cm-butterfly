@@ -33,7 +33,7 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['saveContext']);
 const taskEditorModel = useTaskEditorModel();
-console.log(props.step.properties.originalData.task_component);
+console.log(props);
 const shortCutModel = ref({
   open: false,
   xPos: 0,
