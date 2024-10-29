@@ -16,14 +16,22 @@ import { parseRequestBody } from '@/shared/utils/stringToObject';
 import { ITaskInfoResponse } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
 import { showErrorMessage } from '@/shared/utils';
 import { reactive } from 'vue';
+
 type dropDownType = {
   name: string;
   label: string;
   type: 'item';
 };
+
+interface fixedModel {
+  path_params: Record<string, string>;
+  query_params: Record<string, string>;
+}
+
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
   const { defineTaskGroupStep, defineBettleTaskStep } = toolboxSteps();
+  const taskComponentList: Array<ITaskInfoResponse> = [];
   const dropDownModel = reactive<{
     state: any;
     data: dropDownType[];
@@ -33,6 +41,12 @@ export function useWorkflowToolModel() {
     data: [],
     selectedItemId: '',
   });
+
+  function setTaskComponent(_taskComponentList: Array<ITaskInfoResponse>) {
+    _taskComponentList.forEach(component => {
+      taskComponentList.push(component);
+    });
+  }
 
   function setDropDownData(workspaceResponse: IWorkflowResponse[]) {
     workspaceResponse.forEach(workspace => {
@@ -100,11 +114,54 @@ export function useWorkflowToolModel() {
     return { sequence };
   }
 
+  function createFixedModel(task: ITaskResponse): fixedModel {
+    const fixedModel: fixedModel = {
+      path_params: task.path_params,
+      query_params: task.query_params,
+    };
+
+    if (task.path_params === null || task.query_params === null) {
+      const taskComponent = taskComponentList.find(
+        component => task.name === component.name,
+      );
+
+      const pathParamsKeyValue = taskComponent?.data.param_option.path_params
+        .properties
+        ? Object.entries(
+            taskComponent.data.param_option.path_params.properties,
+          ).reduce((acc, [key, value]) => {
+            acc[key] = value.description;
+            return acc;
+          }, {})
+        : {};
+
+      const queryParamsKeyValue = taskComponent?.data.param_option.query_params
+        .properties
+        ? Object.entries(
+            taskComponent?.data.param_option.query_params.properties,
+          ).reduce((acc, [key, value]) => {
+            acc[key] = value.description;
+            return acc;
+          }, {})
+        : {};
+
+      if (task.path_params === null) {
+        fixedModel.path_params = pathParamsKeyValue;
+      }
+      if (task.query_params === null) {
+        fixedModel.query_params = queryParamsKeyValue;
+      }
+    }
+    console.log(fixedModel);
+    return fixedModel;
+  }
+
   function convertToDesignerTask(task: ITaskResponse): Step {
     const parsedString: object = parseRequestBody(task.request_body);
     return defineBettleTaskStep(getRandomId(), task.name, 'task', {
       model: parsedString,
       originalData: task,
+      fixedModel: createFixedModel(task),
     });
   }
 
@@ -269,6 +326,7 @@ export function useWorkflowToolModel() {
   return {
     workflowStore,
     dropDownModel,
+    setTaskComponent,
     setDropDownData,
     getWorkflowTemplateData,
     getWorkflowData,

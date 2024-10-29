@@ -10,6 +10,7 @@ export interface Step extends _Step {
     isDeletable: boolean;
     model?: object;
     originalData?: ITaskResponse;
+    fixedModel?: object;
   };
 }
 

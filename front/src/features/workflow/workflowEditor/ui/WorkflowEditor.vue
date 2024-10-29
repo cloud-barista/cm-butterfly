@@ -14,15 +14,12 @@ import {
   IWorkflow,
   useCreateWorkflow,
   useGetWorkflowTemplateList,
-  useUpdateWorkflow,
   useUpdateWorkflowV2,
 } from '@/entities';
 import { Designer } from 'sequential-workflow-designer';
 import SequentialDesigner from '@/features/workflow/workflowEditor/sequential/designer/ui/SequentialDesigner.vue';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
-import { Definition } from 'sequential-workflow-model';
 import { getTaskComponentList } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
-import { IAxiosResponse } from '@/shared/libs';
 
 interface IProps {
   wftId: string;
@@ -54,6 +51,7 @@ onBeforeMount(function () {
     workflowToolModel.workflowStore.setWorkflowTemplates(
       res[0].data.responseData,
     );
+    workflowToolModel.setTaskComponent(res[1].data.responseData);
     workflowToolModel.setDropDownData(
       workflowToolModel.workflowStore.workflowTemplates,
     );
