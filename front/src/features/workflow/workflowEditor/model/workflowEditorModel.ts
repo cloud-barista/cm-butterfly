@@ -120,6 +120,8 @@ export function useWorkflowToolModel() {
       query_params: task.query_params,
     };
 
+    // eslint-disable-next-line no-debugger
+    debugger;
     if (task.path_params === null || task.query_params === null) {
       const taskComponent = taskComponentList.find(
         component => task.name === component.name,
@@ -234,7 +236,8 @@ export function useWorkflowToolModel() {
       return {
         name: step.name,
         request_body: JSON.stringify(step.properties.model),
-        path_params: step.properties.originalData?.path_params,
+        path_params: step.properties.fixedModel.path_params,
+        query_params: step.properties.fixedModel.query_params,
         task_component: step.properties.originalData?.task_component,
         dependencies:
           dependenciesStep && dependenciesStep.name

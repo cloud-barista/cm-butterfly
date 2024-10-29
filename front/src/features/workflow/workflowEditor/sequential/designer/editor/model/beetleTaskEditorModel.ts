@@ -206,7 +206,32 @@ export function useTaskEditorModel() {
         Object.assign(properties, accordionData);
       }
     });
+
     return properties;
+  }
+
+  function convertParamsModelToStepProperties() {
+    const fixedModel: fixedModel = {
+      path_params: {},
+      query_params: {},
+    };
+
+    Object.assign(
+      fixedModel.path_params,
+      paramsContext.value?.path_params.context.values.reduce((acc, value) => {
+        acc[value.context.title] = value.context.model.value;
+        return acc;
+      }, {}),
+    );
+    Object.assign(
+      fixedModel.query_params,
+      paramsContext.value?.query_params.context.values.reduce((acc, value) => {
+        acc[value.context.title] = value.context.model.value;
+        return acc;
+      }, {}),
+    );
+
+    return fixedModel;
   }
 
   function getAccordionSlotData(accordionSlotContext: AccordionSlotContext) {
@@ -287,6 +312,7 @@ export function useTaskEditorModel() {
     setParamsContext,
     setFormContext,
     convertFormModelToStepProperties,
+    convertParamsModelToStepProperties,
     addEntity,
     addArray,
     entityKeyValidation,

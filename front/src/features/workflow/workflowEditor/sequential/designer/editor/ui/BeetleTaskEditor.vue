@@ -37,7 +37,7 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['saveContext']);
+const emit = defineEmits(['saveContext', 'saveFixedModel']);
 const taskEditorModel = useTaskEditorModel();
 console.log(props);
 const shortCutModel = ref({
@@ -68,6 +68,16 @@ watch(
   taskEditorModel.formContext,
   nv => {
     emit('saveContext', taskEditorModel.convertFormModelToStepProperties());
+  },
+  { deep: true },
+);
+watch(
+  taskEditorModel.paramsContext,
+  () => {
+    emit(
+      'saveFixedModel',
+      taskEditorModel.convertParamsModelToStepProperties(),
+    );
   },
   { deep: true },
 );
@@ -111,61 +121,6 @@ function handleClickOutside(event: MouseEvent) {
     closeShortCut();
   }
 }
-
-let t = {
-  type: 'params',
-  context: {
-    subject: 'Path_Params',
-    values: [
-      {
-        type: 'input',
-        context: {
-          title: 'CSP',
-          model: {
-            value: 'aws',
-            errorMessage: null,
-            isValid: true,
-            validating: false,
-            touched: false,
-          },
-        },
-      },
-      {
-        type: 'input',
-        context: {
-          title: 'region',
-          model: {
-            value: 'ap-northeast-2',
-            errorMessage: null,
-            isValid: true,
-            validating: false,
-            touched: false,
-          },
-        },
-      },
-      {
-        type: 'input',
-        context: {
-          title: 'sgId',
-          model: {
-            value: '3e635238-0c4b-4f6e-9062-906f3dd5f571',
-            errorMessage: null,
-            isValid: true,
-            validating: false,
-            touched: false,
-          },
-        },
-      },
-    ],
-  },
-};
-let tt = {
-  type: 'params',
-  context: {
-    subject: 'Query_Params',
-    values: [],
-  },
-};
 </script>
 
 <template>
@@ -189,9 +144,9 @@ let tt = {
               {{ currentParams.context.subject }}
             </div>
             <div
-              class="field-group flex border-bottom"
               v-for="(entity, j) of currentParams.context.values"
               :key="j"
+              class="field-group flex border-bottom"
             >
               <div class="field-title-box" v-if="entity.type === 'input'">
                 {{ entity.context.title }}
@@ -216,8 +171,8 @@ let tt = {
       class="flex justify-between align-items-center"
     >
       <div
-        class="entity-box w-full h-full"
         v-if="currentContext.type === 'entity'"
+        class="entity-box w-full h-full"
       >
         <div class="subject-title border-bottom">
           {{ currentContext.context.subject }}

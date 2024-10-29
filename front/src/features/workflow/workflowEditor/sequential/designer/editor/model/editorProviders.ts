@@ -39,6 +39,10 @@ export function editorProviders() {
               step.properties.model = e;
               stepContext.notifyPropertiesChanged();
             },
+            saveFixedModel: e => {
+              step.properties.fixedModel = e;
+              stepContext.notifyPropertiesChanged();
+            },
           },
           editor,
         );
