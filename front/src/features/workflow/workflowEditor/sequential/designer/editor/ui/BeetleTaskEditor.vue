@@ -16,6 +16,11 @@ import { useTaskEditorModel } from '@/features/workflow/workflowEditor/sequentia
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
 import SequentialShortCut from '@/features/workflow/workflowEditor/sequential/designer/shortcut/ui/SequentialShortCut.vue';
 
+export interface fixedModel {
+  path_params: Record<string, string>;
+  query_params: Record<string, string>;
+}
+
 interface IProps {
   step: {
     id: string;
@@ -24,6 +29,7 @@ interface IProps {
       isDeletable: boolean;
       model?: object;
       originalData: object;
+      fixedModel?: fixedModel;
     };
     sequence: [];
     type: string;
@@ -48,6 +54,9 @@ let shortCut;
 
 onMounted(() => {
   taskEditorModel.setFormContext(props.step.properties.model ?? '');
+  if (props.step.properties.fixedModel) {
+    taskEditorModel.setParamsContext(props.step.properties.fixedModel);
+  }
   document.addEventListener('click', handleClickOutside);
 });
 
@@ -102,6 +111,61 @@ function handleClickOutside(event: MouseEvent) {
     closeShortCut();
   }
 }
+
+let t = {
+  type: 'params',
+  context: {
+    subject: 'Path_Params',
+    values: [
+      {
+        type: 'input',
+        context: {
+          title: 'CSP',
+          model: {
+            value: 'aws',
+            errorMessage: null,
+            isValid: true,
+            validating: false,
+            touched: false,
+          },
+        },
+      },
+      {
+        type: 'input',
+        context: {
+          title: 'region',
+          model: {
+            value: 'ap-northeast-2',
+            errorMessage: null,
+            isValid: true,
+            validating: false,
+            touched: false,
+          },
+        },
+      },
+      {
+        type: 'input',
+        context: {
+          title: 'sgId',
+          model: {
+            value: '3e635238-0c4b-4f6e-9062-906f3dd5f571',
+            errorMessage: null,
+            isValid: true,
+            validating: false,
+            touched: false,
+          },
+        },
+      },
+    ],
+  },
+};
+let tt = {
+  type: 'params',
+  context: {
+    subject: 'Query_Params',
+    values: [],
+  },
+};
 </script>
 
 <template>
@@ -114,6 +178,38 @@ function handleClickOutside(event: MouseEvent) {
       }
     "
   >
+    <div
+      v-for="(currentParams, index) of taskEditorModel.paramsContext.value"
+      :key="index"
+    >
+      <div class="params-box w-full h-full">
+        <div v-if="currentParams.type === 'params'">
+          <div v-if="currentParams.context.values.length > 0">
+            <div class="subject-title border-bottom">
+              {{ currentParams.context.subject }}
+            </div>
+            <div
+              class="field-group flex border-bottom"
+              v-for="(entity, j) of currentParams.context.values"
+              :key="j"
+            >
+              <div class="field-title-box" v-if="entity.type === 'input'">
+                {{ entity.context.title }}
+              </div>
+              <div class="field-content-box">
+                <p-text-input
+                  v-model="entity.context.model.value"
+                  :size="'md'"
+                  block
+                  :invalid="!entity.context.model.isValid"
+                  @blur="entity.context.model.onBlur"
+                ></p-text-input>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div
       v-for="(currentContext, index) of taskEditorModel.formContext.value"
       :key="index"

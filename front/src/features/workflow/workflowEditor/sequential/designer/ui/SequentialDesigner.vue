@@ -15,6 +15,10 @@ interface Step {
     isDeletable: boolean;
     model?: object;
     originalData?: object;
+    fixedModel: {
+      path_params: Record<string, string>;
+      query_params: Record<string, string>;
+    };
   };
 }
 

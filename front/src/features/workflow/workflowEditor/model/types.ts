@@ -10,7 +10,10 @@ export interface Step extends _Step {
     isDeletable: boolean;
     model?: object;
     originalData?: ITaskResponse;
-    fixedModel?: object;
+    fixedModel: {
+      path_params: Record<string, string>;
+      query_params: Record<string, string>;
+    };
   };
 }
 

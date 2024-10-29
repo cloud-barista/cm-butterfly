@@ -135,8 +135,8 @@ export function useWorkflowToolModel() {
           }, {})
         : {};
 
-      const queryParamsKeyValue = taskComponent?.data.param_option.query_params
-        .properties
+      const queryParamsKeyValue = taskComponent?.data.param_option?.query_params
+        ?.properties
         ? Object.entries(
             taskComponent?.data.param_option.query_params.properties,
           ).reduce((acc, [key, value]) => {
