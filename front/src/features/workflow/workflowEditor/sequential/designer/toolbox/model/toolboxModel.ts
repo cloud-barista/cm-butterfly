@@ -1,12 +1,13 @@
 import {
   getTaskComponentList,
-  ITaskInfoResponse,
+  ITaskComponentInfoResponse,
 } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import getRandomId from '@/shared/utils/uuid';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 import { ITaskResponse } from '@/entities';
+import { fixedModel } from '@/features/workflow/workflowEditor/sequential/designer/editor/ui/BeetleTaskEditor.vue';
 
 export function useSequentialToolboxModel() {
   const resGetTaskComponentList = getTaskComponentList();
@@ -17,9 +18,9 @@ export function useSequentialToolboxModel() {
     return processToolBoxTaskListResponse(res.data.responseData!);
   }
 
-  function processToolBoxTaskListResponse(res: ITaskInfoResponse[]) {
+  function processToolBoxTaskListResponse(res: ITaskComponentInfoResponse[]) {
     const taskStepsModels: Step[] = [];
-    res.forEach((res: ITaskInfoResponse) => {
+    res.forEach((res: ITaskComponentInfoResponse) => {
       const parsedString: object = parseRequestBody(
         res.data.options.request_body,
       );
@@ -28,10 +29,11 @@ export function useSequentialToolboxModel() {
         loadStepsFunc.defineBettleTaskStep(
           getRandomId(),
           res.name ?? 'undefined',
-          'task',
+          res.name,
           {
             model: parsedString,
             originalData: mappingTaskInfoResponseITaskResponse(res),
+            fixedModel: getFixedModel(res),
           },
         ),
       );
@@ -41,7 +43,7 @@ export function useSequentialToolboxModel() {
   }
 
   function mappingTaskInfoResponseITaskResponse(
-    taskInfoResponse: ITaskInfoResponse,
+    taskInfoResponse: ITaskComponentInfoResponse,
   ): ITaskResponse {
     return {
       dependencies: [],
@@ -50,6 +52,34 @@ export function useSequentialToolboxModel() {
       request_body: taskInfoResponse.data.options.request_body,
       query_params: '',
       task_component: taskInfoResponse.name,
+    };
+  }
+
+  function getFixedModel(task: ITaskComponentInfoResponse): fixedModel {
+    const pathParamsKeyValue = task?.data.param_option.path_params?.properties
+      ? Object.entries(task.data.param_option.path_params.properties).reduce(
+          (acc, [key, value]) => {
+            acc[key] = value.description;
+            return acc;
+          },
+          {},
+        )
+      : {};
+
+    const queryParamsKeyValue = task?.data.param_option?.query_params
+      ?.properties
+      ? Object.entries(task.data.param_option.query_params.properties).reduce(
+          (acc, [key, value]) => {
+            acc[key] = value.description;
+            return acc;
+          },
+          {},
+        )
+      : {};
+
+    return {
+      path_params: pathParamsKeyValue,
+      query_params: queryParamsKeyValue,
     };
   }
 

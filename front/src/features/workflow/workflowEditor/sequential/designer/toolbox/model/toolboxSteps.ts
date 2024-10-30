@@ -42,7 +42,14 @@ export function toolboxSteps() {
       id: string,
       name: string,
       type: string,
-      properties: { model: object; fixedModel: object; originalData: any },
+      properties: {
+        model: object;
+        fixedModel: {
+          path_params: Record<string, string>;
+          query_params: Record<string, string>;
+        };
+        originalData: any;
+      },
     ): Step {
       return {
         componentType: 'task',
