@@ -12,22 +12,20 @@ import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/desi
 import { ITaskResponse } from '@/entities';
 
 export function useSequentialToolboxModel() {
-  const resGetTaskComponentList = getTaskComponentList();
   const loadStepsFunc = toolboxSteps();
 
-  async function getTaskComponents() {
-    const res = await resGetTaskComponentList.execute();
-    return processToolBoxTaskListResponse(res.data.responseData!);
-  }
+  const convertedTackComponentList: Array<Step> = [];
 
-  function processToolBoxTaskListResponse(res: ITaskComponentInfoResponse[]) {
-    const taskStepsModels: Step[] = [];
-    res.forEach((res: ITaskComponentInfoResponse) => {
+  function processTackComponentListToStep(
+    taskComponentList: ITaskComponentInfoResponse[],
+  ) {
+    const taskComponentSteps: Step[] = [];
+    taskComponentList.forEach((res: ITaskComponentInfoResponse) => {
       const parsedString: object = parseRequestBody(
         res.data.options.request_body,
       );
 
-      taskStepsModels.push(
+      taskComponentSteps.push(
         loadStepsFunc.defineBettleTaskStep(
           getRandomId(),
           res.name ?? 'undefined',
@@ -41,7 +39,11 @@ export function useSequentialToolboxModel() {
       );
     });
 
-    return taskStepsModels;
+    taskComponentSteps.forEach(step => {
+      convertedTackComponentList.push(step);
+    });
+
+    return convertedTackComponentList;
   }
 
   function mappingTaskInfoResponseITaskResponse(
@@ -85,5 +87,8 @@ export function useSequentialToolboxModel() {
     };
   }
 
-  return getTaskComponents();
+  return {
+    processTackComponentListToStep,
+    getFixedModel,
+  };
 }

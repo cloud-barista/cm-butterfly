@@ -1,5 +1,6 @@
 import { useWorkflowStore } from '@/entities/workflow/model/stores.ts';
 import {
+  fixedModel,
   IWorkFlowDesignerFormData,
   Step,
 } from '@/features/workflow/workflowEditor/model/types.ts';
@@ -16,6 +17,7 @@ import { parseRequestBody } from '@/shared/utils/stringToObject';
 import { ITaskComponentInfoResponse } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
 import { isNullOrUndefined, showErrorMessage } from '@/shared/utils';
 import { reactive } from 'vue';
+import { useSequentialToolboxModel } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxModel.ts';
 
 type dropDownType = {
   name: string;
@@ -23,14 +25,10 @@ type dropDownType = {
   type: 'item';
 };
 
-interface fixedModel {
-  path_params: Record<string, string>;
-  query_params: Record<string, string>;
-}
-
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
   const { defineTaskGroupStep, defineBettleTaskStep } = toolboxSteps();
+  const sequentialToolboxModel = useSequentialToolboxModel();
   const taskComponentList: Array<ITaskComponentInfoResponse> = [];
   const dropDownModel = reactive<{
     state: any;
@@ -133,31 +131,16 @@ export function useWorkflowToolModel() {
         taskComponent => taskComponent.name === task.task_component,
       );
 
-      const pathParamsKeyValue = taskComponent?.data.param_option.path_params
-        .properties
-        ? Object.entries(
-            taskComponent.data.param_option.path_params.properties,
-          ).reduce((acc, [key, value]) => {
-            acc[key] = value.description;
-            return acc;
-          }, {})
-        : {};
+      if (taskComponent) {
+        const { path_params, query_params } =
+          sequentialToolboxModel.getFixedModel(taskComponent);
 
-      const queryParamsKeyValue = taskComponent?.data.param_option?.query_params
-        ?.properties
-        ? Object.entries(
-            taskComponent?.data.param_option.query_params.properties,
-          ).reduce((acc, [key, value]) => {
-            acc[key] = value.description;
-            return acc;
-          }, {})
-        : {};
-
-      if (isNullOrUndefined(fixedModel.path_params)) {
-        fixedModel.path_params = pathParamsKeyValue;
-      }
-      if (isNullOrUndefined(fixedModel.query_params)) {
-        fixedModel.query_params = queryParamsKeyValue;
+        if (isNullOrUndefined(fixedModel.path_params)) {
+          fixedModel.path_params = path_params;
+        }
+        if (isNullOrUndefined(fixedModel.query_params)) {
+          fixedModel.query_params = query_params;
+        }
       }
     }
     console.log(fixedModel);
