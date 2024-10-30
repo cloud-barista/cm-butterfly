@@ -18,7 +18,7 @@ export interface ITaskGroupResponse {
 export interface ITaskResponse {
   dependencies: any[];
   name: string;
-  path_params: any;
+  path_params?: any;
   request_body: string;
   task_component: string;
   query_params?: any;

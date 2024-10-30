@@ -13,8 +13,8 @@ import {
 import getRandomId from '@/shared/utils/uuid';
 import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
-import { ITaskInfoResponse } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
-import { showErrorMessage } from '@/shared/utils';
+import { ITaskComponentInfoResponse } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
+import { isNullOrUndefined, showErrorMessage } from '@/shared/utils';
 import { reactive } from 'vue';
 
 type dropDownType = {
@@ -31,7 +31,7 @@ interface fixedModel {
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
   const { defineTaskGroupStep, defineBettleTaskStep } = toolboxSteps();
-  const taskComponentList: Array<ITaskInfoResponse> = [];
+  const taskComponentList: Array<ITaskComponentInfoResponse> = [];
   const dropDownModel = reactive<{
     state: any;
     data: dropDownType[];
@@ -42,7 +42,9 @@ export function useWorkflowToolModel() {
     selectedItemId: '',
   });
 
-  function setTaskComponent(_taskComponentList: Array<ITaskInfoResponse>) {
+  function setTaskComponent(
+    _taskComponentList: Array<ITaskComponentInfoResponse>,
+  ) {
     _taskComponentList.forEach(component => {
       taskComponentList.push(component);
     });
@@ -68,7 +70,7 @@ export function useWorkflowToolModel() {
 
   function convertCicadaToDesignerFormData(
     workflow: IWorkflow,
-    taskComponentList: Array<ITaskInfoResponse>,
+    taskComponentList: Array<ITaskComponentInfoResponse>,
   ): IWorkFlowDesignerFormData {
     const sequence: Step[] = [];
 
@@ -89,7 +91,11 @@ export function useWorkflowToolModel() {
 
       if (currentTaskGroup.tasks) {
         for (const task of currentTaskGroup.tasks) {
-          mappingWorkflowTaskComponent(task, taskComponentList);
+          mappingWorkflowTaskComponentRequestBody(
+            task,
+            taskComponentList,
+            currentTaskGroup.tasks,
+          );
           const currentDesignerTask = convertToDesignerTask(task);
           currentDesignerTaskGroup.sequence!.push(currentDesignerTask);
         }
@@ -119,12 +125,12 @@ export function useWorkflowToolModel() {
       path_params: task.path_params,
       query_params: task.query_params,
     };
-
-    // eslint-disable-next-line no-debugger
-    debugger;
-    if (task.path_params === null || task.query_params === null) {
+    if (
+      isNullOrUndefined(fixedModel.path_params) ||
+      isNullOrUndefined(fixedModel.query_params)
+    ) {
       const taskComponent = taskComponentList.find(
-        component => task.name === component.name,
+        taskComponent => taskComponent.name === task.task_component,
       );
 
       const pathParamsKeyValue = taskComponent?.data.param_option.path_params
@@ -147,10 +153,10 @@ export function useWorkflowToolModel() {
           }, {})
         : {};
 
-      if (task.path_params === null) {
+      if (isNullOrUndefined(fixedModel.path_params)) {
         fixedModel.path_params = pathParamsKeyValue;
       }
-      if (task.query_params === null) {
+      if (isNullOrUndefined(fixedModel.query_params)) {
         fixedModel.query_params = queryParamsKeyValue;
       }
     }
@@ -160,7 +166,7 @@ export function useWorkflowToolModel() {
 
   function convertToDesignerTask(task: ITaskResponse): Step {
     const parsedString: object = parseRequestBody(task.request_body);
-    return defineBettleTaskStep(getRandomId(), task.name, 'task', {
+    return defineBettleTaskStep(getRandomId(), task.name, task.task_component, {
       model: parsedString,
       originalData: task,
       fixedModel: createFixedModel(task),
@@ -236,8 +242,8 @@ export function useWorkflowToolModel() {
       return {
         name: step.name,
         request_body: JSON.stringify(step.properties.model),
-        path_params: step.properties.fixedModel.path_params,
-        query_params: step.properties.fixedModel.query_params,
+        path_params: step.properties.fixedModel?.path_params,
+        query_params: step.properties.fixedModel?.query_params,
         task_component: step.properties.originalData?.task_component,
         dependencies:
           dependenciesStep && dependenciesStep.name
@@ -253,15 +259,21 @@ export function useWorkflowToolModel() {
     });
   }
 
-  function mappingWorkflowTaskComponent(
+  function mappingWorkflowTaskComponentRequestBody(
     task: ITaskResponse,
-    taskComponentList: Array<ITaskInfoResponse>,
+    taskComponentList: Array<ITaskComponentInfoResponse>,
+    taskList: Array<ITaskResponse>,
   ) {
-    if (task.request_body === '') {
-      task.request_body =
-        taskComponentList.find(
-          taskComponent => task.task_component === taskComponent.name,
-        )?.data.options.request_body ?? '';
+    //request_body가 공백인 경우, 다른 task의 이름인 경우
+    const condition =
+      taskList.findIndex(el => el.name === task.request_body) !== -1 ||
+      task.request_body === '';
+
+    if (condition) {
+      const taskInstance = taskComponentList.find(
+        taskComponent => taskComponent.name === task.task_component,
+      );
+      task.request_body = taskInstance?.data.options.request_body ?? '';
     }
   }
 

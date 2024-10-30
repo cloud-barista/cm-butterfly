@@ -27,7 +27,7 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['update:close-modal']);
+const emit = defineEmits(['update:close-modal', 'update:trigger']);
 
 const workflowToolModel = useWorkflowToolModel();
 const workflowName = useInputModel<string>('');
@@ -87,6 +87,8 @@ function loadSequence() {
         workflowData.value,
         resTaskComponentList.data.value?.responseData!,
       ).sequence;
+
+    console.log(sequentialSequence.value);
   }
 }
 
@@ -136,6 +138,7 @@ function postWorkflow(workflow: IWorkflow) {
       })
       .then(res => {
         showSuccessMessage('Success', 'Success');
+        emit('update:trigger');
       })
       .catch(err => {
         showErrorMessage('Error', err.errorMsg.value);
@@ -150,6 +153,7 @@ function postWorkflow(workflow: IWorkflow) {
       })
       .then(res => {
         showSuccessMessage('Success', 'Success');
+        emit('update:trigger');
       })
       .catch(err => {
         showErrorMessage('Error', err.errorMsg.value);
@@ -169,6 +173,7 @@ function handleSaveCallback(designer: Designer | null) {
 
 function handleCancel() {
   emit('update:close-modal', false);
+  emit('update:trigger');
 }
 
 function handleSave() {
