@@ -26,7 +26,7 @@ export function useSequentialDesignerModel(refs: any) {
       isCollapsed: false,
     },
     editors: {
-      isCollapsed: false,
+      isCollapsed: true,
     },
   };
   let definition: Definition;

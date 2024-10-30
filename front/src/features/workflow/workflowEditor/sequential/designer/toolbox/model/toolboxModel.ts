@@ -4,10 +4,12 @@ import {
 } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import getRandomId from '@/shared/utils/uuid';
-import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
+import {
+  fixedModel,
+  Step,
+} from '@/features/workflow/workflowEditor/model/types.ts';
 import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 import { ITaskResponse } from '@/entities';
-import { fixedModel } from '@/features/workflow/workflowEditor/sequential/designer/editor/ui/BeetleTaskEditor.vue';
 
 export function useSequentialToolboxModel() {
   const resGetTaskComponentList = getTaskComponentList();

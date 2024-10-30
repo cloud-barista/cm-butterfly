@@ -181,11 +181,7 @@ export function useWorkflowToolModel() {
 
   function convertDesignerSequenceToCicada(sequence: Step[]) {
     if (!validationSequence(sequence)) {
-      showErrorMessage(
-        'Error',
-        'task must have at least one taskGroup as its parent.',
-      );
-      throw new Error();
+      throw new Error('task must have at least one taskGroup as its parent.');
     }
 
     const cicadaObject: ITaskGroupResponse[] = [];

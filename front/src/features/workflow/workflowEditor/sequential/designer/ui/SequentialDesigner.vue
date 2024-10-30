@@ -4,23 +4,7 @@ import { useSequentialDesignerModel } from '@/features/workflow/workflowEditor/s
 
 import { useSequentialToolboxModel } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxModel.ts';
 import { Designer } from 'sequential-workflow-designer';
-
-interface Step {
-  id: string;
-  sequence?: Step[];
-  branches?: { true: Step[]; false: Step[] };
-  componentType: 'switch' | 'container' | 'task';
-  type: string;
-  properties: {
-    isDeletable: boolean;
-    model?: object;
-    originalData?: object;
-    fixedModel?: {
-      path_params: Record<string, string>;
-      query_params: Record<string, string>;
-    };
-  };
-}
+import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 
 interface IProps {
   sequence: Step[];
