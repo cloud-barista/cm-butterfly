@@ -1,5 +1,9 @@
 import { Step as _Step } from 'sequential-workflow-model';
 import { ITaskResponse } from '@/entities';
+export interface fixedModel {
+  path_params: Record<string, string>;
+  query_params: Record<string, string>;
+}
 
 export interface Step extends _Step {
   sequence?: Step[];
@@ -10,10 +14,7 @@ export interface Step extends _Step {
     isDeletable: boolean;
     model?: object;
     originalData?: ITaskResponse;
-    fixedModel?: {
-      path_params: Record<string, string>;
-      query_params: Record<string, string>;
-    };
+    fixedModel?: fixedModel;
   };
 }
 

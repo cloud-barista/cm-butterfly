@@ -15,25 +15,10 @@ import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import { useTaskEditorModel } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/beetleTaskEditorModel.ts';
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
 import SequentialShortCut from '@/features/workflow/workflowEditor/sequential/designer/shortcut/ui/SequentialShortCut.vue';
-
-export interface fixedModel {
-  path_params: Record<string, string>;
-  query_params: Record<string, string>;
-}
+import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 
 interface IProps {
-  step: {
-    id: string;
-    name: string;
-    properties: {
-      isDeletable: boolean;
-      model?: object;
-      originalData: object;
-      fixedModel?: fixedModel;
-    };
-    sequence: [];
-    type: string;
-  };
+  step: Step;
 }
 
 const props = defineProps<IProps>();

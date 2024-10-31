@@ -107,19 +107,24 @@ function getCicadaData(designer: Designer | null): IWorkflow {
     name: '',
     updated_at: '',
   };
+  console.log();
   if (designer) {
-    const definition = designer.getDefinition();
-    Object.assign(workflow, {
-      data: {
-        description: '',
-        task_groups: workflowToolModel.convertDesignerSequenceToCicada(
-          definition.sequence as Step[],
-        ),
-      },
-      description: workflowDescription.value.value,
-      id: '',
-      name: workflowName.value.value,
-    });
+    try {
+      const definition = designer.getDefinition();
+      Object.assign(workflow, {
+        data: {
+          description: '',
+          task_groups: workflowToolModel.convertDesignerSequenceToCicada(
+            definition.sequence as Step[],
+          ),
+        },
+        description: workflowDescription.value.value,
+        id: '',
+        name: workflowName.value.value,
+      });
+    } catch (e: string) {
+      showErrorMessage('Error', e);
+    }
   }
   return workflow;
 }
@@ -223,6 +228,7 @@ function handleSelectTemplate(e) {
             <SequentialDesigner
               :sequence="sequentialSequence"
               :trigger="trigger.value"
+              :taskComponentList="resTaskComponentList.data.value?.responseData"
               @getDesigner="handleSaveCallback"
             ></SequentialDesigner>
           </section>

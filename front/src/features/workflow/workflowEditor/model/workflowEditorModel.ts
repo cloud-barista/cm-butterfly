@@ -1,5 +1,6 @@
 import { useWorkflowStore } from '@/entities/workflow/model/stores.ts';
 import {
+  fixedModel,
   IWorkFlowDesignerFormData,
   Step,
 } from '@/features/workflow/workflowEditor/model/types.ts';
@@ -16,6 +17,7 @@ import { parseRequestBody } from '@/shared/utils/stringToObject';
 import { ITaskComponentInfoResponse } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
 import { isNullOrUndefined, showErrorMessage } from '@/shared/utils';
 import { reactive } from 'vue';
+import { useSequentialToolboxModel } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxModel.ts';
 
 type dropDownType = {
   name: string;
@@ -23,14 +25,10 @@ type dropDownType = {
   type: 'item';
 };
 
-interface fixedModel {
-  path_params: Record<string, string>;
-  query_params: Record<string, string>;
-}
-
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
   const { defineTaskGroupStep, defineBettleTaskStep } = toolboxSteps();
+  const sequentialToolboxModel = useSequentialToolboxModel();
   const taskComponentList: Array<ITaskComponentInfoResponse> = [];
   const dropDownModel = reactive<{
     state: any;
@@ -91,12 +89,12 @@ export function useWorkflowToolModel() {
 
       if (currentTaskGroup.tasks) {
         for (const task of currentTaskGroup.tasks) {
-          mappingWorkflowTaskComponentRequestBody(
+          const requestBody = getMappingWorkflowTaskComponentRequestBody(
             task,
             taskComponentList,
             currentTaskGroup.tasks,
           );
-          const currentDesignerTask = convertToDesignerTask(task);
+          const currentDesignerTask = convertToDesignerTask(task, requestBody);
           currentDesignerTaskGroup.sequence!.push(currentDesignerTask);
         }
       }
@@ -133,39 +131,27 @@ export function useWorkflowToolModel() {
         taskComponent => taskComponent.name === task.task_component,
       );
 
-      const pathParamsKeyValue = taskComponent?.data.param_option.path_params
-        .properties
-        ? Object.entries(
-            taskComponent.data.param_option.path_params.properties,
-          ).reduce((acc, [key, value]) => {
-            acc[key] = value.description;
-            return acc;
-          }, {})
-        : {};
+      if (taskComponent) {
+        const { path_params, query_params } =
+          sequentialToolboxModel.getFixedModel(taskComponent);
 
-      const queryParamsKeyValue = taskComponent?.data.param_option?.query_params
-        ?.properties
-        ? Object.entries(
-            taskComponent?.data.param_option.query_params.properties,
-          ).reduce((acc, [key, value]) => {
-            acc[key] = value.description;
-            return acc;
-          }, {})
-        : {};
-
-      if (isNullOrUndefined(fixedModel.path_params)) {
-        fixedModel.path_params = pathParamsKeyValue;
-      }
-      if (isNullOrUndefined(fixedModel.query_params)) {
-        fixedModel.query_params = queryParamsKeyValue;
+        if (isNullOrUndefined(fixedModel.path_params)) {
+          fixedModel.path_params = path_params;
+        }
+        if (isNullOrUndefined(fixedModel.query_params)) {
+          fixedModel.query_params = query_params;
+        }
       }
     }
     console.log(fixedModel);
     return fixedModel;
   }
 
-  function convertToDesignerTask(task: ITaskResponse): Step {
-    const parsedString: object = parseRequestBody(task.request_body);
+  function convertToDesignerTask(
+    task: ITaskResponse,
+    requestBody: string,
+  ): Step {
+    const parsedString: object = parseRequestBody(requestBody);
     return defineBettleTaskStep(getRandomId(), task.name, task.task_component, {
       model: parsedString,
       originalData: task,
@@ -181,11 +167,7 @@ export function useWorkflowToolModel() {
 
   function convertDesignerSequenceToCicada(sequence: Step[]) {
     if (!validationSequence(sequence)) {
-      showErrorMessage(
-        'Error',
-        'task must have at least one taskGroup as its parent.',
-      );
-      throw new Error();
+      throw new Error('task must have at least one taskGroup as its parent.');
     }
 
     const cicadaObject: ITaskGroupResponse[] = [];
@@ -259,11 +241,11 @@ export function useWorkflowToolModel() {
     });
   }
 
-  function mappingWorkflowTaskComponentRequestBody(
+  function getMappingWorkflowTaskComponentRequestBody(
     task: ITaskResponse,
     taskComponentList: Array<ITaskComponentInfoResponse>,
     taskList: Array<ITaskResponse>,
-  ) {
+  ): string {
     //request_body가 공백인 경우, 다른 task의 이름인 경우
     const condition =
       taskList.findIndex(el => el.name === task.request_body) !== -1 ||
@@ -273,8 +255,9 @@ export function useWorkflowToolModel() {
       const taskInstance = taskComponentList.find(
         taskComponent => taskComponent.name === task.task_component,
       );
-      task.request_body = taskInstance?.data.options.request_body ?? '';
+      return taskInstance?.data.options.request_body ?? '';
     }
+    return task.request_body;
   }
 
   function designerFormDataReordering(sequence: Step[]) {
