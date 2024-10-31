@@ -89,12 +89,12 @@ export function useWorkflowToolModel() {
 
       if (currentTaskGroup.tasks) {
         for (const task of currentTaskGroup.tasks) {
-          mappingWorkflowTaskComponentRequestBody(
+          const requestBody = getMappingWorkflowTaskComponentRequestBody(
             task,
             taskComponentList,
             currentTaskGroup.tasks,
           );
-          const currentDesignerTask = convertToDesignerTask(task);
+          const currentDesignerTask = convertToDesignerTask(task, requestBody);
           currentDesignerTaskGroup.sequence!.push(currentDesignerTask);
         }
       }
@@ -147,8 +147,11 @@ export function useWorkflowToolModel() {
     return fixedModel;
   }
 
-  function convertToDesignerTask(task: ITaskResponse): Step {
-    const parsedString: object = parseRequestBody(task.request_body);
+  function convertToDesignerTask(
+    task: ITaskResponse,
+    requestBody: string,
+  ): Step {
+    const parsedString: object = parseRequestBody(requestBody);
     return defineBettleTaskStep(getRandomId(), task.name, task.task_component, {
       model: parsedString,
       originalData: task,
@@ -238,11 +241,11 @@ export function useWorkflowToolModel() {
     });
   }
 
-  function mappingWorkflowTaskComponentRequestBody(
+  function getMappingWorkflowTaskComponentRequestBody(
     task: ITaskResponse,
     taskComponentList: Array<ITaskComponentInfoResponse>,
     taskList: Array<ITaskResponse>,
-  ) {
+  ): string {
     //request_body가 공백인 경우, 다른 task의 이름인 경우
     const condition =
       taskList.findIndex(el => el.name === task.request_body) !== -1 ||
@@ -252,8 +255,9 @@ export function useWorkflowToolModel() {
       const taskInstance = taskComponentList.find(
         taskComponent => taskComponent.name === task.task_component,
       );
-      task.request_body = taskInstance?.data.options.request_body ?? '';
+      return taskInstance?.data.options.request_body ?? '';
     }
+    return task.request_body;
   }
 
   function designerFormDataReordering(sequence: Step[]) {

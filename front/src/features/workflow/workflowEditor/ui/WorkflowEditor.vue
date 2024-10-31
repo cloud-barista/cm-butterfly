@@ -170,8 +170,6 @@ function handleSaveCallback(designer: Designer | null) {
   trigger.value = false;
   try {
     const cicadaData = getCicadaData(designer);
-    console.log(cicadaData);
-    debugger;
     postWorkflow(cicadaData);
   } catch (e) {
     console.log(e);
@@ -230,6 +228,7 @@ function handleSelectTemplate(e) {
             <SequentialDesigner
               :sequence="sequentialSequence"
               :trigger="trigger.value"
+              :taskComponentList="resTaskComponentList.data.value?.responseData"
               @getDesigner="handleSaveCallback"
             ></SequentialDesigner>
           </section>

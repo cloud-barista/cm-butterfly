@@ -14,11 +14,10 @@ import { ITaskResponse } from '@/entities';
 export function useSequentialToolboxModel() {
   const loadStepsFunc = toolboxSteps();
 
-  const convertedTackComponentList: Array<Step> = [];
-
-  function processTackComponentListToStep(
+  function getTaskComponentStep(
     taskComponentList: ITaskComponentInfoResponse[],
-  ) {
+  ): Step[] {
+    const convertedTackComponentList: Array<Step> = [];
     const taskComponentSteps: Step[] = [];
     taskComponentList.forEach((res: ITaskComponentInfoResponse) => {
       const parsedString: object = parseRequestBody(
@@ -88,7 +87,7 @@ export function useSequentialToolboxModel() {
   }
 
   return {
-    processTackComponentListToStep,
+    getTaskComponentStep,
     getFixedModel,
   };
 }
