@@ -5,7 +5,7 @@ import {
   PHorizontalLayout,
   PToolboxTable,
 } from '@cloudforet-test/mirinae';
-import { useGetMciList } from '@/entities/mci/api';
+import { useGetMciInfo, useGetMciList } from '@/entities/mci/api';
 import { computed, onBeforeMount, onMounted, reactive } from 'vue';
 import { useMCIStore } from '@/entities/mci/model';
 import { showErrorMessage } from '@/shared/utils';
@@ -21,8 +21,9 @@ const {
   mciTableModel,
   initToolBoxTableModel,
   mciStore,
-  fetchMciList,
   resMciList,
+  fetchMciList,
+  loading,
 } = useMciListModel(props);
 
 const mciCreateModalState = reactive({
@@ -35,9 +36,6 @@ function handleSelectedIndex(index: number[]) {
   if (selectedData) {
     emit('selectRow', selectedData.name);
   }
-  // else {
-  //   emit('selectRow', '');
-  // }
 }
 
 onBeforeMount(() => {
@@ -55,9 +53,7 @@ onMounted(() => {
       <template #container="{ height }">
         <p-toolbox-table
           ref="toolboxTable"
-          :loading="
-            mciTableModel.tableState.loading || resMciList.isLoading.value
-          "
+          :loading="loading"
           :items="mciTableModel.tableState.displayItems"
           :fields="mciTableModel.tableState.fields"
           :total-count="mciTableModel.tableState.tableCount"

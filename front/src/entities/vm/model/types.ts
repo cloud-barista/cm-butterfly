@@ -74,7 +74,7 @@ interface CSPViewVmDetail {
   VpcIID: IId;
 }
 
-export interface IVm {
+interface IVm {
   connectionConfig: ConnectionConfig;
   connectionName: string;
   createdTime: string;

@@ -12,13 +12,17 @@ export function useMciDetailModel() {
     tableModel.initState();
 
     tableModel.tableState.fields = [
-      { label: 'Name', name: 'name' },
-      { label: 'Description', name: 'description' },
-      { label: 'Type', name: 'type' },
-      { label: 'Status', name: 'status' },
-      { label: 'Action', name: 'action' },
-      { label: 'Provider', name: 'provider' },
-      { label: 'Deployment Algorithm', name: 'deploymentAlgorithm' },
+      { label: 'Name', name: 'name', disableCopy: true },
+      { label: 'Description', name: 'description', disableCopy: true },
+      { label: 'Type', name: 'type', disableCopy: true },
+      { label: 'Status', name: 'status', disableCopy: true },
+      { label: 'Action', name: 'action', disableCopy: true },
+      { label: 'Provider', name: 'provider', disableCopy: true },
+      {
+        label: 'Deployment Algorithm',
+        name: 'deploymentAlgorithm',
+        disableCopy: true,
+      },
     ];
   }
 
@@ -27,18 +31,22 @@ export function useMciDetailModel() {
   }
 
   function setDefineTableData(mciId: string) {
-    const mci = mciStore.loadMciById(mciId);
+    const mci = mciStore.getMciById(mciId);
     let data: Partial<Record<McisTableType, any>> = {};
 
     if (mci) {
+      // @ts-ignore
       data = {
         name: mci.name || '',
         description: mci.description || '',
         status: mci.status || '',
-        type: mci.type || '',
-        action: mci.action || '',
+        // @ts-ignore
+        type: mci.type || 'MCI',
+        // @ts-ignore
+        action: mci.action || 'Instance',
         provider: getCloudProvidersInVms(mci.vm) || '',
-        deploymentAlgorithm: mci.deploymentAlgorithm || '',
+        // @ts-ignore
+        deploymentAlgorithm: mci.deploymentAlgorithm || '-',
       };
     }
     return data;

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import MciList from '@/widgets/workload/mci/mciList/ui/MciList.vue';
 import { reactive, ref, PropType, Ref } from 'vue';
-import { PTab, PButtonTab } from '@cloudforet-test/mirinae';
+import { PTab, PButtonTab, PButton } from '@cloudforet-test/mirinae';
 import MciDetail from '@/widgets/workload/mci/mciDetail/ui/MciDetail.vue';
 import { useMCIStore } from '@/entities/mci/model';
-import VmGroups from '@/widgets/workload/vmGroups/ui/VmGroups.vue';
-import VmDetail from '@/widgets/workload/mci/vmInformation/ui/VmInformation.vue';
+import VmList from '@/widgets/workload/vmList/ui/VmList.vue';
+import VmInformation from '@/widgets/workload/mci/vmInformation/ui/VmInformation.vue';
 
 const pageName = 'MCI';
 
@@ -42,7 +42,7 @@ const vmDetailTabState = reactive({
 });
 
 //TODO projectId 가져와야함.
-const nsId = 'ns01';
+const nsId = 'ant-default-ns';
 
 const selectedMciId = ref<string>('');
 const selectedGroupId = ref<string>('');
@@ -72,10 +72,24 @@ function handleSelectVmGroupTableRow(id: string) {
       <div v-if="selectedMciId">
         <p-tab v-model="tabState.activeTab" :tabs="tabState.tabs">
           <template #detail>
+            <div class="tab-section-header">
+              <p>MCI Information</p>
+              <div class="flex gap-1.5">
+                <p-button style-type="tertiary" :disabled="true">
+                  Evaluate Perf
+                </p-button>
+                <p-button style-type="tertiary" :disabled="true">
+                  Estimate Cost
+                </p-button>
+              </div>
+            </div>
             <MciDetail :selectedMciId="selectedMciId"></MciDetail>
           </template>
           <template #server>
-            <VmGroups
+            <div class="tab-section-header">
+              <p>Server List</p>
+            </div>
+            <VmList
               :ns-id="nsId"
               :mci-id="selectedMciId"
               @selectCard="handleSelectVmGroupTableRow"
@@ -86,18 +100,18 @@ function handleSelectVmGroupTableRow(id: string) {
                   :tabs="vmDetailTabState.tabs"
                 >
                   <template #information>
-                    <VmDetail
-                      :mci-id="selectedMciId"
-                      :ns-id="nsId"
-                      :vm-group-id="selectedGroupId"
-                    >
-                    </VmDetail>
+                    <!--                    <VmInformation-->
+                    <!--                      :mci-id="selectedMciId"-->
+                    <!--                      :ns-id="nsId"-->
+                    <!--                      :vm-group-id="selectedGroupId"-->
+                    <!--                    >-->
+                    <!--                    </VmInformation>-->
                   </template>
                   <template #conntection></template>
                   <template #monitoring></template>
                 </p-button-tab>
               </template>
-            </VmGroups>
+            </VmList>
           </template>
         </p-tab>
       </div>

@@ -98,7 +98,10 @@
     },
     "VERTICAL_LAYOUT": {
       "EXPAND": "Expand",
-      "COLLAPSE" : "Collapse"
+      "COLLAPSE": "Collapse"
+    },
+    "DATA_LOADER": {
+      "NO_DATA": "NO DATA"
     }
   }
 }

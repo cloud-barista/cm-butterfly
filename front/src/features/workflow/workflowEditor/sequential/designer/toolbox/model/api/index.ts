@@ -12,25 +12,23 @@ export interface ITaskComponentInfoResponse {
       request_body: string;
       path_params: object;
     };
-    param_option: {
-      path_params: {
-        properties: Record<
-          string,
-          {
-            description: string;
-            type: string;
-          }
-        > | null;
-      };
-      query_params: {
-        properties: Record<
-          string,
-          {
-            description: string;
-            type: string;
-          }
-        > | null;
-      };
+    path_params: {
+      properties: Record<
+        string,
+        {
+          description: string;
+          type: string;
+        }
+      > | null;
+    };
+    query_params: {
+      properties: Record<
+        string,
+        {
+          description: string;
+          type: string;
+        }
+      > | null;
     };
   };
 }
