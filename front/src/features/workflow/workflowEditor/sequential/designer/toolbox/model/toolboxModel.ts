@@ -59,8 +59,8 @@ export function useSequentialToolboxModel() {
   }
 
   function getFixedModel(task: ITaskComponentInfoResponse): fixedModel {
-    const pathParamsKeyValue = task?.data.param_option.path_params?.properties
-      ? Object.entries(task.data.param_option.path_params.properties).reduce(
+    const pathParamsKeyValue = task?.data.path_params?.properties
+      ? Object.entries(task.data.path_params?.properties).reduce(
           (acc, [key, value]) => {
             acc[key] = value.description;
             return acc;
@@ -69,9 +69,8 @@ export function useSequentialToolboxModel() {
         )
       : {};
 
-    const queryParamsKeyValue = task?.data.param_option?.query_params
-      ?.properties
-      ? Object.entries(task.data.param_option.query_params.properties).reduce(
+    const queryParamsKeyValue = task?.data.query_params?.properties
+      ? Object.entries(task.data.query_params?.properties).reduce(
           (acc, [key, value]) => {
             acc[key] = value.description;
             return acc;
