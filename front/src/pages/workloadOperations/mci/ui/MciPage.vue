@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import MciList from '@/widgets/workload/mci/mciList/ui/MciList.vue';
-import { reactive, ref, PropType, Ref } from 'vue';
+import { reactive, ref } from 'vue';
 import { PTab, PButtonTab, PButton } from '@cloudforet-test/mirinae';
 import MciDetail from '@/widgets/workload/mci/mciDetail/ui/MciDetail.vue';
-import { useMCIStore } from '@/entities/mci/model';
-import VmList from '@/widgets/workload/vmList/ui/VmList.vue';
-import VmInformation from '@/widgets/workload/mci/vmInformation/ui/VmInformation.vue';
+import VmList from '@/widgets/workload/vm/vmList/ui/VmList.vue';
+import VmInformation from '@/widgets/workload/vm/vmInformation/ui/VmInformation.vue';
+import { isNullOrUndefined } from '@/shared/utils';
 
 const pageName = 'MCI';
 
@@ -38,21 +38,30 @@ const vmDetailTabState = reactive({
       name: 'monitoring',
       label: 'Monitoring',
     },
+    {
+      name: 'evaluatePref',
+      label: 'Evaluate Pref',
+    },
+    {
+      name: 'estimateCost',
+      label: 'Estimate Cost',
+    },
   ],
 });
 
 //TODO projectId 가져와야함.
-const nsId = 'ant-default-ns';
+const nsId = 'mig01';
 
 const selectedMciId = ref<string>('');
-const selectedGroupId = ref<string>('');
+const selectedVmId = ref<string>('');
 
 function handleSelectMciTableRow(id: string) {
   selectedMciId.value = id;
 }
 
 function handleSelectVmGroupTableRow(id: string) {
-  selectedGroupId.value = id;
+  console.log(selectedVmId.value);
+  if (!isNullOrUndefined(id)) selectedVmId.value = id;
 }
 </script>
 
@@ -100,15 +109,23 @@ function handleSelectVmGroupTableRow(id: string) {
                   :tabs="vmDetailTabState.tabs"
                 >
                   <template #information>
-                    <!--                    <VmInformation-->
-                    <!--                      :mci-id="selectedMciId"-->
-                    <!--                      :ns-id="nsId"-->
-                    <!--                      :vm-group-id="selectedGroupId"-->
-                    <!--                    >-->
-                    <!--                    </VmInformation>-->
+                    <VmInformation
+                      :mciId="selectedMciId"
+                      :nsId="nsId"
+                      :vmId="selectedVmId"
+                    >
+                    </VmInformation>
                   </template>
-                  <template #conntection></template>
-                  <template #monitoring></template>
+                  <template #connection>
+                    <p>to be..</p>
+                  </template>
+                  <template #monitoring>
+                    <p>to be..</p>
+                  </template>
+                  <template #evaluatePref> </template>
+                  <template #estimateCost>
+                    <p>to be..</p>
+                  </template>
                 </p-button-tab>
               </template>
             </VmList>

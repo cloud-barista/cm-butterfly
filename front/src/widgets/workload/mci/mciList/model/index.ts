@@ -162,10 +162,10 @@ export function useMciListModel(props: IProps) {
                     Region: '',
                     Zone: '',
                   },
-                  publicIP: 'empty',
+                  publicIP: '123123213213213',
                   sshPort: '',
-                  publicDNS: 'empty',
-                  privateIP: '',
+                  publicDNS: '132132312',
+                  privateIP: '12231',
                   privateDNS: '',
                   rootDiskType: '',
                   rootDiskSize: '',
@@ -5267,7 +5267,7 @@ export function useMciListModel(props: IProps) {
         res => {
           res.forEach(el => {
             if (el.data.responseData?.vm) {
-              mciStore.setVmInfo(
+              mciStore.setVmsInfo(
                 el.data.responseData.id,
                 el.data.responseData?.vm,
               );

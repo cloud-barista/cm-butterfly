@@ -53,6 +53,14 @@ export function useVmListModel(props: IProps) {
     { immediate: true },
   );
 
+  watch(
+    () => vmListTableModel,
+    () => {
+      console.log(vmListTableModel);
+    },
+    { immediate: true },
+  );
+
   return {
     vmListTableModel,
     getVmList,

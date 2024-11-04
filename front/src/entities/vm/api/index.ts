@@ -3,7 +3,7 @@ import {
   RequestBodyWrapper,
   useAxiosPost,
 } from '../../../shared/libs';
-import { IVm } from '../model';
+import { IVm } from '@/entities/mci/model';
 
 export interface IVmRequestParams {
   nsId: string;
@@ -25,3 +25,5 @@ export function useGetVmInfo(params: IVmRequestParams | null) {
     Required<Pick<RequestBodyWrapper<IVmRequestParams | null>, 'pathParams'>>
   >(GET_VM_Info, requestBodyWrapper);
 }
+
+export const t = {};

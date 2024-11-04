@@ -6,7 +6,7 @@ import {
   PDataLoader,
   PToolboxTable,
 } from '@cloudforet-test/mirinae';
-import { useVmListModel } from '@/widgets/workload/vmList/model';
+import { useVmListModel } from '@/widgets/workload/vm/vmList/model';
 import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
 
 interface IProps {
@@ -16,21 +16,17 @@ interface IProps {
 
 const props = defineProps<IProps>();
 const emit = defineEmits(['selectCard']);
-const displayCardData = ref([]);
-const searchText = ref<string>('');
-const { cardState, getVmList, initToolBoxTableModel, vmListTableModel } =
-  useVmListModel<IProps>(props);
 
-watch(cardState, () => {
-  console.log(cardState.selected);
-});
+const { getVmList, initToolBoxTableModel, vmListTableModel } =
+  useVmListModel<IProps>(props);
 
 onMounted(() => {
   initToolBoxTableModel();
 });
 
-function handleClick(id: string) {
-  emit('selectCard', id);
+function handleClick(value: any) {
+  console.log(value);
+  if (value && value.name) emit('selectCard', value.originalData.id);
 }
 </script>
 
@@ -38,11 +34,15 @@ function handleClick(id: string) {
   <div class="p-4">
     <section class="vmList-container">
       <p-toolbox
-        :totalCount="displayCardData.length"
         :pageSizeChangeable="false"
-        :searchText="searchText"
-        @change=""
-        @refresh=""
+        :key-item-sets="vmListTableModel.querySearchState.keyItemSet"
+        :value-handler-map="vmListTableModel.querySearchState.valueHandlerMap"
+        :query-tag="vmListTableModel.querySearchState.queryTag"
+        :total-count="vmListTableModel.tableState.tableCount"
+        :page-size="vmListTableModel.tableOptions.pageSize"
+        :search-type="vmListTableModel.tableOptions.searchType"
+        @change="vmListTableModel.handleChange"
+        @refresh="() => {}"
       >
         <template #left-area>
           <p-button
@@ -56,19 +56,19 @@ function handleClick(id: string) {
       </p-toolbox>
       <div class="vmList-content">
         <p-data-loader
-          v-if="cardState.cardData.length === 0"
+          v-if="vmListTableModel.tableState.displayItems.length === 0"
           :data="false"
           :loading="false"
         >
         </p-data-loader>
         <p-select-card
           v-else
-          v-for="(value, _) in cardState.cardData"
+          v-for="(value, index) in vmListTableModel.tableState.displayItems"
           :key="value.name"
-          v-model="cardState.selected"
+          v-model="vmListTableModel.tableState.selectIndex"
           :value="value.name"
           :multi-selectable="true"
-          @click="handleClick(value.name)"
+          @click="() => handleClick(value)"
           style="
             width: 205.5px;
             height: 56px;
