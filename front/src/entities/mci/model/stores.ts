@@ -19,6 +19,13 @@ export const useMCIStore = defineStore(NAMESPACE, () => {
     );
   }
 
+  function setMci(_mci: IMci) {
+    const targetMci = mcis.value.find(mci => mci.uid === _mci.uid);
+    if (targetMci) {
+      Object.assign(targetMci, _mci);
+    }
+  }
+
   function setVmsInfo(mciID: string, vm: Array<IVm>) {
     const mci = getMciById(mciID);
     if (mci) {
@@ -28,13 +35,14 @@ export const useMCIStore = defineStore(NAMESPACE, () => {
 
   function setVmInfo(mciID: string, vm: IVm) {
     const mci = getMciById(mciID);
-    const targetVm = mci?.vm.find(_vm => _vm.id === vm.id);
+    const targetVm = mci?.vm.find(_vm => _vm.uid === vm.uid);
     if (targetVm) {
       Object.assign(targetVm, vm);
     }
   }
   return {
     mcis,
+    setMci,
     setMcis,
     getMciById,
     setVmsInfo,

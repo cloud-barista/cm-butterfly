@@ -10,18 +10,18 @@ interface IProps {
 const props = defineProps<IProps>();
 const mciDetailModel = useMciDetailModel();
 
-watch(props, nv => {
-  mciDetailModel.setMciId(nv.selectedMciId);
-});
-
 onBeforeMount(() => {
   mciDetailModel.initTable();
   mciDetailModel.tableModel.tableState.loading = false;
 });
 
-onMounted(() => {
-  mciDetailModel.setMciId(props.selectedMciId);
-});
+watch(
+  props,
+  nv => {
+    mciDetailModel.setMciId(nv.selectedMciId);
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
