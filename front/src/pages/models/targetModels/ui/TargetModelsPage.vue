@@ -5,6 +5,7 @@ import { TargetModelDetail } from '@/widgets/models/targetModels';
 import { SimpleEditForm } from '@/widgets/layout';
 import { CustomViewTargetModel } from '@/widgets/models/targetModels';
 import { reactive, ref } from 'vue';
+import WorkflowEditor from '@/features/workflow/workflowEditor/ui/WorkflowEditor.vue';
 
 const pageName = 'Target Models';
 
@@ -25,7 +26,7 @@ const mainTabState = reactive({
 const modalState = reactive({
   editModelModal: { open: false, trigger: false },
   customViewJsonModal: { open: false, trigger: false },
-  workflowToolModal: { open: false, trigger: false },
+  workflowEditorModal: { open: false, trigger: false },
 });
 
 function handleClickTargetModelId(id: string) {
@@ -62,6 +63,9 @@ function handleClickTargetModelId(id: string) {
               @update:target-model-description="
                 e => (targetModelDescription = e)
               "
+              @update:workflow-edit-modal="
+                e => (modalState.workflowEditorModal.open = e)
+              "
             />
           </template>
         </p-tab>
@@ -87,6 +91,15 @@ function handleClickTargetModelId(id: string) {
         v-if="modalState.customViewJsonModal.open"
         :target-model-name="targetModelName"
         @update:close-modal="modalState.customViewJsonModal.open = false"
+      />
+    </div>
+    <div class="relative z-70">
+      <workflow-editor
+        v-if="modalState.workflowEditorModal.open"
+        :target-model-name="targetModelName"
+        @update:close-modal="modalState.workflowEditorModal.open = false"
+        tool-type="add"
+        wft-id=""
       />
     </div>
   </div>

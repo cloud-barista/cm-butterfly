@@ -1,28 +1,17 @@
 import { defineStore } from 'pinia';
 import { ref, Ref } from 'vue';
-import { IMci } from './types.ts';
-
-// api 요청은 실제 사용하는 page에서 실행.
-// list도 여기서
-// 다른 store 참조가능
-// 각각의 store load는 feature에서 진행.
+import { IMci, IVm } from './types.ts';
 
 const NAMESPACE = 'MCI';
 
-export interface IMciStore {
-  mcis: Ref<IMci[]>;
-  setMcis: (val: IMci[]) => void;
-  loadMciById: (id: string) => IMci | null;
-}
-
-export const useMCIStore = defineStore(NAMESPACE, (): IMciStore => {
+export const useMCIStore = defineStore(NAMESPACE, () => {
   const mcis = ref<IMci[]>([]);
 
   function setMcis(_mcis: IMci[]) {
     mcis.value = _mcis;
   }
 
-  function loadMciById(mciId: string) {
+  function getMciById(mciId: string) {
     return (
       mcis.value.find((mci: IMci) => {
         return mci.id === mciId;
@@ -30,9 +19,25 @@ export const useMCIStore = defineStore(NAMESPACE, (): IMciStore => {
     );
   }
 
+  function setVmsInfo(mciID: string, vm: Array<IVm>) {
+    const mci = getMciById(mciID);
+    if (mci) {
+      mci.vm = vm;
+    }
+  }
+
+  function setVmInfo(mciID: string, vm: IVm) {
+    const mci = getMciById(mciID);
+    const targetVm = mci?.vm.find(_vm => _vm.id === vm.id);
+    if (targetVm) {
+      Object.assign(targetVm, vm);
+    }
+  }
   return {
     mcis,
     setMcis,
-    loadMciById,
+    getMciById,
+    setVmsInfo,
+    setVmInfo,
   };
 });
