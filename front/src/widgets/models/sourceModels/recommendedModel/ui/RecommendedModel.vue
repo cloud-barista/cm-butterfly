@@ -7,7 +7,6 @@ import { reactive, ref, watch } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
 import { IRecommendedModel } from '@/entities/recommendedModel/model/types';
 import { useTargetModelStore } from '@/entities';
-import { dateType } from '@/entities';
 
 const targetModelStore = useTargetModelStore();
 

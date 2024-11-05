@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { formatDate } from '@/shared/utils';
 import type { ITargetModel } from './types';
-import { dateType } from '@/entities/sourceModels';
 
 export const useTargetModelStore = defineStore('TARGETMODEL', {
   state: () => ({

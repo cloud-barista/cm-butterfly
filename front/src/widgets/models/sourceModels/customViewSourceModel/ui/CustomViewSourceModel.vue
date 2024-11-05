@@ -5,13 +5,10 @@ import { CreateForm } from '@/widgets/layout';
 import { JsonEditor } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { ISourceModelResponse, useSourceModelStore } from '@/entities';
+import { PTextEditor } from '@cloudforet-test/mirinae';
 
-const formData = {
-  os_version: 'Amazon Linux release 2 (Karoo)',
-  os: 'Amazon Linux 2',
-  email: 'glee@mz.co.kr',
-};
 const modelName = ref<string>('');
 
 interface iProps {
@@ -19,10 +16,20 @@ interface iProps {
 }
 
 const props = defineProps<iProps>();
-
 const emit = defineEmits(['update:close-modal']);
 
 const modalState = ref<boolean>(false);
+const sourceModelStore = useSourceModelStore();
+const targetModel = ref<ISourceModelResponse | undefined>(undefined);
+watch(
+  () => props.sourceModelName,
+  () => {
+    targetModel.value = sourceModelStore.getSourceModelById(
+      props.sourceModelName,
+    );
+  },
+  { immediate: true },
+);
 
 function handleModal() {
   emit('update:close-modal', false);
@@ -40,24 +47,6 @@ function handleSaveModal() {
 function handleModelName(value: string) {
   modelName.value = value;
 }
-
-const schema = {
-  json: true,
-  properties: {
-    os_version: {
-      type: 'string',
-      title: 'OS Version',
-    },
-    os: {
-      type: 'string',
-      title: 'OS',
-    },
-    email: {
-      type: 'string',
-      title: 'Email',
-    },
-  },
-};
 </script>
 
 <template>
@@ -71,12 +60,10 @@ const schema = {
       @update:modal-state="handleModal"
     >
       <template #add-info>
-        <json-editor
-          :form-data="formData"
-          title="Source Model"
-          :read-only="false"
-          :json="schema.json"
-          :shema-properties="schema.properties"
+        <p-text-editor
+          :code="targetModel?.onpremiseInfraModel.servers"
+          :read-only="true"
+          folded
         />
       </template>
       <template #buttons>
