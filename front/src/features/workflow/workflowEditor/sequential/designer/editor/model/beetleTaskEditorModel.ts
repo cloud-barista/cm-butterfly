@@ -1,7 +1,11 @@
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
-import { computed, reactive, ref, Ref, UnwrapRef } from 'vue';
-import object from 'async-validator/dist-types/validator/object';
-import { isArray, values } from 'lodash';
+import { ref, UnwrapRef } from 'vue';
+import { isArray } from 'lodash';
+
+interface fixedModel {
+  path_params: Record<string, string>;
+  query_params: Record<string, string>;
+}
 
 type EntityContext = {
   type: 'entity';
@@ -45,10 +49,30 @@ type AccordionContext = {
   originalData: Array<any>;
 };
 
+type QueryParamsModel = {
+  type: 'params';
+  context: {
+    subject: 'Query_Params';
+    values: Array<InputContext>;
+  };
+};
+
+type PathParamsModel = {
+  type: 'params';
+  context: {
+    subject: 'Path_Params';
+    values: Array<InputContext>;
+  };
+};
+
 type ConvertedData = EntityContext | AccordionContext;
 
 export function useTaskEditorModel() {
   const formContext = ref<ConvertedData[]>([]);
+  const paramsContext = ref<{
+    path_params: PathParamsModel;
+    query_params: QueryParamsModel;
+  }>();
 
   function loadInputContext(
     key: string,
@@ -87,6 +111,29 @@ export function useTaskEditorModel() {
           return loadInputContext(key, value);
         },
       ),
+    };
+  }
+
+  function setParamsContext(fixedModel: fixedModel) {
+    paramsContext.value = {
+      path_params: {
+        type: 'params',
+        context: {
+          subject: 'Path_Params',
+          values: Object.entries(fixedModel.path_params).map(([key, value]) =>
+            loadInputContext(key, value),
+          ),
+        },
+      },
+      query_params: {
+        type: 'params',
+        context: {
+          subject: 'Query_Params',
+          values: Object.entries(fixedModel.query_params).map(([key, value]) =>
+            loadInputContext(key, value),
+          ),
+        },
+      },
     };
   }
 
@@ -132,7 +179,7 @@ export function useTaskEditorModel() {
 
     formContext.value.forEach(data => {
       if (data.type === 'entity') {
-        let convertedObject = [];
+        const convertedObject = [];
         data.context.values.forEach(value => {
           if (value.type === 'keyValueInput') {
             if (
@@ -159,7 +206,32 @@ export function useTaskEditorModel() {
         Object.assign(properties, accordionData);
       }
     });
+
     return properties;
+  }
+
+  function convertParamsModelToStepProperties() {
+    const fixedModel: fixedModel = {
+      path_params: {},
+      query_params: {},
+    };
+
+    Object.assign(
+      fixedModel.path_params,
+      paramsContext.value?.path_params.context.values.reduce((acc, value) => {
+        acc[value.context.title] = value.context.model.value;
+        return acc;
+      }, {}),
+    );
+    Object.assign(
+      fixedModel.query_params,
+      paramsContext.value?.query_params.context.values.reduce((acc, value) => {
+        acc[value.context.title] = value.context.model.value;
+        return acc;
+      }, {}),
+    );
+
+    return fixedModel;
   }
 
   function getAccordionSlotData(accordionSlotContext: AccordionSlotContext) {
@@ -199,12 +271,13 @@ export function useTaskEditorModel() {
       );
     }
   }
+
   //return 같은게 있으면 true 없으면 false
   function entityKeyValidation(
     model: UnwrapRef<ReturnType<typeof useInputModel<string>>>,
   ): boolean {
     if (formContext.value[0].type === 'entity') {
-      let valid = formContext.value[0].context.values.some(value => {
+      const valid = formContext.value[0].context.values.some(value => {
         // @ts-ignore
         if (value.type === 'input') {
           // @ts-ignore
@@ -223,6 +296,7 @@ export function useTaskEditorModel() {
       formContext.value[0].context.values.splice(index, 1);
     }
   }
+
   function deleteArrayElement(
     targetArr:
       | UnwrapRef<Array<InputContext | KeyValueInputContext>>
@@ -234,8 +308,11 @@ export function useTaskEditorModel() {
 
   return {
     formContext,
+    paramsContext,
+    setParamsContext,
     setFormContext,
     convertFormModelToStepProperties,
+    convertParamsModelToStepProperties,
     addEntity,
     addArray,
     entityKeyValidation,

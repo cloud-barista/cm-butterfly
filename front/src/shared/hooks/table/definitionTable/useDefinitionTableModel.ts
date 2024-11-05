@@ -1,7 +1,4 @@
-import {
-  ITableField,
-  ITableItems,
-} from '../toolboxTable/types.ts';
+import { ITableField, ITableItems } from '../toolboxTable/types.ts';
 import { reactive } from 'vue';
 
 type IDefinitionTableState<T> = {

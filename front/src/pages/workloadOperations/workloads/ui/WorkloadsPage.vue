@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { VerticalPageLayout } from '@/widgets/layout';
-import { WorkloadsLSB } from '@/widgets/workloads';
+import { WorkloadsLSB } from '@/widgets/workload';
 import { computed, reactive } from 'vue';
 import { MENU_ID, useMigratorMenuStore } from '@/entities';
 import { storeToRefs } from 'pinia';

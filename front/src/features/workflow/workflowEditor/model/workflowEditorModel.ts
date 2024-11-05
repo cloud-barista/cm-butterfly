@@ -1,40 +1,74 @@
 import { useWorkflowStore } from '@/entities/workflow/model/stores.ts';
 import {
+  fixedModel,
   IWorkFlowDesignerFormData,
   Step,
 } from '@/features/workflow/workflowEditor/model/types.ts';
 import {
+  ITaskComponentResponse,
   ITaskGroupResponse,
   ITaskResponse,
   IWorkflow,
+  IWorkflowResponse,
 } from '@/entities/workflow/model/types.ts';
 import getRandomId from '@/shared/utils/uuid';
 import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
-import { Sequence } from 'sequential-workflow-designer';
+import { ITaskComponentInfoResponse } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
+import { isNullOrUndefined, showErrorMessage } from '@/shared/utils';
+import { reactive } from 'vue';
+import { useSequentialToolboxModel } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxModel.ts';
+
+type dropDownType = {
+  name: string;
+  label: string;
+  type: 'item';
+};
 
 export function useWorkflowToolModel() {
   const workflowStore = useWorkflowStore();
   const { defineTaskGroupStep, defineBettleTaskStep } = toolboxSteps();
+  const sequentialToolboxModel = useSequentialToolboxModel();
+  const taskComponentList: Array<ITaskComponentInfoResponse> = [];
+  const dropDownModel = reactive<{
+    state: any;
+    data: dropDownType[];
+    selectedItemId: string;
+  }>({
+    state: { disabled: false },
+    data: [],
+    selectedItemId: '',
+  });
 
-  function getWorkflowToolData(
-    workflowId: string,
-    type: 'template' | 'data' = 'data',
+  function setTaskComponent(
+    _taskComponentList: Array<ITaskComponentInfoResponse>,
   ) {
-    let workflow;
-    if (type === 'template') {
-      workflow = workflowStore.getTemplateById(workflowId);
-    } else {
-      workflow = workflowStore.getWorkFlowById(workflowId);
-    }
+    _taskComponentList.forEach(component => {
+      taskComponentList.push(component);
+    });
+  }
 
-    if (workflow) {
-      convertCicadaToDesignerFormData(workflow);
-    }
+  function setDropDownData(workspaceResponse: IWorkflowResponse[]) {
+    workspaceResponse.forEach(workspace => {
+      dropDownModel.data.push({
+        name: workspace.id,
+        label: workspace.name,
+        type: 'item',
+      });
+    });
+  }
+
+  function getWorkflowData(workflowId: string) {
+    return workflowStore.getWorkflowById(workflowId);
+  }
+
+  function getWorkflowTemplateData(workflowTemplateId: string) {
+    return workflowStore.getWorkflowTemplateById(workflowTemplateId);
   }
 
   function convertCicadaToDesignerFormData(
     workflow: IWorkflow,
+    taskComponentList: Array<ITaskComponentInfoResponse>,
   ): IWorkFlowDesignerFormData {
     const sequence: Step[] = [];
 
@@ -55,7 +89,12 @@ export function useWorkflowToolModel() {
 
       if (currentTaskGroup.tasks) {
         for (const task of currentTaskGroup.tasks) {
-          const currentDesignerTask = convertToDesignerTask(task);
+          const requestBody = getMappingWorkflowTaskComponentRequestBody(
+            task,
+            taskComponentList,
+            currentTaskGroup.tasks,
+          );
+          const currentDesignerTask = convertToDesignerTask(task, requestBody);
           currentDesignerTaskGroup.sequence!.push(currentDesignerTask);
         }
       }
@@ -79,11 +118,44 @@ export function useWorkflowToolModel() {
     return { sequence };
   }
 
-  function convertToDesignerTask(task: ITaskResponse): Step {
-    const parsedString: object = parseRequestBody(task.request_body);
+  function createFixedModel(task: ITaskResponse): fixedModel {
+    const fixedModel: fixedModel = {
+      path_params: task.path_params,
+      query_params: task.query_params,
+    };
+    if (
+      isNullOrUndefined(fixedModel.path_params) ||
+      isNullOrUndefined(fixedModel.query_params)
+    ) {
+      const taskComponent = taskComponentList.find(
+        taskComponent => taskComponent.name === task.task_component,
+      );
 
-    return defineBettleTaskStep(getRandomId(), task.name, 'task', {
+      if (taskComponent) {
+        const { path_params, query_params } =
+          sequentialToolboxModel.getFixedModel(taskComponent);
+
+        if (isNullOrUndefined(fixedModel.path_params)) {
+          fixedModel.path_params = path_params;
+        }
+        if (isNullOrUndefined(fixedModel.query_params)) {
+          fixedModel.query_params = query_params;
+        }
+      }
+    }
+    console.log(fixedModel);
+    return fixedModel;
+  }
+
+  function convertToDesignerTask(
+    task: ITaskResponse,
+    requestBody: string,
+  ): Step {
+    const parsedString: object = parseRequestBody(requestBody);
+    return defineBettleTaskStep(getRandomId(), task.name, task.task_component, {
       model: parsedString,
+      originalData: task,
+      fixedModel: createFixedModel(task),
     });
   }
 
@@ -95,7 +167,7 @@ export function useWorkflowToolModel() {
 
   function convertDesignerSequenceToCicada(sequence: Step[]) {
     if (!validationSequence(sequence)) {
-      throw new Error();
+      throw new Error('task must have at least one taskGroup as its parent.');
     }
 
     const cicadaObject: ITaskGroupResponse[] = [];
@@ -124,7 +196,7 @@ export function useWorkflowToolModel() {
           if (step.componentType === 'container') {
             stack.push({ parentNode: taskGroup, currentNode: step });
           } else if (step.componentType === 'task') {
-            tasks.push(convertToCicadaTask(step));
+            tasks.push(convertToCicadaTask(step, tasks[tasks.length - 1]));
           }
         });
 
@@ -145,11 +217,20 @@ export function useWorkflowToolModel() {
     return cicadaObject;
   }
 
-  function convertToCicadaTask(step: Step) {
+  function convertToCicadaTask(step: Step, dependenciesStep: Step) {
+    console.log(step);
+    console.log(dependenciesStep);
     if (step.componentType === 'task') {
       return {
         name: step.name,
-        request_body: JSON.stringify(step.properties.model, null, 2),
+        request_body: JSON.stringify(step.properties.model),
+        path_params: step.properties.fixedModel?.path_params,
+        query_params: step.properties.fixedModel?.query_params,
+        task_component: step.properties.originalData?.task_component,
+        dependencies:
+          dependenciesStep && dependenciesStep.name
+            ? [dependenciesStep.name]
+            : [],
       };
     }
   }
@@ -160,9 +241,95 @@ export function useWorkflowToolModel() {
     });
   }
 
+  function getMappingWorkflowTaskComponentRequestBody(
+    task: ITaskResponse,
+    taskComponentList: Array<ITaskComponentInfoResponse>,
+    taskList: Array<ITaskResponse>,
+  ): string {
+    //request_body가 공백인 경우, 다른 task의 이름인 경우
+    const condition =
+      taskList.findIndex(el => el.name === task.request_body) !== -1 ||
+      task.request_body === '';
+
+    if (condition) {
+      const taskInstance = taskComponentList.find(
+        taskComponent => taskComponent.name === task.task_component,
+      );
+      return taskInstance?.data.options.request_body ?? '';
+    }
+    return task.request_body;
+  }
+
+  function designerFormDataReordering(sequence: Step[]) {
+    console.log(sequence);
+    const newSequence: Step[] = [];
+    const taskGroupQueue: Step[] = [];
+
+    sequence.forEach(step => {
+      if (step.componentType === 'container') {
+        taskGroupQueue.push(step);
+      }
+    });
+
+    while (taskGroupQueue.length > 0) {
+      const rootTaskGroup = taskGroupQueue.pop()!;
+      const newTaskGroupSequence: Step[] = [];
+      const queue: Step[] = [];
+
+      const rootStep = rootTaskGroup.sequence?.find(step => {
+        return (
+          step.properties.originalData?.dependencies === null ||
+          step.properties.originalData?.dependencies.length === 0
+        );
+      });
+
+      if (rootStep) {
+        queue.push(rootStep);
+        newTaskGroupSequence.push(rootStep);
+      }
+
+      //dependency 를 기준으로 정렬하기 위한 while
+      while (queue.length > 0) {
+        const dependencyTask = queue.pop()!;
+
+        const targetTask = rootTaskGroup.sequence?.find(step => {
+          if (Array.isArray(step.properties.originalData?.dependencies)) {
+            return (
+              dependencyTask.name ===
+              step.properties.originalData?.dependencies[0]
+            );
+          }
+        });
+
+        if (targetTask) {
+          queue.push(targetTask);
+          newTaskGroupSequence.push(targetTask);
+        }
+
+        const taskGroup = rootTaskGroup.sequence?.find(
+          step => step.componentType === 'container',
+        );
+
+        if (taskGroup) {
+          taskGroupQueue.push(taskGroup);
+        }
+      }
+      rootTaskGroup.sequence = newTaskGroupSequence;
+      newSequence.push(rootTaskGroup);
+    }
+
+    return newSequence;
+  }
+
   return {
-    getWorkflowToolData,
+    workflowStore,
+    dropDownModel,
+    setTaskComponent,
+    setDropDownData,
+    getWorkflowTemplateData,
+    getWorkflowData,
     convertCicadaToDesignerFormData,
     convertDesignerSequenceToCicada,
+    designerFormDataReordering,
   };
 }

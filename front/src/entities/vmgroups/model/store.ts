@@ -10,7 +10,7 @@ export interface IVmGroupsStore {
   loadVmGroupById: (id: string) => IVmGroup | null;
 }
 
-export const useVmGroupStore = defineStore(NAMESPACE, (): IVmGroupsStore => {
+export const useVmListStore = defineStore(NAMESPACE, (): IVmGroupsStore => {
   const vmGroups = ref<IVmGroup[]>([]);
 
   function setVmGroups(_vmGroups: IVmGroup[]) {

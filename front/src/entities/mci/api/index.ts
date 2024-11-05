@@ -3,29 +3,39 @@ import {
   RequestBodyWrapper,
   useAxiosPost,
 } from '../../../shared/libs';
-import { IMci } from '../model';
+import { IMci, MciResponseData } from '@/entities/mci/model';
 
 export interface IMciRequestParams {
   nsId: string | null;
   mciId: string | null;
+  option?: string | null;
 }
 
 const GET_ALL_MCI = 'GetAllMci';
 const GET_MCI_INFO = 'GetMci';
 
-export function useGetMciList(projectId: string | null) {
+export function useGetMciList(projectId: string | null, option: string | null) {
   const requestBodyWrapper: Required<
-    Pick<RequestBodyWrapper<Pick<IMciRequestParams, 'nsId'>>, 'pathParams'>
+    Pick<
+      RequestBodyWrapper<{ nsId: string | null } | { option: string | null }>,
+      'pathParams' | 'queryParams'
+    >
   > = {
     pathParams: {
       nsId: projectId,
     },
+    queryParams: {
+      option: option,
+    },
   };
 
   return useAxiosPost<
-    IAxiosResponse<IMci[]>,
+    IAxiosResponse<MciResponseData>,
     Required<
-      Pick<RequestBodyWrapper<Pick<IMciRequestParams, 'nsId'>>, 'pathParams'>
+      Pick<
+        RequestBodyWrapper<{ nsId: string | null } | { option: string | null }>,
+        'pathParams' | 'queryParams'
+      >
     >
   >(GET_ALL_MCI, requestBodyWrapper);
 }

@@ -31,7 +31,7 @@
   },
   "USER": {
     "REGISTER": {
-      "PASSWORD_CONFIRM" : "Please check confirm password"
+      "PASSWORD_CONFIRM": "Please check confirm password"
     }
   },
   "CLOUD_RESOURCES": {
@@ -66,14 +66,14 @@
       "CLEAR_ALL": "CLEAR"
     },
     "DATA_TABLE": {
-      "NO_DATA" : "NO_DATA"
+      "NO_DATA": "NO_DATA"
     },
     "FIELD_GROUP": {
       "OPTIONAL": "optional"
     },
     "BUTTON_MODAL": {
-      "CANCEL" : "Cancel",
-      "CONFIRM" : "OK",
+      "CANCEL": "Cancel",
+      "CONFIRM": "OK",
       "REMOVE": "Remove",
       "EDIT": "Edit",
       "APPLY": "Apply",
@@ -84,17 +84,24 @@
       "ADD": "Add"
     },
     "CONTEXT_MENU": {
-      "SHOW_MORE" : "show more",
-      "NO_ITEM" : "NO ITEM"
+      "SHOW_MORE": "show more",
+      "NO_ITEM": "NO ITEM"
     },
     "DEFINITION_TABLE": {
-      "NO_DATA" : "NO DATA"
+      "NO_DATA": "NO DATA"
     },
     "COPY_BUTTON": {
       "COPIED": "Copy!"
     },
     "SELECT_DROPDOWN": {
-      "SELECT" : "select item"
+      "SELECT": "select item"
+    },
+    "VERTICAL_LAYOUT": {
+      "EXPAND": "Expand",
+      "COLLAPSE": "Collapse"
+    },
+    "DATA_LOADER": {
+      "NO_DATA": "NO DATA"
     }
   }
 }
