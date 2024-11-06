@@ -3,7 +3,10 @@ import {
   RequestBodyWrapper,
   useAxiosPost,
 } from '@/shared/libs';
-import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types.ts';
+import {
+  IEsimateCostSpecResponse,
+  IRecommendModelResponse,
+} from '@/entities/recommendedModel/model/types.ts';
 
 const CREATE_TARGET_MODEL = 'CreateCloudModel';
 

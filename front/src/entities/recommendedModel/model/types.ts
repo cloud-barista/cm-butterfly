@@ -34,3 +34,30 @@ export interface IRecommendModelResponse {
   status: string;
   targetInfra: TargetInfra;
 }
+
+interface EstimateCostSpecDetail {
+  calculatedMonthlyPrice: number;
+  currency: string;
+  id: number;
+  lastUpdatedAt: string;
+  memory: string;
+  originalPricePolicy: string;
+  osType: string;
+  price: string;
+  priceDescription: string;
+  pricePolicy: string;
+  productDescription: string;
+  storage: string;
+  unit: string;
+  vCpu: string;
+}
+
+interface EstimateCostSpecResult {
+  estimateForecastCostSpecDetailResults: EstimateCostSpecDetail[];
+}
+
+export interface IEsimateCostSpecResponse {
+  result: {
+    esimateCostSpecResults: EstimateCostSpecResult[];
+  };
+}

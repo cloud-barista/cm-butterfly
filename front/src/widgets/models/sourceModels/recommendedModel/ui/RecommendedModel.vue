@@ -6,7 +6,10 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
 import { useRecommendedModel } from '@/widgets/models/sourceModels/recommendedModel/model/useRecommendedModel.ts';
 import { createTargetModel, ISourceModelResponse } from '@/entities';
-import { useGetRecommendModelListBySourceModel } from '@/entities/recommendedModel/api';
+import {
+  getRecommendCost,
+  useGetRecommendModelListBySourceModel,
+} from '@/entities/recommendedModel/api';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types.ts';
 
@@ -37,6 +40,7 @@ const getRecommendModel = useGetRecommendModelListBySourceModel(
 );
 
 const resCreateTargetModel = createTargetModel(null);
+const resGetRecommendCost = getRecommendCost(null);
 
 watch(
   () => targetSourceModel,
@@ -44,8 +48,26 @@ watch(
     getRecommendModel
       .execute()
       .then(res => {
-        if (res.data.responseData)
-          recommendModel_Model.setTargetRecommendModel(res.data.responseData);
+        if (res.data.responseData) {
+          const commonImage =
+            res.data.responseData.targetInfra.vm[0].commonImage;
+          const commonSpec = res.data.responseData.targetInfra.vm[0].commonSpec;
+
+          resGetRecommendCost
+            .execute({
+              request: { specsWithFormat: [{ commonSpec, commonImage }] },
+            })
+            .then(costRes => {
+              if (costRes.data.responseData) {
+                recommendModel_Model.setTargetRecommendModel(
+                  Object.assign(res.data.responseData, {
+                    estimateResponse: costRes.data.responseData,
+                  }),
+                );
+              }
+            })
+            .catch();
+        }
       })
       .catch(err => {
         showErrorMessage('error', err.errorMsg);
@@ -104,12 +126,6 @@ function handleSave() {
         modalState.checkModal = true;
       })
       .catch();
-
-    console.log(
-      recommendModel_Model.tableModel.tableState.displayItems[
-        recommendModel_Model.tableModel.tableState.selectIndex
-      ],
-    );
   } catch (e) {
     console.log(e);
     showErrorMessage('error', e);
@@ -140,7 +156,10 @@ function handleSelect(e) {
           :sortable="recommendModel_Model.tableModel.tableOptions.sortable"
           :sort-by="recommendModel_Model.tableModel.tableOptions.sortBy"
           :selectable="recommendModel_Model.tableModel.tableOptions.selectable"
-          :loading="getRecommendModel.isLoading.value"
+          :loading="
+            getRecommendModel.isLoading.value ||
+            resGetRecommendCost.isLoading.value
+          "
           :select-index.sync="
             recommendModel_Model.tableModel.tableState.selectIndex
           "

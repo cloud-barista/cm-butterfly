@@ -1,6 +1,9 @@
 import { useRecommendedModelStore } from '@/entities/recommendedModel/model/stores';
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
-import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types';
+import {
+  IEsimateCostSpecResponse,
+  IRecommendModelResponse,
+} from '@/entities/recommendedModel/model/types';
 import { RecommendedModelTableType } from '@/entities/recommendedModel/model/types';
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
@@ -11,7 +14,12 @@ export function useRecommendedModel() {
   const tableModel =
     useToolboxTableModel<Partial<Record<RecommendedModelTableType, any>>>();
   const sourceModelStore = useSourceModelStore();
-  const targetRecommendModel = ref<IRecommendModelResponse | null>(null);
+  const targetRecommendModel = ref<
+    | (IRecommendModelResponse & {
+        estimateResponse: IEsimateCostSpecResponse;
+      })
+    | null
+  >(null);
   const userStore = useAuthStore();
 
   function initToolBoxTableModel() {
@@ -52,7 +60,9 @@ export function useRecommendedModel() {
   }
 
   function organizeRecommendedModelTableItem(
-    recommendedModel: IRecommendModelResponse,
+    recommendedModel: IRecommendModelResponse & {
+      estimateResponse: IEsimateCostSpecResponse;
+    },
   ) {
     const organizedDatum: Partial<
       Record<RecommendedModelTableType | 'originalData', any>
@@ -67,14 +77,21 @@ export function useRecommendedModel() {
       rootDiskSize: recommendedModel['rootDiskSize'] || '',
       userPassword: recommendedModel['userPassword'] || '',
       connection: recommendedModel['connection'] || '',
-      estimateCost: recommendedModel['estimateCost'] || '',
+      estimateCost:
+        recommendedModel.estimateResponse.result.esimateCostSpecResults[0]
+          .estimateForecastCostSpecDetailResults[0].calculatedMonthlyPrice +
+          recommendedModel.estimateResponse.result.esimateCostSpecResults[0]
+            .estimateForecastCostSpecDetailResults[0].currency || '',
       originalData: recommendedModel,
     };
+    console.log(organizedDatum);
     return organizedDatum;
   }
 
   function setTargetRecommendModel(
-    _targetRecommendModel: IRecommendModelResponse,
+    _targetRecommendModel: IRecommendModelResponse & {
+      estimateResponse: IEsimateCostSpecResponse;
+    },
   ) {
     targetRecommendModel.value = _targetRecommendModel;
   }

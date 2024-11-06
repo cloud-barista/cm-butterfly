@@ -4,9 +4,14 @@ import {
   RequestBodyWrapper,
   useAxiosPost,
 } from '@/shared/libs';
-import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types.ts';
+import {
+  IEsimateCostSpecResponse,
+  IRecommendModelResponse,
+} from '@/entities/recommendedModel/model/types.ts';
 
-const GET_RECOMMAND_MODEL = 'RecommendInfra';
+const GET_RECOMMEND_MODEL = 'RecommendInfra';
+const GET_RECOMMEND_COST = 'Updateandgetestimatecost';
+
 export function useGetRecommendModelListBySourceModel(
   sourceModelInfo: ISourceModelResponse['onpremiseInfraModel'] | null,
 ) {
@@ -40,5 +45,32 @@ export function useGetRecommendModelListBySourceModel(
         'request'
       >
     >
-  >(GET_RECOMMAND_MODEL, requestWrapper);
+  >(GET_RECOMMEND_MODEL, requestWrapper);
+}
+
+interface ISpecFormat {
+  commonSpec: string;
+  commonImage: string;
+}
+
+export function getRecommendCost(specsWithFormat: ISpecFormat | null) {
+  const requestWrapper: Required<
+    Pick<
+      RequestBodyWrapper<{ specsWithFormat: [ISpecFormat | null] }>,
+      'request'
+    >
+  > = {
+    request: {
+      specsWithFormat: [specsWithFormat],
+    },
+  };
+  return useAxiosPost<
+    IAxiosResponse<IEsimateCostSpecResponse>,
+    Required<
+      Pick<
+        RequestBodyWrapper<{ specsWithFormat: [ISpecFormat | null] }>,
+        'request'
+      >
+    >
+  >(GET_RECOMMEND_COST, requestWrapper);
 }
