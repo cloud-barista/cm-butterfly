@@ -7,8 +7,9 @@ import {
 } from '@cloudforet-test/mirinae';
 import { useSourceModelListModel } from '../model/sourceModelListModel';
 import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
-import { insertDynamicComponent } from '@/shared/utils';
+import { insertDynamicComponent, showErrorMessage } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
+import { useGetSourceModelList } from '@/entities';
 
 const { tableModel, initToolBoxTableModel, sourceModelStore, models } =
   useSourceModelListModel();
@@ -20,12 +21,22 @@ const modals = reactive({
   sourceModelAddModalState: { open: false },
 });
 
+const resSourceList = useGetSourceModelList();
+
 onBeforeMount(() => {
   initToolBoxTableModel();
 });
 
 onMounted(function () {
   addDeleteIconAtTable.bind(this)();
+  resSourceList
+    .execute()
+    .then(res => {
+      sourceModelStore.setSourceModel(res.data.responseData);
+    })
+    .catch(e => {
+      showErrorMessage('error', e.errorMsg);
+    });
 });
 
 function addDeleteIconAtTable() {
@@ -56,16 +67,11 @@ function handleRefreshTable() {
 function handleSelectedIndex(selectedIndex: number) {
   const selectedData = tableModel.tableState.displayItems[selectedIndex];
   if (selectedData) {
-    emit('select-row', selectedData.id);
+    emit('select-row', { id: selectedData.id, name: selectedData.name });
   } else {
-    emit('select-row', '');
+    emit('select-row', { id: '', name: '' });
   }
 }
-
-watchEffect(() => {
-  // TODO: api 연결 후 수정
-  tableModel.tableState.items = models.value;
-});
 </script>
 
 <template>

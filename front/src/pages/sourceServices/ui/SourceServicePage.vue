@@ -18,6 +18,7 @@ import MetaViewer from '@/widgets/source/sourceConnections/sourceConnectionDetai
 import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
 import EditSourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/EditSourceConnectionModal.vue';
 import { showSuccessMessage } from '@/shared/utils';
+import { useGetInfraInfoRefined } from '@/entities/sourceConnection/api';
 
 const sourceConnectionName = ref<string>('');
 const multiSelectedConnectionIds = ref<string[]>([]);
@@ -346,6 +347,8 @@ const softwareSchema = {
         :collect-data="infraData"
         :source-connection-name="sourceConnectionName"
         :schema="infraSchema"
+        :sgId="selectedServiceId"
+        :connId="selectedConnectionId"
         @update:is-meta-viewer-opened="modalStates.addInfraMetaViewer.confirm()"
       />
       <meta-viewer

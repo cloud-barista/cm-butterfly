@@ -9,6 +9,7 @@ import { useTargetModelListModel } from '../model/targetModelListModel';
 import { insertDynamicComponent } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
 import { onBeforeMount, onMounted, watchEffect, reactive } from 'vue';
+import { useGetTargetModelList } from '@/entities';
 
 const { tableModel, initToolBoxTableModel, targetModelStore, targetModels } =
   useTargetModelListModel();
@@ -20,12 +21,23 @@ const modals = reactive({
   sourceModelAddModalState: { open: false },
 });
 
+const resGetTargetModelList = useGetTargetModelList();
+
+function getTableList() {
+  resGetTargetModelList.execute().then(res => {
+    if (res.data.responseData) {
+      targetModelStore.setTargetModel(res.data.responseData);
+    }
+  });
+}
+
 onBeforeMount(() => {
   initToolBoxTableModel();
 });
 
 onMounted(function () {
   addDeleteIconAtTable.bind(this)();
+  getTableList();
 });
 
 function addDeleteIconAtTable() {
@@ -48,10 +60,6 @@ function addDeleteIconAtTable() {
   return instance;
 }
 
-function handleRefreshTable() {
-  tableModel.initState();
-}
-
 function handleSelectedIndex(selectedIndex: number) {
   const selectedData = tableModel.tableState.displayItems[selectedIndex];
   if (selectedData) {
@@ -60,11 +68,6 @@ function handleSelectedIndex(selectedIndex: number) {
     emit('select-row', '');
   }
 }
-
-watchEffect(() => {
-  // TODO: api 연결 후 수정
-  tableModel.tableState.items = targetModels.value;
-});
 </script>
 
 <template>
@@ -87,8 +90,9 @@ watchEffect(() => {
           :query-tag="tableModel.querySearchState.queryTag"
           :select-index.sync="tableModel.tableState.selectIndex"
           :page-size="tableModel.tableOptions.pageSize"
+          :loading="resGetTargetModelList.isLoading.value"
           @change="tableModel.handleChange"
-          @refresh="handleRefreshTable"
+          @refresh="getTableList"
           @select="handleSelectedIndex"
         >
           <template #toolbox-left>

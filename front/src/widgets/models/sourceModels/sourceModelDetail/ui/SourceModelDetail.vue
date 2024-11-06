@@ -2,7 +2,6 @@
 import { PDefinitionTable } from '@cloudforet-test/mirinae';
 import { useSourceModelDetailModel } from '@/widgets/models/sourceModels';
 import { onBeforeMount, ref, watch, watchEffect } from 'vue';
-import { IRecommendedModel } from '@/entities/recommendedModel/model/types';
 
 interface iProps {
   selectedSourceModelId: string;
@@ -26,13 +25,13 @@ const sourceModelDescription = ref<string | undefined>('');
 const recommendedModelList = ref<any>([]);
 
 watchEffect(() => {
-  sourceModelName.value = sourceModelStore.getModelById(
+  sourceModelName.value = sourceModelStore.getSourceModelById(
     props.selectedSourceModelId,
-  )?.name;
+  )?.id;
 });
 
 watchEffect(() => {
-  sourceModelDescription.value = sourceModelStore.getModelById(
+  sourceModelDescription.value = sourceModelStore.getSourceModelById(
     props.selectedSourceModelId,
   )?.description;
 });
@@ -52,12 +51,6 @@ watch(
   },
   { immediate: true },
 );
-
-watchEffect(() => {
-  recommendedModelList.value = sourceModelStore.getModelById(
-    props.selectedSourceModelId,
-  )?.recommendModel;
-});
 
 watch(
   props,

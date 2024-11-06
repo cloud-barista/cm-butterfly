@@ -5,6 +5,10 @@ import { PButton } from '@cloudforet-test/mirinae';
 import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
 import { ref } from 'vue';
+import { AxiosResponse } from 'axios';
+import { IUseAxiosWrapperReturnType } from '@/shared/libs';
+import { useCreateOnpremmodel } from '@/entities/sourceConnection/api';
+import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 
 interface iProps {
   collectData: string | undefined;
@@ -13,6 +17,8 @@ interface iProps {
     json: boolean;
     properties: object;
   };
+  sgId: string;
+  connId: string;
 }
 
 const props = defineProps<iProps>();
@@ -22,14 +28,44 @@ const emit = defineEmits(['update:is-meta-viewer-opened']);
 const isConverted = ref<boolean>(false);
 const isSaveModal = ref<boolean>(false);
 
+const convertedData = ref();
+
+const createOnpremmodel = useCreateOnpremmodel(null);
 const handleSave = () => {
   isSaveModal.value = true;
 };
 
-const handleMetaViewer = () => {
+const handleMetaViewer = e => {
   isSaveModal.value = false;
+  createOnpremmodel
+    .execute({
+      request: {
+        onpremiseInfraModel: {
+          servers: [convertedData.value],
+          network: {
+            ipv4Networks: [],
+            ipv6Networks: [],
+          },
+        },
+        description: e.description,
+        userModelName: e.name,
+        isInitUserModel: true,
+        userModelVersion: 'v0.1',
+      },
+    })
+    .then(res => {
+      showSuccessMessage('success', 'create Model');
+    })
+    .catch(e => {
+      showErrorMessage('error', e.errorMsg);
+    });
   emit('update:is-meta-viewer-opened');
 };
+
+function handleConvertedData(e: any) {
+  isConverted.value = true;
+  convertedData.value = e;
+}
 </script>
 
 <template>
@@ -44,7 +80,9 @@ const handleMetaViewer = () => {
         <json-viewer
           :form-data="collectData"
           :schema="schema"
-          @update:is-converted="isConverted = true"
+          :sgId="sgId"
+          :connId="connId"
+          @update:is-converted="handleConvertedData"
         />
       </template>
       <template #buttons>
@@ -66,7 +104,7 @@ const handleMetaViewer = () => {
       name-label="Name"
       name-placeholder="Source Service name"
       @update:close-modal="isSaveModal = false"
-      @update:save-modal="handleMetaViewer"
+      @update:save-modal="e => handleMetaViewer(e)"
     />
     <!-- <save-source-model-modal
       v-if="isSaveModal"

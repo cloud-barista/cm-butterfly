@@ -3,6 +3,10 @@ import { i18n } from '@/app/i18n';
 import { collectJsonEditor } from '@/features/sourceServices';
 import { PI, PSpinner } from '@cloudforet-test/mirinae';
 import { ref, watch } from 'vue';
+import { AxiosResponse } from 'axios';
+import { IUseAxiosWrapperReturnType } from '@/shared/libs';
+import { useGetInfraInfoRefined } from '@/entities/sourceConnection/api';
+import { showErrorMessage } from '@/shared/utils';
 
 interface iProps {
   formData: string | undefined;
@@ -10,43 +14,28 @@ interface iProps {
     json: boolean;
     properties: object;
   };
+  sgId: string;
+  connId: string;
 }
 
 const props = defineProps<iProps>();
 const emit = defineEmits(['update:is-converted']);
 
 const convertedJson = ref<string | undefined>('');
-const isConverted = ref<boolean>(false);
 
+const getInfraInfoRefined = useGetInfraInfoRefined(props.sgId, props.connId);
 const handleConvertJson = () => {
   // TODO: convert button action 미정
-  convertedJson.value = props.formData;
-  emit('update:is-converted');
+  getInfraInfoRefined
+    .execute()
+    .then(res => {
+      convertedJson.value = res.data.responseData;
+      emit('update:is-converted', res.data.responseData);
+    })
+    .catch(e => {
+      showErrorMessage('error', e.errorMsg);
+    });
 };
-
-watch(
-  convertedJson,
-  nv => {
-    if (nv && nv.length > 0) {
-      isConverted.value = true;
-    } else {
-      isConverted.value = false;
-    }
-  },
-  { immediate: true },
-);
-
-watch(
-  isConverted,
-  nv => {
-    if (nv) {
-      setTimeout(() => {
-        isConverted.value = false;
-      }, 1000);
-    }
-  },
-  { immediate: true },
-);
 </script>
 
 <template>
@@ -68,7 +57,11 @@ watch(
         />
         <p>{{ i18n.t('COMPONENT.BUTTON_MODAL.CONVERT') }}</p>
       </div>
-      <p-spinner v-if="isConverted" class="spinner" size="md" />
+      <p-spinner
+        v-if="getInfraInfoRefined.isLoading.value"
+        class="spinner"
+        size="md"
+      />
     </button>
     <collect-json-editor
       :form-data="convertedJson"
@@ -82,31 +75,38 @@ watch(
 <style scoped lang="postcss">
 .json-viewer-layout {
   @apply flex justify-center;
+
   .convert-btn {
     @apply flex flex-col justify-center items-center rounded-[4px] text-[#fff] bg-violet-400;
     font-size: 14px;
     padding: 0 24px;
     position: relative;
+
     .spinner {
       @apply pl-[8px];
       position: absolute;
       top: 450px;
     }
+
     .no-spinner {
       @apply w-[8px] h-[8px];
       position: absolute;
     }
   }
+
   .convert-btn:hover {
     @apply bg-violet-500;
   }
+
   .convert-btn:focus {
     @apply bg-violet-400;
   }
+
   .disable-btn {
     @apply bg-gray-300;
     cursor: not-allowed;
   }
+
   .icon {
     @apply mt-[2px] mr-[0.25rem];
   }

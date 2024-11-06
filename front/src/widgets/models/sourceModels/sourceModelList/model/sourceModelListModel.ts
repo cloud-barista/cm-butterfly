@@ -1,14 +1,20 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import type { ISourceModel } from '@/entities';
-import { useSourceModelStore, SourceModelTableType } from '@/entities';
+import {
+  useSourceModelStore,
+  SourceModelTableType,
+  ISourceModelResponse,
+} from '@/entities';
 import { watch } from 'vue';
 import { storeToRefs } from 'pinia';
+import { useDateFormat } from '@vueuse/core';
+import { formatDate } from '@/shared/utils';
 
 export function useSourceModelListModel() {
   const tableModel =
     useToolboxTableModel<Partial<Record<SourceModelTableType, any>>>();
   const sourceModelStore = useSourceModelStore();
-  const { models } = storeToRefs(sourceModelStore);
+  const models = sourceModelStore.getModels();
 
   function initToolBoxTableModel() {
     tableModel.tableState.fields = [
@@ -37,24 +43,24 @@ export function useSourceModelListModel() {
     ];
   }
 
-  function organizeSourceModelTableItem(sourceModel: ISourceModel) {
+  function organizeSourceModelTableItem(sourceModel: ISourceModelResponse) {
     const organizedDatum: Partial<
       Record<SourceModelTableType | 'originalData', any>
     > = {
-      name: sourceModel.name,
+      name: sourceModel.userModelName,
       id: sourceModel.id,
       description: sourceModel.description,
-      migrationType: sourceModel.migrationType,
-      custom: sourceModel.custom,
-      createdDateTime: sourceModel.createdDateTime,
-      updatedDateTime: sourceModel.updatedDateTime,
+      migrationType: sourceModel['migrationType'] ?? '',
+      custom: sourceModel['custom '] ?? '',
+      createdDateTime: formatDate(sourceModel.createTime),
+      updatedDateTime: formatDate(sourceModel.updateTime),
       originalData: sourceModel,
     };
     return organizedDatum;
   }
 
   watch(models, nv => {
-    tableModel.tableState.items = nv.map(value =>
+    tableModel.tableState.items = nv.map((value: ISourceModelResponse) =>
       organizeSourceModelTableItem(value),
     );
   });
