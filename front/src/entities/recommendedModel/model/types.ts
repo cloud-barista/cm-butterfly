@@ -1,17 +1,3 @@
-export interface IRecommendedModel {
-  name: string;
-  id: string;
-  description: string;
-  label: string;
-  spec: string;
-  image: string;
-  rootDiskType: 'default' | string;
-  rootDiskSize: 'default' | number;
-  userPassword: string;
-  connection: string;
-  estimateCost: string;
-}
-
 export type RecommendedModelTableType =
   | 'name'
   | 'id'
@@ -24,3 +10,27 @@ export type RecommendedModelTableType =
   | 'userPassword'
   | 'connection'
   | 'estimateCost';
+
+interface Vm {
+  commonImage: string;
+  commonSpec: string;
+  description: string;
+  label: string | null;
+  name: string;
+  subGroupSize: string;
+}
+
+interface TargetInfra {
+  description: string;
+  installMonAgent: string;
+  label: string | null;
+  name: string;
+  systemLabel: string;
+  vm: Vm[];
+}
+
+export interface IRecommendModelResponse {
+  description: string;
+  status: string;
+  targetInfra: TargetInfra;
+}

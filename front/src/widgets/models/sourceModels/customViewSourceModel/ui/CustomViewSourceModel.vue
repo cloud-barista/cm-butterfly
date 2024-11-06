@@ -13,6 +13,7 @@ const modelName = ref<string>('');
 
 interface iProps {
   sourceModelName: string;
+  sourceModelId: string;
 }
 
 const props = defineProps<iProps>();
@@ -22,10 +23,10 @@ const modalState = ref<boolean>(false);
 const sourceModelStore = useSourceModelStore();
 const targetModel = ref<ISourceModelResponse | undefined>(undefined);
 watch(
-  () => props.sourceModelName,
+  () => props.sourceModelId,
   () => {
     targetModel.value = sourceModelStore.getSourceModelById(
-      props.sourceModelName,
+      props.sourceModelId,
     );
   },
   { immediate: true },

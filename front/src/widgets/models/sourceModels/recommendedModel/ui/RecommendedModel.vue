@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { PButton, PIconModal } from '@cloudforet-test/mirinae';
+import { PButton, PIconModal, PToolboxTable } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
-import { RecommendedModelList } from '@/pages/models';
 import { TargetModelNameSave } from '@/features/models';
-import { reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
-import { IRecommendedModel } from '@/entities/recommendedModel/model/types';
-import { useTargetModelStore } from '@/entities';
-
-const targetModelStore = useTargetModelStore();
+import { useRecommendedModel } from '@/widgets/models/sourceModels/recommendedModel/model/useRecommendedModel.ts';
+import { createTargetModel, ISourceModelResponse } from '@/entities';
+import { useGetRecommendModelListBySourceModel } from '@/entities/recommendedModel/api';
+import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types.ts';
 
 interface iProps {
   sourceModelName: string;
-  recommendedModelList: IRecommendedModel[];
+  sourceModelId: string;
 }
 
 const props = defineProps<iProps>();
@@ -26,6 +26,36 @@ const description = ref<string>('');
 const modalState = reactive({
   targetModal: false,
   checkModal: false,
+});
+
+const recommendModel_Model = useRecommendedModel();
+const targetSourceModel = computed(() =>
+  recommendModel_Model.sourceModelStore.getSourceModelById(props.sourceModelId),
+);
+const getRecommendModel = useGetRecommendModelListBySourceModel(
+  targetSourceModel.value ? targetSourceModel.value.onpremiseInfraModel : null,
+);
+
+const resCreateTargetModel = createTargetModel(null);
+
+watch(
+  () => targetSourceModel,
+  () => {
+    getRecommendModel
+      .execute()
+      .then(res => {
+        if (res.data.responseData)
+          recommendModel_Model.setTargetRecommendModel(res.data.responseData);
+      })
+      .catch(err => {
+        showErrorMessage('error', err.errorMsg);
+      });
+  },
+  { immediate: true },
+);
+
+onMounted(() => {
+  recommendModel_Model.initToolBoxTableModel();
 });
 
 function handleClickRecommendedModelId(id: string) {
@@ -45,8 +75,48 @@ function handleConfirm() {
 }
 
 function handleSave() {
-  modalState.targetModal = false;
-  modalState.checkModal = true;
+  try {
+    let selectedModel: IRecommendModelResponse =
+      recommendModel_Model.tableModel.tableState.displayItems[
+        recommendModel_Model.tableModel.tableState.selectIndex
+      ].originalData;
+
+    const commonSpecSplitData =
+      selectedModel.targetInfra.vm[0].commonSpec.split('+');
+
+    resCreateTargetModel
+      .execute({
+        request: {
+          cloudInfraModel: selectedModel.targetInfra,
+          csp: commonSpecSplitData[0],
+          description: description.value,
+          isInitUserModel: true,
+          isTargetModel: true,
+          region: commonSpecSplitData[1],
+          userModelName: modelName.value,
+          userModelVersion: '1',
+          zone: '',
+          userId: recommendModel_Model.userStore.id,
+        },
+      })
+      .then(res => {
+        modalState.targetModal = false;
+        modalState.checkModal = true;
+      })
+      .catch();
+
+    console.log(
+      recommendModel_Model.tableModel.tableState.displayItems[
+        recommendModel_Model.tableModel.tableState.selectIndex
+      ],
+    );
+  } catch (e) {
+    console.log(e);
+    showErrorMessage('error', e);
+  }
+}
+function handleSelect(e) {
+  console.log(e);
 }
 </script>
 
@@ -61,10 +131,22 @@ function handleSave() {
       @update:modal-state="handleModal"
     >
       <template #add-info>
-        <recommended-model-list
-          :recommended-model-list="recommendedModelList"
-          @select-row="handleClickRecommendedModelId"
-        />
+        <p-toolbox-table
+          ref="toolboxTable"
+          :items="recommendModel_Model.tableModel.tableState.displayItems"
+          :fields="recommendModel_Model.tableModel.tableState.fields"
+          :total-count="recommendModel_Model.tableModel.tableState.tableCount"
+          :style="{ height: '500px' }"
+          :sortable="recommendModel_Model.tableModel.tableOptions.sortable"
+          :sort-by="recommendModel_Model.tableModel.tableOptions.sortBy"
+          :selectable="recommendModel_Model.tableModel.tableOptions.selectable"
+          :loading="getRecommendModel.isLoading.value"
+          :select-index.sync="
+            recommendModel_Model.tableModel.tableState.selectIndex
+          "
+          :multi-select="false"
+        >
+        </p-toolbox-table>
       </template>
       <template #buttons>
         <p-button style-type="tertiary">cancel</p-button>
@@ -102,15 +184,18 @@ function handleSave() {
 <style scoped lang="postcss">
 .layout {
   padding: 32px 16px;
+
   .title {
     font-size: 18px;
     font-weight: 400;
   }
 }
+
 .model-name {
   font-size: 14px;
   font-weight: 700;
 }
+
 .divider {
   margin: 7.5px 0 16px 0;
 }

@@ -1,15 +1,18 @@
 import { useRecommendedModelStore } from '@/entities/recommendedModel/model/stores';
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
-import { IRecommendedModel } from '@/entities/recommendedModel/model/types';
+import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types';
 import { RecommendedModelTableType } from '@/entities/recommendedModel/model/types';
 import { storeToRefs } from 'pinia';
-import { watch } from 'vue';
+import { ref, watch } from 'vue';
+import { useSourceModelStore } from '@/entities';
+import { useAuthStore } from '@/shared/libs/store/auth';
 
-export function useRecommendedModelModel() {
+export function useRecommendedModel() {
   const tableModel =
     useToolboxTableModel<Partial<Record<RecommendedModelTableType, any>>>();
-  const recommendedModelStore = useRecommendedModelStore();
-  const { recommendedModels } = storeToRefs(recommendedModelStore);
+  const sourceModelStore = useSourceModelStore();
+  const targetRecommendModel = ref<IRecommendModelResponse | null>(null);
+  const userStore = useAuthStore();
 
   function initToolBoxTableModel() {
     tableModel.tableState.fields = [
@@ -49,37 +52,42 @@ export function useRecommendedModelModel() {
   }
 
   function organizeRecommendedModelTableItem(
-    recommendedModel: IRecommendedModel,
+    recommendedModel: IRecommendModelResponse,
   ) {
     const organizedDatum: Partial<
       Record<RecommendedModelTableType | 'originalData', any>
     > = {
-      name: recommendedModel.name,
-      id: recommendedModel.id,
+      name: recommendedModel.targetInfra.name,
+      id: recommendedModel['id'] || '',
       description: recommendedModel.description,
-      label: recommendedModel.label,
-      spec: recommendedModel.spec,
-      image: recommendedModel.image,
-      rootDiskType: recommendedModel.rootDiskType,
-      rootDiskSize: recommendedModel.rootDiskSize,
-      userPassword: recommendedModel.userPassword,
-      connection: recommendedModel.connection,
-      estimateCost: recommendedModel.estimateCost,
+      label: recommendedModel.targetInfra.label,
+      spec: recommendedModel['spec'] || '',
+      image: recommendedModel['image'] || '',
+      rootDiskType: recommendedModel['rootDiskType'] || '',
+      rootDiskSize: recommendedModel['rootDiskSize'] || '',
+      userPassword: recommendedModel['userPassword'] || '',
+      connection: recommendedModel['connection'] || '',
+      estimateCost: recommendedModel['estimateCost'] || '',
       originalData: recommendedModel,
     };
     return organizedDatum;
   }
 
-  watch(recommendedModels, nv => {
-    tableModel.tableState.items = nv.map(value =>
-      organizeRecommendedModelTableItem(value),
-    );
+  function setTargetRecommendModel(
+    _targetRecommendModel: IRecommendModelResponse,
+  ) {
+    targetRecommendModel.value = _targetRecommendModel;
+  }
+  watch(targetRecommendModel, nv => {
+    if (nv)
+      tableModel.tableState.items = [organizeRecommendedModelTableItem(nv)];
   });
 
   return {
+    userStore,
     tableModel,
-    recommendedModels,
     initToolBoxTableModel,
-    recommendedModelStore,
+    sourceModelStore,
+    setTargetRecommendModel,
   };
 }

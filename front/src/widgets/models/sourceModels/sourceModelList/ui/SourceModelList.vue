@@ -67,9 +67,9 @@ function handleRefreshTable() {
 function handleSelectedIndex(selectedIndex: number) {
   const selectedData = tableModel.tableState.displayItems[selectedIndex];
   if (selectedData) {
-    emit('select-row', selectedData.id);
+    emit('select-row', { id: selectedData.id, name: selectedData.name });
   } else {
-    emit('select-row', '');
+    emit('select-row', { id: '', name: '' });
   }
 }
 </script>

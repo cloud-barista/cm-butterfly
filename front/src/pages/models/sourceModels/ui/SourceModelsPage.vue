@@ -29,15 +29,14 @@ const modalState = reactive({
   viewRecommendedListModal: { open: false, trigger: false },
 });
 
-function handleClickSourceModelId(id: string) {
-  selectedSourceModelId.value = id;
+function handleClickSourceModelId(data: { id: string; name: string }) {
+  selectedSourceModelId.value = data.id;
+  sourceModelName.value = data.name;
 }
 
 function handleJsonModal(value: boolean) {
   modalState.customViewJsonModal.open = value;
 }
-
-const recommendedModelList = ref<any>([]);
 </script>
 
 <template>
@@ -75,7 +74,6 @@ const recommendedModelList = ref<any>([]);
               @update:source-model-description="
                 e => (sourceModelDescription = e)
               "
-              @update:recommended-model-list="e => (recommendedModelList = e)"
             />
           </template>
         </p-tab>
@@ -97,12 +95,13 @@ const recommendedModelList = ref<any>([]);
       <custom-view-source-model
         v-if="modalState.customViewJsonModal.open"
         :source-model-name="sourceModelName"
+        :source-model-id="selectedSourceModelId"
         @update:close-modal="handleJsonModal"
       />
       <recommended-model
         v-if="modalState.viewRecommendedListModal.open"
         :source-model-name="sourceModelName"
-        :recommended-model-list="recommendedModelList"
+        :source-model-id="selectedSourceModelId"
         @update:close-modal="
           e => (modalState.viewRecommendedListModal.open = e)
         "

@@ -2,7 +2,6 @@
 import { PDefinitionTable } from '@cloudforet-test/mirinae';
 import { useSourceModelDetailModel } from '@/widgets/models/sourceModels';
 import { onBeforeMount, ref, watch, watchEffect } from 'vue';
-import { IRecommendedModel } from '@/entities/recommendedModel/model/types';
 
 interface iProps {
   selectedSourceModelId: string;
