@@ -3,12 +3,11 @@ import {
   RequestBodyWrapper,
   useAxiosPost,
 } from '@/shared/libs';
-import {
-  IEsimateCostSpecResponse,
-  IRecommendModelResponse,
-} from '@/entities/recommendedModel/model/types.ts';
+import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types.ts';
+import { ITargetModelResponse } from '@/entities';
 
 const CREATE_TARGET_MODEL = 'CreateCloudModel';
+const GET_SOURCE_MODEL_LIST = 'GetUserModel';
 
 interface ICreateTargetModelPayload {
   cloudInfraModel: IRecommendModelResponse['targetInfra'];
@@ -35,4 +34,15 @@ export function createTargetModel(data: ICreateTargetModelPayload | null) {
       Pick<RequestBodyWrapper<ICreateTargetModelPayload | null>, 'request'>
     >
   >(CREATE_TARGET_MODEL, requestWrapper);
+}
+
+export function useGetTargetModelList() {
+  const requestWrapper: Required<Pick<RequestBodyWrapper<any>, 'pathParams'>> =
+    {
+      pathParams: { isTargetModel: 'true' },
+    };
+  return useAxiosPost<
+    IAxiosResponse<ITargetModelResponse[]>,
+    Required<Pick<RequestBodyWrapper<any>, 'pathParams'>>
+  >(GET_SOURCE_MODEL_LIST, requestWrapper);
 }

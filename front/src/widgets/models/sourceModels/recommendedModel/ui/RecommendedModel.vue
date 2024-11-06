@@ -96,7 +96,10 @@ function handleConfirm() {
   emit('update:close-modal', false);
 }
 
-function handleSave() {
+function handleSave(e: { name: string; description: string }) {
+  modelName.value = e.name;
+  description.value = e.description;
+
   try {
     let selectedModel: IRecommendModelResponse =
       recommendModel_Model.tableModel.tableState.displayItems[
@@ -122,6 +125,7 @@ function handleSave() {
         },
       })
       .then(res => {
+        console.log(res);
         modalState.targetModal = false;
         modalState.checkModal = true;
       })
@@ -130,9 +134,6 @@ function handleSave() {
     console.log(e);
     showErrorMessage('error', e);
   }
-}
-function handleSelect(e) {
-  console.log(e);
 }
 </script>
 
@@ -182,8 +183,6 @@ function handleSelect(e) {
       name-placeholder="Model name"
       @update:save-modal="handleSave"
       @update:close-modal="modalState.targetModal = false"
-      @update:name-value="e => (modelName = e)"
-      @update:description="e => (description = e)"
     />
     <p-icon-modal
       size="md"
