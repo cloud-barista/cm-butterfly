@@ -217,8 +217,4 @@ function handleSave(e: { name: string; description: string }) {
 .divider {
   margin: 7.5px 0 16px 0;
 }
-
-:deep(g) {
-  fill: #3c2c84;
-}
 </style>

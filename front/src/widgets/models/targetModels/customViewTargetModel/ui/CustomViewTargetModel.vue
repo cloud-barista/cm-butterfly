@@ -4,7 +4,12 @@ import { CreateForm } from '@/widgets/layout';
 import { SimpleEditForm } from '@/widgets/layout';
 import { JsonEditor } from '@/widgets/layout';
 import { reactive, ref, watch } from 'vue';
-import { ITargetModelResponse, useTargetModelStore } from '@/entities';
+import {
+  ITargetModelResponse,
+  useTargetModelStore,
+  useUpdateTargetModel,
+} from '@/entities';
+import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 
 interface IProps {
   selectedTargetName: string;
@@ -24,7 +29,7 @@ const modalState = reactive({
 
 const targetModelStore = useTargetModelStore();
 const targetModel = ref<ITargetModelResponse | undefined>(undefined);
-
+const resUpdateTargetModel = useUpdateTargetModel(null, null);
 watch(
   () => props.selectedTargetId,
   () => {
@@ -38,9 +43,24 @@ watch(
 function handleModal(e) {
   modalState.context.name = e.name;
   modalState.context.description = e.description;
+  const requestBody = Object.assign(targetModel.value, {
+    userModelName: e.name,
+    description: e.description,
+  });
 
-  emit('update:close-modal', false);
-  modalState.open = false;
+  resUpdateTargetModel
+    .execute({
+      pathParams: { id: props.selectedTargetId },
+      request: {
+        requestBody,
+      },
+    })
+    .then(res => {
+      showSuccessMessage('success', 'Successfully updated target model');
+    })
+    .catch(e => {
+      showErrorMessage('error', e.errorMsg);
+    });
 }
 </script>
 

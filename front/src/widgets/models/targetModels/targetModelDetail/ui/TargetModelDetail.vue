@@ -37,7 +37,7 @@ const targetModelDescription = ref<string | undefined>('');
 watchEffect(() => {
   targetModelName.value = targetModelStore.getTargetModelById(
     props.selectedTargetModelId,
-  )?.name;
+  )?.userModelName;
 });
 
 watchEffect(() => {
