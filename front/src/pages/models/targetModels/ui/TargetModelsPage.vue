@@ -10,6 +10,7 @@ import WorkflowEditor from '@/features/workflow/workflowEditor/ui/WorkflowEditor
 const pageName = 'Target Models';
 
 const selectedTargetModelId = ref<string>('');
+const selectedTargetModelName = ref<string>('');
 const targetModelName = ref<string>('');
 const targetModelDescription = ref<string>('');
 
@@ -29,8 +30,9 @@ const modalState = reactive({
   workflowEditorModal: { open: false, trigger: false },
 });
 
-function handleClickTargetModelId(id: string) {
-  selectedTargetModelId.value = id;
+function handleClickTargetModel(data: { id: string; name: string }) {
+  selectedTargetModelId.value = data.id;
+  selectedTargetModelName.value = data.name;
 }
 </script>
 
@@ -40,7 +42,7 @@ function handleClickTargetModelId(id: string) {
       <p>{{ pageName }}</p>
     </header>
     <section :class="`${pageName}-page-body`">
-      <target-model-list @select-row="handleClickTargetModelId" />
+      <target-model-list @select-row="handleClickTargetModel" />
       <div v-if="selectedTargetModelId">
         <p-tab v-model="mainTabState.activeTab" :tabs="mainTabState.tabs">
           <template #details>
@@ -89,7 +91,8 @@ function handleClickTargetModelId(id: string) {
     <div class="relative z-70">
       <custom-view-target-model
         v-if="modalState.customViewJsonModal.open"
-        :target-model-name="targetModelName"
+        :selected-target-id="selectedTargetModelId"
+        :selected-target-name="selectedTargetModelName"
         @update:close-modal="modalState.customViewJsonModal.open = false"
       />
     </div>

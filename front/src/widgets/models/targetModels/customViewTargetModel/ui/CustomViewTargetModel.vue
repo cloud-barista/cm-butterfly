@@ -1,74 +1,61 @@
 <script setup lang="ts">
-import { PButton } from '@cloudforet-test/mirinae';
+import { PButton, PTextEditor } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { SimpleEditForm } from '@/widgets/layout';
 import { JsonEditor } from '@/widgets/layout';
-import { ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
+import { ITargetModelResponse, useTargetModelStore } from '@/entities';
 
-const formData = {
-  os_version: 'Amazon Linux release 2 (Karoo)',
-  os: 'Amazon Linux 2',
-  email: 'glee@mz.co.kr',
-};
-
-const modelName = ref<string>('');
-
-interface iProps {
-  targetModelName: string;
+interface IProps {
+  selectedTargetName: string;
+  selectedTargetId: string;
 }
 
-const props = defineProps<iProps>();
-
+const props = defineProps<IProps>();
 const emit = defineEmits(['update:close-modal']);
 
-const targetModalState = ref<boolean>(false);
-
-function handleModal() {
-  emit('update:close-modal', false);
-  targetModalState.value = false;
-}
-
-function handleModelName(value: string) {
-  modelName.value = value;
-}
-
-const schema = {
-  json: true,
-  properties: {
-    os_version: {
-      type: 'string',
-      title: 'OS Version',
-    },
-    os: {
-      type: 'string',
-      title: 'OS',
-    },
-    email: {
-      type: 'string',
-      title: 'Email',
-    },
+const modalState = reactive({
+  open: false,
+  context: {
+    name: '',
+    description: '',
   },
-};
+});
+
+const targetModelStore = useTargetModelStore();
+const targetModel = ref<ITargetModelResponse | undefined>(undefined);
+
+watch(
+  () => props.selectedTargetId,
+  () => {
+    targetModel.value = targetModelStore.getTargetModelById(
+      props.selectedTargetId,
+    );
+  },
+  { immediate: true },
+);
+
+function handleModal(e) {
+  modalState.context.name = e.name;
+  modalState.context.description = e.description;
+
+  emit('update:close-modal', false);
+  modalState.open = false;
+}
 </script>
 
 <template>
   <div>
     <create-form
       class="page-modal-layout"
-      :badge-title="targetModelName"
+      :badge-title="selectedTargetName"
       :need-widget-layout="true"
       title="Custom & View Target Model"
       first-title="JSON Viewer"
       @update:modal-state="handleModal"
     >
       <template #add-info>
-        <json-editor
-          :form-data="formData"
-          title="Target Model"
-          :read-only="false"
-          :json="schema.json"
-          :shema-properties="schema.properties"
-        />
+        <p-text-editor :code="targetModel?.cloudInfraModel" :read-only="true" />
       </template>
       <template #buttons>
         <p-button
@@ -77,18 +64,18 @@ const schema = {
         >
           Cancel
         </p-button>
-        <p-button @click="targetModalState = true"> Save </p-button>
+        <p-button @click="modalState.open = true"> Save</p-button>
       </template>
     </create-form>
     <simple-edit-form
-      v-if="targetModalState"
+      v-if="modalState.open"
       header-title="Save Target Model"
-      name=""
+      :name="modalState.context.name"
+      :description="modalState.context.description"
       name-label="Name"
       name-placeholder="Target Model Name"
       @update:save-modal="handleModal"
-      @update:close-modal="targetModalState = false"
-      @update:name-value="handleModelName"
+      @update:close-modal="modalState.open = false"
     />
   </div>
 </template>

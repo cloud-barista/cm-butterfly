@@ -5,7 +5,7 @@ import { CreateForm } from '@/widgets/layout';
 import { JsonEditor } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
-import { ref, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { ISourceModelResponse, useSourceModelStore } from '@/entities';
 import { PTextEditor } from '@cloudforet-test/mirinae';
 
@@ -19,7 +19,14 @@ interface iProps {
 const props = defineProps<iProps>();
 const emit = defineEmits(['update:close-modal']);
 
-const modalState = ref<boolean>(false);
+const modalState = reactive({
+  open: false,
+  context: {
+    name: '',
+    description: '',
+  },
+});
+
 const sourceModelStore = useSourceModelStore();
 const targetModel = ref<ISourceModelResponse | undefined>(undefined);
 watch(
@@ -37,16 +44,14 @@ function handleModal() {
 }
 
 function handleSave() {
-  modalState.value = true;
+  modalState.open = true;
 }
 
-function handleSaveModal() {
+function handleSaveModal(e) {
+  modalState.context.name = e.name;
+  modalState.context.description = e.description;
   emit('update:close-modal', false);
-  modalState.value = false;
-}
-
-function handleModelName(value: string) {
-  modelName.value = value;
+  modalState.open = false;
 }
 </script>
 
@@ -64,7 +69,6 @@ function handleModelName(value: string) {
         <p-text-editor
           :code="targetModel?.onpremiseInfraModel.servers"
           :read-only="true"
-          folded
         />
       </template>
       <template #buttons>
@@ -77,14 +81,13 @@ function handleModelName(value: string) {
       </template>
     </create-form>
     <simple-edit-form
-      v-if="modalState"
+      v-if="modalState.open"
       header-title="Save Target Model"
       name=""
       name-label="Model Name"
       name-placeholder="Model Name"
       @update:save-modal="handleSaveModal"
-      @update:close-modal="modalState = false"
-      @update:name-value="handleModelName"
+      @update:close-modal="modalState.open = false"
     />
   </div>
 </template>
