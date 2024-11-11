@@ -8,13 +8,18 @@ import {
 import { useTargetModelListModel } from '../model/targetModelListModel';
 import { insertDynamicComponent } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, watchEffect, reactive } from 'vue';
+import { onBeforeMount, onMounted, watchEffect, reactive, watch } from 'vue';
 import { useGetTargetModelList } from '@/entities';
 
 const { tableModel, initToolBoxTableModel, targetModelStore, targetModels } =
   useTargetModelListModel();
 
-const emit = defineEmits(['select-row']);
+interface IProps {
+  trigger: boolean;
+}
+const props = defineProps<IProps>();
+
+const emit = defineEmits(['select-row', 'update:trigger']);
 
 const modals = reactive({
   alertModalState: { open: false },
@@ -22,14 +27,6 @@ const modals = reactive({
 });
 
 const resGetTargetModelList = useGetTargetModelList();
-
-function getTableList() {
-  resGetTargetModelList.execute().then(res => {
-    if (res.data.responseData) {
-      targetModelStore.setTargetModel(res.data.responseData);
-    }
-  });
-}
 
 onBeforeMount(() => {
   initToolBoxTableModel();
@@ -39,6 +36,14 @@ onMounted(function () {
   addDeleteIconAtTable.bind(this)();
   getTableList();
 });
+
+watch(
+  () => props.trigger,
+  () => {
+    getTableList();
+    emit('update:trigger', false);
+  },
+);
 
 function addDeleteIconAtTable() {
   const toolboxTable = this.$refs.toolboxTable.$el;
@@ -59,7 +64,13 @@ function addDeleteIconAtTable() {
   );
   return instance;
 }
-
+function getTableList() {
+  resGetTargetModelList.execute().then(res => {
+    if (res.data.responseData) {
+      targetModelStore.setTargetModel(res.data.responseData);
+    }
+  });
+}
 function handleSelectedIndex(selectedIndex: number) {
   const selectedData = tableModel.tableState.displayItems[selectedIndex];
   if (selectedData) {

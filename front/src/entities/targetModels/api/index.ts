@@ -54,11 +54,13 @@ export function useUpdateTargetModel(
   requestData: ICreateTargetModelPayload | null,
 ) {
   const requestBodyWrapper: Pick<
-    RequestBodyWrapper<{
-      id: string | null;
-      requestData: ICreateTargetModelPayload | null;
-    }>,
-    'pathParams' & 'request'
+    RequestBodyWrapper<
+      Partial<{
+        id: string | null;
+        requestData: ICreateTargetModelPayload | null;
+      }>
+    >,
+    'pathParams' | 'request'
   > = {
     pathParams: {
       id: modelId,
@@ -69,11 +71,13 @@ export function useUpdateTargetModel(
   return useAxiosPost<
     IAxiosResponse<ISourceConnectionResponse>,
     Pick<
-      RequestBodyWrapper<{
-        id: string | null;
-        requestData: ICreateTargetModelPayload | null;
-      }>,
-      'pathParams' & 'request'
+      RequestBodyWrapper<
+        Partial<{
+          id: string | null;
+          requestData: ICreateTargetModelPayload | null;
+        }>
+      >,
+      'pathParams' | 'request'
     >
   >(UPDATE_TARGET_MODEL, requestBodyWrapper);
 }

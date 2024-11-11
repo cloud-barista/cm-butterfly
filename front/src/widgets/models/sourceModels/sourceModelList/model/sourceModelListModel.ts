@@ -44,6 +44,7 @@ export function useSourceModelListModel() {
   }
 
   function organizeSourceModelTableItem(sourceModel: ISourceModelResponse) {
+    console.log(sourceModel);
     const organizedDatum: Partial<
       Record<SourceModelTableType | 'originalData', any>
     > = {

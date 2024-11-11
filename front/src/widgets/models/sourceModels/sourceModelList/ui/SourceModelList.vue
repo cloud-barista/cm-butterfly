@@ -11,10 +11,16 @@ import { insertDynamicComponent, showErrorMessage } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
 import { useGetSourceModelList } from '@/entities';
 
+interface IProps {
+  trigger: boolean;
+}
+
+const props = defineProps<IProps>();
+
 const { tableModel, initToolBoxTableModel, sourceModelStore, models } =
   useSourceModelListModel();
 
-const emit = defineEmits(['select-row']);
+const emit = defineEmits(['select-row', 'update:trigger']);
 
 const modals = reactive({
   alertModalState: { open: false },
@@ -29,15 +35,29 @@ onBeforeMount(() => {
 
 onMounted(function () {
   addDeleteIconAtTable.bind(this)();
+  getTableList();
+});
+
+watch(
+  () => props.trigger,
+  () => {
+    getTableList();
+    emit('update:trigger', false);
+  },
+);
+
+function getTableList() {
   resSourceList
     .execute()
     .then(res => {
-      sourceModelStore.setSourceModel(res.data.responseData);
+      if (res.data.responseData) {
+        sourceModelStore.setSourceModel(res.data.responseData);
+      }
     })
     .catch(e => {
       showErrorMessage('error', e.errorMsg);
     });
-});
+}
 
 function addDeleteIconAtTable() {
   const toolboxTable = this.$refs.toolboxTable.$el;
@@ -67,7 +87,7 @@ function handleRefreshTable() {
 function handleSelectedIndex(selectedIndex: number) {
   const selectedData = tableModel.tableState.displayItems[selectedIndex];
   if (selectedData) {
-    emit('select-row', { id: selectedData.id, name: selectedData.name });
+    emit('select-row', { id: selectedData.id, name: selectedData.name ?? '' });
   } else {
     emit('select-row', { id: '', name: '' });
   }

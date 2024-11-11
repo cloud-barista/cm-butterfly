@@ -17,7 +17,7 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['update:close-modal']);
+const emit = defineEmits(['update:close-modal', 'update:trigger']);
 
 const modalState = reactive({
   open: false,
@@ -57,6 +57,7 @@ function handleModal(e) {
     })
     .then(res => {
       showSuccessMessage('success', 'Successfully updated target model');
+      emit('update:trigger');
     })
     .catch(e => {
       showErrorMessage('error', e.errorMsg);
@@ -72,7 +73,7 @@ function handleModal(e) {
       :need-widget-layout="true"
       title="Custom & View Target Model"
       first-title="JSON Viewer"
-      @update:modal-state="handleModal"
+      @update:modal-state="$emit('update:close-modal', false)"
     >
       <template #add-info>
         <p-text-editor :code="targetModel?.cloudInfraModel" :read-only="true" />

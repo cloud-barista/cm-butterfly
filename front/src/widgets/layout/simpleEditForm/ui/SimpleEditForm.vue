@@ -19,7 +19,11 @@ interface iProps {
 
 const props = defineProps<iProps>();
 
-const emit = defineEmits(['update:save-modal', 'update:close-modal']);
+const emit = defineEmits([
+  'update:save-modal',
+  'update:close-modal',
+  'update:trigger',
+]);
 
 const _name = ref<string>(props.name);
 const _description = ref<string>(props.description ?? '');
@@ -40,6 +44,7 @@ function handleConfirm() {
     name: _name.value,
     description: _description.value,
   });
+  emit('update:trigger');
 }
 
 watch(_name, () => {}, { immediate: true });
