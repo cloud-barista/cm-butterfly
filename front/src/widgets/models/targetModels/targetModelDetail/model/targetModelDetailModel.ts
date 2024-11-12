@@ -1,6 +1,7 @@
 import { useTargetModelStore, TargetModelTableType } from '@/entities';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
+import { formatDate } from '@/shared/utils';
 
 export function useTargetModelDetailModel() {
   const targetModelStore = useTargetModelStore();
@@ -35,20 +36,21 @@ export function useTargetModelDetailModel() {
 
   function setDefineTableData(targetModelId: string) {
     const targetModel = targetModelStore.getTargetModelById(targetModelId);
-    let data: Partial<Record<TargetModelTableType, any>> = {};
+    let data: Partial<Record<TargetModelTableType | 'originalData', any>> = {};
 
     if (targetModel) {
       data = {
-        name: targetModel.name,
+        name: targetModel.userModelName,
         id: targetModel.id,
         description: targetModel.description,
-        migrationType: targetModel.migrationType,
-        custom: targetModel.custom,
+        migrationType: targetModel['migrationType'] ?? '',
+        custom: targetModel.isInitUserModel ? 'Basic' : 'Custom',
         modelType: 'Target',
-        createdDateTime: targetModel.createdDateTime,
-        updatedDateTime: targetModel.updatedDateTime,
-        customAndViewJSON: targetModel.customAndViewJSON,
-        workflowTool: targetModel.workflowTool,
+        createdDateTime: formatDate(targetModel.createTime),
+        updatedDateTime: formatDate(targetModel.updateTime),
+        customAndViewJSON: '',
+        workflowTool: '',
+        originalData: targetModel,
       };
     }
     return data;

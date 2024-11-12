@@ -42,9 +42,7 @@ export function useSourceModelListModel() {
       },
     ];
   }
-
   function organizeSourceModelTableItem(sourceModel: ISourceModelResponse) {
-    console.log(sourceModel);
     const organizedDatum: Partial<
       Record<SourceModelTableType | 'originalData', any>
     > = {
@@ -52,7 +50,7 @@ export function useSourceModelListModel() {
       id: sourceModel.id,
       description: sourceModel.description,
       migrationType: sourceModel['migrationType'] ?? '',
-      custom: sourceModel['custom '] ?? '',
+      custom: sourceModel.isInitUserModel ? 'Basic' : 'Custom',
       createdDateTime: formatDate(sourceModel.createTime),
       updatedDateTime: formatDate(sourceModel.updateTime),
       originalData: sourceModel,
