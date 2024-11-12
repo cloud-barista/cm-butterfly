@@ -6,12 +6,21 @@ import { SimpleEditForm } from '@/widgets/layout';
 import { CustomViewTargetModel } from '@/widgets/models/targetModels';
 import { reactive, ref } from 'vue';
 import WorkflowEditor from '@/features/workflow/workflowEditor/ui/WorkflowEditor.vue';
+import {
+  ITargetModelResponse,
+  useTargetModelStore,
+  useUpdateTargetModel,
+} from '@/entities';
+import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 
 const pageName = 'Target Models';
 
 const selectedTargetModelId = ref<string>('');
+const selectedTargetModelName = ref<string>('');
 const targetModelName = ref<string>('');
 const targetModelDescription = ref<string>('');
+const resUpdateTargetModel = useUpdateTargetModel(null, null);
+const targetModelStore = useTargetModelStore();
 
 const mainTabState = reactive({
   activeTab: 'details',
@@ -23,14 +32,57 @@ const mainTabState = reactive({
   ],
 });
 
-const modalState = reactive({
-  editModelModal: { open: false, trigger: false },
-  customViewJsonModal: { open: false, trigger: false },
-  workflowEditorModal: { open: false, trigger: false },
+const modalStates = reactive({
+  editModelModal: {
+    open: false,
+    context: {
+      name: '',
+      description: '',
+    },
+    trigger: false,
+    updateTrigger() {
+      modalStates.editModelModal.trigger = false;
+    },
+  },
+  customViewJsonModal: {
+    open: false,
+  },
+  workflowEditorModal: {
+    open: false,
+  },
 });
 
-function handleClickTargetModelId(id: string) {
-  selectedTargetModelId.value = id;
+function handleClickTargetModel(data: { id: string; name: string }) {
+  selectedTargetModelId.value = data.id;
+  selectedTargetModelName.value = data.name;
+}
+
+function handleUpdateTargetModel(e) {
+  const targetModel = targetModelStore.getTargetModelById(
+    selectedTargetModelId.value,
+  );
+
+  modalStates.editModelModal.open = false;
+  modalStates.editModelModal.context.name = e.name;
+  modalStates.editModelModal.context.description = e.description;
+
+  const requestBody = Object.assign({}, targetModel, {
+    userModelName: e.name,
+    description: e.description,
+  });
+
+  resUpdateTargetModel
+    .execute({
+      pathParams: { id: selectedTargetModelId.value },
+      request: requestBody,
+    })
+    .then(res => {
+      showSuccessMessage('success', 'Successfully updated target model');
+      modalStates.editModelModal.trigger = true;
+    })
+    .catch(e => {
+      showErrorMessage('error', e.errorMsg);
+    });
 }
 </script>
 
@@ -40,7 +92,11 @@ function handleClickTargetModelId(id: string) {
       <p>{{ pageName }}</p>
     </header>
     <section :class="`${pageName}-page-body`">
-      <target-model-list @select-row="handleClickTargetModelId" />
+      <target-model-list
+        :trigger="modalStates.editModelModal.trigger"
+        @select-row="handleClickTargetModel"
+        @update:trigger="modalStates.editModelModal.updateTrigger"
+      />
       <div v-if="selectedTargetModelId">
         <p-tab v-model="mainTabState.activeTab" :tabs="mainTabState.tabs">
           <template #details>
@@ -49,7 +105,7 @@ function handleClickTargetModelId(id: string) {
               <p-button
                 style-type="tertiary"
                 icon-left="ic_edit"
-                @click="modalState.editModelModal.open = true"
+                @click="modalStates.editModelModal.open = true"
               >
                 Edit
               </p-button>
@@ -57,14 +113,14 @@ function handleClickTargetModelId(id: string) {
             <target-model-detail
               :selected-target-model-id="selectedTargetModelId"
               @update:custom-view-json-modal="
-                modalState.customViewJsonModal.open = true
+                modalStates.customViewJsonModal.open = true
               "
               @update:target-model-name="e => (targetModelName = e)"
               @update:target-model-description="
                 e => (targetModelDescription = e)
               "
               @update:workflow-edit-modal="
-                e => (modalState.workflowEditorModal.open = e)
+                e => (modalStates.workflowEditorModal.open = e)
               "
             />
           </template>
@@ -76,28 +132,30 @@ function handleClickTargetModelId(id: string) {
     </section>
     <div class="relative z-60">
       <simple-edit-form
-        v-if="modalState.editModelModal.open"
+        v-if="modalStates.editModelModal.open"
         header-title="Edit Model"
         :name="targetModelName"
         :description="targetModelDescription"
         name-label="Model Name"
         name-placeholder="Model Name"
-        @update:save-modal="modalState.editModelModal.open = false"
-        @update:close-modal="modalState.editModelModal.open = false"
+        @update:save-modal="handleUpdateTargetModel"
+        @update:close-modal="modalStates.editModelModal.open = false"
+        @update:trigger="modalStates.editModelModal.trigger = true"
       />
     </div>
     <div class="relative z-70">
       <custom-view-target-model
-        v-if="modalState.customViewJsonModal.open"
-        :target-model-name="targetModelName"
-        @update:close-modal="modalState.customViewJsonModal.open = false"
+        v-if="modalStates.customViewJsonModal.open"
+        :selected-target-id="selectedTargetModelId"
+        :selected-target-name="selectedTargetModelName"
+        @update:close-modal="modalStates.customViewJsonModal.open = false"
       />
     </div>
     <div class="relative z-70">
       <workflow-editor
-        v-if="modalState.workflowEditorModal.open"
+        v-if="modalStates.workflowEditorModal.open"
         :target-model-name="targetModelName"
-        @update:close-modal="modalState.workflowEditorModal.open = false"
+        @update:close-modal="modalStates.workflowEditorModal.open = false"
         tool-type="add"
         wft-id=""
       />

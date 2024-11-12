@@ -50,7 +50,7 @@ export function useTargetModelListModel() {
       id: targetModel.id,
       description: targetModel.description,
       migrationType: targetModel['migrationType'] ?? '',
-      custom: targetModel['custom '] ?? '',
+      custom: targetModel.isInitUserModel ? 'Basic' : 'Custom',
       createdDateTime: formatDate(targetModel.createTime),
       updatedDateTime: formatDate(targetModel.updateTime),
       originalData: targetModel,

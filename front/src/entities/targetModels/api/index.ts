@@ -5,15 +5,17 @@ import {
 } from '@/shared/libs';
 import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types.ts';
 import { ITargetModelResponse } from '@/entities';
+import { ISourceConnectionResponse } from '@/entities/sourceConnection/model/types.ts';
 
 const CREATE_TARGET_MODEL = 'CreateCloudModel';
 const GET_SOURCE_MODEL_LIST = 'GetUserModel';
+const UPDATE_TARGET_MODEL = 'UpdateCloudmodel';
 
 interface ICreateTargetModelPayload {
   cloudInfraModel: IRecommendModelResponse['targetInfra'];
   csp: string;
   description: string;
-  isInitUserModel: true;
+  isInitUserModel: boolean;
   isTargetModel: true;
   region: string;
   userId: string;
@@ -45,4 +47,37 @@ export function useGetTargetModelList() {
     IAxiosResponse<ITargetModelResponse[]>,
     Required<Pick<RequestBodyWrapper<any>, 'pathParams'>>
   >(GET_SOURCE_MODEL_LIST, requestWrapper);
+}
+
+export function useUpdateTargetModel(
+  modelId: string | null,
+  requestData: ICreateTargetModelPayload | null,
+) {
+  const requestBodyWrapper: Pick<
+    RequestBodyWrapper<
+      Partial<{
+        id: string | null;
+        requestData: ICreateTargetModelPayload | null;
+      }>
+    >,
+    'pathParams' | 'request'
+  > = {
+    pathParams: {
+      id: modelId,
+    },
+    request: { requestData },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<ISourceConnectionResponse>,
+    Pick<
+      RequestBodyWrapper<
+        Partial<{
+          id: string | null;
+          requestData: ICreateTargetModelPayload | null;
+        }>
+      >,
+      'pathParams' | 'request'
+    >
+  >(UPDATE_TARGET_MODEL, requestBodyWrapper);
 }

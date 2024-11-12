@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useVmInformationModel } from '@/widgets/workload/vm/vmInformation/model';
 import { PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, watch } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
+import LoadConfig from '@/features/workload/loadConfig/ui/LoadConfig.vue';
 
 interface IProps {
   nsId: string;
@@ -14,6 +15,11 @@ console.log(props);
 const { initTable, setVmId, detailTableModel, resVmInfo } =
   useVmInformationModel(props);
 const resLoadStatus: any = {};
+
+const modalState = reactive({
+  open: false,
+  context: {},
+});
 onBeforeMount(() => {
   initTable();
 });
@@ -34,7 +40,14 @@ watch(
   { deep: true },
 );
 
-function handleLoadStatus(e) {}
+function handleLoadStatus(e) {
+  modalState.open = true;
+  console.log(modalState.open);
+}
+
+function handleClose() {
+  modalState.open = false;
+}
 </script>
 
 <template>
@@ -53,6 +66,7 @@ function handleLoadStatus(e) {}
         </div>
       </template>
     </p-definition-table>
+    <LoadConfig :isOpen="modalState.open" @close="handleClose"></LoadConfig>
   </div>
 </template>
 
