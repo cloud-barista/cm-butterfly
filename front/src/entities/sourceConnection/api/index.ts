@@ -20,7 +20,6 @@ const DELETE_SOURCE_CONNECTION = 'delete-connection-info';
 const REFRESH_SOURCE_GROUP_CONNECTION_INFO_STATUS =
   'Refresh-Source-Group-Connection-Info-Status';
 const GET_INFRA_INFO_REFINED = 'get-infra-info-refined';
-const CREATE_ONPREMMODEL = 'CreateOnpremmodel';
 
 export function useCreateConnectionInfo(
   sgId: string | null,
@@ -182,30 +181,4 @@ export function useGetInfraInfoRefined(
       >
     >
   >(GET_INFRA_INFO_REFINED, requestWrapper);
-}
-
-interface OnpremModelPayload {
-  onpremiseInfraModel: {
-    servers: any[];
-    network: {
-      ipv4Networks: any[];
-      ipv6Networks: any[];
-    };
-  };
-  description: string;
-  userModelName: string;
-  isInitUserModel: boolean;
-  userModelVersion: string;
-}
-
-export function useCreateOnpremmodel(data: OnpremModelPayload | null) {
-  const requestWrapper: Required<
-    Pick<RequestBodyWrapper<OnpremModelPayload | null>, 'request'>
-  > = {
-    request: data,
-  };
-  return useAxiosPost<
-    IAxiosResponse<any>,
-    Required<Pick<RequestBodyWrapper<OnpremModelPayload | null>, 'request'>>
-  >(CREATE_ONPREMMODEL, requestWrapper);
 }

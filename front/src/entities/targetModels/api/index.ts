@@ -15,7 +15,7 @@ interface ICreateTargetModelPayload {
   cloudInfraModel: IRecommendModelResponse['targetInfra'];
   csp: string;
   description: string;
-  isInitUserModel: true;
+  isInitUserModel: boolean;
   isTargetModel: true;
   region: string;
   userId: string;
@@ -65,7 +65,7 @@ export function useUpdateTargetModel(
     pathParams: {
       id: modelId,
     },
-    request: { ...requestData },
+    request: { requestData },
   };
 
   return useAxiosPost<

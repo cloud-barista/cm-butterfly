@@ -169,7 +169,7 @@ function handleSave(e: { name: string; description: string }) {
         </p-toolbox-table>
       </template>
       <template #buttons>
-        <p-button style-type="tertiary">cancel</p-button>
+        <p-button style-type="tertiary" @click="handleModal">cancel</p-button>
         <p-button @click="modalState.targetModal = true">
           Save as a Target Model
         </p-button>

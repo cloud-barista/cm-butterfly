@@ -5,6 +5,7 @@ import { SimpleEditForm } from '@/widgets/layout';
 import { JsonEditor } from '@/widgets/layout';
 import { reactive, ref, watch } from 'vue';
 import {
+  createTargetModel,
   ITargetModelResponse,
   useTargetModelStore,
   useUpdateTargetModel,
@@ -29,7 +30,8 @@ const modalState = reactive({
 
 const targetModelStore = useTargetModelStore();
 const targetModel = ref<ITargetModelResponse | undefined>(undefined);
-const resUpdateTargetModel = useUpdateTargetModel(null, null);
+const resCreateTargetModel = createTargetModel(null);
+
 watch(
   () => props.selectedTargetId,
   () => {
@@ -40,23 +42,22 @@ watch(
   { immediate: true },
 );
 
-function handleModal(e) {
+function handleCreateTargetModel(e) {
   modalState.context.name = e.name;
   modalState.context.description = e.description;
   const requestBody = Object.assign(targetModel.value, {
     userModelName: e.name,
     description: e.description,
+    isInitUserModel: false,
   });
 
-  resUpdateTargetModel
+  resCreateTargetModel
     .execute({
       pathParams: { id: props.selectedTargetId },
-      request: {
-        requestBody,
-      },
+      request: requestBody,
     })
     .then(res => {
-      showSuccessMessage('success', 'Successfully updated target model');
+      showSuccessMessage('success', 'Successfully Create target model');
       emit('update:trigger');
     })
     .catch(e => {
@@ -95,7 +96,7 @@ function handleModal(e) {
       :description="modalState.context.description"
       name-label="Name"
       name-placeholder="Target Model Name"
-      @update:save-modal="handleModal"
+      @update:save-modal="handleCreateTargetModel"
       @update:close-modal="modalState.open = false"
     />
   </div>

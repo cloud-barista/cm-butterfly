@@ -144,6 +144,7 @@ function handleUpdateSourceModel(e) {
         :source-model-name="sourceModelName"
         :source-model-id="selectedSourceModelId"
         @update:close-modal="handleJsonModal"
+        @update:trigger="modalState.editModelModal.trigger = true"
       />
       <recommended-model
         v-if="modalState.viewRecommendedListModal.open"

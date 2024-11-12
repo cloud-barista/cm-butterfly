@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
-// import { collectJsonEditor } from '@/features/sourceServices';
-import { JsonEditor } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
 import { reactive, ref, watch } from 'vue';
-import { ISourceModelResponse, useSourceModelStore } from '@/entities';
+import {
+  ISourceModelResponse,
+  useCreateOnpremmodel,
+  useSourceModelStore,
+} from '@/entities';
 import { PTextEditor } from '@cloudforet-test/mirinae';
+import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 
 const modelName = ref<string>('');
 
@@ -17,7 +20,7 @@ interface iProps {
 }
 
 const props = defineProps<iProps>();
-const emit = defineEmits(['update:close-modal']);
+const emit = defineEmits(['update:close-modal', 'update:trigger']);
 
 const modalState = reactive({
   open: false,
@@ -29,6 +32,8 @@ const modalState = reactive({
 
 const sourceModelStore = useSourceModelStore();
 const targetModel = ref<ISourceModelResponse | undefined>(undefined);
+const resCreateSourceModel = useCreateOnpremmodel(null);
+
 watch(
   () => props.sourceModelId,
   () => {
@@ -50,8 +55,26 @@ function handleSave() {
 function handleSaveModal(e) {
   modalState.context.name = e.name;
   modalState.context.description = e.description;
-  emit('update:close-modal', false);
-  modalState.open = false;
+
+  const requestBody = Object.assign({}, targetModel.value, {
+    userModelName: e.name,
+    description: e.description,
+    isInitUserModel: false,
+  });
+
+  resCreateSourceModel
+    .execute({
+      request: requestBody,
+    })
+    .then(res => {
+      showSuccessMessage('success', 'Successfully created source model');
+      emit('update:close-modal', false);
+      emit('update:trigger');
+      modalState.open = false;
+    })
+    .catch(e => {
+      showErrorMessage('error', e.errorMsg);
+    });
 }
 </script>
 
@@ -82,7 +105,7 @@ function handleSaveModal(e) {
     </create-form>
     <simple-edit-form
       v-if="modalState.open"
-      header-title="Save Target Model"
+      header-title="Save Source Model"
       name=""
       name-label="Model Name"
       name-placeholder="Model Name"

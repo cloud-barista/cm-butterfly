@@ -80,8 +80,7 @@ function addDeleteIconAtTable() {
 }
 
 function handleRefreshTable() {
-  tableModel.initState();
-  // tableModel.handleChange();
+  getTableList();
 }
 
 function handleSelectedIndex(selectedIndex: number) {

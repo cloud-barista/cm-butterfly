@@ -82,7 +82,7 @@ function handleOpenWorkflowEditor() {
     >
       <template #data-customAndViewJSON>
         <p class="link-button-text" @click="handleJsonModal">
-          Custom & View Source Model
+          Custom & View Target Model
         </p>
       </template>
       <template #data-workflowTool>

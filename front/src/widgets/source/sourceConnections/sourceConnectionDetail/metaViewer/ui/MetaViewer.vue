@@ -7,8 +7,8 @@ import { SimpleEditForm } from '@/widgets/layout';
 import { ref } from 'vue';
 import { AxiosResponse } from 'axios';
 import { IUseAxiosWrapperReturnType } from '@/shared/libs';
-import { useCreateOnpremmodel } from '@/entities/sourceConnection/api';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+import { useCreateOnpremmodel } from '@/entities';
 
 interface iProps {
   collectData: string | undefined;

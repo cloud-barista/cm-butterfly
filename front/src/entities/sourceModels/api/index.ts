@@ -9,6 +9,8 @@ import { ISourceModelResponse } from '@/entities';
 
 const GET_SOURCE_MODEL_LIST = 'GetUserModel';
 const UPDATE_SOURCE_MODEL = 'UpdateOnpremmodel';
+const CREATE_ONPREMMODEL = 'CreateOnpremmodel';
+
 export function useGetSourceModelList() {
   const requestWrapper: Required<Pick<RequestBodyWrapper<any>, 'pathParams'>> =
     {
@@ -44,7 +46,7 @@ export function useUpdateSourceModel(
     pathParams: {
       id: modelId,
     },
-    request: { ...requestData },
+    request: { requestData },
   };
 
   return useAxiosPost<
@@ -59,4 +61,30 @@ export function useUpdateSourceModel(
       'pathParams' | 'request'
     >
   >(UPDATE_SOURCE_MODEL, requestBodyWrapper);
+}
+
+interface OnpremModelPayload {
+  onpremiseInfraModel: {
+    servers: any[];
+    network: {
+      ipv4Networks: any[];
+      ipv6Networks: any[];
+    };
+  };
+  description: string;
+  userModelName: string;
+  isInitUserModel: boolean;
+  userModelVersion: string;
+}
+
+export function useCreateOnpremmodel(data: OnpremModelPayload | null) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<OnpremModelPayload | null>, 'request'>
+  > = {
+    request: data,
+  };
+  return useAxiosPost<
+    IAxiosResponse<any>,
+    Required<Pick<RequestBodyWrapper<OnpremModelPayload | null>, 'request'>>
+  >(CREATE_ONPREMMODEL, requestWrapper);
 }
