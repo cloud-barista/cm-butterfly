@@ -12,14 +12,15 @@ interface IProps {
 
 const props = defineProps<IProps>();
 console.log(props);
-const { initTable, setVmId, detailTableModel, resVmInfo } =
-  useVmInformationModel(props);
+const { initTable, setVmId, detailTableModel, targetVm, setMci } =
+  useVmInformationModel();
 const resLoadStatus: any = {};
 
 const modalState = reactive({
   open: false,
   context: {},
 });
+
 onBeforeMount(() => {
   initTable();
 });
@@ -27,17 +28,10 @@ onBeforeMount(() => {
 watch(
   props,
   nv => {
+    setMci(nv.mciId);
     setVmId(nv.vmId);
   },
   { immediate: true, deep: true },
-);
-
-watch(
-  detailTableModel.tableState.data,
-  nv => {
-    console.log(nv);
-  },
-  { deep: true },
 );
 
 function handleLoadStatus(e) {
@@ -66,7 +60,15 @@ function handleClose() {
         </div>
       </template>
     </p-definition-table>
-    <LoadConfig :isOpen="modalState.open" @close="handleClose"></LoadConfig>
+    <LoadConfig
+      v-if="targetVm"
+      :isOpen="modalState.open"
+      :mciId="mciId"
+      :nsId="nsId"
+      :vmId="vmId"
+      :ip="targetVm?.publicIP ?? ''"
+      @close="handleClose"
+    ></LoadConfig>
   </div>
 </template>
 

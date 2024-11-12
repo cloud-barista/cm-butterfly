@@ -16,9 +16,20 @@ interface IProps {
 
 const props = defineProps<IProps>();
 const emit = defineEmits(['selectCard']);
+console.log(props);
 
-const { getVmList, initToolBoxTableModel, vmListTableModel } =
-  useVmListModel<IProps>(props);
+const { getVmList, initToolBoxTableModel, vmListTableModel, setMci } =
+  useVmListModel();
+
+watch(
+  () => props.mciId,
+  () => {
+    console.log(props.mciId);
+    setMci(props.mciId);
+    vmListTableModel.tableState.selectIndex = [];
+  },
+  { immediate: true },
+);
 
 onMounted(() => {
   initToolBoxTableModel();

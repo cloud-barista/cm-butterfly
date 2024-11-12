@@ -3,7 +3,11 @@ import {
   RequestBodyWrapper,
   useAxiosPost,
 } from '../../../shared/libs';
-import { IMci, MciResponseData } from '@/entities/mci/model';
+import {
+  IMci,
+  IRunLoadTestRequest,
+  MciResponseData,
+} from '@/entities/mci/model';
 
 export interface IMciRequestParams {
   nsId: string | null;
@@ -13,6 +17,7 @@ export interface IMciRequestParams {
 
 const GET_ALL_MCI = 'GetAllMci';
 const GET_MCI_INFO = 'GetMci';
+const RUN_LOAD_TEST = 'Runloadtest';
 
 export function useGetMciList(projectId: string | null, option: string | null) {
   const requestBodyWrapper: Required<
@@ -54,4 +59,17 @@ export function useGetMciInfo(params: IMciRequestParams | null) {
     IAxiosResponse<IMci>,
     Required<Pick<RequestBodyWrapper<IMciRequestParams>, 'pathParams'>>
   >(GET_MCI_INFO, requestBodyWrapper);
+}
+
+export function useRunLoadTest(requestPayload: IRunLoadTestRequest | null) {
+  const requestBodyWrapper: Required<
+    Pick<RequestBodyWrapper<IRunLoadTestRequest | null>, 'request'>
+  > = {
+    request: requestPayload,
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<IRunLoadTestRequest>,
+    Required<Pick<RequestBodyWrapper<IMciRequestParams | null>, 'request'>>
+  >(RUN_LOAD_TEST, requestBodyWrapper);
 }

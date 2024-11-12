@@ -136,4 +136,26 @@ export interface IMci {
   newVmList: any; // Assuming newVmList can be any type
 }
 
-// Usage example:
+export interface IRunLoadTestRequest {
+  agentHostname: string;
+  collectAdditionalSystemMetrics: boolean;
+  httpReqs: Array<{
+    bodyData: string;
+    hostname: string;
+    method: 'get' | 'post' | 'put' | 'delete';
+    path: string;
+    port: string;
+    protocol: 'http' | 'https';
+  }>;
+  installLoadGenerator: {
+    installLocation: 'local' | 'remote';
+  };
+  nsId: string;
+  mciId: string;
+  vmId: string;
+  testName: string;
+  virtualUsers: string;
+  duration: string;
+  rampUpTime: string;
+  rampUpSteps: string;
+}

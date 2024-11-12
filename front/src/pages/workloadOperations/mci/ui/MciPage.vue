@@ -63,11 +63,15 @@ const selectedVmId = ref<string>('');
 
 function handleSelectMciTableRow(id: string) {
   selectedMciId.value = id;
+  selectedVmId.value = '';
 }
 
-function handleSelectVmGroupTableRow(id: string) {
+function handleSelectVmListTableRow(id: string) {
   console.log(selectedVmId.value);
   if (!isNullOrUndefined(id)) selectedVmId.value = id;
+  else {
+    selectedVmId.value = '';
+  }
 }
 </script>
 
@@ -105,9 +109,9 @@ function handleSelectVmGroupTableRow(id: string) {
               <p>Server List</p>
             </div>
             <VmList
-              :ns-id="nsId"
-              :mci-id="selectedMciId"
-              @selectCard="handleSelectVmGroupTableRow"
+              :nsId="nsId"
+              :mciId="selectedMciId"
+              @selectCard="handleSelectVmListTableRow"
             >
               <template #vmInfoTable>
                 <p-button-tab

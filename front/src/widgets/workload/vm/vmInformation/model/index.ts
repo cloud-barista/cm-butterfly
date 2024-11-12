@@ -1,8 +1,16 @@
 import { computed, reactive, ref, watch } from 'vue';
-import { useVmStore, vmDetailTableType } from '@/entities/vm/model';
-import { useGetVmInfo } from '@/entities/vm/api';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel.ts';
-import { IVm, useMCIStore } from '@/entities/mci/model';
+import { IMci, IVm, useMCIStore } from '@/entities/mci/model';
+export type vmDetailTableType =
+  | 'serverId'
+  | 'description'
+  | 'publicIP'
+  | 'publicDNS'
+  | 'privateIP'
+  | 'privateDNS'
+  | 'serverStatus'
+  | 'loadStatus'
+  | 'provider';
 
 interface IProps {
   nsId: string;
@@ -10,14 +18,11 @@ interface IProps {
   vmId: string;
 }
 
-export function useVmInformationModel(props: IProps) {
+export function useVmInformationModel() {
   const targetVmId = ref<string | null>();
   const mciStore = useMCIStore();
-  const targetMci = reactive({
-    mci: computed(() => mciStore.getMciById(props.mciId)),
-  });
-  const resVmInfo = useGetVmInfo(null);
-
+  const targetMci = ref<IMci | null>(null);
+  const targetVm = ref<IVm | undefined>(undefined);
   const vmLoadStatus = ref<string>('');
 
   const detailTableModel =
@@ -39,32 +44,18 @@ export function useVmInformationModel(props: IProps) {
     ];
   }
 
+  function setMci(mciId: string) {
+    targetMci.value = mciStore.getMciById(mciId);
+  }
+
   function setVmId(_vmId: string | null) {
     console.log(`setVmId : ${_vmId}`);
     targetVmId.value = _vmId;
   }
 
-  async function fetchVmInfo(vmId: string) {
-    return new Promise((resolve, reject) =>
-      resVmInfo
-        .execute({
-          pathParams: { nsId: props.nsId, mciId: props.mciId, vmId },
-        })
-        .then(res => {
-          if (res.data.responseData) {
-            mciStore.setVmInfo(props.mciId, res.data.responseData);
-          }
-          resolve(res);
-        })
-        .catch(e => {
-          reject(e);
-        }),
-    );
-  }
-
   function organizeVmDefineTableData(vm: IVm) {
     console.log(vmLoadStatus.value);
-
+    console.log(vm);
     const data: Record<vmDetailTableType, any> = {
       serverId: vm.id,
       description: vm.description,
@@ -85,14 +76,15 @@ export function useVmInformationModel(props: IProps) {
   }
 
   function setDefineTableData(vmId: string) {
+    console.log(vmId);
     let data: Partial<Record<vmDetailTableType, any>> = {};
 
-    const targetVm = targetMci.mci?.vm.find(vm => vm.id === vmId);
+    targetVm.value = targetMci.value?.vm.find(vm => vm.id === vmId);
     console.log(targetVm);
 
     try {
-      if (targetVm) {
-        data = organizeVmDefineTableData(targetVm);
+      if (targetVm.value) {
+        data = organizeVmDefineTableData(targetVm.value);
       }
     } catch (e) {
       return data;
@@ -101,19 +93,24 @@ export function useVmInformationModel(props: IProps) {
     return data;
   }
 
-  watch(
-    () => targetVmId.value,
-    nv => {
-      detailTableModel.tableState.loading = true;
+  watch(targetVmId, nv => {
+    console.log('targetVmId change');
+    detailTableModel.tableState.loading = true;
 
-      console.log(nv);
-      if (nv) {
-        detailTableModel.tableState.data = setDefineTableData(nv);
-        console.log(detailTableModel.tableState.data);
-      }
-      detailTableModel.tableState.loading = false;
-    },
-  );
+    if (nv) {
+      detailTableModel.tableState.data = setDefineTableData(nv);
+    } else {
+      initTable();
+    }
+    detailTableModel.tableState.loading = false;
+  });
 
-  return { initTable, setVmId, detailTableModel, resVmInfo, mappingLoadStatus };
+  return {
+    initTable,
+    setVmId,
+    detailTableModel,
+    mappingLoadStatus,
+    targetVm,
+    setMci,
+  };
 }

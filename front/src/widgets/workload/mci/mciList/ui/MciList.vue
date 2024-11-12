@@ -35,6 +35,8 @@ function handleSelectedIndex(index: number[]) {
   const selectedData = mciTableModel.tableState.displayItems[index];
   if (selectedData) {
     emit('selectRow', selectedData.name);
+  } else {
+    emit('selectRow', '');
   }
 }
 
