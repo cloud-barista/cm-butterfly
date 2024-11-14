@@ -47,6 +47,7 @@ export function useVmListModel() {
   );
 
   return {
+    mciStore,
     vmListTableModel,
     getVmList,
     initToolBoxTableModel,
