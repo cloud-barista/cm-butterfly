@@ -6,10 +6,13 @@ import {
 import { ISourceConnectionResponse } from '@/entities/sourceConnection/model/types.ts';
 import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types.ts';
 import { IOnpremModelPayload, ISourceModelResponse } from '@/entities';
+import { IEditWorkspaceData } from '@/entities/workspace/model/types.ts';
+import { axiosInstance } from '@/shared/libs/api/instance.ts';
 
 const GET_SOURCE_MODEL_LIST = 'GetUserModel';
 const UPDATE_SOURCE_MODEL = 'UpdateOnpremmodel';
 const CREATE_ONPREMMODEL = 'CreateOnpremmodel';
+const DELETE_ONPREMMODEL = 'DeleteOnpremmodel';
 
 export function useGetSourceModelList() {
   const requestWrapper: Required<Pick<RequestBodyWrapper<any>, 'pathParams'>> =
@@ -73,4 +76,16 @@ export function useCreateOnpremmodel(data: IOnpremModelPayload | null) {
     IAxiosResponse<any>,
     Required<Pick<RequestBodyWrapper<IOnpremModelPayload | null>, 'request'>>
   >(CREATE_ONPREMMODEL, requestWrapper);
+}
+
+export function useBulkAddWorkspaceList(modelIds: string[]) {
+  const promiseArr = modelIds.map(modelId => {
+    return axiosInstance.post(DELETE_ONPREMMODEL, {
+      pathParams: {
+        id: modelId,
+      },
+    });
+  });
+
+  return Promise.all(promiseArr);
 }
