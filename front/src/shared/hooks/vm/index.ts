@@ -11,19 +11,21 @@ export function getCloudProvidersInVms(vms: IVm[]) {
     }
   });
 
-  return provider;
+  return Object.values(provider);
 }
 
 function providerColor(provider: string) {
+  const upperCaseProvider = provider.toUpperCase();
+
   let color = '#EDEDEF';
-  switch (provider) {
+  switch (upperCaseProvider) {
     case 'AWS':
       color = '#FF9900';
       break;
-    case 'Google':
+    case 'GOOGLE':
       color = '#4387F4';
       break;
-    case 'Azure':
+    case 'AZURE':
       color = '#00BCF0';
       break;
     case 'NHN':
@@ -31,5 +33,8 @@ function providerColor(provider: string) {
       break;
   }
 
-  return color;
+  return {
+    name: provider,
+    color: color,
+  };
 }

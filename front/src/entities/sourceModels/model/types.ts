@@ -110,3 +110,17 @@ interface RoutingTableEntry {
   scope: string;
   source?: string;
 }
+
+export interface IOnpremModelPayload {
+  onpremiseInfraModel: {
+    servers: any[];
+    network: {
+      ipv4Networks: any[];
+      ipv6Networks: any[];
+    };
+  };
+  description: string;
+  userModelName: string;
+  isInitUserModel: boolean;
+  userModelVersion: string;
+}

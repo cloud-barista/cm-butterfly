@@ -29,32 +29,6 @@ const tabState = reactive({
   ],
 });
 
-const vmDetailTabState = reactive({
-  activeTab: 'information',
-  tabs: [
-    {
-      name: 'information',
-      label: 'Information',
-    },
-    {
-      name: 'connection',
-      label: 'Connection',
-    },
-    {
-      name: 'monitoring',
-      label: 'Monitoring',
-    },
-    {
-      name: 'evaluatePref',
-      label: 'Evaluate Pref',
-    },
-    {
-      name: 'estimateCost',
-      label: 'Estimate Cost',
-    },
-  ],
-});
-
 //TODO projectId 가져와야함.
 const nsId = 'mig01';
 
@@ -63,11 +37,15 @@ const selectedVmId = ref<string>('');
 
 function handleSelectMciTableRow(id: string) {
   selectedMciId.value = id;
+  selectedVmId.value = '';
 }
 
-function handleSelectVmGroupTableRow(id: string) {
+function handleSelectVmListTableRow(id: string) {
   console.log(selectedVmId.value);
   if (!isNullOrUndefined(id)) selectedVmId.value = id;
+  else {
+    selectedVmId.value = '';
+  }
 }
 </script>
 
@@ -105,37 +83,10 @@ function handleSelectVmGroupTableRow(id: string) {
               <p>Server List</p>
             </div>
             <VmList
-              :ns-id="nsId"
-              :mci-id="selectedMciId"
-              @selectCard="handleSelectVmGroupTableRow"
+              :nsId="nsId"
+              :mciId="selectedMciId"
+              @selectCard="handleSelectVmListTableRow"
             >
-              <template #vmInfoTable>
-                <p-button-tab
-                  v-model="vmDetailTabState.activeTab"
-                  :tabs="vmDetailTabState.tabs"
-                >
-                  <template #information>
-                    <VmInformation
-                      :mciId="selectedMciId"
-                      :nsId="nsId"
-                      :vmId="selectedVmId"
-                    >
-                    </VmInformation>
-                  </template>
-                  <template #connection>
-                    <p>to be..</p>
-                  </template>
-                  <template #monitoring>
-                    <p>to be..</p>
-                  </template>
-                  <template #evaluatePref>
-                    <VmEvaluatePerf></VmEvaluatePerf>
-                  </template>
-                  <template #estimateCost>
-                    <p>to be..</p>
-                  </template>
-                </p-button-tab>
-              </template>
             </VmList>
           </template>
         </p-tab>

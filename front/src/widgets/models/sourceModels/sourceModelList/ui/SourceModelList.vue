@@ -7,20 +7,23 @@ import {
 } from '@cloudforet-test/mirinae';
 import { useSourceModelListModel } from '../model/sourceModelListModel';
 import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
-import { insertDynamicComponent, showErrorMessage } from '@/shared/utils';
+import {
+  insertDynamicComponent,
+  showErrorMessage,
+  showSuccessMessage,
+} from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { useGetSourceModelList } from '@/entities';
+import { useBulkAddWorkspaceList, useGetSourceModelList } from '@/entities';
 
 interface IProps {
   trigger: boolean;
 }
 
 const props = defineProps<IProps>();
+const emit = defineEmits(['select-row', 'update:trigger']);
 
 const { tableModel, initToolBoxTableModel, sourceModelStore, models } =
   useSourceModelListModel();
-
-const emit = defineEmits(['select-row', 'update:trigger']);
 
 const modals = reactive({
   alertModalState: { open: false },
@@ -69,14 +72,31 @@ function addDeleteIconAtTable() {
     },
     {
       click: () => {
-        if (tableModel.tableState.selectIndex.length > 0)
+        if (tableModel.tableState.selectIndex.length > 0) {
           modals.alertModalState.open = true;
+        }
       },
     },
     targetElement,
     'prepend',
   );
   return instance;
+}
+
+function multiDelete() {
+  const selectedData = tableModel.tableState.selectIndex.map(index => {
+    return tableModel.tableState.displayItems[index].id;
+  });
+
+  useBulkAddWorkspaceList(selectedData)
+    .then(res => {
+      handleRefreshTable();
+      tableModel.tableState.selectIndex = [];
+      showSuccessMessage('success', 'Delete Success');
+    })
+    .catch(err => {
+      showErrorMessage('Error', err);
+    });
 }
 
 function handleRefreshTable() {
@@ -90,6 +110,11 @@ function handleSelectedIndex(selectedIndex: number) {
   } else {
     emit('select-row', { id: '', name: '' });
   }
+}
+
+function handleDeleteConfirm() {
+  multiDelete();
+  modals.alertModalState.open = false;
 }
 </script>
 
@@ -134,11 +159,7 @@ function handleSelectedIndex(selectedIndex: number) {
       header-title="Are you sure you want to delete it?"
       :hide-body="true"
       :hide-header-close-button="true"
-      @confirm="
-        () => {
-          modals.alertModalState.open = false;
-        }
-      "
+      @confirm="handleDeleteConfirm"
     />
   </div>
 </template>

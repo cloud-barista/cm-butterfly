@@ -98,6 +98,9 @@ export function extractErrorMessage(error: any): string | null {
     if (errorData.error) {
       return errorData.error;
     }
+    if (errorData.responseData?.errorMessage) {
+      return errorData.responseData.errorMessage;
+    }
     return errorData.message || error.message || 'Unknown error occurred';
   } else if (error.request) {
     // 요청은 되었으나 서버로부터 응답이 없음

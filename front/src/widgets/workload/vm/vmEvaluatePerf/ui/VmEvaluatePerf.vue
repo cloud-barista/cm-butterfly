@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import { PButton, PDataLoader } from '@cloudforet-test/mirinae';
+import { Ref } from 'vue';
+interface IProps {
+  loading: Ref<boolean>;
+}
+
+const props = defineProps<IProps>();
+const emit = defineEmits(['openLoadconfig']);
 </script>
 
 <template>
@@ -11,7 +18,11 @@ import { PButton, PDataLoader } from '@cloudforet-test/mirinae';
         Please configure the load.
       </h5>
       <div class="flex gap-1.5">
-        <p-button style-type="secondary" icon-left="ic_settings">
+        <p-button
+          style-type="secondary"
+          icon-left="ic_settings"
+          @click="emit('openLoadconfig')"
+        >
           Load Config
         </p-button>
       </div>

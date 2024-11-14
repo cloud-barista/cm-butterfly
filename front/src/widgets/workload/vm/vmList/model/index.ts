@@ -1,27 +1,20 @@
-import { computed, reactive, watch } from 'vue';
-import { IVm, useMCIStore } from '@/entities/mci/model';
+import { computed, reactive, ref, watch } from 'vue';
+import { IMci, IVm, useMCIStore } from '@/entities/mci/model';
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel.ts';
-import {
-  ISourceService,
-  SourceServiceTableType,
-} from '@/entities/sourceService/model/types.ts';
 
-interface IProps {
-  nsId: string;
-  mciId: string;
-}
-
-export function useVmListModel(props: IProps) {
+export function useVmListModel() {
   const mciStore = useMCIStore();
-  const targetMci = reactive({
-    mci: computed(() => mciStore.getMciById(props.mciId)),
-  });
+  const targetMci = ref<IMci | null>(null);
 
   const vmListTableModel = useToolboxTableModel<Record<'name', any>>();
 
+  function setMci(mciId: string) {
+    targetMci.value = mciStore.getMciById(mciId);
+  }
+
   function getVmList() {
     console.log(targetMci);
-    return targetMci.mci?.vm ?? [];
+    return targetMci.value?.vm ?? [];
   }
 
   function organizeVMTableData(vm: IVm) {
@@ -45,25 +38,19 @@ export function useVmListModel(props: IProps) {
   }
 
   watch(
-    () => targetMci,
+    targetMci,
     () => {
       vmListTableModel.tableState.items =
-        targetMci.mci?.vm.map(vm => organizeVMTableData(vm)) || [];
-    },
-    { immediate: true },
-  );
-
-  watch(
-    () => vmListTableModel,
-    () => {
-      console.log(vmListTableModel);
+        targetMci.value?.vm.map(vm => organizeVMTableData(vm)) || [];
     },
     { immediate: true },
   );
 
   return {
+    mciStore,
     vmListTableModel,
     getVmList,
     initToolBoxTableModel,
+    setMci,
   };
 }

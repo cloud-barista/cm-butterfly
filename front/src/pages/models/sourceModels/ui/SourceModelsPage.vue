@@ -7,7 +7,11 @@ import { RecommendedModel } from '@/widgets/models/sourceModels';
 import { computed, reactive, ref, watch } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
-import { useSourceModelStore, useUpdateSourceModel } from '@/entities';
+import {
+  useBulkAddWorkspaceList,
+  useSourceModelStore,
+  useUpdateSourceModel,
+} from '@/entities';
 
 const pageName = 'Source Models';
 

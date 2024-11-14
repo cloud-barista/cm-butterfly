@@ -1,25 +1,28 @@
 <script setup lang="ts">
 import { useVmInformationModel } from '@/widgets/workload/vm/vmInformation/model';
-import { PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive, watch } from 'vue';
-import LoadConfig from '@/features/workload/loadConfig/ui/LoadConfig.vue';
+import { PBadge, PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
+import { onBeforeMount, onMounted, reactive, Ref, watch } from 'vue';
 
 interface IProps {
   nsId: string;
   mciId: string;
   vmId: string;
+  loading: Ref<boolean>;
 }
 
 const props = defineProps<IProps>();
+const emit = defineEmits(['openLoadconfig']);
 console.log(props);
-const { initTable, setVmId, detailTableModel, resVmInfo } =
-  useVmInformationModel(props);
-const resLoadStatus: any = {};
+const {
+  initTable,
+  setVmId,
+  detailTableModel,
+  targetVm,
+  setMci,
+  mciStore,
+  remappingData,
+} = useVmInformationModel();
 
-const modalState = reactive({
-  open: false,
-  context: {},
-});
 onBeforeMount(() => {
   initTable();
 });
@@ -27,27 +30,14 @@ onBeforeMount(() => {
 watch(
   props,
   nv => {
-    setVmId(nv.vmId);
+    setMci(props.mciId);
+    setVmId(props.vmId);
   },
   { immediate: true, deep: true },
 );
-
-watch(
-  detailTableModel.tableState.data,
-  nv => {
-    console.log(nv);
-  },
-  { deep: true },
-);
-
-function handleLoadStatus(e) {
-  modalState.open = true;
-  console.log(modalState.open);
-}
-
-function handleClose() {
-  modalState.open = false;
-}
+watch(props.loading, () => {
+  remappingData();
+});
 </script>
 
 <template>
@@ -55,18 +45,31 @@ function handleClose() {
     <p-definition-table
       :fields="detailTableModel.tableState.fields"
       :data="detailTableModel.tableState.data"
-      :loading="detailTableModel.tableState.loading"
+      :loading="detailTableModel.tableState.loading || loading.value"
       block
     >
       <template #extra="{ name }">
         <div v-if="name === 'loadStatus'">
-          <p-button style-type="tertiary" size="sm" @click="handleLoadStatus">
+          <p-button
+            style-type="tertiary"
+            size="sm"
+            @click="emit('openLoadconfig')"
+          >
             Load Config
           </p-button>
         </div>
       </template>
+      <template #data-provider="{ data }">
+        <p-badge
+          v-for="(provider, index) in data"
+          :key="index"
+          :backgroundColor="provider.color"
+          class="mr-1"
+        >
+          {{ provider.name }}
+        </p-badge>
+      </template>
     </p-definition-table>
-    <LoadConfig :isOpen="modalState.open" @close="handleClose"></LoadConfig>
   </div>
 </template>
 
