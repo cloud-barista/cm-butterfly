@@ -118,7 +118,7 @@ function handleSelectVmListTableRow(id: string) {
                   v-model="vmDetailTabState.activeTab"
                   :tabs="vmDetailTabState.tabs"
                 >
-                  <template #information>
+                  <template #information v-if="selectedVmId">
                     <VmInformation
                       :mciId="selectedMciId"
                       :nsId="nsId"

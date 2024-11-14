@@ -4,6 +4,7 @@ import {
   useAxiosPost,
 } from '../../../shared/libs';
 import {
+  ILastloadtestStateResponse,
   IMci,
   IRunLoadTestRequest,
   MciResponseData,
@@ -18,6 +19,7 @@ export interface IMciRequestParams {
 const GET_ALL_MCI = 'GetAllMci';
 const GET_MCI_INFO = 'GetMci';
 const RUN_LOAD_TEST = 'Runloadtest';
+const GET_LAST_LOAD_TEST_CONFIG = 'Getlastloadtestexecutionstate';
 
 export function useGetMciList(projectId: string | null, option: string | null) {
   const requestBodyWrapper: Required<
@@ -72,4 +74,31 @@ export function useRunLoadTest(requestPayload: IRunLoadTestRequest | null) {
     IAxiosResponse<IRunLoadTestRequest>,
     Required<Pick<RequestBodyWrapper<IMciRequestParams | null>, 'request'>>
   >(RUN_LOAD_TEST, requestBodyWrapper);
+}
+
+interface ILastloadtestStateResponseWrapper {
+  result: ILastloadtestStateResponse;
+}
+
+export function useGetLastLoadTestState(
+  params: IMciRequestParams | { vmId: string } | null,
+) {
+  const requestBodyWrapper: Required<
+    Pick<
+      RequestBodyWrapper<IMciRequestParams | { vmId: string } | null>,
+      'request'
+    >
+  > = {
+    request: params,
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<ILastloadtestStateResponseWrapper>,
+    Required<
+      Pick<
+        RequestBodyWrapper<IMciRequestParams | { vmId: string } | null>,
+        'request'
+      >
+    >
+  >(GET_LAST_LOAD_TEST_CONFIG, requestBodyWrapper);
 }

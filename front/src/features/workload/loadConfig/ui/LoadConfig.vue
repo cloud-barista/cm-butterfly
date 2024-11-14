@@ -24,8 +24,7 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['close']);
-console.log(props);
+const emit = defineEmits(['close', 'success']);
 
 const loadConfigModel = useLoadConfigModel();
 const resRunLoadTest = useRunLoadTest(null);
@@ -51,7 +50,7 @@ async function validate() {
 async function handleConfirm() {
   const isValid = await validate();
 
-  if (isValid) {
+  if (isValid && !resRunLoadTest.isLoading.value) {
     resRunLoadTest
       .execute({
         request: {
@@ -67,6 +66,9 @@ async function handleConfirm() {
               path: loadConfigModel.inputModels.path.value,
             },
           ],
+          installLoadGenerator: {
+            installLocation: loadConfigModel.location.selected,
+          },
           testName: loadConfigModel.inputModels.scenarioName.value,
           virtualUsers: loadConfigModel.inputModels.virtualUsers.value,
           duration: loadConfigModel.inputModels.testDuration.value,
@@ -78,7 +80,7 @@ async function handleConfirm() {
         },
       })
       .then(res => {
-        console.log(res);
+        emit('success', loadConfigModel.inputModels.scenarioName.value);
       })
       .catch(e => {
         showErrorMessage('error', e.errorMsg);
@@ -90,10 +92,6 @@ async function handleConfirm() {
 
 function handelClose() {
   emit('close');
-}
-
-function handleSelect(e) {
-  console.log(e);
 }
 </script>
 
@@ -212,6 +210,7 @@ function handleSelect(e) {
               <p-text-input
                 :invalid="invalid"
                 v-model="loadConfigModel.inputModels.virtualUsers.value"
+                :type="'number'"
                 :placeholder="'Number of virtual users'"
                 block
               />

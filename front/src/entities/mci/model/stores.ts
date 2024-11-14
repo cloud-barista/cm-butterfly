@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, Ref } from 'vue';
-import { IMci, IVm } from './types.ts';
+import { ILastloadtestStateResponse, IMci, IVm } from './types.ts';
 
 const NAMESPACE = 'MCI';
 
@@ -40,6 +40,20 @@ export const useMCIStore = defineStore(NAMESPACE, () => {
       Object.assign(targetVm, vm);
     }
   }
+
+  function assignLastLoadTestStateToVm(
+    mciID: string,
+    vmID: string,
+    response: ILastloadtestStateResponse,
+  ) {
+    const mci = getMciById(mciID);
+    if (mci) {
+      const vm = mci.vm.find(_vm => _vm.id === vmID);
+      if (vm) {
+        vm.lastloadtestStateResponse = response;
+      }
+    }
+  }
   return {
     mcis,
     setMci,
@@ -47,5 +61,6 @@ export const useMCIStore = defineStore(NAMESPACE, () => {
     getMciById,
     setVmsInfo,
     setVmInfo,
+    assignLastLoadTestStateToVm,
   };
 });

@@ -1,6 +1,7 @@
 import { computed, reactive, ref, watch } from 'vue';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel.ts';
 import { IMci, IVm, useMCIStore } from '@/entities/mci/model';
+import { getCloudProvidersInVms } from '@/shared/hooks/vm';
 export type vmDetailTableType =
   | 'serverId'
   | 'description'
@@ -23,7 +24,6 @@ export function useVmInformationModel() {
   const mciStore = useMCIStore();
   const targetMci = ref<IMci | null>(null);
   const targetVm = ref<IVm | undefined>(undefined);
-  const vmLoadStatus = ref<string>('');
 
   const detailTableModel =
     useDefinitionTableModel<Record<vmDetailTableType, any>>();
@@ -54,7 +54,6 @@ export function useVmInformationModel() {
   }
 
   function organizeVmDefineTableData(vm: IVm) {
-    console.log(vmLoadStatus.value);
     console.log(vm);
     const data: Record<vmDetailTableType, any> = {
       serverId: vm.id,
@@ -64,15 +63,11 @@ export function useVmInformationModel() {
       privateIP: vm.privateIP,
       privateDNS: vm.privateDNS,
       serverStatus: vm.status,
-      loadStatus: vmLoadStatus.value,
-      provider: vm.connectionConfig.providerName,
+      loadStatus: vm.lastloadtestStateResponse?.executionStatus ?? '--',
+      provider: getCloudProvidersInVms([vm]),
     };
 
     return data;
-  }
-
-  function mappingLoadStatus(status: string) {
-    vmLoadStatus.value = status;
   }
 
   function setDefineTableData(vmId: string) {
@@ -94,7 +89,6 @@ export function useVmInformationModel() {
   }
 
   watch(targetVmId, nv => {
-    console.log('targetVmId change');
     detailTableModel.tableState.loading = true;
 
     if (nv) {
@@ -109,8 +103,8 @@ export function useVmInformationModel() {
     initTable,
     setVmId,
     detailTableModel,
-    mappingLoadStatus,
     targetVm,
     setMci,
+    mciStore,
   };
 }

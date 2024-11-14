@@ -51,10 +51,10 @@ export function useLoadConfigModel() {
   const inputModels = reactive({
     scenarioName: useInputModel<string>('', validateFunc),
     targetHostName: useInputModel<string>('', validateFunc),
-    port: useInputModel<string>('80', e => validateNumberFunc(e, 100)),
+    port: useInputModel<string>('80', e => validateNumberFunc(e, 65532)),
     path: useInputModel<string>('', validateFunc),
     bodyData: useInputModel<string>(''),
-    virtualUsers: useInputModel<string>('', validateFunc),
+    virtualUsers: useInputModel<string>('', e => validateNumberFunc(e, 100)),
     testDuration: useInputModel<string>('', e => validateNumberFunc(e, 300)),
     rampUpTime: useInputModel<string>('', e => validateNumberFunc(e, 60)),
     rampUpSteps: useInputModel<string>('', e => validateNumberFunc(e, 20)),

@@ -91,6 +91,7 @@ export interface IVm {
   dataDiskIds: any; // Assuming dataDiskIds can be any type
   sshKeyId: string;
   cspSshKeyId: string;
+  lastloadtestStateResponse?: ILastloadtestStateResponse;
 }
 
 interface StatusCount {
@@ -158,4 +159,52 @@ export interface IRunLoadTestRequest {
   duration: string;
   rampUpTime: string;
   rampUpSteps: string;
+}
+
+interface LoadGeneratorServer {
+  additionalVmKey: string;
+  createdAt: string;
+  csp: string;
+  id: number;
+  label: string;
+  lat: string;
+  lon: string;
+  machineType: string;
+  privateIp: string;
+  publicIp: string;
+  region: string;
+  sshPort: string;
+  startTime: string;
+  status: string;
+  updatedAt: string;
+  username: string;
+  vmId: string;
+  zone: string;
+}
+
+interface LoadGeneratorInstallInfo {
+  createdAt: string;
+  id: number;
+  installLocation: string;
+  installPath: string;
+  installType: string;
+  installVersion: string;
+  loadGeneratorServers: LoadGeneratorServer[];
+  privateKeyName: string;
+  publicKeyName: string;
+  status: string;
+  updatedAt: string;
+}
+
+export interface ILastloadtestStateResponse {
+  compileDuration: string;
+  createdAt: string;
+  executionDuration: string;
+  executionStatus: string;
+  id: number;
+  loadGeneratorInstallInfo: LoadGeneratorInstallInfo;
+  loadTestKey: string;
+  startAt: string;
+  totalExpectedExecutionSecond: number;
+  updatedAt: string;
 }

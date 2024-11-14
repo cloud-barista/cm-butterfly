@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { useVmInformationModel } from '@/widgets/workload/vm/vmInformation/model';
-import { PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
+import { PBadge, PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
 import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import LoadConfig from '@/features/workload/loadConfig/ui/LoadConfig.vue';
+import SuccessfullyLoadConfigModal from '@/features/workload/successfullyModal/ui/SuccessfullyLoadConfigModal.vue';
+import { useGetLastLoadTestState } from '@/entities/mci/api';
+import { showErrorMessage } from '@/shared/utils';
 
 interface IProps {
   nsId: string;
@@ -12,13 +15,20 @@ interface IProps {
 
 const props = defineProps<IProps>();
 console.log(props);
-const { initTable, setVmId, detailTableModel, targetVm, setMci } =
+const { initTable, setVmId, detailTableModel, targetVm, setMci, mciStore } =
   useVmInformationModel();
-const resLoadStatus: any = {};
+const resLoadStatus = useGetLastLoadTestState(null);
 
 const modalState = reactive({
-  open: false,
-  context: {},
+  loadConfigRequest: {
+    open: false,
+    context: {
+      scenarioName: '',
+    },
+  },
+  loadConfigSuccess: {
+    open: false,
+  },
 });
 
 onBeforeMount(() => {
@@ -28,19 +38,49 @@ onBeforeMount(() => {
 watch(
   props,
   nv => {
-    setMci(nv.mciId);
-    setVmId(nv.vmId);
+    setDatatableData();
   },
   { immediate: true, deep: true },
 );
 
-function handleLoadStatus(e) {
-  modalState.open = true;
-  console.log(modalState.open);
+function setDatatableData() {
+  resLoadStatus
+    .execute({ request: props })
+    .then(res => {
+      if (res.data.responseData) {
+        mciStore.assignLastLoadTestStateToVm(
+          props.mciId,
+          props.vmId,
+          res.data.responseData.result,
+        );
+      }
+      setMci(props.mciId);
+      // setVmId(null);
+      setVmId(props.vmId);
+    })
+    .catch(e => {
+      showErrorMessage(e, e.errorMsg.value);
+    });
 }
 
-function handleClose() {
-  modalState.open = false;
+function handleLoadStatus(e) {
+  modalState.loadConfigRequest.open = true;
+  modalState.loadConfigSuccess.open = false;
+}
+
+function handleLoadConfigRequestClose() {
+  modalState.loadConfigRequest.open = false;
+}
+
+function handleLoadConfigRequestSuccess(e: string) {
+  modalState.loadConfigRequest.open = false;
+  modalState.loadConfigSuccess.open = true;
+  modalState.loadConfigRequest.context.scenarioName = e;
+}
+
+function handleLoadConfigSuccessClose() {
+  modalState.loadConfigSuccess.open = false;
+  setDatatableData();
 }
 </script>
 
@@ -49,7 +89,9 @@ function handleClose() {
     <p-definition-table
       :fields="detailTableModel.tableState.fields"
       :data="detailTableModel.tableState.data"
-      :loading="detailTableModel.tableState.loading"
+      :loading="
+        detailTableModel.tableState.loading && resLoadStatus.isLoading.value
+      "
       block
     >
       <template #extra="{ name }">
@@ -59,16 +101,32 @@ function handleClose() {
           </p-button>
         </div>
       </template>
+      <template #data-provider="{ data }">
+        <p-badge
+          v-for="(provider, index) in data"
+          :key="index"
+          :backgroundColor="provider.color"
+          class="mr-1"
+        >
+          {{ provider.name }}
+        </p-badge>
+      </template>
     </p-definition-table>
     <LoadConfig
       v-if="targetVm"
-      :isOpen="modalState.open"
+      :isOpen="modalState.loadConfigRequest.open"
       :mciId="mciId"
       :nsId="nsId"
       :vmId="vmId"
       :ip="targetVm?.publicIP ?? ''"
-      @close="handleClose"
+      @success="handleLoadConfigRequestSuccess"
+      @close="handleLoadConfigRequestClose"
     ></LoadConfig>
+    <SuccessfullyLoadConfigModal
+      :isOpen="modalState.loadConfigSuccess.open"
+      :scenarioName="modalState.loadConfigRequest.context.scenarioName"
+      @close="handleLoadConfigSuccessClose"
+    ></SuccessfullyLoadConfigModal>
   </div>
 </template>
 
