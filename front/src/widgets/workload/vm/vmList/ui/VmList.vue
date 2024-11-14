@@ -12,10 +12,10 @@ import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
 import SuccessfullyLoadConfigModal from '@/features/workload/successfullyModal/ui/SuccessfullyLoadConfigModal.vue';
 import LoadConfig from '@/features/workload/loadConfig/ui/LoadConfig.vue';
 import { showErrorMessage } from '@/shared/utils';
-import { useGetLastLoadTestState } from '@/entities/mci/api';
 import { IVm } from '@/entities/mci/model';
 import VmInformation from '@/widgets/workload/vm/vmInformation/ui/VmInformation.vue';
 import VmEvaluatePerf from '@/widgets/workload/vm/vmEvaluatePerf/ui/VmEvaluatePerf.vue';
+import { useGetLastLoadTestState } from '@/entities/vm/api/api.ts';
 
 interface IProps {
   nsId: string;
@@ -214,7 +214,10 @@ function handleLoadConfigSuccessClose() {
           <p>to be..</p>
         </template>
         <template #evaluatePref>
-          <VmEvaluatePerf @openLoadconfig="handleLoadStatus"></VmEvaluatePerf>
+          <VmEvaluatePerf
+            :loading="resLoadStatus.isLoading"
+            @openLoadconfig="handleLoadStatus"
+          ></VmEvaluatePerf>
         </template>
         <template #estimateCost>
           <p>to be..</p>

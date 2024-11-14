@@ -11,9 +11,9 @@ import {
   PDivider,
 } from '@cloudforet-test/mirinae';
 import { useLoadConfigModel } from '@/features/workload/loadConfig/model';
-import { useRunLoadTest } from '@/entities/mci/api';
 import { onBeforeMount, onMounted, watch } from 'vue';
 import { showErrorMessage } from '@/shared/utils';
+import { useRunLoadTest } from '@/entities/vm/api/api.ts';
 
 interface IProps {
   isOpen: boolean;

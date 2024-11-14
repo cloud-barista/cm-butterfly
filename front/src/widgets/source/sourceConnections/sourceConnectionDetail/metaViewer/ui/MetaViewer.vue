@@ -40,13 +40,7 @@ const handleMetaViewer = e => {
   createOnpremmodel
     .execute({
       request: {
-        onpremiseInfraModel: {
-          servers: [convertedData.value],
-          network: {
-            ipv4Networks: [],
-            ipv6Networks: [],
-          },
-        },
+        ...convertedData.value,
         description: e.description,
         userModelName: e.name,
         isInitUserModel: true,

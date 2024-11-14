@@ -88,6 +88,14 @@ export function useVmInformationModel() {
     return data;
   }
 
+  function remappingData() {
+    if (targetVmId.value) {
+      detailTableModel.tableState.loading = true;
+      detailTableModel.tableState.data = setDefineTableData(targetVmId.value);
+      detailTableModel.tableState.loading = false;
+    }
+  }
+
   watch(targetVmId, nv => {
     detailTableModel.tableState.loading = true;
 
@@ -106,5 +114,6 @@ export function useVmInformationModel() {
     targetVm,
     setMci,
     mciStore,
+    remappingData,
   };
 }

@@ -5,7 +5,7 @@ import {
 } from '@/shared/libs';
 import { ISourceConnectionResponse } from '@/entities/sourceConnection/model/types.ts';
 import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types.ts';
-import { ISourceModelResponse } from '@/entities';
+import { IOnpremModelPayload, ISourceModelResponse } from '@/entities';
 
 const GET_SOURCE_MODEL_LIST = 'GetUserModel';
 const UPDATE_SOURCE_MODEL = 'UpdateOnpremmodel';
@@ -63,28 +63,14 @@ export function useUpdateSourceModel(
   >(UPDATE_SOURCE_MODEL, requestBodyWrapper);
 }
 
-interface OnpremModelPayload {
-  onpremiseInfraModel: {
-    servers: any[];
-    network: {
-      ipv4Networks: any[];
-      ipv6Networks: any[];
-    };
-  };
-  description: string;
-  userModelName: string;
-  isInitUserModel: boolean;
-  userModelVersion: string;
-}
-
-export function useCreateOnpremmodel(data: OnpremModelPayload | null) {
+export function useCreateOnpremmodel(data: IOnpremModelPayload | null) {
   const requestWrapper: Required<
-    Pick<RequestBodyWrapper<OnpremModelPayload | null>, 'request'>
+    Pick<RequestBodyWrapper<IOnpremModelPayload | null>, 'request'>
   > = {
     request: data,
   };
   return useAxiosPost<
     IAxiosResponse<any>,
-    Required<Pick<RequestBodyWrapper<OnpremModelPayload | null>, 'request'>>
+    Required<Pick<RequestBodyWrapper<IOnpremModelPayload | null>, 'request'>>
   >(CREATE_ONPREMMODEL, requestWrapper);
 }

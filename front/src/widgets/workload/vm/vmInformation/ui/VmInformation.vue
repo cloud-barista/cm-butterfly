@@ -2,10 +2,6 @@
 import { useVmInformationModel } from '@/widgets/workload/vm/vmInformation/model';
 import { PBadge, PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
 import { onBeforeMount, onMounted, reactive, Ref, watch } from 'vue';
-import LoadConfig from '@/features/workload/loadConfig/ui/LoadConfig.vue';
-import SuccessfullyLoadConfigModal from '@/features/workload/successfullyModal/ui/SuccessfullyLoadConfigModal.vue';
-import { useGetLastLoadTestState } from '@/entities/mci/api';
-import { showErrorMessage } from '@/shared/utils';
 
 interface IProps {
   nsId: string;
@@ -17,8 +13,15 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['openLoadconfig']);
 console.log(props);
-const { initTable, setVmId, detailTableModel, targetVm, setMci, mciStore } =
-  useVmInformationModel();
+const {
+  initTable,
+  setVmId,
+  detailTableModel,
+  targetVm,
+  setMci,
+  mciStore,
+  remappingData,
+} = useVmInformationModel();
 
 onBeforeMount(() => {
   initTable();
@@ -32,10 +35,9 @@ watch(
   },
   { immediate: true, deep: true },
 );
-
-function handleOpenLoadConfig() {
-  emit('openLoadconfig');
-}
+watch(props.loading, () => {
+  remappingData();
+});
 </script>
 
 <template>
@@ -51,7 +53,7 @@ function handleOpenLoadConfig() {
           <p-button
             style-type="tertiary"
             size="sm"
-            @click="handleOpenLoadConfig"
+            @click="emit('openLoadconfig')"
           >
             Load Config
           </p-button>

@@ -86,12 +86,14 @@ export function useMciListModel(props: IProps) {
             res.forEach(el => {
               mciStore.setMci(el.data.responseData);
             });
-            loading.value = false;
           });
         }
       })
       .catch(e => {
         showErrorMessage('Error', e.errorMsg.value);
+      })
+      .finally(() => {
+        loading.value = false;
       });
   }
 
@@ -112,9 +114,6 @@ export function useMciListModel(props: IProps) {
     { deep: true },
   );
 
-  /*  watch(resGetMciById.status, () => {
-    console.log(resGetMciById.status.value);
-  });*/
   return {
     mciTableModel,
     initToolBoxTableModel,
