@@ -47,3 +47,72 @@ export interface IWorkspaceRoleResponse {
     },
   ];
 }
+
+interface IResourceMetric {
+  IsError: boolean;
+  Timestamp: string;
+  Unit: string;
+  Value: string;
+}
+
+export interface IResourceMetricData {
+  Label: string;
+  Metrics: IResourceMetric[];
+}
+
+export interface IGetlastloadtestmetricsResponse {
+  result: IResourceMetricData[];
+}
+
+interface IEvaluateMetric {
+  Bytes: number;
+  Connection: number;
+  Elapsed: number;
+  IdleTime: number;
+  IsError: boolean;
+  Latency: number;
+  No: number;
+  SentBytes: number;
+  Timestamp: string;
+  URL: string;
+}
+
+export interface IEvaluateMetricData {
+  Label: string;
+  Results: IEvaluateMetric[];
+}
+
+export interface IGetLoadTestEvaluationDataResponse {
+  result: IEvaluateMetricData[];
+}
+
+export interface ILoadTestResultAggregateResponse {
+  average: number;
+  errorPercent: number;
+  label: string;
+  maxTime: number;
+  median: number;
+  minTime: number;
+  ninetyFive: number;
+  ninetyNine: number;
+  ninetyPercent: number;
+  receivedKB: number;
+  requestCount: number;
+  sentKB: number;
+  throughput: number;
+}
+
+export type LoadTestResultAggregateTableType =
+  | 'average'
+  | 'errorPercent'
+  | 'label'
+  | 'maxTime'
+  | 'median'
+  | 'minTime'
+  | 'ninetyFive'
+  | 'ninetyNine'
+  | 'ninetyPercent'
+  | 'receivedKB'
+  | 'requestCount'
+  | 'sentKB'
+  | 'throughput';

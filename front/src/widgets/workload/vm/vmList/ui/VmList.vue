@@ -16,6 +16,7 @@ import { IVm } from '@/entities/mci/model';
 import VmInformation from '@/widgets/workload/vm/vmInformation/ui/VmInformation.vue';
 import VmEvaluatePerf from '@/widgets/workload/vm/vmEvaluatePerf/ui/VmEvaluatePerf.vue';
 import { useGetLastLoadTestState } from '@/entities/vm/api/api.ts';
+import LoadTestMetric from '@/features/workload/vmEvaluatePerf/ui/LoadTestResourceMetric.vue';
 
 interface IProps {
   nsId: string;
@@ -216,6 +217,9 @@ function handleLoadConfigSuccessClose() {
         <template #evaluatePref>
           <VmEvaluatePerf
             :loading="resLoadStatus.isLoading"
+            :mciId="mciId"
+            :nsId="nsId"
+            :vmId="selectedVm.id"
             @openLoadconfig="handleLoadStatus"
           ></VmEvaluatePerf>
         </template>
