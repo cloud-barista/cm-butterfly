@@ -73,6 +73,9 @@ watch(
     border-width: 1px;
     border-radius: 6px;
     padding: 2px;
+    .sqd-toolbox {
+      width: 280px;
+    }
 
     .sqd-smart-editor-toggle {
       right: 500px;

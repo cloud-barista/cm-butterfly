@@ -115,7 +115,7 @@ function handleCodeUpdate(value: string) {
     </create-form>
     <simple-edit-form
       v-if="modalState.open"
-      header-title="Save Source Model"
+      header-title="Save new custom Source model"
       name=""
       name-label="Model Name"
       name-placeholder="Model Name"

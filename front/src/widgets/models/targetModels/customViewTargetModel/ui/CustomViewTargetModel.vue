@@ -116,7 +116,7 @@ function handleCodeUpdate(value: string) {
     </create-form>
     <simple-edit-form
       v-if="modalState.open"
-      header-title="Save Target Model"
+      header-title="Save new custom target model "
       :name="modalState.context.name"
       :description="modalState.context.description"
       name-label="Name"
