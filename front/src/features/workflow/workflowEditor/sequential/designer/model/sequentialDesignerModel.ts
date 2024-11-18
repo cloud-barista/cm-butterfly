@@ -138,6 +138,7 @@ export function useSequentialDesignerModel(refs: any) {
       editors: {
         isCollapsed: designerOptionsState.editors.isCollapsed,
         rootEditorProvider: (definition, rootContext, isReadonly) => {
+          designer?.setIsEditorCollapsed(true);
           return editorProviders().defaultRootEditorProvider(
             definition,
             rootContext,
@@ -145,6 +146,7 @@ export function useSequentialDesignerModel(refs: any) {
           );
         },
         stepEditorProvider: (step, stepContext, definition, isReadonly) => {
+          designer?.setIsEditorCollapsed(false);
           return editorProviders().defaultStepEditorProvider(
             step,
             stepContext,
@@ -177,7 +179,7 @@ export function useSequentialDesignerModel(refs: any) {
     designer.onDefinitionChanged.subscribe(newDefinition => {});
   }
 
-  function getDesigner() {
+  function getDesigner(): Designer | null {
     return designer;
   }
 
