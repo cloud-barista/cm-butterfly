@@ -134,7 +134,6 @@ function setVmLoadTestResult() {
 }
 
 function handleCardClick(value: any) {
-  console.log(value);
   if (value && value.name) {
     emit('selectCard', value.originalData.id);
     selectedVm.value = value.originalData;

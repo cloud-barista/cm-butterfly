@@ -169,7 +169,7 @@ export function useWorkflowToolModel() {
     if (!validationSequence(sequence)) {
       throw new Error('task must have at least one taskGroup as its parent.');
     }
-
+    debugger;
     const cicadaObject: ITaskGroupResponse[] = [];
 
     const stack: {
@@ -181,7 +181,7 @@ export function useWorkflowToolModel() {
     }));
 
     while (stack.length) {
-      const { parentNode, currentNode } = stack.pop()!;
+      const { parentNode, currentNode } = stack.shift()!;
 
       const taskGroup: ITaskGroupResponse = {
         description: '',
@@ -213,7 +213,7 @@ export function useWorkflowToolModel() {
         parentNode.task_groups.push(taskGroup);
       }
     }
-
+    console.log(cicadaObject);
     return cicadaObject;
   }
 

@@ -107,7 +107,6 @@ function getCicadaData(designer: Designer | null): IWorkflow {
     name: '',
     updated_at: '',
   };
-  console.log();
   if (designer) {
     try {
       const definition = designer.getDefinition();
