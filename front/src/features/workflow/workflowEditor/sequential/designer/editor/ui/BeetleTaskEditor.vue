@@ -203,7 +203,10 @@ function handleClickOutside(event: MouseEvent) {
         </div>
       </div>
       <div
-        v-if="currentContext.type === 'accordion'"
+        v-if="
+          currentContext.type === 'accordion' &&
+          currentContext.originalData.length !== 0
+        "
         class="accordion-part w-full h-full"
       >
         <div class="subject-title border-bottom">

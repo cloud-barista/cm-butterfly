@@ -12,7 +12,6 @@ import { onBeforeMount, onMounted, reactive, ref, Ref } from 'vue';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 import {
   ITargetModelResponse,
-  ITaskComponentResponse,
   ITaskResponse,
   IWorkflow,
   useCreateWorkflow,
@@ -26,8 +25,6 @@ import {
   getTaskComponentList,
   ITaskComponentInfoResponse,
 } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
-import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
-import uuid from '@/shared/utils/uuid';
 import getRandomId from '@/shared/utils/uuid';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 
@@ -143,8 +140,6 @@ function loadSequence() {
         workflowData.value,
         resTaskComponentList.data.value?.responseData!,
       ).sequence;
-
-    console.log(sequentialSequence.value);
   }
 }
 
