@@ -49,9 +49,7 @@ function loadChart() {
         );
       }
     })
-    .catch(e => {
-      showErrorMessage('error', e.errorMsg.value);
-    });
+    .catch(e => {});
 }
 
 function createTimeSeriesChart(

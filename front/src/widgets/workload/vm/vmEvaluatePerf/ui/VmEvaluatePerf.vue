@@ -33,8 +33,9 @@ const emit = defineEmits(['openLoadconfig']);
         </p-button>
       </div>
     </div>
-    <div class="flex flex-col gap-2">
-      <div>
+    <div class="flex flex-col gap-4">
+      <div class="font-bold text-2xl">
+        Aggregation Table
         <LoadTestAggregationTable
           :mciId="mciId"
           :nsId="nsId"
@@ -42,18 +43,24 @@ const emit = defineEmits(['openLoadconfig']);
         ></LoadTestAggregationTable>
       </div>
       <div class="chart w-full">
-        <LoadTestEvaluationMetric
-          :mciId="mciId"
-          :nsId="nsId"
-          :vmId="vmId"
-        ></LoadTestEvaluationMetric>
+        <div class="font-bold text-2xl">Result metric</div>
+        <div class="h-[calc(100%-2rem)]">
+          <LoadTestEvaluationMetric
+            :mciId="mciId"
+            :nsId="nsId"
+            :vmId="vmId"
+          ></LoadTestEvaluationMetric>
+        </div>
       </div>
-      <div class="chart w-full">
-        <LoadTestResourceMetric
-          :mciId="mciId"
-          :nsId="nsId"
-          :vmId="vmId"
-        ></LoadTestResourceMetric>
+      <div class="chart w-full font-bold text-2xl">
+        <div class="font-bold text-2xl">Resource Metric</div>
+        <div class="h-[calc(100%-2rem)]">
+          <LoadTestResourceMetric
+            :mciId="mciId"
+            :nsId="nsId"
+            :vmId="vmId"
+          ></LoadTestResourceMetric>
+        </div>
       </div>
     </div>
   </div>

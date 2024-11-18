@@ -8,6 +8,7 @@ import {
   LoadTestResultAggregateTableType,
 } from '@/entities/workspace/model/types.ts';
 import { showErrorMessage } from '@/shared/utils';
+import _ from 'lodash';
 
 interface IProps {
   nsId: string;
@@ -108,14 +109,14 @@ watch(
   <div>
     <p-data-table
       :fields="detailTableModel.tableState.fields"
-      :data="detailTableModel.tableState.data"
+      :items="detailTableModel.tableState.data"
       :loading="
         detailTableModel.tableState.loading ||
         resGetLoadTestResourceMetric.isLoading.value
       "
       block
-      >>
-
+      class="min-h-0"
+    >
       <template #extra="{ name }">
         <div v-if="name === 'loadStatus'">
           <p-button
