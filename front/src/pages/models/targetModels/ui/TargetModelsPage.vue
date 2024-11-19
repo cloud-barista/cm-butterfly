@@ -155,9 +155,12 @@ function handleUpdateTargetModel(e) {
       <workflow-editor
         v-if="modalStates.workflowEditorModal.open"
         :target-model-name="targetModelName"
-        @update:close-modal="modalStates.workflowEditorModal.open = false"
         tool-type="add"
         wft-id=""
+        :targetModel="
+          targetModelStore.getTargetModelById(selectedTargetModelId)
+        "
+        @update:close-modal="modalStates.workflowEditorModal.open = false"
       />
     </div>
   </div>

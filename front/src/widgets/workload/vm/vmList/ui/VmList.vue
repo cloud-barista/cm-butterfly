@@ -16,6 +16,8 @@ import { IVm } from '@/entities/mci/model';
 import VmInformation from '@/widgets/workload/vm/vmInformation/ui/VmInformation.vue';
 import VmEvaluatePerf from '@/widgets/workload/vm/vmEvaluatePerf/ui/VmEvaluatePerf.vue';
 import { useGetLastLoadTestState } from '@/entities/vm/api/api.ts';
+import LoadTestMetric from '@/features/workload/vmEvaluatePerf/ui/LoadTestResourceMetric.vue';
+import { useGetMciInfo } from '@/entities/mci/api';
 
 interface IProps {
   nsId: string;
@@ -25,6 +27,7 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['selectCard']);
 const resLoadStatus = useGetLastLoadTestState(null);
+const resGetMci = useGetMciInfo(null);
 const selectedVm = ref<IVm | null>(null);
 const { mciStore, initToolBoxTableModel, vmListTableModel, setMci } =
   useVmListModel();
@@ -68,11 +71,8 @@ const vmDetailTabState = reactive({
 
 watch(
   () => props.mciId,
-  () => {
-    console.log(props.mciId);
-    setMci(props.mciId);
-    vmListTableModel.tableState.selectIndex = [];
-    selectedVm.value = null;
+  async () => {
+    await handleMciIdChange();
   },
   { immediate: true },
 );
@@ -80,6 +80,33 @@ watch(
 onMounted(() => {
   initToolBoxTableModel();
 });
+
+async function getMciInfo() {
+  return resGetMci
+    .execute({
+      pathParams: {
+        nsId: props.nsId,
+        mciId: props.mciId,
+      },
+    })
+    .then(res => {
+      if (res.data.responseData) {
+        mciStore.setMci(res.data.responseData);
+      }
+    })
+    .catch(e => {
+      showErrorMessage(e, e.errorMsg.value);
+    });
+}
+
+async function handleMciIdChange() {
+  vmListTableModel.tableState.loading = true;
+  await getMciInfo();
+  setMci(props.mciId);
+  vmListTableModel.tableState.selectIndex = [];
+  selectedVm.value = null;
+  vmListTableModel.tableState.loading = false;
+}
 
 function setVmLoadTestResult() {
   if (selectedVm.value === null) return;
@@ -107,7 +134,6 @@ function setVmLoadTestResult() {
 }
 
 function handleCardClick(value: any) {
-  console.log(value);
   if (value && value.name) {
     emit('selectCard', value.originalData.id);
     selectedVm.value = value.originalData;
@@ -149,8 +175,11 @@ function handleLoadConfigSuccessClose() {
         :total-count="vmListTableModel.tableState.tableCount"
         :page-size="vmListTableModel.tableOptions.pageSize"
         :search-type="vmListTableModel.tableOptions.searchType"
+        :loading="
+          vmListTableModel.tableState.loading || resLoadStatus.isLoading.value
+        "
         @change="vmListTableModel.handleChange"
-        @refresh="() => {}"
+        @refresh="handleMciIdChange"
       >
         <template #left-area>
           <p-button
@@ -216,6 +245,9 @@ function handleLoadConfigSuccessClose() {
         <template #evaluatePref>
           <VmEvaluatePerf
             :loading="resLoadStatus.isLoading"
+            :mciId="mciId"
+            :nsId="nsId"
+            :vmId="selectedVm.id"
             @openLoadconfig="handleLoadStatus"
           ></VmEvaluatePerf>
         </template>

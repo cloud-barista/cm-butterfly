@@ -13,7 +13,6 @@ export function useVmListModel() {
   }
 
   function getVmList() {
-    console.log(targetMci);
     return targetMci.value?.vm ?? [];
   }
 

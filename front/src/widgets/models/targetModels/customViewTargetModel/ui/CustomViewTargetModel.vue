@@ -31,6 +31,7 @@ const modalState = reactive({
 const targetModelStore = useTargetModelStore();
 const targetModel = ref<ITargetModelResponse | undefined>(undefined);
 const resCreateTargetModel = createTargetModel(null);
+const cloudInfraModelCode = ref<string>('');
 
 watch(
   () => props.selectedTargetId,
@@ -38,6 +39,8 @@ watch(
     targetModel.value = targetModelStore.getTargetModelById(
       props.selectedTargetId,
     );
+    cloudInfraModelCode.value =
+      <string>targetModel.value?.cloudInfraModel || '';
   },
   { immediate: true },
 );
@@ -45,11 +48,25 @@ watch(
 function handleCreateTargetModel(e) {
   modalState.context.name = e.name;
   modalState.context.description = e.description;
-  const requestBody = Object.assign(targetModel.value, {
-    userModelName: e.name,
-    description: e.description,
-    isInitUserModel: false,
-  });
+  let requestBody: any = {};
+
+  try {
+    requestBody = {
+      cloudInfraModel: JSON.parse(cloudInfraModelCode.value),
+      csp: targetModel.value?.csp ?? '',
+      description: e.description,
+      isInitUserModel: false,
+      isTargetModel: true,
+      region: targetModel.value?.region ?? '',
+      userId: targetModel.value?.userId ?? '',
+      userModelName: e.name,
+      userModelVersion: targetModel.value?.userModelVersion ?? '',
+      zone: targetModel.value?.zone ?? '',
+    };
+  } catch (e) {
+    showErrorMessage('error', e);
+    return;
+  }
 
   resCreateTargetModel
     .execute({
@@ -59,10 +76,14 @@ function handleCreateTargetModel(e) {
     .then(res => {
       showSuccessMessage('success', 'Successfully Create target model');
       emit('update:trigger');
+      modalState.open = false;
     })
     .catch(e => {
       showErrorMessage('error', e.errorMsg);
     });
+}
+function handleCodeUpdate(value: string) {
+  cloudInfraModelCode.value = value;
 }
 </script>
 
@@ -77,7 +98,11 @@ function handleCreateTargetModel(e) {
       @update:modal-state="$emit('update:close-modal', false)"
     >
       <template #add-info>
-        <p-text-editor :code="targetModel?.cloudInfraModel" :read-only="true" />
+        <p-text-editor
+          :code="cloudInfraModelCode"
+          :read-only="false"
+          @update:code="handleCodeUpdate"
+        />
       </template>
       <template #buttons>
         <p-button
@@ -91,7 +116,7 @@ function handleCreateTargetModel(e) {
     </create-form>
     <simple-edit-form
       v-if="modalState.open"
-      header-title="Save Target Model"
+      header-title="Save new custom target model "
       :name="modalState.context.name"
       :description="modalState.context.description"
       name-label="Name"

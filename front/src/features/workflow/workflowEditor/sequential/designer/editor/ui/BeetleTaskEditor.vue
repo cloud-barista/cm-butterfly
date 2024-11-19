@@ -24,7 +24,7 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['saveContext', 'saveFixedModel']);
 const taskEditorModel = useTaskEditorModel();
-console.log(props);
+console.log(JSON.parse(JSON.stringify(props)));
 const shortCutModel = ref({
   open: false,
   xPos: 0,
@@ -203,7 +203,10 @@ function handleClickOutside(event: MouseEvent) {
         </div>
       </div>
       <div
-        v-if="currentContext.type === 'accordion'"
+        v-if="
+          currentContext.type === 'accordion' &&
+          currentContext.originalData.length !== 0
+        "
         class="accordion-part w-full h-full"
       >
         <div class="subject-title border-bottom">

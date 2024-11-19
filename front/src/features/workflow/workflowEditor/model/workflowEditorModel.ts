@@ -143,7 +143,6 @@ export function useWorkflowToolModel() {
         }
       }
     }
-    console.log(fixedModel);
     return fixedModel;
   }
 
@@ -169,7 +168,6 @@ export function useWorkflowToolModel() {
     if (!validationSequence(sequence)) {
       throw new Error('task must have at least one taskGroup as its parent.');
     }
-
     const cicadaObject: ITaskGroupResponse[] = [];
 
     const stack: {
@@ -181,7 +179,7 @@ export function useWorkflowToolModel() {
     }));
 
     while (stack.length) {
-      const { parentNode, currentNode } = stack.pop()!;
+      const { parentNode, currentNode } = stack.shift()!;
 
       const taskGroup: ITaskGroupResponse = {
         description: '',
@@ -213,7 +211,7 @@ export function useWorkflowToolModel() {
         parentNode.task_groups.push(taskGroup);
       }
     }
-
+    console.log(cicadaObject);
     return cicadaObject;
   }
 
@@ -261,7 +259,6 @@ export function useWorkflowToolModel() {
   }
 
   function designerFormDataReordering(sequence: Step[]) {
-    console.log(sequence);
     const newSequence: Step[] = [];
     const taskGroupQueue: Step[] = [];
 
@@ -324,8 +321,11 @@ export function useWorkflowToolModel() {
   return {
     workflowStore,
     dropDownModel,
+    taskComponentList,
+    toolboxSteps,
     setTaskComponent,
     setDropDownData,
+    convertToDesignerTask,
     getWorkflowTemplateData,
     getWorkflowData,
     convertCicadaToDesignerFormData,

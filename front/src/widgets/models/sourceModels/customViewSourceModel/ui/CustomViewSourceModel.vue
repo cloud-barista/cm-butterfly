@@ -33,6 +33,7 @@ const modalState = reactive({
 const sourceModelStore = useSourceModelStore();
 const targetModel = ref<ISourceModelResponse | undefined>(undefined);
 const resCreateSourceModel = useCreateOnpremmodel(null);
+const serverCode = ref<string>('');
 
 watch(
   () => props.sourceModelId,
@@ -40,6 +41,8 @@ watch(
     targetModel.value = sourceModelStore.getSourceModelById(
       props.sourceModelId,
     );
+    serverCode.value =
+      <string>targetModel.value?.onpremiseInfraModel.servers || '';
   },
   { immediate: true },
 );
@@ -60,8 +63,14 @@ function handleSaveModal(e) {
     userModelName: e.name,
     description: e.description,
     isInitUserModel: false,
+    onpremiseInfraModel: {
+      ...targetModel.value?.onpremiseInfraModel,
+      servers: JSON.parse(serverCode.value),
+    },
   });
 
+  console.log(requestBody);
+  console.log(targetModel.value);
   resCreateSourceModel
     .execute({
       request: requestBody,
@@ -76,6 +85,10 @@ function handleSaveModal(e) {
       showErrorMessage('error', e.errorMsg);
     });
 }
+
+function handleCodeUpdate(value: string) {
+  serverCode.value = value;
+}
 </script>
 
 <template>
@@ -89,10 +102,7 @@ function handleSaveModal(e) {
       @update:modal-state="handleModal"
     >
       <template #add-info>
-        <p-text-editor
-          :code="targetModel?.onpremiseInfraModel.servers"
-          :read-only="true"
-        />
+        <p-text-editor :code="serverCode" @update:code="handleCodeUpdate" />
       </template>
       <template #buttons>
         <p-button style-type="tertiary" @click="handleModal">
@@ -105,7 +115,7 @@ function handleSaveModal(e) {
     </create-form>
     <simple-edit-form
       v-if="modalState.open"
-      header-title="Save Source Model"
+      header-title="Save new custom Source model"
       name=""
       name-label="Model Name"
       name-placeholder="Model Name"

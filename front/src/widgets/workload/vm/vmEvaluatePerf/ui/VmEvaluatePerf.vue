@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { PButton, PDataLoader } from '@cloudforet-test/mirinae';
 import { Ref } from 'vue';
+import LoadTestEvaluationMetric from '@/features/workload/vmEvaluatePerf/ui/LoadTestEvaluationMetric.vue';
+import LoadTestResourceMetric from '@/features/workload/vmEvaluatePerf/ui/LoadTestResourceMetric.vue';
+import LoadTestAggregationTable from '@/features/workload/vmEvaluatePerf/ui/LoadTestAggregationTable.vue';
 interface IProps {
+  mciId: string;
+  nsId: string;
+  vmId: string;
   loading: Ref<boolean>;
 }
 
@@ -27,11 +33,35 @@ const emit = defineEmits(['openLoadconfig']);
         </p-button>
       </div>
     </div>
-    <div class="flex flex-col gap-2">
-      <p-data-loader :data="false" :loading="false" class="chart w-full">
-      </p-data-loader>
-      <p-data-loader :data="false" :loading="false" class="chart w-full">
-      </p-data-loader>
+    <div class="flex flex-col gap-4">
+      <div class="font-bold text-2xl">
+        Aggregation Table
+        <LoadTestAggregationTable
+          :mciId="mciId"
+          :nsId="nsId"
+          :vmId="vmId"
+        ></LoadTestAggregationTable>
+      </div>
+      <div class="chart w-full">
+        <div class="font-bold text-2xl">Result metric</div>
+        <div class="h-[calc(100%-2rem)]">
+          <LoadTestEvaluationMetric
+            :mciId="mciId"
+            :nsId="nsId"
+            :vmId="vmId"
+          ></LoadTestEvaluationMetric>
+        </div>
+      </div>
+      <div class="chart w-full font-bold text-2xl">
+        <div class="font-bold text-2xl">Resource Metric</div>
+        <div class="h-[calc(100%-2rem)]">
+          <LoadTestResourceMetric
+            :mciId="mciId"
+            :nsId="nsId"
+            :vmId="vmId"
+          ></LoadTestResourceMetric>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -59,7 +89,7 @@ const emit = defineEmits(['openLoadconfig']);
 
 .chart {
   @apply border-gray-200 border;
-  height: 280px;
+  height: 500px;
   border-radius: 4px 0px 0px 0px;
 }
 </style>
