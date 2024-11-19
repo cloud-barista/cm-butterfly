@@ -24,7 +24,7 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['saveContext', 'saveFixedModel']);
 const taskEditorModel = useTaskEditorModel();
-console.log(props);
+console.log(JSON.parse(JSON.stringify(props)));
 const shortCutModel = ref({
   open: false,
   xPos: 0,

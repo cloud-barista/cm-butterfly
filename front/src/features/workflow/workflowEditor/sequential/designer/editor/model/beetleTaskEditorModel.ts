@@ -108,7 +108,11 @@ export function useTaskEditorModel() {
       },
       content: Object.entries(object).map(
         ([key, value]: [key: string, value: string]) => {
-          return loadInputContext(key, value);
+          if (typeof value === 'string') {
+            return loadInputContext(key, value);
+          } else {
+            return loadInputContext(key, '');
+          }
         },
       ),
     };
@@ -166,6 +170,8 @@ export function useTaskEditorModel() {
               },
               index,
             });
+          } else {
+            context[0].context.values.push(loadInputContext(key, ''));
           }
         },
       );
