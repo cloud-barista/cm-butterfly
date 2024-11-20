@@ -73,6 +73,7 @@ export function useTaskEditorModel() {
     path_params: PathParamsModel;
     query_params: QueryParamsModel;
   }>();
+  const componentNameModel = ref();
 
   function loadInputContext(
     key: string,
@@ -116,6 +117,10 @@ export function useTaskEditorModel() {
         },
       ),
     };
+  }
+
+  function setComponentName(name: string) {
+    componentNameModel.value = loadInputContext('name', name);
   }
 
   function setParamsContext(fixedModel: fixedModel) {
@@ -313,8 +318,10 @@ export function useTaskEditorModel() {
   }
 
   return {
+    componentNameModel,
     formContext,
     paramsContext,
+    setComponentName,
     setParamsContext,
     setFormContext,
     convertFormModelToStepProperties,

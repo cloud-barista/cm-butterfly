@@ -35,6 +35,10 @@ export function editorProviders() {
           BeetleTaskEditor,
           { step },
           {
+            saveComponentName: e => {
+              step.name = e;
+              stepContext.notifyNameChanged();
+            },
             saveContext: e => {
               step.properties.model = e;
               stepContext.notifyPropertiesChanged();
