@@ -2,12 +2,13 @@
 import { useVmInformationModel } from '@/widgets/workload/vm/vmInformation/model';
 import { PBadge, PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
 import { onBeforeMount, onMounted, reactive, Ref, watch } from 'vue';
+import { ILastloadtestStateResponse } from '@/entities/mci/model';
 
 interface IProps {
   nsId: string;
   mciId: string;
   vmId: string;
-  loading: Ref<boolean>;
+  lastloadtestStateResponse?: ILastloadtestStateResponse;
 }
 
 const props = defineProps<IProps>();
@@ -21,23 +22,26 @@ const {
   setMci,
   mciStore,
   remappingData,
+  mappdingLoadConfigStatus,
 } = useVmInformationModel();
 
 onBeforeMount(() => {
   initTable();
+  setMci(props.mciId);
+  setVmId(props.vmId);
 });
 
 watch(
   props,
   nv => {
-    setMci(props.mciId);
-    setVmId(props.vmId);
+    remappingData();
+
+    if (nv.lastloadtestStateResponse?.executionStatus) {
+      mappdingLoadConfigStatus(nv.lastloadtestStateResponse.executionStatus);
+    }
   },
-  { immediate: true, deep: true },
+  { deep: true },
 );
-watch(props.loading, () => {
-  remappingData();
-});
 </script>
 
 <template>
@@ -45,7 +49,7 @@ watch(props.loading, () => {
     <p-definition-table
       :fields="detailTableModel.tableState.fields"
       :data="detailTableModel.tableState.data"
-      :loading="detailTableModel.tableState.loading || loading.value"
+      :loading="detailTableModel.tableState.loading"
       block
     >
       <template #extra="{ name }">

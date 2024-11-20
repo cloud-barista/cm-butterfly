@@ -90,15 +90,13 @@ watch(
           ].map((item: ILoadTestResultAggregateResponse) =>
             organizeDefineTableData(item),
           );
-
-          console.log(
-            JSON.parse(JSON.stringify(detailTableModel.tableState.data)),
-          );
-          detailTableModel.tableState.loading = false;
         }
       })
       .catch(e => {
         showErrorMessage('error', e.errorMsg.value);
+      })
+      .finally(() => {
+        detailTableModel.tableState.loading = false;
       });
   },
   { immediate: true, deep: true },
@@ -115,7 +113,7 @@ watch(
         resGetLoadTestResourceMetric.isLoading.value
       "
       block
-      class="min-h-0"
+      class="min-h-5"
     >
       <template #extra="{ name }">
         <div v-if="name === 'loadStatus'">

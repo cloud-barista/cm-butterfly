@@ -76,7 +76,6 @@ export function useVmInformationModel() {
 
     targetVm.value = targetMci.value?.vm.find(vm => vm.id === vmId);
     console.log(targetVm);
-
     try {
       if (targetVm.value) {
         data = organizeVmDefineTableData(targetVm.value);
@@ -93,6 +92,15 @@ export function useVmInformationModel() {
       detailTableModel.tableState.loading = true;
       detailTableModel.tableState.data = setDefineTableData(targetVmId.value);
       detailTableModel.tableState.loading = false;
+    }
+  }
+
+  function mappdingLoadConfigStatus(executionStatus: string) {
+    if (targetVmId.value) {
+      detailTableModel.tableState.loading = true;
+      detailTableModel.tableState.data = setDefineTableData(targetVmId.value);
+      detailTableModel.tableState.loading = false;
+      detailTableModel.tableState.data.loadStatus = executionStatus;
     }
   }
 
@@ -115,5 +123,6 @@ export function useVmInformationModel() {
     setMci,
     mciStore,
     remappingData,
+    mappdingLoadConfigStatus,
   };
 }

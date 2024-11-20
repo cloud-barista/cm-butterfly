@@ -126,6 +126,7 @@ function setVmLoadTestResult() {
           selectedVm.value!.id,
           res.data.responseData.result,
         );
+        console.log(mciStore.getMciById(props.mciId));
       }
     })
     .catch(e => {
@@ -232,6 +233,9 @@ function handleLoadConfigSuccessClose() {
             :nsId="nsId"
             :vmId="selectedVm.id"
             :loading="resLoadStatus.isLoading"
+            :lastloadtest-state-response="
+              resLoadStatus.data.value?.responseData?.result
+            "
             @openLoadconfig="handleLoadStatus"
           >
           </VmInformation>

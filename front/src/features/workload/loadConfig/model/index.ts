@@ -52,7 +52,7 @@ export function useLoadConfigModel() {
     scenarioName: useInputModel<string>('', validateFunc),
     targetHostName: useInputModel<string>('', validateFunc),
     port: useInputModel<string>('80', e => validateNumberFunc(e, 65532)),
-    path: useInputModel<string>('', validateFunc),
+    path: useInputModel<string>(''),
     bodyData: useInputModel<string>(''),
     virtualUsers: useInputModel<string>('', e => validateNumberFunc(e, 100)),
     testDuration: useInputModel<string>('', e => validateNumberFunc(e, 300)),
