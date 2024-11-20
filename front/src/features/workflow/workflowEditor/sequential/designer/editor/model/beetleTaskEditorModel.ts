@@ -107,15 +107,13 @@ export function useTaskEditorModel() {
         icon: 'ic_chevron-down',
         title: index.toString(),
       },
-      content: Object.entries(object).map(
-        ([key, value]: [key: string, value: string]) => {
-          if (typeof value === 'string') {
-            return loadInputContext(key, value);
-          } else {
-            return loadInputContext(key, '');
-          }
-        },
-      ),
+      content: Object.entries(object)
+        .filter(([key, value]: [key: string, value: any]) => {
+          return typeof value === 'string';
+        })
+        .map(([key, value]: [key: string, value: string]) => {
+          return loadInputContext(key, value);
+        }),
     };
   }
 
@@ -175,8 +173,6 @@ export function useTaskEditorModel() {
               },
               index,
             });
-          } else {
-            context[0].context.values.push(loadInputContext(key, ''));
           }
         },
       );
