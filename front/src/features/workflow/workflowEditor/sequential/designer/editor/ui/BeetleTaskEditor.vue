@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { PButton, PIconButton, PTextInput } from '@cloudforet-test/mirinae';
 import Vue, {
+  onBeforeMount,
   onBeforeUnmount,
   onMounted,
   onUnmounted,
@@ -22,7 +23,11 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['saveContext', 'saveFixedModel']);
+const emit = defineEmits([
+  'saveComponentName',
+  'saveContext',
+  'saveFixedModel',
+]);
 const taskEditorModel = useTaskEditorModel();
 console.log(props);
 const shortCutModel = ref({
@@ -37,11 +42,14 @@ const shortCutModel = ref({
 const editorFormElement = ref(null);
 let shortCut;
 
-onMounted(() => {
+onBeforeMount(() => {
   taskEditorModel.setFormContext(props.step.properties.model ?? '');
   if (props.step.properties.fixedModel) {
     taskEditorModel.setParamsContext(props.step.properties.fixedModel);
   }
+
+  taskEditorModel.setComponentName(props.step.name);
+
   document.addEventListener('click', handleClickOutside);
 });
 
@@ -50,12 +58,23 @@ onBeforeUnmount(() => {
 });
 
 watch(
+  taskEditorModel.componentNameModel,
+  nv => {
+    if (nv.context.model.value !== '') {
+      emit('saveComponentName', nv.context.model.value);
+    }
+  },
+  { deep: true },
+);
+
+watch(
   taskEditorModel.formContext,
   nv => {
     emit('saveContext', taskEditorModel.convertFormModelToStepProperties());
   },
   { deep: true },
 );
+
 watch(
   taskEditorModel.paramsContext,
   () => {
@@ -118,6 +137,23 @@ function handleClickOutside(event: MouseEvent) {
       }
     "
   >
+    <div class="step-name-box w-full">
+      <div class="subject-title border-bottom">Component Name</div>
+      <div class="field-group flex border-bottom">
+        <div class="field-title-box">
+          {{ taskEditorModel.componentNameModel.value.context.title }}
+        </div>
+        <div class="field-content-box">
+          <p-text-input
+            v-model="
+              taskEditorModel.componentNameModel.value.context.model.value
+            "
+            :size="'md'"
+            block
+          ></p-text-input>
+        </div>
+      </div>
+    </div>
     <div
       v-for="(currentParams, index) of taskEditorModel.paramsContext.value"
       :key="index"
