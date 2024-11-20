@@ -134,8 +134,6 @@ function createTimeSeriesChart(
     });
     chart.value.setOption(option);
     window.addEventListener('resize', () => chart.value?.resize());
-  } else {
-    showErrorMessage('error', 'chart container is null');
   }
 }
 </script>
