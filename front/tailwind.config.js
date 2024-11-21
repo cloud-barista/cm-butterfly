@@ -9,14 +9,7 @@ export default {
       2: '2 2 0%',
     },
     ...mirinaeTailwind.theme,
-    // your customized theme
   },
-  variants: [
-    ...mirinaeTailwind.variants,
-    //   // your customized variants
-  ],
-  plugins: [
-    ...mirinaeTailwind.plugins,
-    // your customized plugins
-  ],
+  variants: [...mirinaeTailwind.variants],
+  plugins: [...mirinaeTailwind.plugins],
 };
