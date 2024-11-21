@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { PButton, PDataLoader } from '@cloudforet-test/mirinae';
 import { Ref } from 'vue';
-import LoadTestEvaluationMetric from '@/features/workload/vmEvaluatePerf/ui/LoadTestEvaluationMetric.vue';
-import LoadTestResourceMetric from '@/features/workload/vmEvaluatePerf/ui/LoadTestResourceMetric.vue';
-import LoadTestAggregationTable from '@/features/workload/vmEvaluatePerf/ui/LoadTestAggregationTable.vue';
+import LoadTestEvaluationMetric from '@/widgets/workload/vm/vmEvaluatePerf/ui/LoadTestEvaluationMetric.vue';
+import LoadTestResourceMetric from '@/widgets/workload/vm/vmEvaluatePerf/ui/LoadTestResourceMetric.vue';
+import LoadTestAggregationTable from '@/widgets/workload/vm/vmEvaluatePerf/ui/LoadTestAggregationTable.vue';
 interface IProps {
   mciId: string;
   nsId: string;

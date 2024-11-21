@@ -5,7 +5,7 @@ import { reactive, ref, watchEffect } from 'vue';
 import { UpdateSourceService } from '@/features/sourceServices';
 import { useRegisterSourceGroup } from '@/entities/sourceService/api';
 import { showSuccessMessage, showErrorMessage } from '@/shared/utils';
-import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
+import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores.ts';
 import { useSourceServiceStore } from '@/shared/libs';
 import { storeToRefs } from 'pinia';
 

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { JsonViewer } from '@/widgets/sourceServices';
 import CreateForm from '@/widgets/layout/createForm/ui/CreateForm.vue';
 import { PButton } from '@cloudforet-test/mirinae';
 import { i18n } from '@/app/i18n';
@@ -9,6 +8,7 @@ import { AxiosResponse } from 'axios';
 import { IUseAxiosWrapperReturnType } from '@/shared/libs';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { useCreateOnpremmodel } from '@/entities';
+import JsonViewer from '@/features/sourceServices/jsonViewer/ui/JsonViewer.vue';
 
 interface iProps {
   collectData: string | undefined;
