@@ -13,7 +13,8 @@ export interface ISourceService {
   connectionCount: string | number;
   connectionIds: string[];
   // status: SourceServiceStatusType;
-  status: any;
+  status?: string;
+  infraModel?: IInfraSourceGroupResponse;
 }
 
 export interface ISourceAgentAndConnectionStatusResponse {
@@ -56,9 +57,19 @@ export interface ISourceServiceResponse {
   source_group: Array<ISourceServiceResponseElement>;
 }
 
+export type IInfraSourceGroupResponse = Array<IInfraConnectionData>;
+
+interface IInfraConnectionData {
+  connection_id: string;
+  infra_data: string;
+  saved_time: string;
+  status: string;
+}
+
 export type SourceServiceTableType =
   | 'name'
   | 'id'
   | 'description'
   | 'connectionCount'
-  | 'status';
+  | 'status'
+  | 'viewInfra';

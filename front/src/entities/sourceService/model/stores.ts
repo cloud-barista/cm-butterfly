@@ -4,6 +4,7 @@ import {
   ISourceServiceResponse,
   SourceServiceStatusType,
   ISourceServiceResponseElement,
+  IInfraSourceGroupResponse,
 } from '@/entities/sourceService/model/types.ts';
 import { defineStore } from 'pinia';
 
@@ -21,15 +22,7 @@ export const useSourceServiceStore = defineStore(NAMESPACE, () => {
       connectionCount:
         service.connection_info_status_count.connection_info_total,
       connectionIds: [],
-      status: 'S0004',
-      // status:
     }));
-  }
-
-  function setServiceWithConnectionStatus(
-    service: ISourceServiceResponseElement,
-  ) {
-    serviceWithStatus.value = service;
   }
 
   function getServiceById(serviceId: string) {
@@ -40,10 +33,22 @@ export const useSourceServiceStore = defineStore(NAMESPACE, () => {
     );
   }
 
-  function setServiceStatus(serviceId: string, status: any) {
-    const service = getServiceById(serviceId);
-    if (service) {
-      service.status = status;
+  function mappinginfraModel(
+    sgId: string,
+    infraSourceGroupResponse: IInfraSourceGroupResponse,
+  ) {
+    const sg = getServiceById(sgId);
+
+    if (sg) {
+      sg.infraModel = infraSourceGroupResponse;
+    }
+  }
+
+  function mappingSourceGroupStatus(sgId: string, status: string) {
+    const sg = getServiceById(sgId);
+
+    if (sg) {
+      sg.status = status;
     }
   }
 
@@ -52,7 +57,7 @@ export const useSourceServiceStore = defineStore(NAMESPACE, () => {
     serviceWithStatus,
     setService,
     getServiceById,
-    setServiceStatus,
-    setServiceWithConnectionStatus,
+    mappinginfraModel,
+    mappingSourceGroupStatus,
   };
 });

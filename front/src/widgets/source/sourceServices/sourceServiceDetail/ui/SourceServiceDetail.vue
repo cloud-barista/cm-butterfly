@@ -3,6 +3,7 @@ import { PDefinitionTable, PButton, PStatus } from '@cloudforet-test/mirinae';
 import { onBeforeMount, onMounted, ref, watch, watchEffect } from 'vue';
 import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
 import {
+  useGetInfraSourceGroup,
   useGetSourceGroupStatus,
   useGetSourceService,
 } from '@/entities/sourceService/api';
@@ -18,30 +19,25 @@ const props = defineProps<IProps>();
 
 const emit = defineEmits(['update:source-connection-name']);
 
-// loadSourceServiceData,
-const { sourceServiceStore, initTable, tableModel, setServiceId } =
-  useSourceServiceDetailModel();
+const {
+  sourceServiceStore,
+  initTable,
+  tableModel,
+  setServiceId,
+  loadSourceServiceData,
+  mappinginfraModel,
+  mappingSourceGroupStatus,
+} = useSourceServiceDetailModel();
 
-// const resGetSourceGroupStatus = useGetSourceGroupStatus(null); // deprecated
 const refreshSourceGroupConnectionInfoStatus =
   useRefreshSourceGroupConnectionInfoStatus(null);
 const getSourceService = useGetSourceService(null);
-// const { serviceWithStatus } = storeToRefs(sourceServiceStore);
+const resGetInfraSourceGroup = useGetInfraSourceGroup(null);
 
-watch(refreshSourceGroupConnectionInfoStatus.status, nv => {
-  if (nv === 'error') {
-    showErrorMessage(
-      'Error',
-      'Failed to check collector installation connection status',
-    );
-  } else if (nv === 'success') {
-    showSuccessMessage(
-      'Success',
-      'Successfully updated the collector installation and connection status.',
-    );
-  }
+onBeforeMount(() => {
+  initTable();
+  getSourceGroupInfras();
 });
-
 watch(
   props,
   () => {
@@ -50,12 +46,6 @@ watch(
   { immediate: true },
 );
 
-const checkAble = ref<boolean>(false);
-
-onBeforeMount(() => {
-  initTable();
-});
-
 watchEffect(() => {
   emit(
     'update:source-connection-name',
@@ -63,30 +53,24 @@ watchEffect(() => {
   );
 });
 
-async function getSourceServiceWithStatus() {
-  try {
-    const { data } = await getSourceService.execute({
+function getSourceGroupInfras() {
+  resGetInfraSourceGroup
+    .execute({
       pathParams: {
         sgId: props.selectedServiceId,
       },
-    });
-    if (data.status && data.status.code === 200) {
-      sourceServiceStore.setServiceWithConnectionStatus(data.responseData);
-    }
-  } catch (error) {
-    console.log(error);
-  }
+    })
+    .then(res => {
+      if (res.data.responseData) {
+        sourceServiceStore.mappinginfraModel(
+          props.selectedServiceId,
+          res.data.responseData,
+        );
+        loadSourceServiceData(props.selectedServiceId);
+      }
+    })
+    .catch();
 }
-
-watchEffect(() => {
-  getSourceServiceWithStatus();
-});
-
-/**
- * TODO: 문제점: refresh한다고해서 바로 반영이 되지 않음 -> 근데 connections에서 add / edit하면 바로 반영됨...
- * 뭔가 refresh btn의 의미가 없음....
- * 그렇다고
- */
 
 async function handleSourceGroupStatusRefresh() {
   try {
@@ -96,12 +80,17 @@ async function handleSourceGroupStatusRefresh() {
       },
     });
 
-    if (data.status && data.status.code === 200) {
-      // loadSourceServiceData(props.selectedServiceId);
-      getSourceServiceWithStatus();
+    if (data.responseData && data.responseData.message) {
+      sourceServiceStore.mappingSourceGroupStatus(
+        props.selectedServiceId,
+        data.responseData.message,
+      );
+
+      loadSourceServiceData(props.selectedServiceId);
+      console.log(tableModel.tableState.data);
     }
   } catch (err) {
-    console.log(err);
+    showErrorMessage('error', err.errorMsg.value);
   }
 }
 </script>

@@ -146,7 +146,7 @@ export function useRefreshSourceGroupConnectionInfoStatus(sgId: string | null) {
   };
 
   return useAxiosPost<
-    IAxiosResponse<any>,
+    IAxiosResponse<{ message: string }>,
     Required<Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>>
   >(REFRESH_SOURCE_GROUP_CONNECTION_INFO_STATUS, requestWrapper);
 }
