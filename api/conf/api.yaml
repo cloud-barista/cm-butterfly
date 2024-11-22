@@ -2,7 +2,7 @@ cliSpecVersion: v1
 # Service Definitions (Framework Server Basic informations)
 services:
   cb-spider: #service name
-    version: 0.9.8
+    version: 0.10.0
     baseurl: http://cb-spider:1024/spider # baseurl is Scheme + Host + Base Path
     auth: #If you need an authentication method, describe the type and username and password in the sub
       type: basic
@@ -10,7 +10,7 @@ services:
       password:
 
   cb-tumblebug:
-    version: 0.9.22
+    version: 0.10.0
     baseurl: http://cb-tumblebug:1323/tumblebug
     auth:
       type: basic
@@ -18,7 +18,7 @@ services:
       password: default
 
   cm-beetle:
-    version: 0.2.3
+    version: 0.3.0
     baseurl: http://cm-beetle:8056/beetle
     auth:
       type: basic
@@ -26,27 +26,27 @@ services:
       password: default
 
   cm-ant:
-    version: 0.2.5
+    version: 0.3.0
     baseurl: http://cm-ant:8880/ant
     auth:
 
   cm-honeybee:
-    version: 0.2.9
+    version: 0.3.0
     baseurl: http://cm-honeybee:8081/honeybee
     auth:
 
   cm-cicada:
-    version: 0.2.2
+    version: 0.3.0
     baseurl: http://cm-cicada:8083/cicada
     auth:
 
   cm-grasshopper:
-    version: main
+    version: 0.3.0
     baseurl: http://cm-grasshopper:8084/grasshopper
     auth:
 
   cm-damselfly:
-    version: 0.2.0
+    version: 0.3.0
     baseurl: http://cm-damselfly:8088/damselfly
     auth:
       type: basic
@@ -1407,6 +1407,22 @@ serviceActions:
       description: "Create or update a label for a resource identified by its uid"
 
   cm-beetle:
+    Deleteuser:
+      method: delete
+      resourcePath: /sample/users/{id}
+      description: "Delete a user with the given information."
+    Patchuser:
+      method: patch
+      resourcePath: /sample/users/{id}
+      description: "Patch a user with the given information."
+    Getuser:
+      method: get
+      resourcePath: /sample/users/{id}
+      description: "Get information of a user with a specific ID."
+    Updateuser:
+      method: put
+      resourcePath: /sample/users/{id}
+      description: "Update a user with the given information."
     Testtracing:
       method: get
       resourcePath: /test/tracing
@@ -1415,6 +1431,10 @@ serviceActions:
       method: get
       resourcePath: /httpVersion
       description: "Checks and logs the HTTP version of the incoming request to the server console."
+    Listinfra:
+      method: get
+      resourcePath: /migration/ns/{nsId}/mci
+      description: "Get the migrated multi-cloud infrastructure (MCI)"
     Migrateinfra:
       method: post
       resourcePath: /migration/ns/{nsId}/mci
@@ -1443,76 +1463,81 @@ serviceActions:
       method: post
       resourcePath: /sample/users
       description: "Create a new user with the given information."
-    Getuser:
-      method: get
-      resourcePath: /sample/users/{id}
-      description: "Get information of a user with a specific ID."
-    Updateuser:
-      method: put
-      resourcePath: /sample/users/{id}
-      description: "Update a user with the given information."
-    Deleteuser:
-      method: delete
-      resourcePath: /sample/users/{id}
-      description: "Delete a user with the given information."
-    Patchuser:
-      method: patch
-      resourcePath: /sample/users/{id}
-      description: "Patch a user with the given information."
+
 
   cm-ant:
-    Getloadtestexecutioninfo:
-      method: get
-      resourcePath: /api/v1/load/tests/infos/{loadTestKey}
-      description: "Retrieve the load test execution state information for a specific load test key."
-    Getloadtestresult:
-      method: get
-      resourcePath: /api/v1/load/tests/result
-      description: "Retrieve load test result based on provided parameters."
-    Updateestimateforecastcostraw:
-      method: post
-      resourcePath: /api/v1/cost/estimate/forecast/raw
-      description: "Update and retrieve raw forecasted cost estimates for specified cost resources and additional AWS information over the past 14 days."
-    Getallloadtestexecutioninfos:
-      method: get
-      resourcePath: /api/v1/load/tests/infos
-      description: "Retrieve a list of all load test execution information with pagination support."
-    Runloadtest:
-      method: post
-      resourcePath: /api/v1/load/tests/run
-      description: "Start a load test using the provided load test configuration."
-    Getallloadtestexecutionstate:
-      method: get
-      resourcePath: /api/v1/load/tests/state
-      description: "Retrieve a list of all load test execution states with pagination support."
-    Getlastloadtestexecutionstate:
-      method: get
-      resourcePath: /api/v1/load/tests/state/last
-      description: "Retrieve a last load test execution state by given ids."
-    Stoploadtest:
-      method: post
-      resourcePath: /api/v1/load/tests/stop
-      description: "Stop a running load test using the provided load test key."
-    Getallmonitoringagentinfos:
-      method: get
-      resourcePath: /api/v1/load/monitoring/agent
-      description: "Retrieve monitoring agent information based on specified criteria."
-    Getloadtestmetrics:
-      method: get
-      resourcePath: /api/v1/load/tests/result/metrics
-      description: "Retrieve load test metrics based on provided parameters."
-    Uninstallloadgenerator:
-      method: delete
-      resourcePath: /api/v1/load/generators/{loadGeneratorInstallInfoId}
-      description: "Uninstall a previously installed load generator."
-    Installmonitoringagent:
-      method: post
-      resourcePath: /api/v1/load/monitoring/agent/install
-      description: "Install a monitoring agent on specific mci."
     Getloadtestexecutionstate:
       method: get
       resourcePath: /api/v1/load/tests/state/{loadTestKey}
       description: "Retrieve a load test execution state by load test key."
+    Installloadgenerator:
+      method: post
+      resourcePath: /api/v1/load/generators
+      description: "Install a load generator either locally or remotely."
+    Getallloadgeneratorinstallinfo:
+      method: get
+      resourcePath: /api/v1/load/generators
+      description: "Retrieve a list of all installed load generators with pagination support."
+    Getallmonitoringagentinfos:
+      method: get
+      resourcePath: /api/v1/load/monitoring/agent
+      description: "Retrieve monitoring agent information based on specified criteria."
+    Getallloadtestexecutioninfos:
+      method: get
+      resourcePath: /api/v1/load/tests/infos
+      description: "Retrieve a list of all load test execution information with pagination support."
+    Getloadtestmetrics:
+      method: get
+      resourcePath: /api/v1/load/tests/result/metrics
+      description: "Retrieve load test metrics based on provided parameters."
+    Getallloadtestexecutionstate:
+      method: get
+      resourcePath: /api/v1/load/tests/state
+      description: "Retrieve a list of all load test execution states with pagination support."
+    Uninstallmonitoringagent:
+      method: post
+      resourcePath: /api/v1/load/monitoring/agent/uninstall
+      description: "Uninstall monitoring agents from specified VMs or all VMs in an mci."
+    Getloadtestresult:
+      method: get
+      resourcePath: /api/v1/load/tests/result
+      description: "Retrieve load test result based on provided parameters."
+    Getlastloadtestresult:
+      method: get
+      resourcePath: /api/v1/load/tests/result/last
+      description: "Retrieve last load test result based on provided parameters."
+    Getlastloadtestmetrics:
+      method: get
+      resourcePath: /api/v1/load/tests/result/metrics/last
+      description: "Retrieve last load test metrics based on provided parameters."
+    Stoploadtest:
+      method: post
+      resourcePath: /api/v1/load/tests/stop
+      description: "Stop a running load test using the provided load test key."
+    Antserverreadiness:
+      method: get
+      resourcePath: /readyz
+      description: "This endpoint checks if the CB-Ant API server is ready by verifying the status of both the load service and the cost service. If either service is unavailable, it returns a 503 status indicating the server is not ready."
+    Updateestimateforecastcostraw:
+      method: post
+      resourcePath: /api/v1/cost/estimate/forecast/raw
+      description: "Update and retrieve raw forecasted cost estimates for specified cost resources and additional AWS information over the past 14 days."
+    Uninstallloadgenerator:
+      method: delete
+      resourcePath: /api/v1/load/generators/{loadGeneratorInstallInfoId}
+      description: "Uninstall a previously installed load generator."
+    Getloadtestexecutioninfo:
+      method: get
+      resourcePath: /api/v1/load/tests/infos/{loadTestKey}
+      description: "Retrieve the load test execution state information for a specific load test key."
+    Runloadtest:
+      method: post
+      resourcePath: /api/v1/load/tests/run
+      description: "Start a load test using the provided load test configuration."
+    Getlastloadtestexecutionstate:
+      method: get
+      resourcePath: /api/v1/load/tests/state/last
+      description: "Retrieve a last load test execution state by given ids."
     Getestimatecost:
       method: get
       resourcePath: /api/v1/cost/estimate
@@ -1529,80 +1554,24 @@ serviceActions:
       method: post
       resourcePath: /api/v1/cost/estimate/forecast
       description: "Update and retrieve forecasted cost estimates for a specified namespace and migration configuration ID over the past 14 days."
-    Antserverreadiness:
-      method: get
-      resourcePath: /readyz
-      description: "This endpoint checks if the CB-Ant API server is ready by verifying the status of both the load service and the cost service. If either service is unavailable, it returns a 503 status indicating the server is not ready."
-    Getallloadgeneratorinstallinfo:
-      method: get
-      resourcePath: /api/v1/load/generators
-      description: "Retrieve a list of all installed load generators with pagination support."
-    Installloadgenerator:
+    Installmonitoringagent:
       method: post
-      resourcePath: /api/v1/load/generators
-      description: "Install a load generator either locally or remotely."
-    Uninstallmonitoringagent:
-      method: post
-      resourcePath: /api/v1/load/monitoring/agent/uninstall
-      description: "Uninstall monitoring agents from specified VMs or all VMs in an mci."
+      resourcePath: /api/v1/load/monitoring/agent/install
+      description: "Install a monitoring agent on specific mci."
 
   cm-honeybee:
-    Health-Check-Readyz:
-      method: get
-      resourcePath: /readyz
-      description: "Check Honeybee is ready"
-    Get-Software-Info:
-      method: get
-      resourcePath: /source_group/{sgId}/connection_info/{connId}/software
-      description: "Get the software information of the connection information."
-    Get-Infra-Info-Source-Group-Refined:
-      method: get
-      resourcePath: /source_group/{sgId}/infra/refined
-      description: "Get the refined infra information for all connections in the source group."
-    Get-Benchmark-Info:
-      method: get
-      resourcePath: /bench/{connId}
-      description: "Get the benchmark information of the connection information."
     Import-Helm:
       method: post
       resourcePath: /source_group/{sgId}/connection_info/{connId}/import/helm
       description: "Import the helm information."
-    Import-Infra-Source-Group:
-      method: post
-      resourcePath: /source_group/{sgId}/import/infra
-      description: "Import infra information for all connections in the source group."
-    Get-Software-Info-Source-Group:
+    Get-Helm-Info-Source-Group:
       method: get
-      resourcePath: /source_group/{sgId}/software
-      description: "Get the software information for all connections in the source group."
-    Stop-Benchmark:
-      method: post
-      resourcePath: /bench/{connId}/stop
-      description: "Stop the benchmark"
-    Get-Connection-Info-Directly:
+      resourcePath: /source_group/{sgId}/helm
+      description: "Get the helm information for all connections in the source group."
+    Get-Kubernetes-Info-Source-Group:
       method: get
-      resourcePath: /connection_info/{connId}
-      description: "Get the connection information directly."
-    Get-Source-Group:
-      method: get
-      resourcePath: /source_group/{sgId}
-      description: "Get the source group."
-    Update-Source-Group:
-      method: put
-      resourcePath: /source_group/{sgId}
-      description: "Update the source group."
-    Delete-Source-Group:
-      method: delete
-      resourcePath: /source_group/{sgId}
-      description: "Delete the source group."
-    List-Connection-Info:
-      method: get
-      resourcePath: /source_group/{sgId}/connection_info
-      description: "Get a list of connection information."
-    Create-Connection-Info:
-      method: post
-      resourcePath: /source_group/{sgId}/connection_info
-      description: "Create the connection information."
+      resourcePath: /source_group/{sgId}/kubernetes
+      description: "Get the kubernetes information for all connections in the source group."
     Get-Connection-Info:
       method: get
       resourcePath: /source_group/{sgId}/connection_info/{connId}
@@ -1615,46 +1584,110 @@ serviceActions:
       method: delete
       resourcePath: /source_group/{sgId}/connection_info/{connId}
       description: "Delete the connection information."
-    Get-Kubernetes-Info:
+    Get-Helm-Info:
       method: get
-      resourcePath: /source_group/{sgId}/connection_info/{connId}/kubernetes
-      description: "Get the kubernetes information of the connection information."
-    Get-Helm-Info-Source-Group:
-      method: get
-      resourcePath: /source_group/{sgId}/helm
-      description: "Get the helm information for all connections in the source group."
-    Get-Kubernetes-Info-Source-Group:
-      method: get
-      resourcePath: /source_group/{sgId}/kubernetes
-      description: "Get the kubernetes information for all connections in the source group."
-    Import-Kubernetes-Source-Group:
+      resourcePath: /source_group/{sgId}/connection_info/{connId}/helm
+      description: "Get the helm information of the connection information."
+    Import-Kubernetes:
       method: post
-      resourcePath: /source_group/{sgId}/import/kubernetes
-      description: "Import kubernetes information for all connections in the source group."
-    Import-Software-Source-Group:
+      resourcePath: /source_group/{sgId}/connection_info/{connId}/import/kubernetes
+      description: "Import the kubernetes information."
+    Get-Infra-Info:
+      method: get
+      resourcePath: /source_group/{sgId}/connection_info/{connId}/infra
+      description: "Get the infra information of the connection information."
+    Refresh-Connection-Info-Status:
+      method: put
+      resourcePath: /source_group/{sgId}/connection_info/{connId}/refresh
+      description: "Refresh the connection info status."
+    Get-Infra-Info-Source-Group-Refined:
+      method: get
+      resourcePath: /source_group/{sgId}/infra/refined
+      description: "Get the refined infra information for all connections in the source group."
+    Get-Software-Info-Source-Group:
+      method: get
+      resourcePath: /source_group/{sgId}/software
+      description: "Get the software information for all connections in the source group."
+    Get-Source-Group:
+      method: get
+      resourcePath: /source_group/{sgId}
+      description: "Get the source group."
+    Update-Source-Group:
+      method: put
+      resourcePath: /source_group/{sgId}
+      description: "Update the source group."
+    Delete-Source-Group:
+      method: delete
+      resourcePath: /source_group/{sgId}
+      description: "Delete the source group."
+    Import-Infra-Source-Group:
       method: post
-      resourcePath: /source_group/{sgId}/import/software
-      description: "Import software information for all connections in the source group."
+      resourcePath: /source_group/{sgId}/import/infra
+      description: "Import infra information for all connections in the source group."
     Get-Infra-Info-Source-Group:
       method: get
       resourcePath: /source_group/{sgId}/infra
       description: "Get the infra information for all connections in the source group."
+    Get-Benchmark-Info:
+      method: get
+      resourcePath: /bench/{connId}
+      description: "Get the benchmark information of the connection information."
+    Register-Target-To-Source-Group:
+      method: post
+      resourcePath: /source_group/{sgId}/target
+      description: "Register target information to the source group."
     Refresh-Source-Group-Connection-Info-Status:
       method: put
       resourcePath: /source_group/{sgId}/refresh
       description: "Refresh connection info status of the source group."
-    Import-Infra:
+    Get-Software-Info:
+      method: get
+      resourcePath: /source_group/{sgId}/connection_info/{connId}/software
+      description: "Get the software information of the connection information."
+    Import-Kubernetes-Source-Group:
       method: post
-      resourcePath: /source_group/{sgId}/connection_info/{connId}/import/infra
-      description: "Import the infra information."
+      resourcePath: /source_group/{sgId}/import/kubernetes
+      description: "Import kubernetes information for all connections in the source group."
+    Health-Check-Readyz:
+      method: get
+      resourcePath: /readyz
+      description: "Check Honeybee is ready"
+    List-Connection-Info:
+      method: get
+      resourcePath: /source_group/{sgId}/connection_info
+      description: "Get a list of connection information."
+    Create-Connection-Info:
+      method: post
+      resourcePath: /source_group/{sgId}/connection_info
+      description: "Create the connection information."
+    Import-Software:
+      method: post
+      resourcePath: /source_group/{sgId}/connection_info/{connId}/import/software
+      description: "Import the software information."
+    Stop-Benchmark:
+      method: post
+      resourcePath: /bench/{connId}/stop
+      description: "Stop the benchmark"
     Get-Infra-Info-Refined:
       method: get
       resourcePath: /source_group/{sgId}/connection_info/{connId}/infra/refined
       description: "Get the refined infra information of the connection information."
-    Import-Helm-Source-Group:
+    Import-Software-Source-Group:
       method: post
-      resourcePath: /source_group/{sgId}/import/helm
-      description: "Import helm information for all connections in the source group."
+      resourcePath: /source_group/{sgId}/import/software
+      description: "Import software information for all connections in the source group."
+    Import-Infra:
+      method: post
+      resourcePath: /source_group/{sgId}/connection_info/{connId}/import/infra
+      description: "Import the infra information."
+    Get-Connection-Info-Directly:
+      method: get
+      resourcePath: /connection_info/{connId}
+      description: "Get the connection information directly."
+    Refresh-Connection-Info-Status-Directly:
+      method: put
+      resourcePath: /connection_info/{connId}/refresh
+      description: "Refresh the connection info status directly."
     List-Source-Group:
       method: get
       resourcePath: /source_group
@@ -1663,60 +1696,20 @@ serviceActions:
       method: post
       resourcePath: /source_group
       description: "Register the source group."
-    Import-Kubernetes:
+    Get-Kubernetes-Info:
+      method: get
+      resourcePath: /source_group/{sgId}/connection_info/{connId}/kubernetes
+      description: "Get the kubernetes information of the connection information."
+    Import-Helm-Source-Group:
       method: post
-      resourcePath: /source_group/{sgId}/connection_info/{connId}/import/kubernetes
-      description: "Import the kubernetes information."
+      resourcePath: /source_group/{sgId}/import/helm
+      description: "Import helm information for all connections in the source group."
     Run-Benchmark-Info:
       method: post
       resourcePath: /bench/{connId}/run
       description: "Run the benchmark information of the connection information. If no Benchmark Agent is present on the connected server, it will be automatically installed, and the benchmark will be executed."
-    Get-Helm-Info:
-      method: get
-      resourcePath: /source_group/{sgId}/connection_info/{connId}/helm
-      description: "Get the helm information of the connection information."
-    Import-Software:
-      method: post
-      resourcePath: /source_group/{sgId}/connection_info/{connId}/import/software
-      description: "Import the software information."
-    Get-Infra-Info:
-      method: get
-      resourcePath: /source_group/{sgId}/connection_info/{connId}/infra
-      description: "Get the infra information of the connection information."
-    Register-Target-To-Source-Group:
-      method: post
-      resourcePath: /source_group/{sgId}/target
-      description: "Register target information to the source group."
 
   cm-cicada:
-    List-Task-Component:
-      method: get
-      resourcePath: /task_component
-      description: "Get a list of task component."
-    Create-Task-Component:
-      method: post
-      resourcePath: /task_component
-      description: "Register the task component."
-    List-Workflow:
-      method: get
-      resourcePath: /workflow
-      description: "Get a workflow list."
-    Create-Workflow:
-      method: post
-      resourcePath: /workflow
-      description: "Create a workflow."
-    Get-Workflow-By-Name:
-      method: get
-      resourcePath: /workflow/name/{wfName}
-      description: "Get the workflow by name."
-    Get-Event-Logs:
-      method: get
-      resourcePath: /workflow/{wfId}/eventlogs
-      description: "Get Eventlog."
-    Get-Task-Instances:
-      method: get
-      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/taskInstances
-      description: "Get the task Logs."
     Get-Task-Directly:
       method: get
       resourcePath: /task/{taskId}
@@ -1725,70 +1718,6 @@ serviceActions:
       method: get
       resourcePath: /task_component/name/{tcName}
       description: "Get the task component by name."
-    Get-Workflow-Runs:
-      method: get
-      resourcePath: /workflow/{wfId}/runs
-      description: "Get the task Logs."
-    Get-Task-Group:
-      method: get
-      resourcePath: /workflow/{wfId}/task_group/{tgId}
-      description: "Get the task group."
-    Clear-Task-Instances:
-      method: post
-      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/clear
-      description: "Clear the task Instance."
-    Get-Task-Logs:
-      method: get
-      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/taskTryNum/{taskTyNum}/logs
-      description: "Get the task Logs."
-    Get-Workflow-Template-By-Name:
-      method: get
-      resourcePath: /workflow_template/name/{wfName}
-      description: "Get the workflow template by name."
-    Get-Workflow-Template:
-      method: get
-      resourcePath: /workflow_template/{wftId}
-      description: "Get the workflow template."
-    Get-Import-Errors:
-      method: get
-      resourcePath: /importErrors
-      description: "Get the importErrors."
-    Get-Task-Group-Directly:
-      method: get
-      resourcePath: /task_group/{tgId}
-      description: "Get the task group directly."
-    Get-Workflow:
-      method: get
-      resourcePath: /workflow/{wfId}
-      description: "Get the workflow."
-    Update-Workflow:
-      method: put
-      resourcePath: /workflow/{wfId}
-      description: "Update the workflow content."
-    Delete-Workflow:
-      method: delete
-      resourcePath: /workflow/{wfId}
-      description: "Delete the workflow."
-    Run-Workflow:
-      method: post
-      resourcePath: /workflow/{wfId}/run
-      description: "Run the workflow."
-    List-Task:
-      method: get
-      resourcePath: /workflow/{wfId}/task
-      description: "Get a task list of the workflow."
-    List-Task-From-Task-Group:
-      method: get
-      resourcePath: /workflow/{wfId}/task_group/{tgId}/task
-      description: "Get a task list from the task group."
-    List-Workflow-Template:
-      method: get
-      resourcePath: /workflow_template
-      description: "Get a list of workflow template."
-    Health-Check-Readyz:
-      method: get
-      resourcePath: /readyz
-      description: "Check Cicada is ready"
     Get-Task-Component:
       method: get
       resourcePath: /task_component/{tcId}
@@ -1801,40 +1730,148 @@ serviceActions:
       method: delete
       resourcePath: /task_component/{tcId}
       description: "Delete the task component."
+    Get-Task-Logs:
+      method: get
+      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/taskTryNum/{taskTyNum}/logs
+      description: "Get the task Logs."
+    List-Workflow-Template:
+      method: get
+      resourcePath: /workflow_template
+      description: "Get a list of workflow template."
+    Get-Import-Errors:
+      method: get
+      resourcePath: /importErrors
+      description: "Get the importErrors."
+    List-Workflow:
+      method: get
+      resourcePath: /workflow
+      description: "Get a workflow list."
+    Create-Workflow:
+      method: post
+      resourcePath: /workflow
+      description: "Create a workflow."
+    Get-Workflow-By-Name:
+      method: get
+      resourcePath: /workflow/name/{wfName}
+      description: "Get the workflow by name."
+    List-Task-From-Task-Group:
+      method: get
+      resourcePath: /workflow/{wfId}/task_group/{tgId}/task
+      description: "Get a task list from the task group."
+    Health-Check-Readyz:
+      method: get
+      resourcePath: /readyz
+      description: "Check Cicada is ready"
+    Get-Event-Logs:
+      method: get
+      resourcePath: /workflow/{wfId}/eventlogs
+      description: "Get Eventlog."
+    Get-Workflow-Runs:
+      method: get
+      resourcePath: /workflow/{wfId}/runs
+      description: "Get the task Logs."
+    Get-Workflowversion:
+      method: get
+      resourcePath: /workflow/{wfId}/version/{verId}
+      description: "Get the WorkflowVersion."
+    Get-Task-Instances:
+      method: get
+      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/taskInstances
+      description: "Get the task Logs."
+    Get-Task-Group-Directly:
+      method: get
+      resourcePath: /task_group/{tgId}
+      description: "Get the task group directly."
+    List-Task:
+      method: get
+      resourcePath: /workflow/{wfId}/task
+      description: "Get a task list of the workflow."
+    Get-Task-Group:
+      method: get
+      resourcePath: /workflow/{wfId}/task_group/{tgId}
+      description: "Get the task group."
+    List-Workflowversion:
+      method: get
+      resourcePath: /workflow/{wfId}/version
+      description: "Get a workflowVersion list."
+    Get-Workflow-Template:
+      method: get
+      resourcePath: /workflow_template/{wftId}
+      description: "Get the workflow template."
+    List-Task-Component:
+      method: get
+      resourcePath: /task_component
+      description: "Get a list of task component."
+    Create-Task-Component:
+      method: post
+      resourcePath: /task_component
+      description: "Register the task component."
+    Get-Workflow:
+      method: get
+      resourcePath: /workflow/{wfId}
+      description: "Get the workflow."
+    Update-Workflow:
+      method: put
+      resourcePath: /workflow/{wfId}
+      description: "Update the workflow content."
+    Delete-Workflow:
+      method: delete
+      resourcePath: /workflow/{wfId}
+      description: "Delete the workflow."
+    Get-Workflow-Template-By-Name:
+      method: get
+      resourcePath: /workflow_template/name/{wfName}
+      description: "Get the workflow template by name."
     Get-Task:
       method: get
       resourcePath: /workflow/{wfId}/task/{taskId}
       description: "Get the task."
-    List-Task-Group:
-      method: get
-      resourcePath: /workflow/{wfId}/task_group
-      description: "Get a task group list of the workflow."
     Get-Task-From-Task-Group:
       method: get
       resourcePath: /workflow/{wfId}/task_group/{tgId}/task/{taskId}
       description: "Get the task from the task group."
+    Clear-Task-Instances:
+      method: post
+      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/clear
+      description: "Clear the task Instance."
+    Run-Workflow:
+      method: post
+      resourcePath: /workflow/{wfId}/run
+      description: "Run the workflow."
+    List-Task-Group:
+      method: get
+      resourcePath: /workflow/{wfId}/task_group
+      description: "Get a task group list of the workflow."
 
   cm-grasshopper:
+    Get-Migration-List:
+      method: get
+      resourcePath: /software/migration_list/{sgId}
+      description: "Get software migration list."
+    Register-Software:
+      method: post
+      resourcePath: /software/register
+      description: "Register the software."
     Health-Check-Readyz:
       method: get
       resourcePath: /readyz
       description: "Check Grasshopper is ready"
-    Get-Execution-List:
-      method: post
-      resourcePath: /software/execution_list
-      description: "Get software migration execution list."
-    Install-Software:
-      method: post
-      resourcePath: /software/install
-      description: "Install pieces of software to target."
-    Register-Software:
-      method: post
-      resourcePath: /software/register
-      description: 'Register the software.<br><br>[JSON Body Example]<br>{"architecture":"x86_64","install_type":"ansible","match_names":["telegraf"],"name":"telegraf","os":"Ubuntu","os_version":"22.04","version":"1.0"}'
+    List-Software:
+      method: get
+      resourcePath: /software
+      description: "Get a list of connection information."
     Delete-Software:
       method: delete
       resourcePath: /software/{softwareId}
       description: "Delete the software."
+    Migrate-Software:
+      method: post
+      resourcePath: /software/migrate
+      description: "Migrate pieces of software to target."
+    Get-Software-Migration-Log:
+      method: get
+      resourcePath: /software/migrate/log/{executionId}
+      description: "Get the software migration log."
 
   cm-damselfly:
     GetUserModel:
