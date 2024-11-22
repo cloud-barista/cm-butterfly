@@ -14,20 +14,22 @@ const GET_RECOMMEND_COST = 'Updateandgetestimatecost';
 
 export function useGetRecommendModelListBySourceModel(
   sourceModelInfo: ISourceModelResponse['onpremiseInfraModel'] | null,
+  provider: string | null,
+  region: string | null,
 ) {
   const requestWrapper: Required<
     Pick<
       RequestBodyWrapper<{
-        desiredProvider: string;
-        desiredRegion: string;
+        desiredProvider: string | null;
+        desiredRegion: string | null;
         onpremiseInfraModel: ISourceModelResponse['onpremiseInfraModel'] | null;
       }>,
       'request'
     >
   > = {
     request: {
-      desiredProvider: 'aws',
-      desiredRegion: 'ap-northeast-2',
+      desiredProvider: provider,
+      desiredRegion: region,
       onpremiseInfraModel: sourceModelInfo,
     },
   };
@@ -36,8 +38,8 @@ export function useGetRecommendModelListBySourceModel(
     Required<
       Pick<
         RequestBodyWrapper<{
-          desiredProvider: string;
-          desiredRegion: string;
+          desiredProvider: string | null;
+          desiredRegion: string | null;
           onpremiseInfraModel:
             | ISourceModelResponse['onpremiseInfraModel']
             | null;

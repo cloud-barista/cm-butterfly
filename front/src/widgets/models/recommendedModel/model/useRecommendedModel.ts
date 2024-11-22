@@ -1,14 +1,18 @@
-import { useRecommendedModelStore } from '@/entities/recommendedModel/model/stores';
-import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
+import { useRecommendedModelStore } from '@/entities/recommendedModel/model/stores.ts';
+import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel.ts';
 import {
   IEsimateCostSpecResponse,
   IRecommendModelResponse,
-} from '@/entities/recommendedModel/model/types';
-import { RecommendedModelTableType } from '@/entities/recommendedModel/model/types';
+} from '@/entities/recommendedModel/model/types.ts';
+import { RecommendedModelTableType } from '@/entities/recommendedModel/model/types.ts';
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import { useSourceModelStore } from '@/entities';
 import { useAuthStore } from '@/shared/libs/store/auth';
+import {
+  IProviderResponse,
+  IRegionOfProviderResponse,
+} from '@/entities/provider/model/types.ts';
 
 export function useRecommendedModel() {
   const tableModel =
@@ -23,6 +27,8 @@ export function useRecommendedModel() {
   const userStore = useAuthStore();
 
   function initToolBoxTableModel() {
+    tableModel.initState();
+
     tableModel.tableState.fields = [
       { name: 'name', label: 'Name' },
       { name: 'id', label: 'ID' },
@@ -95,6 +101,46 @@ export function useRecommendedModel() {
   ) {
     targetRecommendModel.value = _targetRecommendModel;
   }
+
+  interface ISelectMenu {
+    name: string;
+    label: string;
+    type: string;
+  }
+
+  function generateProviderSelectMenu(
+    providerResponse: IProviderResponse,
+  ): Array<ISelectMenu> {
+    const menu: Array<ISelectMenu> = [];
+
+    providerResponse.output.forEach(provider => {
+      menu.push({
+        name: provider,
+        label: provider,
+        type: 'item',
+      });
+    });
+    menu.sort((a, b) => a.label.localeCompare(b.label));
+
+    return menu;
+  }
+
+  function generateRegionSelectMenu(
+    regionOfProviderResponse: IRegionOfProviderResponse,
+  ): Array<ISelectMenu> {
+    const menu: Array<ISelectMenu> = [];
+
+    regionOfProviderResponse.regions.forEach(region => {
+      menu.push({
+        name: region.regionId,
+        label: `${region.location.display} / ${region.regionName}`,
+        type: 'item',
+      });
+    });
+    menu.sort((a, b) => a.label.localeCompare(b.label));
+    return menu;
+  }
+
   watch(targetRecommendModel, nv => {
     if (nv)
       tableModel.tableState.items = [organizeRecommendedModelTableItem(nv)];
@@ -106,5 +152,7 @@ export function useRecommendedModel() {
     initToolBoxTableModel,
     sourceModelStore,
     setTargetRecommendModel,
+    generateProviderSelectMenu,
+    generateRegionSelectMenu,
   };
 }
