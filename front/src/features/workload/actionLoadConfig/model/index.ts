@@ -3,7 +3,7 @@ import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import {
   validateFunc,
   validateNumberFunc,
-} from '@/features/workload/loadConfig/model/validate.ts';
+} from '@/features/workload/actionLoadConfig/model/validate.ts';
 
 export function useLoadConfigModel() {
   const protocol = reactive({

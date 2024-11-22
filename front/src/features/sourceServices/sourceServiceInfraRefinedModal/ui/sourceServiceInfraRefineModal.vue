@@ -10,12 +10,11 @@ import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { useCreateOnpremmodel } from '@/entities';
 import JsonViewer from '@/features/sourceServices/jsonViewer/ui/JsonViewer.vue';
 import { useGetInfraInfoRefined } from '@/entities/sourceConnection/api';
+import { useGetInfraSourceGroupInfraRefine } from '@/entities/sourceService/api';
 
 interface iProps {
   collectData: string | undefined;
-  sourceConnectionName: string;
   sgId: string;
-  connId: string;
 }
 
 const props = defineProps<iProps>();
@@ -28,7 +27,7 @@ const isSaveModal = ref<boolean>(false);
 const convertedData = ref();
 
 const createOnpremmodel = useCreateOnpremmodel(null);
-const getInfraInfoRefined = useGetInfraInfoRefined(props.sgId, props.connId);
+const getInfraInfoRefined = useGetInfraSourceGroupInfraRefine(props.sgId);
 const handleSave = () => {
   isSaveModal.value = true;
 };
@@ -70,7 +69,6 @@ function handleConvertInfra(): (
   <div class="page-modal-layout">
     <create-form
       title="Source Connection Viewer"
-      :badge-title="sourceConnectionName"
       :need-widget-layout="true"
       @update:modal-state="emit('update:is-meta-viewer-opened', false)"
     >
@@ -103,11 +101,5 @@ function handleConvertInfra(): (
       @update:close-modal="isSaveModal = false"
       @update:save-modal="e => handleMetaViewer(e)"
     />
-    <!-- <save-source-model-modal
-      v-if="isSaveModal"
-      header-title="Save Source Model"
-      name-label="Source Service name"
-      @update:save-modal="handleMetaViewer"
-    /> -->
   </div>
 </template>

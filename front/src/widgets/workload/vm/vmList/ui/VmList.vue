@@ -10,7 +10,7 @@ import {
 import { useVmListModel } from '@/widgets/workload/vm/vmList/model';
 import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
 import SuccessfullyLoadConfigModal from '@/features/workload/successfullyModal/ui/SuccessfullyLoadConfigModal.vue';
-import LoadConfig from '@/features/workload/loadConfig/ui/LoadConfig.vue';
+import LoadConfig from '@/features/workload/actionLoadConfig/ui/LoadConfig.vue';
 import { showErrorMessage } from '@/shared/utils';
 import { IVm } from '@/entities/mci/model';
 import VmInformation from '@/widgets/workload/vm/vmInformation/ui/VmInformation.vue';

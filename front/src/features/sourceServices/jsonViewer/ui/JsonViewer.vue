@@ -10,32 +10,19 @@ import { showErrorMessage } from '@/shared/utils';
 
 interface iProps {
   formData: string | undefined;
-  schema: {
-    json: boolean;
-    properties: object;
-  };
-  sgId: string;
-  connId: string;
+  promiseFunc: (payload?: any, config?: any) => Promise<AxiosResponse<any>>;
+  convertedJSON: string | undefined;
+  loading: boolean;
 }
 
 const props = defineProps<iProps>();
 const emit = defineEmits(['update:is-converted']);
 
-const convertedJson = ref<string | undefined>('');
-
-const getInfraInfoRefined = useGetInfraInfoRefined(props.sgId, props.connId);
-const handleConvertJson = () => {
-  // TODO: convert button action 미정
-  getInfraInfoRefined
-    .execute()
-    .then(res => {
-      convertedJson.value = res.data.responseData;
-      emit('update:is-converted', res.data.responseData);
-    })
-    .catch(e => {
-      showErrorMessage('error', e.errorMsg);
-    });
-};
+function handleConvertJson() {
+  props.promiseFunc().then(res => {
+    emit('update:is-converted', res);
+  });
+}
 </script>
 
 <template>
@@ -44,7 +31,6 @@ const handleConvertJson = () => {
       :form-data="formData"
       title="Meta (data)"
       :read-only="true"
-      :schema="schema"
     />
     <button class="convert-btn" @click="handleConvertJson">
       <div class="flex flex-row">
@@ -57,17 +43,12 @@ const handleConvertJson = () => {
         />
         <p>{{ i18n.t('COMPONENT.BUTTON_MODAL.CONVERT') }}</p>
       </div>
-      <p-spinner
-        v-if="getInfraInfoRefined.isLoading.value"
-        class="spinner"
-        size="md"
-      />
+      <p-spinner v-if="loading" class="spinner" size="md" />
     </button>
     <collect-json-editor
-      :form-data="convertedJson"
+      :form-data="convertedJSON"
       title="Model"
       :read-only="false"
-      :schema="schema"
     />
   </div>
 </template>

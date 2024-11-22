@@ -17,6 +17,8 @@ const GET_SOURCE_SERVICE = 'get-source-group';
 const GET_SOURCE_SERVICE_STATUS = 'agent-and-connection-check';
 const DELETE_SOURCE_SERVICE = 'delete-source-group';
 const GET_INFRA_SOURCE_GROUP = 'import-infra-source-group';
+const GET_INFRA_INFO_SOURCE_GROUP_REFINE =
+  'get-infra-info-source-group-refined';
 
 export function useRegisterSourceGroup<T, D>(
   sourceGroupData: D | ISourceGroup,
@@ -102,4 +104,19 @@ export function useGetInfraSourceGroup(sourceGroupId: string | null) {
     IAxiosResponse<IInfraSourceGroupResponse>,
     Required<Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>>
   >(GET_INFRA_SOURCE_GROUP, requestWrapper);
+}
+
+export function useGetInfraSourceGroupInfraRefine(
+  sourceGroupId: string | null,
+) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>
+  > = {
+    pathParams: { sgId: sourceGroupId },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<any>,
+    Required<Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>>
+  >(GET_INFRA_INFO_SOURCE_GROUP_REFINE, requestWrapper);
 }

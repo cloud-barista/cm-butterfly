@@ -143,46 +143,6 @@ const data = computed(() => {
   return sourceConnectionStore.getConnectionById(selectedConnectionId.value)
     ?.softwareData;
 });
-
-const infraSchema = {
-  json: true,
-  properties: {
-    compute: {
-      type: 'string',
-      title: 'Compute',
-    },
-    network: {
-      type: 'string',
-      title: 'Network',
-    },
-    storage: {
-      type: 'string',
-      title: 'Storage',
-    },
-  },
-};
-
-const softwareSchema = {
-  json: true,
-  properties: {
-    deb: {
-      type: 'string',
-      title: 'Debian',
-    },
-    docker: {
-      type: 'string',
-      title: 'Docker',
-    },
-    podman: {
-      type: 'string',
-      title: 'Podman',
-    },
-    rpm: {
-      type: 'string',
-      title: 'RPM',
-    },
-  },
-};
 </script>
 
 <template>
@@ -227,6 +187,9 @@ const softwareSchema = {
             <SourceServiceDetail
               :selected-service-id="selectedServiceId"
               @update:source-connection-name="e => (sourceConnectionName = e)"
+              @update:custom-view-json-modal="
+                e => (modalStates.addInfraMetaViewer.open = e)
+              "
             />
           </template>
           <template #connections>
@@ -342,7 +305,6 @@ const softwareSchema = {
         "
         :collect-data="infraData"
         :source-connection-name="sourceConnectionName"
-        :schema="infraSchema"
         :sgId="selectedServiceId"
         :connId="selectedConnectionId"
         @update:is-meta-viewer-opened="modalStates.addInfraMetaViewer.confirm()"
@@ -351,7 +313,6 @@ const softwareSchema = {
         v-else-if="modalStates.addSoftwareMetaViewer.open && data"
         :collect-data="softwareData"
         :source-connection-name="sourceConnectionName"
-        :schema="softwareSchema"
         @update:is-meta-viewer-opened="
           modalStates.addSoftwareMetaViewer.confirm()
         "

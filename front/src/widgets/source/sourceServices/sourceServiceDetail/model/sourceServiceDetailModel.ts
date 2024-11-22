@@ -61,29 +61,29 @@ export function useSourceServiceDetailModel() {
   }
 
   function setServiceStatus(status: string | undefined): IStatus {
-    if (status === 'S0001') {
+    if (status === 'success') {
       return {
         color: 'green',
         text: status,
-        status: status,
+        status: 'Success',
       };
-    } else if (status === 'S0002') {
+    } else if (status === 'partialSuccess') {
       return {
         color: 'yellow',
         text: status,
-        status: status,
+        status: 'PartialSuccess',
       };
-    } else if (status === 'S0003') {
+    } else if (status === 'failed') {
       return {
         color: 'red',
         text: status,
-        status: status,
+        status: 'Failed',
       };
     } else {
       return {
         color: 'gray',
         text: 'Unknown',
-        status: 'S0004',
+        status: 'Unknown',
       };
     }
   }

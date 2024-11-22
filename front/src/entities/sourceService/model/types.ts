@@ -38,10 +38,10 @@ export interface ISourceConnectionStatusCountResponse {
 }
 
 export const SourceServiceStatus = {
-  S0001: 'Success',
-  S0002: 'PartialSuccess',
-  S0003: 'Failed',
-  S0004: 'Unknown',
+  Success: 'Success',
+  PartialSuccess: 'PartialSuccess',
+  Failed: 'Failed',
+  Unknown: 'Unknown',
 } as const;
 
 export type SourceServiceStatusType = keyof typeof SourceServiceStatus;

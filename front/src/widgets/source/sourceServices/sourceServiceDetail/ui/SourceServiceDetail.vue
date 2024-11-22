@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { PDefinitionTable, PButton, PStatus } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, ref, watch, watchEffect } from 'vue';
+import {
+  onBeforeMount,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+  watchEffect,
+} from 'vue';
 import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
 import {
   useGetInfraSourceGroup,
@@ -10,6 +17,8 @@ import {
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { storeToRefs } from 'pinia';
 import { useRefreshSourceGroupConnectionInfoStatus } from '@/entities/sourceConnection/api';
+import { CustomViewSourceModel } from '@/widgets/models/sourceModels';
+import SourceServiceInfraRefineModal from '@/features/sourceServices/sourceServiceInfraRefinedModal/ui/sourceServiceInfraRefineModal.vue';
 
 interface IProps {
   selectedServiceId: string;
@@ -17,7 +26,10 @@ interface IProps {
 
 const props = defineProps<IProps>();
 
-const emit = defineEmits(['update:source-connection-name']);
+const emit = defineEmits([
+  'update:source-connection-name',
+  'update:custom-view-json-modal',
+]);
 
 const {
   sourceServiceStore,
@@ -25,23 +37,31 @@ const {
   tableModel,
   setServiceId,
   loadSourceServiceData,
-  mappinginfraModel,
-  mappingSourceGroupStatus,
 } = useSourceServiceDetailModel();
 
 const refreshSourceGroupConnectionInfoStatus =
   useRefreshSourceGroupConnectionInfoStatus(null);
 const getSourceService = useGetSourceService(null);
 const resGetInfraSourceGroup = useGetInfraSourceGroup(null);
+const infraModel = ref({});
+
+const modalState = reactive({
+  open: false,
+  context: {
+    name: '',
+    description: '',
+  },
+});
 
 onBeforeMount(() => {
   initTable();
-  getSourceGroupInfras();
 });
+
 watch(
   props,
   () => {
     setServiceId(props.selectedServiceId);
+    getSourceGroupInfras();
   },
   { immediate: true },
 );
@@ -66,10 +86,11 @@ function getSourceGroupInfras() {
           props.selectedServiceId,
           res.data.responseData,
         );
+        infraModel.value = res.data.responseData;
         loadSourceServiceData(props.selectedServiceId);
       }
     })
-    .catch();
+    .catch(e => {});
 }
 
 async function handleSourceGroupStatusRefresh() {
@@ -93,6 +114,10 @@ async function handleSourceGroupStatusRefresh() {
     showErrorMessage('error', err.errorMsg.value);
   }
 }
+
+function handleJsonModal() {
+  modalState.open = true;
+}
 </script>
 
 <template>
@@ -100,11 +125,19 @@ async function handleSourceGroupStatusRefresh() {
     <p-definition-table
       :fields="tableModel.tableState.fields"
       :data="tableModel.tableState.data"
-      :loading="tableModel.tableState.loading"
+      :loading="
+        tableModel.tableState.loading || resGetInfraSourceGroup.isLoading.value
+      "
       :block="true"
     >
       <template #data-status="{ data }">
         <p-status :theme="data.color" :text="data.text" />
+      </template>
+
+      <template #data-viewInfra>
+        <p class="link-button-text" @click="handleJsonModal">
+          Custom & View Source Model
+        </p>
       </template>
 
       <template #extra="{ name }">
@@ -122,5 +155,11 @@ async function handleSourceGroupStatusRefresh() {
         </div>
       </template>
     </p-definition-table>
+    <SourceServiceInfraRefineModal
+      v-if="modalState.open"
+      :sgId="props.selectedServiceId"
+      :collect-data="infraModel"
+      @update:is-meta-viewer-opened="modalState.open = false"
+    />
   </div>
 </template>
