@@ -15,12 +15,14 @@
     - [Recommend Envionment (Test Finished)](#recommend-envionment-test-finished)
   - [How to Run](#how-to-run)
     - [1. Project clone from remote git repository](#1-project-clone-from-remote-git-repository)
-    - [2. cm-butterfly needs to run with cloud-migrator subsystems.](#2-cm-butterfly-needs-to-run-with-cloud-migrator-subsystems)
+    - [2. CM-Butterfly needs to run with cloud-migrator subsystems.](#2-cm-butterfly-needs-to-run-with-cloud-migrator-subsystems)
     - [3.CSP User credential registration ⭐⭐](#3csp-user-credential-registration-)
-    - [4. subsystem's api host and endpoint configuration](#4-subsystems-api-host-and-endpoint-configuration)
-    - [5. self auth settings (Optional)](#5-self-auth-settings-optional)
-    - [Change butterfly backend api host](#change-butterfly-backend-api-host)
-  - [Explore Awesome cm-butterfly](#explore-awesome-cm-butterfly)
+    - [4. Subsystem's api host and endpoint configuration](#4-subsystems-api-host-and-endpoint-configuration)
+    - [5. Self auth settings (Optional)](#5-self-auth-settings-optional)
+    - [6. Configure Nginx for Backend API and Access Control](#6-configure-nginx-for-backend-api-and-access-control)
+      - [Update backend url nginx reverse proxy configuration](#update-backend-url-nginx-reverse-proxy-configuration)
+      - [Restrict aceess based on the `Origin` header](#restrict-aceess-based-on-the-origin-header)
+    - [7. Explore Awesome cm-butterfly](#7-explore-awesome-cm-butterfly)
 ***
 
 # cm-butterfly
@@ -47,7 +49,7 @@ or if you need specific version with minimize the size
 git clone --depth 1 --branch v0.3.0 https://github.com/cloud-barista/cm-butterfly.git
 ```
 
-### 2. cm-butterfly needs to run with cloud-migrator subsystems.
+### 2. CM-Butterfly needs to run with cloud-migrator subsystems.
 cm-butterfly requires execution on each server because it uses the open APIs of several subsystems that make up the cloud migrator project.
 
 To execute each subsystem, you can clone it from the repository of each subsystem.
@@ -84,7 +86,7 @@ Follow the guide for initializing CB-Tumblebug to configure multi-cloud informat
 > 👉 [Initialize CB-Tumblebug to configure Multi-Cloud info](https://github.com/cloud-barista/cb-tumblebug?tab=readme-ov-file#3-initialize-cb-tumblebug-to-configure-multi-cloud-info)
 
 
-### 4. subsystem's api host and endpoint configuration
+### 4. Subsystem's api host and endpoint configuration
 
 ⭐ cm-butterfly reads the `cm-butterfly/api/conf/api.yaml` file to configure the host of the subsystem called by cm-butterfly and the API endpoint of each subsystem.
 
@@ -126,15 +128,16 @@ Modify the value of services.{subsystem-name}.baseurl. The host currently in use
 ```
  
 
-### 5. self auth settings (Optional)
+### 5. Self auth settings (Optional)
 By default, cm-butterfly supports one user with migration privileges. (The featrue that add and delete users are not currently provided.)
 
 When the application starts, it reads `./api/conf/authsetting.yaml`, creates `user.dat` in the same conf folder, and then reads the dat file to process user login.
 
 The default user login information is as follows.
 
-- userId: `cmiguser`
-- userPassword: `cmiguserPassword!`
+
+> - userId: `cmiguser`
+> - userPassword: `cmiguserPassword!`
 
 
 Before running cm-butterfly, if you want to change the value for login credentials, you need to update user login information to `authsettings.yaml` and run it.
@@ -149,8 +152,9 @@ sed -i 's/password: cmiguserPassword!/password: what-ever-you-want-password/' ./
 
 
 
-### Change butterfly backend api host
-The frontend of cm-butterfly includes a web server, nginx. It uses nginx's reverse proxy to make http calls to the backend API.
+### 6. Configure Nginx for Backend API and Access Control
+#### Update backend url nginx reverse proxy configuration
+The frontend of cm-butterfly includes a web server, `nginx`. It uses nginx's reverse proxy to make http calls to the backend API.
 
 If the API server is not running in the same container environment but is running remotely, you can modify the web server configuration in `./front/nginx.conf` to specify a reverse proxy for the backend host.
 
@@ -158,7 +162,7 @@ Currently, the container name defined in docker compose is set to DNS using http
 
 ```text
   # other configuration
-  proxy_pass <Enter the backend host here>
+  proxy_pass <Enter-the-backend-host-here>
 ```
 
 Here's a simple terminal command for you, just run it from the root of your project.
@@ -167,9 +171,23 @@ sed -i 's|proxy_pass http://cm-butterfly-api:4000;|proxy_pass https://whatever.h
 
 ```
 
+#### Restrict aceess based on the `Origin` header
+
+In `./front/nginx.conf`, there is the commented part. 
+
+```text
+# if ($http_origin != "http://localhost") {
+#     return 403;
+# }
+```
+
+This commented block is intended to restrict API access to requests comming only from written domain, enhancing security by preventing unauthorized origins.
+
+To enable this functionaliy, simply remove the `#` symbols.
+
 ---
 
 
-## Explore Awesome cm-butterfly
+### 7. Explore Awesome cm-butterfly
 If you run it through docker compose, you can see the login page by accessing `http://localhost/auth/login`. The user credentials are registered with the default ID and password, and if you log in, you can use cm-butterfly, which supports cloud migration.
 
