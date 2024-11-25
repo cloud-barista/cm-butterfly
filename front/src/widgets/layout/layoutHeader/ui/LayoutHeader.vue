@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import TopBarWorkspaces from '@/features/topbar/topbarWorkspaces/ui/TopBarWorkspaces.vue';
-import TopBarToolset from '@/features/topbar/topbarToolset/ui/TopBarToolset.vue';
+// import TopBarWorkspaces from '@/features/topbar/topbarWorkspaces/ui/TopBarWorkspaces.vue';
+import { TopBarToolset } from '@/features/topbar';
 import { reactive } from 'vue';
-import { PI } from '@cloudforet-test/mirinae';
 
 const state = reactive({
   openedMenu: '',

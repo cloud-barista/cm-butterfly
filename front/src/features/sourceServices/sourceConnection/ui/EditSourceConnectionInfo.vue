@@ -55,16 +55,32 @@ watchEffect(() => {
 watchEffect(() => {
   if (props.selectedSourceConnectionIds.length === 1) {
     sourceConnectionsByIds.value = [
-      (addedSourceConnectionInfo.value =
-        sourceConnectionStore.getConnectionById(
+      // (addedSourceConnectionInfo.value =
+      //   sourceConnectionStore.getConnectionById(
+      //     props.selectedSourceConnectionIds[0],
+      //   )),
+      {
+        ...sourceConnectionStore.getConnectionById(
           props.selectedSourceConnectionIds[0],
-        )),
+        ),
+        ssh_port: '',
+        user: '',
+        password: '',
+        private_key: '',
+      },
     ];
   } else if (props.selectedSourceConnectionIds.length > 1) {
     props.selectedSourceConnectionIds.forEach((connId: string) => {
-      sourceConnectionsByIds.value.push(
-        sourceConnectionStore.getConnectionById(connId),
-      );
+      sourceConnectionsByIds.value = [
+        ...sourceConnectionsByIds.value,
+        {
+          ...sourceConnectionStore.getConnectionById(connId),
+          ssh_port: '',
+          user: '',
+          password: '',
+          private_key: '',
+        },
+      ];
     });
   }
 });
@@ -85,10 +101,8 @@ watchEffect(() => {
 });
 
 watchEffect(() => {
-  uniqueSourceConnectionsByIds.value = sourceConnectionsByIds.value.filter(
-    (e, i) => {
-      return sourceConnectionsByIds.value.indexOf(e) === i;
-    },
+  uniqueSourceConnectionsByIds.value = Array.from(
+    new Map(sourceConnectionsByIds.value.map(item => [item.id, item])).values(),
   );
 });
 

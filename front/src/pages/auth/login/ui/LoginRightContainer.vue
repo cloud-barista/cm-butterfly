@@ -6,19 +6,16 @@ import { useAuth } from '@/features/auth/model/useAuth.ts';
 // import { WORKLOADS_ROUTE } from '@/app/providers/router/routes/workloads.ts';
 import { SOURCE_COMPUTING_ROUTE } from '@/app/providers/router/routes/constants';
 
-const resUserInfo = useGetUserRole();
 const auth = useAuth();
 
 const handleLoginSuccess = (props: IUserLoginResponse & { id: string }) => {
   auth.setUser(props);
-  McmpRouter.getRouter().push({
-    name: SOURCE_COMPUTING_ROUTE.SOURCE_SERVICES._NAME,
-  });
-
-  resUserInfo
-    .execute()
+  McmpRouter.getRouter()
+    .push({
+      name: SOURCE_COMPUTING_ROUTE.SOURCE_SERVICES._NAME,
+    })
     .then()
-    .catch(err => err);
+    .catch(() => {});
 };
 </script>
 

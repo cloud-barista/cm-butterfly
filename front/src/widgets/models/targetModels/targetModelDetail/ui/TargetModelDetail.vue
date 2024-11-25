@@ -13,6 +13,7 @@ const emit = defineEmits([
   'update:custom-view-json-modal',
   'update:target-model-name',
   'update:target-model-description',
+  'update:workflow-edit-modal',
 ]);
 
 const { targetModelStore, setTargetModelId, initTable, tableModel } =
@@ -65,6 +66,10 @@ function handleJsonModal() {
   emit('update:custom-view-json-modal', true);
   emit('update:target-model-name', targetModelName.value);
 }
+
+function handleOpenWorkflowEditor() {
+  emit('update:workflow-edit-modal', true);
+}
 </script>
 
 <template>
@@ -81,7 +86,9 @@ function handleJsonModal() {
         </p>
       </template>
       <template #data-workflowTool>
-        <p class="link-button-text">Make Workflow</p>
+        <p class="link-button-text" @click="handleOpenWorkflowEditor">
+          Make Workflow
+        </p>
       </template>
     </p-definition-table>
   </div>

@@ -6,6 +6,7 @@ export interface IWorkflow {
   updated_at: string;
   data: IWorkflowResponse['data'];
 }
+
 export interface ITaskGroupResponse {
   description: string;
   name: string;
@@ -13,10 +14,11 @@ export interface ITaskGroupResponse {
   tasks: Array<ITaskResponse>;
   task_groups?: Array<ITaskGroupResponse>;
 }
+
 export interface ITaskResponse {
-  dependencies: any;
+  dependencies: any[];
   name: string;
-  path_params: any;
+  path_params?: any;
   request_body: string;
   task_component: string;
   query_params?: any;
@@ -44,6 +46,7 @@ export interface ITaskComponentResponse {
   name: string;
   updated_at: any;
 }
+
 export interface ITaskComponent {
   created_at: any;
   updated_at: any;

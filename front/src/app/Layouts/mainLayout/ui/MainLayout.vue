@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { LayoutHeader } from '../../layoutHeader';
-import { ConsoleLayout } from '../../consoleLayout';
+import { LayoutHeader, ConsoleLayout } from '@/widgets/layout';
 import { styleVariables, PSidebar } from '@cloudforet-test/mirinae';
 </script>
 
@@ -82,3 +81,4 @@ import { styleVariables, PSidebar } from '@cloudforet-test/mirinae';
   }
 }
 </style>
+../../../../widgets/layout/layoutHeader../../../../widgets/layout/consoleLayout

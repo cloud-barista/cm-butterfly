@@ -23,12 +23,14 @@ RUN buffalo build --static -o /src/cm-butterfly/api
 ## Stage 2 - Application Deploy
 FROM debian:buster-slim as deploy
 
+WORKDIR /app
+
 COPY --from=build /src/cm-butterfly/ .
 
 
 ENV API_ADDR=${API_ADDR:-0.0.0.0}
 ENV API_PORT=${API_PORT:-4000}
-ENV USER_AUTH_DATA_PATH=${USER_AUTH_DATA_PATH:-conf/user.dat }
+ENV USER_AUTH_DATA_PATH=${USER_AUTH_DATA_PATH:-conf/user.dat}
 ENV USER_AUTH_CONF_PATH=${USER_AUTH_CONF_PATH:-conf/authsetting.yaml}
 ENV MENU_CONF_DATA_PATH=${MENU_CONF_DATA_PATH:-conf/menu.yaml}
 
@@ -39,4 +41,4 @@ ENV POSTGRES_DB=${POSTGRES_DB:-butterfly-db}
 
 EXPOSE 4000
 
-CMD bash -c 'until /api migrate; do echo "Migration failed. Retrying in 10 seconds..."; sleep 10; done; /api > /api.log 2>&1 &  tail -f /api.log & wait'
+CMD bash -c 'until /app/api migrate; do echo "Migration failed. Retrying in 10 seconds..."; sleep 10; done; /app/api > /app/api.log 2>&1 &  tail -f /app/api.log & wait'

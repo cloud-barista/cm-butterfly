@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/buffalo"
@@ -63,13 +65,26 @@ type ApiYaml struct {
 // ////////////////////////////////////////////////////////////////
 
 var (
-	ApiYamlSet ApiYaml
+	ApiYamlSet  ApiYaml
 )
 
 func init() {
+	exePath, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+
+	// 실행 파일의 경로를 기준으로 conf 경로를 설정
+	exeDir := filepath.Dir(exePath)
+
 	viper.SetConfigName("api")
 	viper.SetConfigType("yaml")
+	viper.AddConfigPath(filepath.Join(exeDir, "conf"))
 	viper.AddConfigPath("conf")
+
+	log.Println(exePath)
+	log.Println(exeDir)
+	log.Println(filepath.Join(exeDir, "conf"))
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error reading actions/conf/api.yaml file: %s", err))
