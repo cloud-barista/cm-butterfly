@@ -20,18 +20,17 @@ interface ISelectMenu {
   type: string;
 }
 
+interface IExtendRecommendModelResponse extends IRecommendModelResponse {
+  estimateResponse?: IEsimateCostSpecResponse;
+}
+
 export function useRecommendedModel() {
   const tableModel =
     useToolboxTableModel<
       Partial<Record<RecommendedModelTableType | 'originalData', any>>
     >();
   const sourceModelStore = useSourceModelStore();
-  const targetRecommendModel = ref<
-    | (IRecommendModelResponse & {
-        estimateResponse: IEsimateCostSpecResponse;
-      })
-    | null
-  >(null);
+  const targetRecommendModel = ref<IExtendRecommendModelResponse | null>(null);
   const userStore = useAuthStore();
 
   function initToolBoxTableModel() {
@@ -63,11 +62,22 @@ export function useRecommendedModel() {
   }
 
   function organizeRecommendedModelTableItem(
-    recommendedModel: IRecommendModelResponse & {
-      estimateResponse: IEsimateCostSpecResponse;
-    },
+    recommendedModel: IExtendRecommendModelResponse,
   ) {
-    console.log(recommendedModel);
+    const estimateCost: string = `${
+      recommendedModel?.estimateResponse?.result.esimateCostSpecResults.reduce(
+        (acc, cur) => {
+          return (
+            acc +
+            cur.estimateForecastCostSpecDetailResults[0].calculatedMonthlyPrice
+          );
+        },
+        0,
+      ) || ''
+    }${
+      recommendedModel?.estimateResponse?.result.esimateCostSpecResults[0]
+        .estimateForecastCostSpecDetailResults[0].currency || ''
+    }`;
 
     const organizedDatum: Partial<
       Record<RecommendedModelTableType | 'originalData', any>
@@ -78,38 +88,24 @@ export function useRecommendedModel() {
       spec:
         recommendedModel.targetInfra.vm
           .reduce((acc, cur) => {
-            return `${acc}_${cur.commonSpec} / `;
+            return `${acc}${cur.commonSpec.split('+').at(-1)} / `;
           }, '')
-          .replace(/(\/\s)$/, '') || '',
+          .replace(/\/\s$/g, '') || 'n/a',
       image:
         recommendedModel.targetInfra.vm
           .reduce((acc, cur) => {
-            return `${acc}_${cur.commonImage} / `;
+            return `${acc}${cur.commonImage.split('+').at(-1)} / `;
           }, '')
-          .replace(/(\/\s)$/, '') || '',
-      estimateCost:
-        recommendedModel.estimateResponse.result.esimateCostSpecResults.reduce(
-          (acc, cur) => {
-            return (
-              acc +
-              cur.estimateForecastCostSpecDetailResults[0]
-                .calculatedMonthlyPrice
-            );
-          },
-          0,
-        ) +
-          recommendedModel.estimateResponse.result.esimateCostSpecResults[0]
-            .estimateForecastCostSpecDetailResults[0].currency || '',
+          .replace(/\/\s$/g, '') || 'n/a',
+      estimateCost: estimateCost || 'n/a',
       originalData: recommendedModel,
     };
-    console.log(organizedDatum);
+
     return organizedDatum;
   }
 
   function setTargetRecommendModel(
-    _targetRecommendModel: IRecommendModelResponse & {
-      estimateResponse: IEsimateCostSpecResponse;
-    },
+    _targetRecommendModel: IExtendRecommendModelResponse,
   ) {
     targetRecommendModel.value = _targetRecommendModel;
   }
@@ -147,16 +143,25 @@ export function useRecommendedModel() {
     return menu;
   }
 
+  function setTableStateItem() {
+    if (targetRecommendModel.value) {
+      tableModel.tableState.items = [
+        organizeRecommendedModelTableItem(targetRecommendModel.value),
+      ];
+    }
+  }
+
   watch(targetRecommendModel, nv => {
-    if (nv)
-      tableModel.tableState.items = [organizeRecommendedModelTableItem(nv)];
+    if (nv) setTableStateItem();
   });
 
   return {
     userStore,
     tableModel,
     initToolBoxTableModel,
+    targetRecommendModel,
     sourceModelStore,
+    setTableStateItem,
     setTargetRecommendModel,
     generateProviderSelectMenu,
     generateRegionSelectMenu,
