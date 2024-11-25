@@ -90,7 +90,7 @@ function mapTargetModelToTaskComponent(
   taskComponentList: Array<ITaskComponentInfoResponse>,
 ) {
   const taskComponent = taskComponentList.find(
-    taskComponent => taskComponent.name === 'tumblebug_mci_dynamic',
+    taskComponent => taskComponent.name === 'beetle_task_infra_migration',
   );
 
   if (!taskComponent) {
@@ -102,10 +102,11 @@ function mapTargetModelToTaskComponent(
     .defineTaskGroupStep(getRandomId(), 'TaskGroup', 'MCI', { model: {} });
 
   const parseString = parseRequestBody(taskComponent.data.options.request_body);
-
-  parseString['vm'] = Array(targetModel.cloudInfraModel.vm?.length)
-    .fill(undefined)
-    .map(_ => JSON.parse(JSON.stringify(parseString['vm'][0])));
+  if (parseString && parseString['vm']) {
+    parseString['vm'] = Array(targetModel.cloudInfraModel.vm?.length)
+      .fill(undefined)
+      .map(_ => JSON.parse(JSON.stringify(parseString['vm'][0])));
+  }
 
   if (targetModel.cloudInfraModel.vm) {
     targetModel.cloudInfraModel.vm.forEach((targetVm, index) => {
@@ -116,12 +117,12 @@ function mapTargetModelToTaskComponent(
 
   const task: ITaskResponse = {
     dependencies: [],
-    name: 'tumblebug_mci_dynamic',
+    name: 'beetle_task_infra_migration',
     path_params: null,
     query_params: null,
     request_body: JSON.stringify(parseString),
     id: '',
-    task_component: 'tumblebug_mci_dynamic',
+    task_component: 'beetle_task_infra_migration',
   };
 
   const step = workflowToolModel.convertToDesignerTask(task, task.request_body);
