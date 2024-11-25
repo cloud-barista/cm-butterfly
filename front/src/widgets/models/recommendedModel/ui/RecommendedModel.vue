@@ -107,9 +107,11 @@ onMounted(() => {
   handleProviderMenuClick(true);
 });
 
-function getRecommendModelList() {
-  getRecommendModel
-    .execute({
+async function getRecommendModelList() {
+  recommendModel_Model.initToolBoxTableModel();
+
+  try {
+    const res = await getRecommendModel.execute({
       request: {
         desiredProvider: provider.selected,
         desiredRegion: region.selected,
@@ -117,37 +119,47 @@ function getRecommendModelList() {
           ? targetSourceModel.value.onpremiseInfraModel
           : null,
       },
-    })
-    .then(res => {
-      if (res.data.responseData) {
-        const specsWithFormat = res.data.responseData.targetInfra.vm.map(vm => {
-          return {
-            commonSpec: vm.commonSpec,
-            commonImage: vm.commonImage,
-          };
+    });
+
+    const recommendModel = res.data.responseData;
+
+    if (recommendModel) {
+      const validationRes = recommendModel.targetInfra.vm.some(vm => {
+        return vm.commonSpec === '';
+      });
+
+      if (validationRes) {
+        throw new Error();
+      }
+
+      const specsWithFormat = recommendModel.targetInfra.vm.map(vm => {
+        return {
+          commonSpec: vm.commonSpec,
+          commonImage: vm.commonImage,
+        };
+      });
+
+      try {
+        const estimateCostList = await resGetRecommendCost.execute({
+          request: { specsWithFormat },
         });
 
-        resGetRecommendCost
-          .execute({
-            request: { specsWithFormat },
-          })
-          .then(costRes => {
-            if (costRes.data.responseData) {
-              recommendModel_Model.setTargetRecommendModel(
-                Object.assign(res.data.responseData, {
-                  estimateResponse: costRes.data.responseData,
-                }),
-              );
-            }
-          })
-          .catch(e => {
-            recommendModel_Model.initToolBoxTableModel();
-          });
+        Object.assign(recommendModel, {
+          estimateResponse: estimateCostList.data.responseData,
+        });
+
+        recommendModel_Model.setTargetRecommendModel(recommendModel);
+      } catch (e) {
+        /* empty */
       }
-    })
-    .catch(err => {
-      showErrorMessage('error', err.errorMsg);
-    });
+    }
+  } catch (err) {
+    showErrorMessage('error', err.errorMsg);
+    recommendModel_Model.targetRecommendModel.value = null;
+    recommendModel_Model.initToolBoxTableModel();
+  } finally {
+    recommendModel_Model.setTableStateItem();
+  }
 }
 
 function handleModal() {
