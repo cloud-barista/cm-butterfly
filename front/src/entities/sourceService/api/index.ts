@@ -3,7 +3,10 @@ import {
   RequestBodyWrapper,
   useAxiosPost,
 } from '@/shared/libs';
-import { ISourceAgentAndConnectionStatusResponse } from '@/entities/sourceService/model/types.ts';
+import {
+  IInfraSourceGroupResponse,
+  ISourceAgentAndConnectionStatusResponse,
+} from '@/entities/sourceService/model/types.ts';
 import { axiosInstance } from '@/shared/libs/api/instance.ts';
 import type { ISourceGroup } from '@/entities/sourceService/model/types.ts';
 
@@ -13,6 +16,9 @@ const GET_SOURCE_SERVICE_LIST = 'list-source-group';
 const GET_SOURCE_SERVICE = 'get-source-group';
 const GET_SOURCE_SERVICE_STATUS = 'agent-and-connection-check';
 const DELETE_SOURCE_SERVICE = 'delete-source-group';
+const GET_INFRA_SOURCE_GROUP = 'import-infra-source-group';
+const GET_INFRA_INFO_SOURCE_GROUP_REFINE =
+  'get-infra-info-source-group-refined';
 
 export function useRegisterSourceGroup<T, D>(
   sourceGroupData: D | ISourceGroup,
@@ -85,4 +91,32 @@ export function useBulkDeleteSourceGroup(sourceGroupIds: string[]) {
   });
 
   return Promise.all(promiseArr);
+}
+
+export function useGetInfraSourceGroup(sourceGroupId: string | null) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>
+  > = {
+    pathParams: { sgId: sourceGroupId },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<IInfraSourceGroupResponse>,
+    Required<Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>>
+  >(GET_INFRA_SOURCE_GROUP, requestWrapper);
+}
+
+export function useGetInfraSourceGroupInfraRefine(
+  sourceGroupId: string | null,
+) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>
+  > = {
+    pathParams: { sgId: sourceGroupId },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<any>,
+    Required<Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>>
+  >(GET_INFRA_INFO_SOURCE_GROUP_REFINE, requestWrapper);
 }

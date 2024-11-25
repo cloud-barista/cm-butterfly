@@ -7,6 +7,7 @@ import { Definition, Step } from 'sequential-workflow-model';
 import getRandomId from '@/shared/utils/uuid';
 import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
 import { editorProviders } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/editorProviders.ts';
+import testSvg from '@/shared/asset/image/testSvg.svg';
 
 export function useSequentialDesignerModel(refs: any) {
   let designer: Designer | null = null;
@@ -59,7 +60,7 @@ export function useSequentialDesignerModel(refs: any) {
     return {
       // all properties in this section are optional
       iconUrlProvider: (componentType: any, type: any) => {
-        return `/src/shared/asset/image/testSvg.svg`;
+        return testSvg;
       },
       //
       // isDraggable: (step, parentSequence) => {
@@ -71,9 +72,12 @@ export function useSequentialDesignerModel(refs: any) {
       isDuplicable: (step, parentSequence) => {
         return true;
       },
-      // canInsertStep: (step, targetSequence, targetIndex) => {
-      //   return true;
-      // },
+      canInsertStep: (step, targetSequence, targetIndex) => {
+        if (step.componentType === 'container') {
+          step.name = `${step.name}_${getRandomId().substring(0, 4)}`;
+        }
+        return true;
+      },
       // canMoveStep: (sourceSequence, step, targetSequence, targetIndex) => {
       //   return !step.properties['isLocked'];
       // },
@@ -138,6 +142,7 @@ export function useSequentialDesignerModel(refs: any) {
       editors: {
         isCollapsed: designerOptionsState.editors.isCollapsed,
         rootEditorProvider: (definition, rootContext, isReadonly) => {
+          designer?.setIsEditorCollapsed(true);
           return editorProviders().defaultRootEditorProvider(
             definition,
             rootContext,
@@ -145,6 +150,7 @@ export function useSequentialDesignerModel(refs: any) {
           );
         },
         stepEditorProvider: (step, stepContext, definition, isReadonly) => {
+          designer?.setIsEditorCollapsed(false);
           return editorProviders().defaultStepEditorProvider(
             step,
             stepContext,
@@ -177,7 +183,7 @@ export function useSequentialDesignerModel(refs: any) {
     designer.onDefinitionChanged.subscribe(newDefinition => {});
   }
 
-  function getDesigner() {
+  function getDesigner(): Designer | null {
     return designer;
   }
 

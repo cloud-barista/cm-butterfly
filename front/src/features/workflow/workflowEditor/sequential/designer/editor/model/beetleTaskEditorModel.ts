@@ -73,6 +73,7 @@ export function useTaskEditorModel() {
     path_params: PathParamsModel;
     query_params: QueryParamsModel;
   }>();
+  const componentNameModel = ref();
 
   function loadInputContext(
     key: string,
@@ -106,12 +107,18 @@ export function useTaskEditorModel() {
         icon: 'ic_chevron-down',
         title: index.toString(),
       },
-      content: Object.entries(object).map(
-        ([key, value]: [key: string, value: string]) => {
+      content: Object.entries(object)
+        .filter(([key, value]: [key: string, value: any]) => {
+          return typeof value === 'string';
+        })
+        .map(([key, value]: [key: string, value: string]) => {
           return loadInputContext(key, value);
-        },
-      ),
+        }),
     };
+  }
+
+  function setComponentName(name: string) {
+    componentNameModel.value = loadInputContext('name', name);
   }
 
   function setParamsContext(fixedModel: fixedModel) {
@@ -307,8 +314,10 @@ export function useTaskEditorModel() {
   }
 
   return {
+    componentNameModel,
     formContext,
     paramsContext,
+    setComponentName,
     setParamsContext,
     setFormContext,
     convertFormModelToStepProperties,

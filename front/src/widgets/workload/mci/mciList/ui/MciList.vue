@@ -4,6 +4,7 @@ import {
   PButton,
   PHorizontalLayout,
   PToolboxTable,
+  PBadge,
 } from '@cloudforet-test/mirinae';
 import { useGetMciInfo, useGetMciList } from '@/entities/mci/api';
 import { computed, onBeforeMount, onMounted, reactive } from 'vue';
@@ -35,6 +36,8 @@ function handleSelectedIndex(index: number[]) {
   const selectedData = mciTableModel.tableState.displayItems[index];
   if (selectedData) {
     emit('selectRow', selectedData.name);
+  } else {
+    emit('selectRow', '');
   }
 }
 
@@ -76,10 +79,21 @@ onMounted(() => {
             <p-button
               style-type="primary"
               icon-left="ic_plus_bold"
+              disabled
               @click="mciCreateModalState.open = true"
             >
               Create
             </p-button>
+          </template>
+          <template #col-provider-format="{ item, field }">
+            <p-badge
+              v-for="(provider, index) in item.provider"
+              :key="index"
+              :backgroundColor="provider.color"
+              class="mr-1"
+            >
+              {{ provider.name }}
+            </p-badge>
           </template>
         </p-toolbox-table>
       </template>

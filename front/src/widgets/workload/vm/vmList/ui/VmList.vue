@@ -5,9 +5,19 @@ import {
   PToolbox,
   PDataLoader,
   PToolboxTable,
+  PButtonTab,
 } from '@cloudforet-test/mirinae';
 import { useVmListModel } from '@/widgets/workload/vm/vmList/model';
 import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
+import SuccessfullyLoadConfigModal from '@/features/workload/successfullyModal/ui/SuccessfullyLoadConfigModal.vue';
+import LoadConfig from '@/features/workload/actionLoadConfig/ui/LoadConfig.vue';
+import { showErrorMessage } from '@/shared/utils';
+import { IVm } from '@/entities/mci/model';
+import VmInformation from '@/widgets/workload/vm/vmInformation/ui/VmInformation.vue';
+import VmEvaluatePerf from '@/widgets/workload/vm/vmEvaluatePerf/ui/VmEvaluatePerf.vue';
+import { useGetLastLoadTestState } from '@/entities/vm/api/api.ts';
+import LoadTestMetric from '@/widgets/workload/vm/vmEvaluatePerf/ui/LoadTestResourceMetric.vue';
+import { useGetMciInfo } from '@/entities/mci/api';
 
 interface IProps {
   nsId: string;
@@ -16,17 +26,142 @@ interface IProps {
 
 const props = defineProps<IProps>();
 const emit = defineEmits(['selectCard']);
+const resLoadStatus = useGetLastLoadTestState(null);
+const resGetMci = useGetMciInfo(null);
+const selectedVm = ref<IVm | null>(null);
+const { mciStore, initToolBoxTableModel, vmListTableModel, setMci } =
+  useVmListModel();
 
-const { getVmList, initToolBoxTableModel, vmListTableModel } =
-  useVmListModel<IProps>(props);
+const modalState = reactive({
+  loadConfigRequest: {
+    open: false,
+    context: {
+      scenarioName: '',
+    },
+  },
+  loadConfigSuccess: {
+    open: false,
+  },
+});
+const vmDetailTabState = reactive({
+  activeTab: 'information',
+  tabs: [
+    {
+      name: 'information',
+      label: 'Information',
+    },
+    {
+      name: 'connection',
+      label: 'Connection',
+    },
+    {
+      name: 'monitoring',
+      label: 'Monitoring',
+    },
+    {
+      name: 'evaluatePref',
+      label: 'Evaluate Pref',
+    },
+    {
+      name: 'estimateCost',
+      label: 'Estimate Cost',
+    },
+  ],
+});
+
+watch(
+  () => props.mciId,
+  async () => {
+    await handleMciIdChange();
+  },
+  { immediate: true },
+);
 
 onMounted(() => {
   initToolBoxTableModel();
 });
 
-function handleClick(value: any) {
-  console.log(value);
-  if (value && value.name) emit('selectCard', value.originalData.id);
+async function getMciInfo() {
+  return resGetMci
+    .execute({
+      pathParams: {
+        nsId: props.nsId,
+        mciId: props.mciId,
+      },
+    })
+    .then(res => {
+      if (res.data.responseData) {
+        mciStore.setMci(res.data.responseData);
+      }
+    })
+    .catch(e => {
+      showErrorMessage(e, e.errorMsg.value);
+    });
+}
+
+async function handleMciIdChange() {
+  vmListTableModel.tableState.loading = true;
+  await getMciInfo();
+  setMci(props.mciId);
+  vmListTableModel.tableState.selectIndex = [];
+  selectedVm.value = null;
+  vmListTableModel.tableState.loading = false;
+}
+
+function setVmLoadTestResult() {
+  if (selectedVm.value === null) return;
+
+  resLoadStatus
+    .execute({
+      request: {
+        nsId: props.nsId,
+        mciId: props.mciId,
+        vmId: selectedVm.value.id,
+      },
+    })
+    .then(res => {
+      if (res.data.responseData) {
+        mciStore.assignLastLoadTestStateToVm(
+          props.mciId,
+          selectedVm.value!.id,
+          res.data.responseData.result,
+        );
+        console.log(mciStore.getMciById(props.mciId));
+      }
+    })
+    .catch(e => {
+      showErrorMessage(e, e.errorMsg.value);
+    });
+}
+
+function handleCardClick(value: any) {
+  if (value && value.name) {
+    emit('selectCard', value.originalData.id);
+    selectedVm.value = value.originalData;
+    setVmLoadTestResult();
+  } else {
+    selectedVm.value = null;
+  }
+}
+
+function handleLoadStatus(e) {
+  modalState.loadConfigRequest.open = true;
+  modalState.loadConfigSuccess.open = false;
+}
+
+function handleLoadConfigRequestClose() {
+  modalState.loadConfigRequest.open = false;
+}
+
+function handleLoadConfigRequestSuccess(e: string) {
+  modalState.loadConfigRequest.open = false;
+  modalState.loadConfigSuccess.open = true;
+  modalState.loadConfigRequest.context.scenarioName = e;
+}
+
+function handleLoadConfigSuccessClose() {
+  modalState.loadConfigSuccess.open = false;
+  setVmLoadTestResult();
 }
 </script>
 
@@ -41,8 +176,11 @@ function handleClick(value: any) {
         :total-count="vmListTableModel.tableState.tableCount"
         :page-size="vmListTableModel.tableOptions.pageSize"
         :search-type="vmListTableModel.tableOptions.searchType"
+        :loading="
+          vmListTableModel.tableState.loading || resLoadStatus.isLoading.value
+        "
         @change="vmListTableModel.handleChange"
-        @refresh="() => {}"
+        @refresh="handleMciIdChange"
       >
         <template #left-area>
           <p-button
@@ -68,7 +206,7 @@ function handleClick(value: any) {
           v-model="vmListTableModel.tableState.selectIndex"
           :value="value.name"
           :multi-selectable="true"
-          @click="() => handleClick(value)"
+          @click="() => handleCardClick(value)"
           style="
             width: 205.5px;
             height: 56px;
@@ -84,8 +222,60 @@ function handleClick(value: any) {
       </div>
     </section>
     <section>
-      <slot :name="'vmInfoTable'"></slot>
+      <p-button-tab
+        v-model="vmDetailTabState.activeTab"
+        :tabs="vmDetailTabState.tabs"
+        v-if="selectedVm?.id"
+      >
+        <template #information>
+          <VmInformation
+            :mciId="props.mciId"
+            :nsId="nsId"
+            :vmId="selectedVm.id"
+            :loading="resLoadStatus.isLoading"
+            :lastloadtest-state-response="
+              resLoadStatus.data.value?.responseData?.result
+            "
+            @openLoadconfig="handleLoadStatus"
+          >
+          </VmInformation>
+        </template>
+        <template #connection>
+          <p>to be..</p>
+        </template>
+        <template #monitoring>
+          <p>to be..</p>
+        </template>
+        <template #evaluatePref>
+          <VmEvaluatePerf
+            :loading="resLoadStatus.isLoading"
+            :mciId="mciId"
+            :nsId="nsId"
+            :vmId="selectedVm.id"
+            @openLoadconfig="handleLoadStatus"
+          ></VmEvaluatePerf>
+        </template>
+        <template #estimateCost>
+          <p>to be..</p>
+        </template>
+      </p-button-tab>
     </section>
+
+    <LoadConfig
+      v-if="selectedVm"
+      :isOpen="modalState.loadConfigRequest.open"
+      :mciId="mciId"
+      :nsId="nsId"
+      :vmId="selectedVm?.id ?? ''"
+      :ip="selectedVm?.publicIP ?? ''"
+      @success="handleLoadConfigRequestSuccess"
+      @close="handleLoadConfigRequestClose"
+    ></LoadConfig>
+    <SuccessfullyLoadConfigModal
+      :isOpen="modalState.loadConfigSuccess.open"
+      :scenarioName="modalState.loadConfigRequest.context.scenarioName"
+      @close="handleLoadConfigSuccessClose"
+    ></SuccessfullyLoadConfigModal>
   </div>
 </template>
 

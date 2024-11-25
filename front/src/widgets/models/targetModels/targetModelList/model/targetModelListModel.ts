@@ -1,14 +1,19 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
-import type { ITargetModel } from '@/entities';
+import {
+  ISourceModelResponse,
+  ITargetModel,
+  ITargetModelResponse,
+} from '@/entities';
 import { useTargetModelStore, TargetModelTableType } from '@/entities';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
+import { formatDate } from '@/shared/utils';
 
 export function useTargetModelListModel() {
   const tableModel =
     useToolboxTableModel<Partial<Record<TargetModelTableType, any>>>();
   const targetModelStore = useTargetModelStore();
-  const { targetModels } = storeToRefs(targetModelStore);
+  const models = targetModelStore.getModels();
 
   function initToolBoxTableModel() {
     tableModel.tableState.fields = [
@@ -37,31 +42,31 @@ export function useTargetModelListModel() {
     ];
   }
 
-  function organizeTargetModelTableItem(targetModel: ITargetModel) {
+  function organizeTargetModelTableItem(targetModel: ITargetModelResponse) {
     const organizedDatum: Partial<
       Record<TargetModelTableType | 'originalData', any>
     > = {
-      name: targetModel.name,
+      name: targetModel.userModelName,
       id: targetModel.id,
       description: targetModel.description,
-      migrationType: targetModel.migrationType,
-      custom: targetModel.custom,
-      createdDateTime: targetModel.createdDateTime,
-      updatedDateTime: targetModel.updatedDateTime,
+      migrationType: targetModel['migrationType'] ?? '',
+      custom: targetModel.isInitUserModel ? 'Basic' : 'Custom',
+      createdDateTime: formatDate(targetModel.createTime),
+      updatedDateTime: formatDate(targetModel.updateTime),
       originalData: targetModel,
     };
     return organizedDatum;
   }
 
-  watch(targetModels, nv => {
-    tableModel.tableState.items = nv.map(value =>
+  watch(models, nv => {
+    tableModel.tableState.items = nv.map((value: ITargetModelResponse) =>
       organizeTargetModelTableItem(value),
     );
   });
 
   return {
     tableModel,
-    targetModels,
+    models,
     initToolBoxTableModel,
     targetModelStore,
   };

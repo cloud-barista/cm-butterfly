@@ -1,40 +1,47 @@
 <script setup lang="ts">
 import { useVmInformationModel } from '@/widgets/workload/vm/vmInformation/model';
-import { PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, watch } from 'vue';
+import { PBadge, PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
+import { onBeforeMount, onMounted, reactive, Ref, watch } from 'vue';
+import { ILastloadtestStateResponse } from '@/entities/mci/model';
 
 interface IProps {
   nsId: string;
   mciId: string;
   vmId: string;
+  lastloadtestStateResponse?: ILastloadtestStateResponse;
 }
 
 const props = defineProps<IProps>();
+const emit = defineEmits(['openLoadconfig']);
 console.log(props);
-const { initTable, setVmId, detailTableModel, resVmInfo } =
-  useVmInformationModel(props);
-const resLoadStatus: any = {};
+const {
+  initTable,
+  setVmId,
+  detailTableModel,
+  targetVm,
+  setMci,
+  mciStore,
+  remappingData,
+  mappdingLoadConfigStatus,
+} = useVmInformationModel();
+
 onBeforeMount(() => {
   initTable();
+  setMci(props.mciId);
+  setVmId(props.vmId);
 });
 
 watch(
   props,
   nv => {
-    setVmId(nv.vmId);
-  },
-  { immediate: true, deep: true },
-);
+    remappingData();
 
-watch(
-  detailTableModel.tableState.data,
-  nv => {
-    console.log(nv);
+    if (nv.lastloadtestStateResponse?.executionStatus) {
+      mappdingLoadConfigStatus(nv.lastloadtestStateResponse.executionStatus);
+    }
   },
   { deep: true },
 );
-
-function handleLoadStatus(e) {}
 </script>
 
 <template>
@@ -47,10 +54,24 @@ function handleLoadStatus(e) {}
     >
       <template #extra="{ name }">
         <div v-if="name === 'loadStatus'">
-          <p-button style-type="tertiary" size="sm" @click="handleLoadStatus">
+          <p-button
+            style-type="tertiary"
+            size="sm"
+            @click="emit('openLoadconfig')"
+          >
             Load Config
           </p-button>
         </div>
+      </template>
+      <template #data-provider="{ data }">
+        <p-badge
+          v-for="(provider, index) in data"
+          :key="index"
+          :backgroundColor="provider.color"
+          class="mr-1"
+        >
+          {{ provider.name }}
+        </p-badge>
       </template>
     </p-definition-table>
   </div>

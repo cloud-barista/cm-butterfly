@@ -4,8 +4,8 @@ import { axiosInstance } from './instance.ts';
 import {
   AsyncStatus,
   extractErrorMessage,
-  IUseAxiosErrorDetail,
   IUseBulkAxiosWrapperReturnType,
+  IUseAxiosErrorDetail,
 } from '../index';
 
 export function axiosBulkPost<T, D extends Array<unknown> = any>(
@@ -26,7 +26,7 @@ function useAxiosWrapper<T, D extends Array<unknown> = any>(
   ) => Promise<AxiosResponse<T>[]>,
 ): IUseBulkAxiosWrapperReturnType<T, D> | IUseAxiosErrorDetail {
   const isLoading: Ref<boolean> = ref(false);
-  const data: Ref<T[] | null> = ref(null); // T[]로 정의
+  const data: Ref<T[] | null> = ref(null);
   const error: Ref<Error | null> = ref(null);
   const errorMsg: Ref<string[] | null> = ref(null);
   const status: Ref<AsyncStatus> = ref<AsyncStatus>('idle');
@@ -35,14 +35,13 @@ function useAxiosWrapper<T, D extends Array<unknown> = any>(
     payload?: D,
     config?: AxiosRequestConfig,
   ): Promise<AxiosResponse<T>[]> => {
-    // T[]로 수정
     isLoading.value = true;
     status.value = 'loading';
     let result;
     try {
       result = await apiCall(payload, config);
       reset();
-      data.value = result.map(res => res.data); // T[]로 저장
+      data.value = result.map(res => res.data);
       status.value = 'success';
       return Promise.resolve(result);
     } catch (e: any) {

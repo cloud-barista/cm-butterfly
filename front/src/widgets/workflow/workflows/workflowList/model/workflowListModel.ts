@@ -4,6 +4,7 @@ import { WorkflowTableType } from '@/entities';
 import { useWorkflowStore } from '@/entities';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
+import { formatDate } from '@/shared/utils';
 
 export function useWorkflowListModel() {
   const tableModel =
@@ -42,8 +43,8 @@ export function useWorkflowListModel() {
       name: workflow.name,
       id: workflow.id,
       description: '-',
-      created_at: workflow.created_at,
-      updated_at: workflow.updated_at,
+      created_at: formatDate(workflow.created_at),
+      updated_at: formatDate(workflow.updated_at),
       originalData: workflow,
     };
     return organizedDatum;

@@ -172,7 +172,11 @@ watch(
           :query-tag="tableModel.querySearchState.queryTag"
           :select-index.sync="tableModel.tableState.selectIndex"
           :page-size="tableModel.tableOptions.pageSize"
-          :loading="isRunLoading"
+          :loading="
+            runWorkflow.isLoading.value ||
+            getWorkflowList.isLoading.value ||
+            tableModel.tableState.loading
+          "
           @change="tableModel.handleChange"
           @refresh="handleRefreshTable"
           @select="handleSelectedIndex"

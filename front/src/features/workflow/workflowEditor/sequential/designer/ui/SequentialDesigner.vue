@@ -6,6 +6,7 @@ import { useSequentialToolboxModel } from '@/features/workflow/workflowEditor/se
 import { Designer } from 'sequential-workflow-designer';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 import { ITaskComponentInfoResponse } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
+import { Definition } from 'sequential-workflow-model';
 
 interface IProps {
   sequence: Step[];
@@ -36,9 +37,12 @@ onMounted(function () {
 watch(
   () => props.sequence,
   () => {
-    sequentialDesignerModel.value.setDefaultSequence(props.sequence);
-    sequentialDesignerModel.value.initDesigner();
-    sequentialDesignerModel.value.draw();
+    const designer: Designer = sequentialDesignerModel.value.getDesigner();
+    const definition: Definition = {
+      properties: designer.getDefinition().properties,
+      sequence: props.sequence,
+    };
+    designer.replaceDefinition(definition);
   },
 );
 
@@ -73,6 +77,9 @@ watch(
     border-width: 1px;
     border-radius: 6px;
     padding: 2px;
+    .sqd-toolbox {
+      width: 280px;
+    }
 
     .sqd-smart-editor-toggle {
       right: 500px;
