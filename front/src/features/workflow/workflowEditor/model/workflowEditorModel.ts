@@ -211,13 +211,10 @@ export function useWorkflowToolModel() {
         parentNode.task_groups.push(taskGroup);
       }
     }
-    console.log(cicadaObject);
     return cicadaObject;
   }
 
   function convertToCicadaTask(step: Step, dependenciesStep: Step) {
-    console.log(step);
-    console.log(dependenciesStep);
     if (step.componentType === 'task') {
       return {
         name: step.name,

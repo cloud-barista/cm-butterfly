@@ -72,9 +72,12 @@ export function useSequentialDesignerModel(refs: any) {
       isDuplicable: (step, parentSequence) => {
         return true;
       },
-      // canInsertStep: (step, targetSequence, targetIndex) => {
-      //   return true;
-      // },
+      canInsertStep: (step, targetSequence, targetIndex) => {
+        if (step.componentType === 'container') {
+          step.name = `${step.name}_${getRandomId().substring(0, 4)}`;
+        }
+        return true;
+      },
       // canMoveStep: (sourceSequence, step, targetSequence, targetIndex) => {
       //   return !step.properties['isLocked'];
       // },

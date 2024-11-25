@@ -51,6 +51,8 @@ const loading = ref<boolean>(true);
 
 const trigger = reactive({ value: false });
 
+console.log(props);
+
 onBeforeMount(function () {
   Promise.all<any>([
     resWorkflowTemplateData.execute(),
@@ -82,13 +84,13 @@ function load() {
   loading.value = false;
 }
 
-//targetModel에서 진입시 targetModel의 특정 정보를 가지고 있어야한다는 요구사항에 의한 함수
+/** targetModel에서 진입시 targetModel의 특정 정보를 가지고 있어야한다는 요구사항에 의한 함수 */
 function mapTargetModelToTaskComponent(
   targetModel: ITargetModelResponse,
   taskComponentList: Array<ITaskComponentInfoResponse>,
 ) {
   const taskComponent = taskComponentList.find(
-    taskComponent => taskComponent.name === 'beetle_task_infra_migration',
+    taskComponent => taskComponent.name === 'tumblebug_mci_dynamic',
   );
 
   if (!taskComponent) {
@@ -100,19 +102,26 @@ function mapTargetModelToTaskComponent(
     .defineTaskGroupStep(getRandomId(), 'TaskGroup', 'MCI', { model: {} });
 
   const parseString = parseRequestBody(taskComponent.data.options.request_body);
+
+  parseString['vm'] = Array(targetModel.cloudInfraModel.vm?.length)
+    .fill(undefined)
+    .map(_ => JSON.parse(JSON.stringify(parseString['vm'][0])));
+
   if (targetModel.cloudInfraModel.vm) {
-    parseString['commonSpec'] = targetModel.cloudInfraModel.vm[0].commonSpec;
-    parseString['commonImage'] = targetModel.cloudInfraModel.vm[0].commonImage;
+    targetModel.cloudInfraModel.vm.forEach((targetVm, index) => {
+      parseString['vm'][index]['commonSpec'] = targetVm.commonSpec;
+      parseString['vm'][index]['commonImage'] = targetVm.commonImage;
+    });
   }
 
   const task: ITaskResponse = {
     dependencies: [],
-    name: 'beetle_task_infra_migration',
+    name: 'tumblebug_mci_dynamic',
     path_params: null,
     query_params: null,
     request_body: JSON.stringify(parseString),
     id: '',
-    task_component: 'beetle_task_infra_migration',
+    task_component: 'tumblebug_mci_dynamic',
   };
 
   const step = workflowToolModel.convertToDesignerTask(task, task.request_body);
@@ -291,7 +300,11 @@ function handleSelectTemplate(e) {
         >
           Cancel
         </p-button>
-        <p-button @click="handleSave">Save</p-button>
+        <p-button
+          :loading="resUpdateWorkflow.isLoading.value"
+          @click="handleSave"
+          >Save</p-button
+        >
       </template>
     </create-form>
   </div>
