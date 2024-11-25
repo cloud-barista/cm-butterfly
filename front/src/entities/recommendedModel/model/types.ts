@@ -2,13 +2,8 @@ export type RecommendedModelTableType =
   | 'name'
   | 'id'
   | 'description'
-  | 'label'
   | 'spec'
   | 'image'
-  | 'rootDiskType'
-  | 'rootDiskSize'
-  | 'userPassword'
-  | 'connection'
   | 'estimateCost';
 
 interface Vm {

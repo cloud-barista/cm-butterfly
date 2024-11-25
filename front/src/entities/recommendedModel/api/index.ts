@@ -55,22 +55,22 @@ interface ISpecFormat {
   commonImage: string;
 }
 
-export function getRecommendCost(specsWithFormat: ISpecFormat | null) {
+export function getRecommendCost(specsWithFormat: ISpecFormat[] | null) {
   const requestWrapper: Required<
     Pick<
-      RequestBodyWrapper<{ specsWithFormat: [ISpecFormat | null] }>,
+      RequestBodyWrapper<{ specsWithFormat: ISpecFormat[] | null }>,
       'request'
     >
   > = {
     request: {
-      specsWithFormat: [specsWithFormat],
+      specsWithFormat: specsWithFormat,
     },
   };
   return useAxiosPost<
     IAxiosResponse<IEsimateCostSpecResponse>,
     Required<
       Pick<
-        RequestBodyWrapper<{ specsWithFormat: [ISpecFormat | null] }>,
+        RequestBodyWrapper<{ specsWithFormat: ISpecFormat[] | null }>,
         'request'
       >
     >

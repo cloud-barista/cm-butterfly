@@ -120,12 +120,16 @@ function getRecommendModelList() {
     })
     .then(res => {
       if (res.data.responseData) {
-        const commonImage = res.data.responseData.targetInfra.vm[0].commonImage;
-        const commonSpec = res.data.responseData.targetInfra.vm[0].commonSpec;
+        const specsWithFormat = res.data.responseData.targetInfra.vm.map(vm => {
+          return {
+            commonSpec: vm.commonSpec,
+            commonImage: vm.commonImage,
+          };
+        });
 
         resGetRecommendCost
           .execute({
-            request: { specsWithFormat: [{ commonSpec, commonImage }] },
+            request: { specsWithFormat },
           })
           .then(costRes => {
             if (costRes.data.responseData) {
@@ -144,10 +148,6 @@ function getRecommendModelList() {
     .catch(err => {
       showErrorMessage('error', err.errorMsg);
     });
-}
-
-function handleClickRecommendedModelId(id: string) {
-  selectedRecommendedModelId.value = id;
 }
 
 function handleModal() {
@@ -196,13 +196,8 @@ function handleSave(e: { name: string; description: string }) {
       })
       .catch();
   } catch (e) {
-    console.log(e);
     showErrorMessage('error', e);
   }
-}
-
-function test(e) {
-  getRecommendModelList();
 }
 </script>
 

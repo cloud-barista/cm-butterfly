@@ -14,9 +14,17 @@ import {
   IRegionOfProviderResponse,
 } from '@/entities/provider/model/types.ts';
 
+interface ISelectMenu {
+  name: string;
+  label: string;
+  type: string;
+}
+
 export function useRecommendedModel() {
   const tableModel =
-    useToolboxTableModel<Partial<Record<RecommendedModelTableType, any>>>();
+    useToolboxTableModel<
+      Partial<Record<RecommendedModelTableType | 'originalData', any>>
+    >();
   const sourceModelStore = useSourceModelStore();
   const targetRecommendModel = ref<
     | (IRecommendModelResponse & {
@@ -28,18 +36,12 @@ export function useRecommendedModel() {
 
   function initToolBoxTableModel() {
     tableModel.initState();
-
     tableModel.tableState.fields = [
       { name: 'name', label: 'Name' },
       { name: 'id', label: 'ID' },
       { name: 'description', label: 'Description' },
-      { name: 'label', label: 'Label' },
       { name: 'spec', label: 'Spec' },
       { name: 'image', label: 'Image' },
-      { name: 'rootDiskType', label: 'Root Disk Type' },
-      { name: 'rootDiskSize', label: 'Root Disk Size' },
-      { name: 'userPassword', label: 'User Password' },
-      { name: 'connection', label: 'Connection' },
       { name: 'estimateCost', label: 'Estimate Cost' },
     ];
 
@@ -50,13 +52,8 @@ export function useRecommendedModel() {
           { name: 'id', label: 'ID' },
           { name: 'name', label: 'Name' },
           { name: 'description', label: 'Description' },
-          { name: 'label', label: 'Label' },
           { name: 'spec', label: 'Spec' },
           { name: 'image', label: 'Image' },
-          { name: 'rootDiskType', label: 'Root Disk Type' },
-          { name: 'rootDiskSize', label: 'Root Disk Size' },
-          { name: 'userPassword', label: 'User Password' },
-          { name: 'connection', label: 'Connection' },
           { name: 'estimateCost', label: 'Estimate Cost' },
         ],
       },
@@ -70,22 +67,37 @@ export function useRecommendedModel() {
       estimateResponse: IEsimateCostSpecResponse;
     },
   ) {
+    console.log(recommendedModel);
+
     const organizedDatum: Partial<
       Record<RecommendedModelTableType | 'originalData', any>
     > = {
       name: recommendedModel.targetInfra.name,
       id: recommendedModel['id'] || '',
-      description: recommendedModel.description,
-      label: recommendedModel.targetInfra.label,
-      spec: recommendedModel['spec'] || '',
-      image: recommendedModel['image'] || '',
-      rootDiskType: recommendedModel['rootDiskType'] || '',
-      rootDiskSize: recommendedModel['rootDiskSize'] || '',
-      userPassword: recommendedModel['userPassword'] || '',
-      connection: recommendedModel['connection'] || '',
+      description: recommendedModel['description'] || '',
+      spec:
+        recommendedModel.targetInfra.vm
+          .reduce((acc, cur) => {
+            return `${acc}_${cur.commonSpec} / `;
+          }, '')
+          .replace(/(\/\s)$/, '') || '',
+      image:
+        recommendedModel.targetInfra.vm
+          .reduce((acc, cur) => {
+            return `${acc}_${cur.commonImage} / `;
+          }, '')
+          .replace(/(\/\s)$/, '') || '',
       estimateCost:
-        recommendedModel.estimateResponse.result.esimateCostSpecResults[0]
-          .estimateForecastCostSpecDetailResults[0].calculatedMonthlyPrice +
+        recommendedModel.estimateResponse.result.esimateCostSpecResults.reduce(
+          (acc, cur) => {
+            return (
+              acc +
+              cur.estimateForecastCostSpecDetailResults[0]
+                .calculatedMonthlyPrice
+            );
+          },
+          0,
+        ) +
           recommendedModel.estimateResponse.result.esimateCostSpecResults[0]
             .estimateForecastCostSpecDetailResults[0].currency || '',
       originalData: recommendedModel,
@@ -100,12 +112,6 @@ export function useRecommendedModel() {
     },
   ) {
     targetRecommendModel.value = _targetRecommendModel;
-  }
-
-  interface ISelectMenu {
-    name: string;
-    label: string;
-    type: string;
   }
 
   function generateProviderSelectMenu(

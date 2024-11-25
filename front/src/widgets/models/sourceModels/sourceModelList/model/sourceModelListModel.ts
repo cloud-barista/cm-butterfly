@@ -1,13 +1,10 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
-import type { ISourceModel } from '@/entities';
 import {
   useSourceModelStore,
   SourceModelTableType,
   ISourceModelResponse,
 } from '@/entities';
 import { watch } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useDateFormat } from '@vueuse/core';
 import { formatDate } from '@/shared/utils';
 
 export function useSourceModelListModel() {
