@@ -61,7 +61,6 @@ watch(
   props,
   () => {
     setServiceId(props.selectedServiceId);
-    getSourceGroupInfras();
   },
   { immediate: true },
 );
@@ -134,9 +133,9 @@ function handleJsonModal() {
         <p-status :theme="data.color" :text="data.text" />
       </template>
 
-      <template #data-viewInfra>
-        <p class="link-button-text" @click="handleJsonModal">
-          Custom & View Source Model
+      <template #data-viewInfra="{ data }">
+        <p class="text-blue-700 cursor-pointer" @click="handleJsonModal">
+          {{ data.isShow ? 'View Infra(Meta) ->' : null }}
         </p>
       </template>
 
@@ -145,12 +144,20 @@ function handleJsonModal() {
           <p-button
             style-type="tertiary"
             size="sm"
-            :loading="
-              refreshSourceGroupConnectionInfoStatus.status.value === 'loading'
-            "
+            :loading="refreshSourceGroupConnectionInfoStatus.isLoading.value"
             @click="handleSourceGroupStatusRefresh"
           >
             Refresh
+          </p-button>
+        </div>
+        <div v-else-if="name === 'viewInfra'">
+          <p-button
+            style-type="tertiary"
+            size="sm"
+            :loading="resGetInfraSourceGroup.isLoading.value"
+            @click="getSourceGroupInfras"
+          >
+            Collect Infra
           </p-button>
         </div>
       </template>

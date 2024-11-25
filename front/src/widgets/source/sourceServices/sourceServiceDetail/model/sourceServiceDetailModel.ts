@@ -49,6 +49,9 @@ export function useSourceServiceDetailModel() {
         id: sourceService.id,
         description: sourceService.description,
         status: setServiceStatus(sourceService.status),
+        viewInfra: {
+          isShow: !!sourceService.infraModel,
+        },
       };
     }
     return data;
