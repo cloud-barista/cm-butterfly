@@ -8,16 +8,14 @@ import SourceInformation from '@/widgets/source/sourceConnections/sourceConnecti
 import SourceInfraCollect from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/ui/SourceInfraCollect.vue';
 import SourceSoftwareCollect from '@/widgets/source/sourceConnections/sourceConnectionDetail/softwareCollect/ui/SourceSoftwareCollect.vue';
 import SourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/SourceConnectionModal.vue';
-import {
-  AddSourceServiceModal,
-  EditSourceServiceModal,
-} from '@/widgets/sourceServices';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
 import MetaViewer from '@/widgets/source/sourceConnections/sourceConnectionDetail/metaViewer/ui/MetaViewer.vue';
 import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
 import EditSourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/EditSourceConnectionModal.vue';
 import { showSuccessMessage } from '@/shared/utils';
+import AddSourceServiceModal from '@/features/sourceServices/addSourceServiceModal/ui/AddSourceServiceModal.vue';
+import EditSourceServiceModal from '@/features/sourceServices/editSourceServiceModal/ui/EditSourceServiceModal.vue';
 
 const sourceConnectionName = ref<string>('');
 const multiSelectedConnectionIds = ref<string[]>([]);
@@ -146,46 +144,6 @@ const data = computed(() => {
   return sourceConnectionStore.getConnectionById(selectedConnectionId.value)
     ?.softwareData;
 });
-
-const infraSchema = {
-  json: true,
-  properties: {
-    compute: {
-      type: 'string',
-      title: 'Compute',
-    },
-    network: {
-      type: 'string',
-      title: 'Network',
-    },
-    storage: {
-      type: 'string',
-      title: 'Storage',
-    },
-  },
-};
-
-const softwareSchema = {
-  json: true,
-  properties: {
-    deb: {
-      type: 'string',
-      title: 'Debian',
-    },
-    docker: {
-      type: 'string',
-      title: 'Docker',
-    },
-    podman: {
-      type: 'string',
-      title: 'Podman',
-    },
-    rpm: {
-      type: 'string',
-      title: 'RPM',
-    },
-  },
-};
 </script>
 
 <template>
@@ -230,6 +188,9 @@ const softwareSchema = {
             <SourceServiceDetail
               :selected-service-id="selectedServiceId"
               @update:source-connection-name="e => (sourceConnectionName = e)"
+              @update:custom-view-json-modal="
+                e => (modalStates.addInfraMetaViewer.open = e)
+              "
             />
           </template>
           <template #connections>
@@ -345,14 +306,14 @@ const softwareSchema = {
         "
         :collect-data="infraData"
         :source-connection-name="sourceConnectionName"
-        :schema="infraSchema"
+        :sgId="selectedServiceId"
+        :connId="selectedConnectionId"
         @update:is-meta-viewer-opened="modalStates.addInfraMetaViewer.confirm()"
       />
       <meta-viewer
         v-else-if="modalStates.addSoftwareMetaViewer.open && data"
         :collect-data="softwareData"
         :source-connection-name="sourceConnectionName"
-        :schema="softwareSchema"
         @update:is-meta-viewer-opened="
           modalStates.addSoftwareMetaViewer.confirm()
         "

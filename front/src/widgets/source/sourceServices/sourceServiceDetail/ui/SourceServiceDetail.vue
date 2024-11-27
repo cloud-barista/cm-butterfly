@@ -1,14 +1,24 @@
 <script setup lang="ts">
 import { PDefinitionTable, PButton, PStatus } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, ref, watch, watchEffect } from 'vue';
+import {
+  onBeforeMount,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+  watchEffect,
+} from 'vue';
 import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
 import {
+  useGetInfraSourceGroup,
   useGetSourceGroupStatus,
   useGetSourceService,
 } from '@/entities/sourceService/api';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { storeToRefs } from 'pinia';
 import { useRefreshSourceGroupConnectionInfoStatus } from '@/entities/sourceConnection/api';
+import { CustomViewSourceModel } from '@/widgets/models/sourceModels';
+import SourceServiceInfraRefineModal from '@/features/sourceServices/sourceServiceInfraRefinedModal/ui/sourceServiceInfraRefineModal.vue';
 
 interface IProps {
   selectedServiceId: string;
@@ -16,30 +26,35 @@ interface IProps {
 
 const props = defineProps<IProps>();
 
-const emit = defineEmits(['update:source-connection-name']);
+const emit = defineEmits([
+  'update:source-connection-name',
+  'update:custom-view-json-modal',
+]);
 
-// loadSourceServiceData,
-const { sourceServiceStore, initTable, tableModel, setServiceId } =
-  useSourceServiceDetailModel();
+const {
+  sourceServiceStore,
+  initTable,
+  tableModel,
+  setServiceId,
+  loadSourceServiceData,
+} = useSourceServiceDetailModel();
 
-// const resGetSourceGroupStatus = useGetSourceGroupStatus(null); // deprecated
 const refreshSourceGroupConnectionInfoStatus =
   useRefreshSourceGroupConnectionInfoStatus(null);
 const getSourceService = useGetSourceService(null);
-// const { serviceWithStatus } = storeToRefs(sourceServiceStore);
+const resGetInfraSourceGroup = useGetInfraSourceGroup(null);
+const infraModel = ref({});
 
-watch(refreshSourceGroupConnectionInfoStatus.status, nv => {
-  if (nv === 'error') {
-    showErrorMessage(
-      'Error',
-      'Failed to check collector installation connection status',
-    );
-  } else if (nv === 'success') {
-    showSuccessMessage(
-      'Success',
-      'Successfully updated the collector installation and connection status.',
-    );
-  }
+const modalState = reactive({
+  open: false,
+  context: {
+    name: '',
+    description: '',
+  },
+});
+
+onBeforeMount(() => {
+  initTable();
 });
 
 watch(
@@ -50,12 +65,6 @@ watch(
   { immediate: true },
 );
 
-const checkAble = ref<boolean>(false);
-
-onBeforeMount(() => {
-  initTable();
-});
-
 watchEffect(() => {
   emit(
     'update:source-connection-name',
@@ -63,30 +72,25 @@ watchEffect(() => {
   );
 });
 
-async function getSourceServiceWithStatus() {
-  try {
-    const { data } = await getSourceService.execute({
+function getSourceGroupInfras() {
+  resGetInfraSourceGroup
+    .execute({
       pathParams: {
         sgId: props.selectedServiceId,
       },
-    });
-    if (data.status && data.status.code === 200) {
-      sourceServiceStore.setServiceWithConnectionStatus(data.responseData);
-    }
-  } catch (error) {
-    console.log(error);
-  }
+    })
+    .then(res => {
+      if (res.data.responseData) {
+        sourceServiceStore.mappinginfraModel(
+          props.selectedServiceId,
+          res.data.responseData,
+        );
+        infraModel.value = res.data.responseData;
+        loadSourceServiceData(props.selectedServiceId);
+      }
+    })
+    .catch(e => {});
 }
-
-watchEffect(() => {
-  getSourceServiceWithStatus();
-});
-
-/**
- * TODO: 문제점: refresh한다고해서 바로 반영이 되지 않음 -> 근데 connections에서 add / edit하면 바로 반영됨...
- * 뭔가 refresh btn의 의미가 없음....
- * 그렇다고
- */
 
 async function handleSourceGroupStatusRefresh() {
   try {
@@ -96,13 +100,22 @@ async function handleSourceGroupStatusRefresh() {
       },
     });
 
-    if (data.status && data.status.code === 200) {
-      // loadSourceServiceData(props.selectedServiceId);
-      getSourceServiceWithStatus();
+    if (data.responseData && data.responseData.message) {
+      sourceServiceStore.mappingSourceGroupStatus(
+        props.selectedServiceId,
+        data.responseData.message,
+      );
+
+      loadSourceServiceData(props.selectedServiceId);
+      console.log(tableModel.tableState.data);
     }
   } catch (err) {
-    console.log(err);
+    showErrorMessage('error', err.errorMsg.value);
   }
+}
+
+function handleJsonModal() {
+  modalState.open = true;
 }
 </script>
 
@@ -111,11 +124,19 @@ async function handleSourceGroupStatusRefresh() {
     <p-definition-table
       :fields="tableModel.tableState.fields"
       :data="tableModel.tableState.data"
-      :loading="tableModel.tableState.loading"
+      :loading="
+        tableModel.tableState.loading || resGetInfraSourceGroup.isLoading.value
+      "
       :block="true"
     >
       <template #data-status="{ data }">
         <p-status :theme="data.color" :text="data.text" />
+      </template>
+
+      <template #data-viewInfra="{ data }">
+        <p class="text-blue-700 cursor-pointer" @click="handleJsonModal">
+          {{ data.isShow ? 'View Infra(Meta) ->' : null }}
+        </p>
       </template>
 
       <template #extra="{ name }">
@@ -123,15 +144,29 @@ async function handleSourceGroupStatusRefresh() {
           <p-button
             style-type="tertiary"
             size="sm"
-            :loading="
-              refreshSourceGroupConnectionInfoStatus.status.value === 'loading'
-            "
+            :loading="refreshSourceGroupConnectionInfoStatus.isLoading.value"
             @click="handleSourceGroupStatusRefresh"
           >
             Refresh
           </p-button>
         </div>
+        <div v-else-if="name === 'viewInfra'">
+          <p-button
+            style-type="tertiary"
+            size="sm"
+            :loading="resGetInfraSourceGroup.isLoading.value"
+            @click="getSourceGroupInfras"
+          >
+            Collect Infra
+          </p-button>
+        </div>
       </template>
     </p-definition-table>
+    <SourceServiceInfraRefineModal
+      v-if="modalState.open"
+      :sgId="props.selectedServiceId"
+      :collect-data="infraModel"
+      @update:is-meta-viewer-opened="modalState.open = false"
+    />
   </div>
 </template>

@@ -15,8 +15,6 @@ export function useSourceServiceDetailModel() {
   const tableModel =
     useDefinitionTableModel<Record<SourceServiceTableType, any>>();
 
-  const { serviceWithStatus } = storeToRefs(sourceServiceStore);
-
   function setServiceId(_serviceId: string | null) {
     serviceId.value = _serviceId;
   }
@@ -33,36 +31,30 @@ export function useSourceServiceDetailModel() {
         name: 'status',
         disableCopy: true,
       },
+      {
+        label: 'view Infra',
+        name: 'viewInfra',
+        disableCopy: true,
+      },
     ];
   }
 
   function setDefineTableData(serviceId: string) {
-    let data = {} as any;
-    if (serviceWithStatus.value && serviceWithStatus.value.id === serviceId) {
+    const sourceService = sourceServiceStore.getServiceById(serviceId);
+    let data: Partial<Record<SourceServiceTableType, any>> = {};
+
+    if (sourceService) {
       data = {
-        name: serviceWithStatus.value.name,
-        id: serviceWithStatus.value.id,
-        description: serviceWithStatus.value.description,
-        status: setServiceStatus(
-          serviceWithStatus.value.connection_info_status_count,
-        ),
+        name: sourceService.name,
+        id: sourceService.id,
+        description: sourceService.description,
+        status: setServiceStatus(sourceService.status),
+        viewInfra: {
+          isShow: !!sourceService.infraModel,
+        },
       };
     }
-    console.log(data);
     return data;
-    // const sourceService = sourceServiceStore.getServiceById(serviceId);
-    // let data: Partial<Record<SourceServiceTableType, any>> = {};
-
-    // if (sourceService) {
-    //   data = {
-    //     name: sourceService.name,
-    //     id: sourceService.id,
-    //     description: sourceService.description,
-    //     // status: setServiceStatus(sourceService.status),
-    //     status: sourceService.status,
-    //   };
-    // }
-    // return data;
   }
 
   interface IStatus {
@@ -71,66 +63,32 @@ export function useSourceServiceDetailModel() {
     text: string;
   }
 
-  function setServiceStatus(
-    stateCnt: ISourceConnectionStatusCountResponse,
-  ): any {
-    if (
-      stateCnt.connection_info_total === stateCnt.count_agent_success &&
-      stateCnt.connection_info_total === stateCnt.count_connection_success &&
-      stateCnt.connection_info_total !== 0
-    ) {
+  function setServiceStatus(status: string | undefined): IStatus {
+    if (status === 'success') {
       return {
         color: 'green',
-        text: SourceServiceStatus['S0001'],
-        status: 'S0001',
+        text: status,
+        status: 'Success',
       };
-    } else if (
-      stateCnt.count_connection_failed > 0 ||
-      stateCnt.count_connection_failed > 0
-    ) {
+    } else if (status === 'partialSuccess') {
+      return {
+        color: 'yellow',
+        text: status,
+        status: 'PartialSuccess',
+      };
+    } else if (status === 'failed') {
       return {
         color: 'red',
-        text: SourceServiceStatus['S0003'],
-        status: 'S0003',
+        text: status,
+        status: 'Failed',
       };
-    } else if (
-      stateCnt.count_agent_failed + stateCnt.count_agent_success !==
-        stateCnt.connection_info_total ||
-      stateCnt.count_connection_failed + stateCnt.count_connection_success !==
-        stateCnt.connection_info_total ||
-      stateCnt.connection_info_total === 0
-    ) {
+    } else {
       return {
         color: 'gray',
         text: 'Unknown',
-        status: 'S0004',
+        status: 'Unknown',
       };
     }
-    // if (state === 'S0001') {
-    //   return {
-    //     color: 'green',
-    //     text: SourceServiceStatus[state],
-    //     status: state,
-    //   };
-    // } else if (state === 'S0002') {
-    //   return {
-    //     color: 'yellow',
-    //     text: SourceServiceStatus[state],
-    //     status: state,
-    //   };
-    // } else if (state === 'S0003') {
-    //   return {
-    //     color: 'red',
-    //     text: SourceServiceStatus[state],
-    //     status: state,
-    //   };
-    // } else {
-    //   return {
-    //     color: 'gray',
-    //     text: 'Unknown',
-    //     status: 'S0004',
-    //   };
-    // }
   }
 
   function loadSourceServiceData(serviceId: string | null | undefined) {
@@ -141,8 +99,8 @@ export function useSourceServiceDetailModel() {
     tableModel.tableState.loading = false;
   }
 
-  watch([serviceId, serviceWithStatus], nv => {
-    loadSourceServiceData(nv[0]);
+  watch(serviceId, nv => {
+    loadSourceServiceData(nv);
   });
 
   return {

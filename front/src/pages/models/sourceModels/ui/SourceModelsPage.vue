@@ -4,15 +4,28 @@ import { SourceModelList } from '@/widgets/models/sourceModels';
 import { SourceModelDetail } from '@/widgets/models/sourceModels';
 import { CustomViewSourceModel } from '@/widgets/models/sourceModels';
 import { RecommendedModel } from '@/widgets/models/sourceModels';
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
+import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+import {
+  useBulkAddWorkspaceList,
+  useSourceModelStore,
+  useUpdateSourceModel,
+} from '@/entities';
 
 const pageName = 'Source Models';
 
 const selectedSourceModelId = ref<string>('');
 const sourceModelName = ref<string>('');
 const sourceModelDescription = ref<string>('');
-
+const sourceModelStore = useSourceModelStore();
+const resUpdateSourceModel = useUpdateSourceModel(null, null);
+const sourceModel = computed(() =>
+  sourceModelStore.getSourceModelById(selectedSourceModelId.value),
+);
+watch(sourceModelName, nv => {
+  console.log(nv);
+});
 const mainTabState = reactive({
   activeTab: 'details',
   tabs: [
@@ -24,20 +37,56 @@ const mainTabState = reactive({
 });
 
 const modalState = reactive({
-  customViewJsonModal: { open: false, trigger: false },
-  editModelModal: { open: false, trigger: false },
+  customViewJsonModal: {
+    open: false,
+    trigger: false,
+  },
+  editModelModal: {
+    open: false,
+    trigger: false,
+    context: {
+      name: '',
+      description: '',
+    },
+    updateTrigger() {
+      modalState.editModelModal.trigger = false;
+    },
+  },
   viewRecommendedListModal: { open: false, trigger: false },
 });
 
-function handleClickSourceModelId(id: string) {
-  selectedSourceModelId.value = id;
+function handleClickSourceModelId(data: { id: string; name: string }) {
+  console.log(data);
+  selectedSourceModelId.value = data.id;
+  sourceModelName.value = data.name ?? '';
 }
 
 function handleJsonModal(value: boolean) {
   modalState.customViewJsonModal.open = value;
 }
 
-const recommendedModelList = ref<any>([]);
+function handleUpdateSourceModel(e) {
+  modalState.editModelModal.open = false;
+  modalState.editModelModal.context.name = e.name;
+  modalState.editModelModal.context.description = e.description;
+  console.log(sourceModel.value);
+  const requestBody = Object.assign({}, sourceModel.value, {
+    userModelName: e.name,
+    description: e.description,
+  });
+  resUpdateSourceModel
+    .execute({
+      pathParams: { id: selectedSourceModelId.value },
+      request: requestBody,
+    })
+    .then(res => {
+      showSuccessMessage('success', 'Successfully updated target model');
+      modalState.editModelModal.trigger = true;
+    })
+    .catch(e => {
+      showErrorMessage('error', e.errorMsg);
+    });
+}
 </script>
 
 <template>
@@ -46,7 +95,11 @@ const recommendedModelList = ref<any>([]);
       <p>{{ pageName }}</p>
     </header>
     <section :class="`${pageName}-page-body`">
-      <source-model-list @select-row="handleClickSourceModelId" />
+      <source-model-list
+        :trigger="modalState.editModelModal.trigger"
+        @select-row="handleClickSourceModelId"
+        @update:trigger="modalState.editModelModal.updateTrigger"
+      />
       <p v-if="!selectedSourceModelId" class="more-details">
         Select an item for more details.
       </p>
@@ -71,11 +124,6 @@ const recommendedModelList = ref<any>([]);
               @update:view-recommend-list-modal="
                 e => (modalState.viewRecommendedListModal.open = e)
               "
-              @update:source-model-name="e => (sourceModelName = e)"
-              @update:source-model-description="
-                e => (sourceModelDescription = e)
-              "
-              @update:recommended-model-list="e => (recommendedModelList = e)"
             />
           </template>
         </p-tab>
@@ -87,22 +135,25 @@ const recommendedModelList = ref<any>([]);
         header-title="Edit Model"
         name-label="Model Name"
         :name="sourceModelName"
-        :description="sourceModelDescription"
+        :description="sourceModel['description'] ?? ''"
         :name-placeholder="'Model Name'"
-        @update:save-modal="modalState.editModelModal.open = false"
+        @update:save-modal="handleUpdateSourceModel"
         @update:close-modal="modalState.editModelModal.open = false"
+        @update:trigger="modalState.editModelModal.trigger = true"
       />
     </div>
     <div class="relative z-70">
       <custom-view-source-model
         v-if="modalState.customViewJsonModal.open"
         :source-model-name="sourceModelName"
+        :source-model-id="selectedSourceModelId"
         @update:close-modal="handleJsonModal"
+        @update:trigger="modalState.editModelModal.trigger = true"
       />
       <recommended-model
         v-if="modalState.viewRecommendedListModal.open"
         :source-model-name="sourceModelName"
-        :recommended-model-list="recommendedModelList"
+        :source-model-id="selectedSourceModelId"
         @update:close-modal="
           e => (modalState.viewRecommendedListModal.open = e)
         "

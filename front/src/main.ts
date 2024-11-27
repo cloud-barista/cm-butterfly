@@ -3,11 +3,11 @@ import MirinaeDesignSystem from '@cloudforet-test/mirinae';
 import '@cloudforet-test/mirinae/dist/style.css';
 // import '@cloudforet-test/mirinae/css/light-style.css';
 import { App } from './app';
-import './app/style/style.pcss';
 import { createPinia, PiniaVuePlugin } from 'pinia';
 import VueRouter from 'vue-router';
 import { McmpRouter } from './app/providers/router';
 import { i18n } from './app/i18n';
+import './app/style/style.pcss';
 
 const pinia = createPinia();
 Vue.use(PiniaVuePlugin);

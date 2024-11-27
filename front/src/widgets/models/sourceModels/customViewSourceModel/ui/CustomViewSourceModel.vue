@@ -1,63 +1,94 @@
 <script setup lang="ts">
 import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
-// import { collectJsonEditor } from '@/features/sourceServices';
-import { JsonEditor } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
-import { ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
+import {
+  ISourceModelResponse,
+  useCreateOnpremmodel,
+  useSourceModelStore,
+} from '@/entities';
+import { PTextEditor } from '@cloudforet-test/mirinae';
+import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 
-const formData = {
-  os_version: 'Amazon Linux release 2 (Karoo)',
-  os: 'Amazon Linux 2',
-  email: 'glee@mz.co.kr',
-};
 const modelName = ref<string>('');
 
 interface iProps {
   sourceModelName: string;
+  sourceModelId: string;
 }
 
 const props = defineProps<iProps>();
+const emit = defineEmits(['update:close-modal', 'update:trigger']);
 
-const emit = defineEmits(['update:close-modal']);
+const modalState = reactive({
+  open: false,
+  context: {
+    name: '',
+    description: '',
+  },
+});
 
-const modalState = ref<boolean>(false);
+const sourceModelStore = useSourceModelStore();
+const targetModel = ref<ISourceModelResponse | undefined>(undefined);
+const resCreateSourceModel = useCreateOnpremmodel(null);
+const serverCode = ref<string>('');
+
+watch(
+  () => props.sourceModelId,
+  () => {
+    targetModel.value = sourceModelStore.getSourceModelById(
+      props.sourceModelId,
+    );
+    serverCode.value =
+      <string>targetModel.value?.onpremiseInfraModel.servers || '';
+  },
+  { immediate: true },
+);
 
 function handleModal() {
   emit('update:close-modal', false);
 }
 
 function handleSave() {
-  modalState.value = true;
+  modalState.open = true;
 }
 
-function handleSaveModal() {
-  emit('update:close-modal', false);
-  modalState.value = false;
+function handleSaveModal(e) {
+  modalState.context.name = e.name;
+  modalState.context.description = e.description;
+
+  const requestBody = Object.assign({}, targetModel.value, {
+    userModelName: e.name,
+    description: e.description,
+    isInitUserModel: false,
+    onpremiseInfraModel: {
+      ...targetModel.value?.onpremiseInfraModel,
+      servers: JSON.parse(serverCode.value),
+    },
+  });
+
+  console.log(requestBody);
+  console.log(targetModel.value);
+  resCreateSourceModel
+    .execute({
+      request: requestBody,
+    })
+    .then(res => {
+      showSuccessMessage('success', 'Successfully created source model');
+      emit('update:close-modal', false);
+      emit('update:trigger');
+      modalState.open = false;
+    })
+    .catch(e => {
+      showErrorMessage('error', e.errorMsg);
+    });
 }
 
-function handleModelName(value: string) {
-  modelName.value = value;
+function handleCodeUpdate(value: string) {
+  serverCode.value = value;
 }
-
-const schema = {
-  json: true,
-  properties: {
-    os_version: {
-      type: 'string',
-      title: 'OS Version',
-    },
-    os: {
-      type: 'string',
-      title: 'OS',
-    },
-    email: {
-      type: 'string',
-      title: 'Email',
-    },
-  },
-};
 </script>
 
 <template>
@@ -71,13 +102,7 @@ const schema = {
       @update:modal-state="handleModal"
     >
       <template #add-info>
-        <json-editor
-          :form-data="formData"
-          title="Source Model"
-          :read-only="false"
-          :json="schema.json"
-          :shema-properties="schema.properties"
-        />
+        <p-text-editor :code="serverCode" @update:code="handleCodeUpdate" />
       </template>
       <template #buttons>
         <p-button style-type="tertiary" @click="handleModal">
@@ -89,14 +114,13 @@ const schema = {
       </template>
     </create-form>
     <simple-edit-form
-      v-if="modalState"
-      header-title="Save Target Model"
+      v-if="modalState.open"
+      header-title="Save new custom Source model"
       name=""
       name-label="Model Name"
       name-placeholder="Model Name"
       @update:save-modal="handleSaveModal"
-      @update:close-modal="modalState = false"
-      @update:name-value="handleModelName"
+      @update:close-modal="modalState.open = false"
     />
   </div>
 </template>

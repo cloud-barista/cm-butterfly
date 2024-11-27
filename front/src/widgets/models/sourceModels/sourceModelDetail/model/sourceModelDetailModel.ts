@@ -34,21 +34,21 @@ export function useSourceModelDetailModel() {
   }
 
   function setDefineTableData(sourceModelId: string) {
-    const sourceModel = sourceModelStore.getModelById(sourceModelId);
+    const sourceModel = sourceModelStore.getSourceModelById(sourceModelId);
     let data: Partial<Record<SourceModelTableType, any>> = {};
 
     if (sourceModel) {
       data = {
-        name: sourceModel.name,
+        name: sourceModel.userModelName,
         id: sourceModel.id,
         description: sourceModel.description,
-        migrationType: sourceModel.migrationType,
-        custom: sourceModel.custom,
+        migrationType: sourceModel['migrationType'],
+        custom: sourceModel['custom'],
         modelType: 'Source',
-        createdDateTime: sourceModel.createdDateTime,
-        updatedDateTime: sourceModel.updatedDateTime,
-        customAndViewJSON: sourceModel.customAndViewJSON,
-        recommendModel: sourceModel.recommendModel,
+        createdDateTime: sourceModel.createTime,
+        updatedDateTime: sourceModel.updateTime,
+        customAndViewJSON: '',
+        recommendModel: '',
       };
     }
     return data;

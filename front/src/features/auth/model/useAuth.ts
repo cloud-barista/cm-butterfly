@@ -29,6 +29,7 @@ export function useAuth() {
       expires_in: props.expires_in,
     };
     localStorageConnector.setItem(userData);
+    console.log(props);
     authStore.onLogin(props);
   }
 

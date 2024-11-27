@@ -22,8 +22,7 @@ const props = defineProps<iProps>();
 const emit = defineEmits([
   'update:save-modal',
   'update:close-modal',
-  'update:name-value',
-  'update:description',
+  'update:trigger',
 ]);
 
 const _name = ref<string>(props.name);
@@ -41,17 +40,14 @@ watchEffect(
 );
 
 function handleConfirm() {
-  emit('update:save-modal');
-  emit('update:description', _description.value);
+  emit('update:save-modal', {
+    name: _name.value,
+    description: _description.value,
+  });
+  emit('update:trigger');
 }
 
-watch(
-  _name,
-  () => {
-    emit('update:name-value', _name.value);
-  },
-  { immediate: true },
-);
+watch(_name, () => {}, { immediate: true });
 </script>
 
 <template>
@@ -89,8 +85,10 @@ watch(
 .layout {
   @apply rounded-[6px] p-[16px] bg-gray-100 border-none;
 }
+
 .text-input-layout {
   @apply p-[0.75rem] border-none;
+
   .p-text-input {
     @apply w-full;
   }

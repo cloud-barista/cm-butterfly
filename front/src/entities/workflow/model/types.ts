@@ -7,6 +7,17 @@ export interface IWorkflow {
   data: IWorkflowResponse['data'];
 }
 
+export interface IWorkflowResponse {
+  data: {
+    description: string;
+    task_groups: Array<ITaskGroupResponse>;
+  };
+  name: string;
+  id: string;
+  created_at: any;
+  updated_at: any;
+}
+
 export interface ITaskGroupResponse {
   description: string;
   name: string;
@@ -23,17 +34,6 @@ export interface ITaskResponse {
   task_component: string;
   query_params?: any;
   id?: string;
-}
-
-export interface IWorkflowResponse {
-  data: {
-    description: string;
-    task_groups: Array<ITaskGroupResponse>;
-  };
-  name: string;
-  id: string;
-  created_at: any;
-  updated_at: any;
 }
 
 export interface ITaskComponentResponse {

@@ -8,9 +8,11 @@ import {
 } from '@cloudforet-test/mirinae';
 import { useWorkflowToolModel } from '@/features/workflow/workflowEditor/model/workflowEditorModel.ts';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
-import { onBeforeMount, reactive, ref, Ref } from 'vue';
+import { onBeforeMount, onMounted, reactive, ref, Ref } from 'vue';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 import {
+  ITargetModelResponse,
+  ITaskResponse,
   IWorkflow,
   useCreateWorkflow,
   useGetWorkflowTemplateList,
@@ -19,11 +21,17 @@ import {
 import { Designer } from 'sequential-workflow-designer';
 import SequentialDesigner from '@/features/workflow/workflowEditor/sequential/designer/ui/SequentialDesigner.vue';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
-import { getTaskComponentList } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
+import {
+  getTaskComponentList,
+  ITaskComponentInfoResponse,
+} from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
+import getRandomId from '@/shared/utils/uuid';
+import { parseRequestBody } from '@/shared/utils/stringToObject';
 
 interface IProps {
   wftId: string;
   toolType: 'edit' | 'viewer' | 'add';
+  targetModel?: ITargetModelResponse;
 }
 
 const props = defineProps<IProps>();
@@ -43,6 +51,8 @@ const loading = ref<boolean>(true);
 
 const trigger = reactive({ value: false });
 
+console.log(props);
+
 onBeforeMount(function () {
   Promise.all<any>([
     resWorkflowTemplateData.execute(),
@@ -56,8 +66,15 @@ onBeforeMount(function () {
       workflowToolModel.workflowStore.workflowTemplates,
     );
     load();
+    if (props.targetModel) {
+      mapTargetModelToTaskComponent(
+        props.targetModel,
+        workflowToolModel.taskComponentList,
+      );
+    }
   });
 });
+onMounted(() => {});
 
 function load() {
   loading.value = true;
@@ -65,6 +82,52 @@ function load() {
   loadSequence();
   reorderingSequence();
   loading.value = false;
+}
+
+/** targetModel에서 진입시 targetModel의 특정 정보를 가지고 있어야한다는 요구사항에 의한 함수 */
+function mapTargetModelToTaskComponent(
+  targetModel: ITargetModelResponse,
+  taskComponentList: Array<ITaskComponentInfoResponse>,
+) {
+  const taskComponent = taskComponentList.find(
+    taskComponent => taskComponent.name === 'beetle_task_infra_migration',
+  );
+
+  if (!taskComponent) {
+    throw new Error('Task component not found');
+  }
+
+  const taskGroup = workflowToolModel
+    .toolboxSteps()
+    .defineTaskGroupStep(getRandomId(), 'TaskGroup', 'MCI', { model: {} });
+
+  const parseString = parseRequestBody(taskComponent.data.options.request_body);
+  if (parseString && parseString['vm']) {
+    parseString['vm'] = Array(targetModel.cloudInfraModel.vm?.length)
+      .fill(undefined)
+      .map(_ => JSON.parse(JSON.stringify(parseString['vm'][0])));
+  }
+
+  if (targetModel.cloudInfraModel.vm) {
+    targetModel.cloudInfraModel.vm.forEach((targetVm, index) => {
+      parseString['vm'][index]['commonSpec'] = targetVm.commonSpec;
+      parseString['vm'][index]['commonImage'] = targetVm.commonImage;
+    });
+  }
+
+  const task: ITaskResponse = {
+    dependencies: [],
+    name: 'beetle_task_infra_migration',
+    path_params: null,
+    query_params: null,
+    request_body: JSON.stringify(parseString),
+    id: '',
+    task_component: 'beetle_task_infra_migration',
+  };
+
+  const step = workflowToolModel.convertToDesignerTask(task, task.request_body);
+  taskGroup.sequence?.push(step);
+  sequentialSequence.value = [taskGroup];
 }
 
 function loadWorkflow() {
@@ -87,8 +150,6 @@ function loadSequence() {
         workflowData.value,
         resTaskComponentList.data.value?.responseData!,
       ).sequence;
-
-    console.log(sequentialSequence.value);
   }
 }
 
@@ -107,7 +168,6 @@ function getCicadaData(designer: Designer | null): IWorkflow {
     name: '',
     updated_at: '',
   };
-  console.log();
   if (designer) {
     try {
       const definition = designer.getDefinition();
@@ -241,7 +301,11 @@ function handleSelectTemplate(e) {
         >
           Cancel
         </p-button>
-        <p-button @click="handleSave">Save</p-button>
+        <p-button
+          :loading="resUpdateWorkflow.isLoading.value"
+          @click="handleSave"
+          >Save</p-button
+        >
       </template>
     </create-form>
   </div>

@@ -3,17 +3,19 @@ import type { IVueI18n } from 'vue-i18n';
 import VueI18n from 'vue-i18n';
 
 import en from './en.json';
+import ko from './ko.json';
 
 Vue.use(VueI18n);
 
-const supportLanguages = ['en'] as const;
+const supportLanguages = ['en', 'ko'] as const;
 type supportLanguage = (typeof supportLanguages)[number];
 
 export const i18n = new VueI18n({
-  locale: 'en',
+  locale: (import.meta.env.VITE_LANGUAGE as string) || 'en',
   fallbackLocale: 'en',
   messages: {
     en,
+    ko,
   },
   silentTranslationWarn: true,
   silentFallbackWarn: true,

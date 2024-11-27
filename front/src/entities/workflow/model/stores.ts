@@ -62,22 +62,6 @@ export const useWorkflowStore = defineStore(NAMESPACE, () => {
     }));
   }
 
-  // function getWorkFlowById(
-  //   state: Record<string, IWorkflow>,
-  //   workflowId: string,
-  // ): IWorkflow | null {
-  //   return state[workflowId] || null;
-  // }
-
-  // function setWorkFlows(
-  //   state: Record<string, IWorkflow>,
-  //   res: IWorkflowResponse[],
-  // ) {
-  //   res.forEach(el => {
-  //     setWorkFlow(state, el);
-  //   });
-  // }
-
   function setWorkFlow(
     state: Record<string, IWorkflow>,
     res: IWorkflowResponse,
