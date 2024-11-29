@@ -2,14 +2,12 @@ package actions
 
 import (
 	"api/handler"
-	"errors"
 	"net/http"
 	"strings"
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo/render"
 	"github.com/gobuffalo/pop/v6"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func SetContextMiddleware(next buffalo.Handler) buffalo.Handler {
@@ -44,8 +42,9 @@ func SetRefreshCtxMiddleware(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		accessToken := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer ")
 		_, err := handler.GetTokenClaims(accessToken)
-		if !errors.Is(err, jwt.ErrTokenExpired) && !strings.Contains(err.Error(), "token is expired") {
-			app.Logger.Error(err.Error())
+		if errMsg := err.Error(); err != nil && !strings.Contains(errMsg, "token is expired") {
+			app.Logger.Error(errMsg)
+			app.Logger.Error("error occured from token claim")
 			return c.Render(http.StatusUnauthorized, render.JSON(map[string]interface{}{"error": "Unauthorized"}))
 		}
 
