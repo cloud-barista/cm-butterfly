@@ -270,7 +270,7 @@ func GetRefreshTokenClaims(tokenString string) (*CmigRefreshtokenClaims, error) 
 		return encryptionKey, nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("token is invalid : %s", err.Error())
+		return nil, err
 	}
 	if claims, ok := token.Claims.(*CmigRefreshtokenClaims); ok && token.Valid {
 		return claims, nil
@@ -287,7 +287,7 @@ func GetTokenClaims(tokenString string) (*CmigAccesstokenClaims, error) {
 		return encryptionKey, nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("token is invalid : %s", err.Error())
+		return nil, err
 	}
 	if claims, ok := token.Claims.(*CmigAccesstokenClaims); ok && token.Valid {
 		return claims, nil
