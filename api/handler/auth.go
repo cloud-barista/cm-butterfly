@@ -263,6 +263,7 @@ func RefreshAccessToken(refreshToken string) (*CmigUserLoginResponse, error) {
 }
 
 func GetRefreshTokenClaims(tokenString string) (*CmigRefreshtokenClaims, error) {
+	log.Println("GetRefreshTokenClaims calls")
 	token, err := jwt.ParseWithClaims(tokenString, &CmigRefreshtokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -280,6 +281,7 @@ func GetRefreshTokenClaims(tokenString string) (*CmigRefreshtokenClaims, error) 
 }
 
 func GetTokenClaims(tokenString string) (*CmigAccesstokenClaims, error) {
+	log.Println("GetTokenClaims calls")
 	token, err := jwt.ParseWithClaims(tokenString, &CmigAccesstokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
