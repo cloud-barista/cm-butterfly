@@ -17,19 +17,23 @@ Vue.use(PiniaVuePlugin);
 Vue.use(MirinaeDesignSystem);
 Vue.use(VueRouter);
 
-const router = McmpRouter.getRouter();
+async function init() {
+  const router = McmpRouter.getRouter();
 
-try {
-  await JwtTokenProvider.validateToken();
-} catch (e) {
-  McmpRouter.getRouter()
-    .push({ name: AUTH_ROUTE.LOGIN._NAME })
-    .catch(() => {});
-} finally {
-  new Vue({
-    i18n,
-    pinia,
-    router: router,
-    render: h => h(App),
-  }).$mount('#app');
+  try {
+    await JwtTokenProvider.validateToken();
+  } catch (e) {
+    McmpRouter.getRouter()
+      .push({ name: AUTH_ROUTE.LOGIN._NAME })
+      .catch(() => {});
+  } finally {
+    new Vue({
+      i18n,
+      pinia,
+      router: router,
+      render: h => h(App),
+    }).$mount('#app');
+  }
 }
+
+init();
