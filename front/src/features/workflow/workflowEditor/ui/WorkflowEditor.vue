@@ -19,14 +19,14 @@ import {
   useUpdateWorkflowV2,
 } from '@/entities';
 import { Designer } from 'sequential-workflow-designer';
-import SequentialDesigner from '@/features/workflow/workflowEditor/sequential/designer/ui/SequentialDesigner.vue';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import {
   getTaskComponentList,
   ITaskComponentInfoResponse,
-} from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
+} from '@/features/sequential/designer/toolbox/model/api';
 import getRandomId from '@/shared/utils/uuid';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
+import SequentialDesigner from '@/features/sequential/designer/ui/SequentialDesigner.vue';
 
 interface IProps {
   wftId: string;
@@ -304,8 +304,8 @@ function handleSelectTemplate(e) {
         <p-button
           :loading="resUpdateWorkflow.isLoading.value"
           @click="handleSave"
-          >Save</p-button
-        >
+          >Save
+        </p-button>
       </template>
     </create-form>
   </div>

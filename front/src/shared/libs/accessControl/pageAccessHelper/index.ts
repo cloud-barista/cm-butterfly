@@ -10,7 +10,6 @@ import {
   VIEWER_DEFAULT_PERMISSIONS,
 } from './config';
 import { RoleType } from './types';
-import { MenuId } from '../../../../entities';
 /**
  * @description
  * Role Type
@@ -25,7 +24,7 @@ import { MenuId } from '../../../../entities';
 
 export const getMinimalPageAccessPermissionList = (
   roleType?: RoleType,
-): MenuId[] => {
+): any[] => {
   if (roleType === 'PLATFORM_ADMIN') return PLATFORM_ADMIN_DEFAULT_PERMISSIONS;
   if (roleType === 'ADMIN') return ADMIN_DEFAULT_PERMISSIONS;
   if (roleType === 'OPERATOR') return OPERATOR_DEFAULT_PERMISSIONS;

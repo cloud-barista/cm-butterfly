@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { McmpRouter } from '../../../app/providers/router';
 import { AUTH_ROUTE } from '../../../pages/auth/auth.route.ts';
-import { IAxiosResponse } from '../index';
+import { axiosPost, IAxiosResponse } from '../index';
 import { IUserLoginResponse } from '../../../entities';
 import { jwtDecode } from 'jwt-decode';
 import LocalStorageConnector from '../access-localstorage/localStorageConnector.ts';
@@ -18,7 +18,7 @@ export default class JwtTokenProvider {
   private localstorage: LocalStorageConnector<IJwtToken>;
   private REFRESH_TOKEN_URL = 'auth/refresh';
   private TOKEN_STORAGE = 'MCMP_TOEKN';
-
+  private static TOKEN_VALIDATION_URL = 'auth/validate';
   private refresh_token = '';
   private access_token = '';
 
@@ -59,6 +59,10 @@ export default class JwtTokenProvider {
     this.localstorage.removeItem();
   }
 
+  public static async validateToken() {
+    await axiosPost(this.TOKEN_VALIDATION_URL, null);
+  }
+
   public async refreshTokens() {
     try {
       const refreshRes = await axios.post<IAxiosResponse<IUserLoginResponse>>(
@@ -84,7 +88,7 @@ export default class JwtTokenProvider {
 
       alert('User Session Expired.\n Pleas login again');
       McmpRouter.getRouter()
-        .push({ name: AUTH_ROUTE.LOGIN._NAME })
+        .replace({ name: AUTH_ROUTE.LOGIN._NAME })
         .catch(() => {});
 
       return Promise.reject(error);

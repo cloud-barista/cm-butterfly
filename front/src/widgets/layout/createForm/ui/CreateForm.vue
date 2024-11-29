@@ -4,6 +4,7 @@ import { WidgetLayout } from '@/widgets/layout';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const sidebar = useSidebar();
 const sourceConnectionStore = useSourceConnectionStore();
@@ -21,79 +22,104 @@ interface Props {
 }
 
 defineProps<Props>();
+
 const emit = defineEmits([
   'addSourceConnection',
   'deleteSourceConnection',
   'update:modal-state',
 ]);
+const isMounted = ref(false);
 
+onMounted(() => {
+  isMounted.value = true;
+});
 const handleAddSourceConnection = () => {
   emit('addSourceConnection', true);
 };
 
-const handleGoBack = () => {
-  emit('deleteSourceConnection', true);
+function handleGoBack() {
+  isMounted.value = false;
+}
+
+function afterLeave() {
   isCollapsed.value = false;
   isGnbToolboxShown.value = true;
   isMinimized.value = false;
   sourceConnectionStore.setWithSourceConnection(true);
 
+  emit('deleteSourceConnection', true);
   emit('update:modal-state');
-};
+}
 </script>
 
 <template>
-  <div class="page-layer">
-    <div class="page-top">
-      <p-icon-button
-        style-type="transparent"
-        name="ic_arrow-left"
-        width="2rem"
-        height="2rem"
-        :disabled="loading"
-        @click="handleGoBack"
-      />
-      <p class="page-title">{{ title }}</p>
-      <p-badge
-        v-if="badgeTitle"
-        class="badge"
-        shape="square"
-        style-type="primary1"
-        text-color="#6738b7"
-        background-color="#E1E0FA"
-        font-weight="regular"
-      >
-        <div>{{ badgeTitle }}</div>
-      </p-badge>
-    </div>
-    <slot v-if="!needWidgetLayout" name="add-content" :loading="loading" />
-    <widget-layout
-      v-else-if="needWidgetLayout"
-      class="widget-layout"
-      overflow="visible"
-      :first-title="firstTitle"
-      :title="subtitle"
-    >
-      <template #default>
-        <p-button
-          v-if="addButtonText"
-          class="icon-plus"
-          icon-left="ic_plus"
-          style-type="secondary"
-          @click="handleAddSourceConnection"
+  <transition name="slide-down-up" @after-leave="afterLeave">
+    <div v-show="isMounted" class="page-layer">
+      <div class="page-top">
+        <p-icon-button
+          style-type="transparent"
+          name="ic_arrow-left"
+          width="2rem"
+          height="2rem"
+          :disabled="loading"
+          @click="handleGoBack"
+        />
+        <p class="page-title">{{ title }}</p>
+        <p-badge
+          v-if="badgeTitle"
+          class="badge"
+          shape="square"
+          style-type="primary1"
+          text-color="#6738b7"
+          background-color="#E1E0FA"
+          font-weight="regular"
         >
-          {{ addButtonText }}
-        </p-button>
-        <slot name="add-info" />
-      </template>
-    </widget-layout>
-    <div class="action-buttons">
-      <slot name="buttons" />
+          <div>{{ badgeTitle }}</div>
+        </p-badge>
+      </div>
+      <slot v-if="!needWidgetLayout" name="add-content" :loading="loading" />
+      <widget-layout
+        v-else-if="needWidgetLayout"
+        class="widget-layout"
+        overflow="visible"
+        :first-title="firstTitle"
+        :title="subtitle"
+      >
+        <template #default>
+          <p-button
+            v-if="addButtonText"
+            class="icon-plus"
+            icon-left="ic_plus"
+            style-type="secondary"
+            @click="handleAddSourceConnection"
+          >
+            {{ addButtonText }}
+          </p-button>
+          <slot name="add-info" />
+        </template>
+      </widget-layout>
+      <div class="action-buttons">
+        <slot name="buttons" />
+      </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <style scoped lang="postcss">
+.slide-down-up-enter-active {
+  transition: transform 0.8s ease;
+  transform: translateY(0);
+}
+
+.slide-down-up-leave-active {
+  transition: all 0.5s ease;
+  transform: translateY(100%);
+  opacity: 0;
+}
+.slide-down-up-enter {
+  transform: translateY(100%);
+}
+
 .page-layer {
   @apply p-[1.5rem];
   .page-top {
