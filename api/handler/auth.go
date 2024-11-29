@@ -18,8 +18,8 @@ import (
 )
 
 const (
-	tokenExpired        = time.Minute * 60
-	refreshTokenExpired = time.Minute * 180
+	tokenExpired        = time.Minute * 1
+	refreshTokenExpired = time.Minute * 3
 )
 
 type CmigAuthSetting struct {
@@ -214,9 +214,10 @@ func generateJWT() (*CmigUserLoginResponse, error) {
 
 	refreshExp := time.Now().Add(refreshTokenExpired).Unix()
 	refreshClaims := CmigRefreshtokenClaims{
-		Exp: exp,
+		Exp: refreshExp,
+		Upn: user.Id,
 		MapClaims: &jwt.MapClaims{
-			"exp": exp,
+			"exp": refreshExp,
 		},
 	}
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
@@ -242,7 +243,7 @@ func GetUserToken(id string, password string) (*CmigUserLoginResponse, error) {
 }
 
 func RefreshAccessToken(refreshToken string) (*CmigUserLoginResponse, error) {
-	token, err := jwt.ParseWithClaims(refreshToken, &CmigAccesstokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(refreshToken, &CmigRefreshtokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -251,11 +252,28 @@ func RefreshAccessToken(refreshToken string) (*CmigUserLoginResponse, error) {
 	if err != nil {
 		return nil, fmt.Errorf("token is invalid : %s", err.Error())
 	}
-	if claims, ok := token.Claims.(*CmigAccesstokenClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(*CmigRefreshtokenClaims); ok && token.Valid {
 		if time.Now().Unix() > claims.Exp {
 			return nil, fmt.Errorf("refresh token expired")
 		}
 		return generateJWT()
+	} else {
+		return nil, fmt.Errorf("token is invalid")
+	}
+}
+
+func GetRefreshTokenClaims(tokenString string) (*CmigRefreshtokenClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CmigRefreshtokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return encryptionKey, nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("token is invalid : %s", err.Error())
+	}
+	if claims, ok := token.Claims.(*CmigRefreshtokenClaims); ok && token.Valid {
+		return claims, nil
 	} else {
 		return nil, fmt.Errorf("token is invalid")
 	}
