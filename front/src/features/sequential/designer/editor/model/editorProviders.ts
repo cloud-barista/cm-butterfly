@@ -1,6 +1,6 @@
 import { insertDynamicComponent } from '@/shared/utils';
-import { getSequencePath } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/utils.ts';
-import BeetleTaskEditor from '@/features/workflow/workflowEditor/sequential/designer/editor/ui/BeetleTaskEditor.vue';
+import { getSequencePath } from '@/features/sequential/designer/editor/model/utils.ts';
+import BeetleTaskEditor from '@/features/sequential/designer/editor/ui/BeetleTaskEditor.vue';
 
 export function editorProviders() {
   const editor = document.createElement('div');

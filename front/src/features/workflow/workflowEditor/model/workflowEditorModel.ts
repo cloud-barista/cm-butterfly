@@ -12,12 +12,12 @@ import {
   IWorkflowResponse,
 } from '@/entities/workflow/model/types.ts';
 import getRandomId from '@/shared/utils/uuid';
-import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
+import { toolboxSteps } from '@/features/sequential/designer/toolbox/model/toolboxSteps.ts';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
-import { ITaskComponentInfoResponse } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
+import { ITaskComponentInfoResponse } from '@/features/sequential/designer/toolbox/model/api';
 import { isNullOrUndefined, showErrorMessage } from '@/shared/utils';
 import { reactive } from 'vue';
-import { useSequentialToolboxModel } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxModel.ts';
+import { useSequentialToolboxModel } from '@/features/sequential/designer/toolbox/model/toolboxModel.ts';
 
 type dropDownType = {
   name: string;
