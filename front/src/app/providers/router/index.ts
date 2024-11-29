@@ -13,10 +13,14 @@ import { AuthorizationType } from '../../../shared/libs/store/auth';
 import { useAuthStore } from '../../../shared/libs/store/auth';
 import { ROLE_TYPE } from '../../../shared/libs/accessControl/pageAccessHelper/constant';
 import { RoleType } from '../../../shared/libs/accessControl/pageAccessHelper/types';
-import { getMinimalPageAccessPermissionList } from '../../../shared/libs';
+import {
+  axiosPost,
+  getMinimalPageAccessPermissionList,
+} from '../../../shared/libs';
 import { toLower } from 'lodash';
 import { tempRoutes } from './routes/temp.ts';
 import NotFound from '@/pages/error/404/NotFound.vue';
+import { axiosInstance, createInstance } from '@/shared/libs/api/instance.ts';
 //TODO admin부분 고려
 
 const accessiblePagesWithRoles = [] as any[];
@@ -62,6 +66,7 @@ export class McmpRouter {
         mode: 'history',
         routes: McmpRouter.rootRoute,
       });
+
       McmpRouter.router.beforeEach((to: Route, from: Route, next) => {
         const requiresAuth = to.matched.some(
           record => record.meta?.requiresAuth,
