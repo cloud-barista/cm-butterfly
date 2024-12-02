@@ -12,7 +12,6 @@ import (
 
 func SetContextMiddleware(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		app.Logger.Info("SetContextMiddleware calls")
 		accessToken := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer ")
 		claims, err := handler.GetTokenClaims(accessToken)
 		if err != nil {
@@ -41,7 +40,6 @@ func SetContextMiddleware(next buffalo.Handler) buffalo.Handler {
 
 func SetRefreshCtxMiddleware(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		app.Logger.Info("SetRefreshCtxMiddleware calls")
 		accessToken := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer ")
 		_, err := handler.GetTokenClaims(accessToken)
 		if errMsg := err.Error(); err != nil && !strings.Contains(errMsg, "token is expired") {
@@ -56,7 +54,7 @@ func SetRefreshCtxMiddleware(next buffalo.Handler) buffalo.Handler {
 			return c.Render(http.StatusBadRequest, render.JSON(map[string]interface{}{"error": http.StatusText(http.StatusBadRequest)}))
 		}
 
-		refreshToken := commonRequest.Request.(map[string]interface{})["refresh_token "].(string)
+		refreshToken := commonRequest.Request.(map[string]interface{})["refresh_token"].(string)
 
 		refreshTokenClaim, err := handler.GetRefreshTokenClaims(refreshToken)
 		if err != nil {
