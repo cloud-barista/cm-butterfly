@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, triggerRef, watch } from 'vue';
-import { useSequentialDesignerModel } from '@/features/workflow/workflowEditor/sequential/designer/model/sequentialDesignerModel.ts';
+import { useSequentialDesignerModel } from '@/features/sequential/designer/model/sequentialDesignerModel.ts';
 
-import { useSequentialToolboxModel } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxModel.ts';
+import { useSequentialToolboxModel } from '@/features/sequential/designer/toolbox/model/toolboxModel.ts';
 import { Designer } from 'sequential-workflow-designer';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
-import { ITaskComponentInfoResponse } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/api';
+import { ITaskComponentInfoResponse } from '@/features/sequential/designer/toolbox/model/api';
 import { Definition } from 'sequential-workflow-model';
 
 interface IProps {
@@ -64,9 +64,9 @@ watch(
 </template>
 
 <style lang="postcss">
-@import '@/../node_modules/sequential-workflow-designer/css/designer.css';
-@import '@/../node_modules/sequential-workflow-designer/css/designer-light.css';
-@import '@/../node_modules/sequential-workflow-designer/css/designer-dark.css';
+@import 'sequential-workflow-designer/css/designer.css';
+@import 'sequential-workflow-designer/css/designer-light.css';
+@import 'sequential-workflow-designer/css/designer-dark.css';
 
 .source-template-workflow-edit-container {
   .workflow-box {

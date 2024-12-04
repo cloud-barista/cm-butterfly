@@ -5,8 +5,8 @@ import {
 } from 'sequential-workflow-designer';
 import { Definition, Step } from 'sequential-workflow-model';
 import getRandomId from '@/shared/utils/uuid';
-import { toolboxSteps } from '@/features/workflow/workflowEditor/sequential/designer/toolbox/model/toolboxSteps.ts';
-import { editorProviders } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/editorProviders.ts';
+import { toolboxSteps } from '@/features/sequential/designer/toolbox/model/toolboxSteps.ts';
+import { editorProviders } from '@/features/sequential/designer/editor/model/editorProviders.ts';
 import testSvg from '@/shared/asset/image/testSvg.svg';
 
 export function useSequentialDesignerModel(refs: any) {
