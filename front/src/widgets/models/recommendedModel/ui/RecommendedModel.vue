@@ -148,9 +148,10 @@ async function getRecommendModelList() {
           estimateResponse: estimateCostList.data.responseData,
         });
 
-        recommendModel_Model.setTargetRecommendModel(recommendModel);
       } catch (e) {
         /* empty */
+      } finally {
+        recommendModel_Model.setTargetRecommendModel(recommendModel);
       }
     }
   } catch (err) {
