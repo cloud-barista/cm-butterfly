@@ -10,7 +10,7 @@ services:
       password:
 
   cb-tumblebug:
-    version: 0.10.0
+    version: 0.10.3
     baseurl: http://cb-tumblebug:1323/tumblebug
     auth:
       type: basic
