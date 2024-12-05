@@ -41,7 +41,7 @@ export function useRecommendedModel() {
       { name: 'description', label: 'Description' },
       { name: 'spec', label: 'Spec' },
       { name: 'image', label: 'Image' },
-      { name: 'estimateCost', label: 'Estimate Cost' },
+      { name: 'estimateCost', label: 'Total Estimate Cost' },
     ];
 
     tableModel.querySearchState.keyItemSet = [
@@ -53,7 +53,7 @@ export function useRecommendedModel() {
           { name: 'description', label: 'Description' },
           { name: 'spec', label: 'Spec' },
           { name: 'image', label: 'Image' },
-          { name: 'estimateCost', label: 'Estimate Cost' },
+          { name: 'estimateCost', label: 'Total Estimate Cost' },
         ],
       },
     ];
@@ -64,20 +64,27 @@ export function useRecommendedModel() {
   function organizeRecommendedModelTableItem(
     recommendedModel: IExtendRecommendModelResponse,
   ) {
-    const estimateCost: string = `${
-      recommendedModel?.estimateResponse?.result.esimateCostSpecResults.reduce(
-        (acc, cur) => {
-          return (
-            acc +
-            cur.estimateForecastCostSpecDetailResults[0].calculatedMonthlyPrice
-          );
-        },
-        0,
-      ) || ''
-    }${
-      recommendedModel?.estimateResponse?.result.esimateCostSpecResults[0]
-        .estimateForecastCostSpecDetailResults[0].currency || ''
-    }`;
+    let estimateCost: string;
+  
+    try {
+      estimateCost = `${
+        recommendedModel?.estimateResponse?.result?.esimateCostSpecResults?.reduce(
+          (acc, cur) => {
+            return (
+              acc +
+              cur.estimateForecastCostSpecDetailResults[0].calculatedMonthlyPrice
+            );
+          },
+          0,
+        )
+      }${
+        recommendedModel?.estimateResponse?.result?.esimateCostSpecResults[0]
+          .estimateForecastCostSpecDetailResults[0].currency || ''
+      }`;
+    } catch (error) {
+      console.error('Error calculating estimateCost:', error);
+      estimateCost = 'n/a';
+    }
 
     const organizedDatum: Partial<
       Record<RecommendedModelTableType | 'originalData', any>
