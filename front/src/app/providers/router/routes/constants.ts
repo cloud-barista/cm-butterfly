@@ -51,3 +51,10 @@ export const WORKLOAD_OPERATIONS_ROUTE = {
     },
   },
 };
+
+export const CLOUD_RESOURCES_ROUTE = {
+  _NAME: MENU_ID.CLOUD_RESOURCES,
+  CLOUD_CONNECTIONS: {
+    _NAME: MENU_ID.CLOUD_CONNECTIONS,
+  },
+};

@@ -18,6 +18,8 @@ export const MENU_ID = Object.freeze({
   WORKLOADS: 'workloads',
   MCI_WLS: 'mciwls',
   PMK_WLS: 'pmkwls',
+  CLOUD_RESOURCES: 'cloudresources',
+  CLOUD_CONNECTIONS: 'cloudconnections',
 });
 
 export interface ICategory {

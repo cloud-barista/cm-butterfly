@@ -53,6 +53,13 @@ menus:
     restype: menu
     isaction: "false"
     priority: 5
+  
+  - id: cloudresources
+    parentid: migrations
+    displayname: Cloud Resources
+    restype: menu
+    isaction: "false"
+    priority: 6
 
   ################## step3 : menu : migrations > sourcecomputing ################
   - id: sourceservices
@@ -112,6 +119,14 @@ menus:
     displayname: Workloads
     restype: menu
     isaction: "false"
+    priority: 0
+  
+  ################## step3 : menu : migrations > workloadoperations ################
+  - id: cloudconnections
+    parentid: cloudresources
+    displayname: Cloud Connections
+    restype: menu
+    isaction: "true"
     priority: 0
 
   ###################### step4 : submenu : migrations > workloadoperations > workloads ################

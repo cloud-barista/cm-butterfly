@@ -5,6 +5,7 @@ import authRoutes from '../../../pages/auth/auth.route.ts';
 import { sourceComputingRoutes } from './routes/sourceComputing.ts';
 import { modelRoutes } from './routes/models.ts';
 import { workloadsRoutes } from './routes/workloads.ts';
+import { cloudResourcesRoutes } from './routes/cloudResources.ts';
 import { MainLayout } from '../../Layouts';
 import { useAuthenticationStore } from '../../../entities';
 import { Route } from 'vue-router';
@@ -39,6 +40,7 @@ export class McmpRouter {
         ...workflowManagementRoutes,
         ...workloadsRoutes,
         ...tempRoutes,
+        ...cloudResourcesRoutes,
       ],
     },
     ...authRoutes,
