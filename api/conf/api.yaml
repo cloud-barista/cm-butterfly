@@ -11,7 +11,8 @@ services:
 
   cb-tumblebug:
     version: 0.10.0
-    baseurl: http://cb-tumblebug:1323/tumblebug
+    # baseurl: http://cb-tumblebug:1323/tumblebug
+    baseurl: https://devcm.onecloudcon.com/tumblebug
     auth:
       type: basic
       username: default

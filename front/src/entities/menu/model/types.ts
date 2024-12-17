@@ -19,7 +19,7 @@ export const MENU_ID = Object.freeze({
   MCI_WLS: 'mciwls',
   PMK_WLS: 'pmkwls',
   CLOUD_RESOURCES: 'cloudresources',
-  CLOUD_CONNECTIONS: 'cloudconnections',
+  CLOUD_CREDENTIALS: 'cloudcredentials',
 });
 
 export interface ICategory {

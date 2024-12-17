@@ -19,7 +19,7 @@ services:
       USER_AUTH_CONF_PATH: /conf/authsetting.yaml
       MENU_CONF_DATA_PATH: /conf/menu.yaml
     volumes:
-      - ../api/conf:/conf/
+      - ../api/conf:/api/conf/
 
   # cm-butterfly-front:
   #   container_name: cm-butterfly-front

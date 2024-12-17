@@ -1,1 +1,1 @@
-export * from './cloudConnections';
+export * from './cloudCredentials';

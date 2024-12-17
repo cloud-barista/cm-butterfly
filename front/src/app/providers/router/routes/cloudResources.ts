@@ -1,6 +1,6 @@
 import { RouteConfig } from 'vue-router';
 import { CLOUD_RESOURCES_ROUTE } from './constants';
-import { cloudConnectionPage } from '@/pages/cloudResources';
+import { cloudCredentialsPage } from '@/pages/cloudResources';
 
 export const cloudResourcesRoutes: RouteConfig[] = [
   {
@@ -9,11 +9,11 @@ export const cloudResourcesRoutes: RouteConfig[] = [
     component: { template: '<router-view/>' },
     children: [
       {
-        path: 'cloud-connections',
-        name: CLOUD_RESOURCES_ROUTE.CLOUD_CONNECTIONS._NAME,
-        component: cloudConnectionPage,
+        path: 'cloud-credentials',
+        name: CLOUD_RESOURCES_ROUTE.CLOUD_CREDENTIALS._NAME,
+        component: cloudCredentialsPage,
         meta: {
-          menuId: CLOUD_RESOURCES_ROUTE.CLOUD_CONNECTIONS._NAME,
+          menuId: CLOUD_RESOURCES_ROUTE.CLOUD_CREDENTIALS._NAME,
           category: CLOUD_RESOURCES_ROUTE._NAME,
         },
       },

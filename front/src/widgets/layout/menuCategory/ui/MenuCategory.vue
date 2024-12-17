@@ -79,7 +79,7 @@ async function fetchMenuTree() {
             n.id === 'workflowtemplates' ||
             n.id === 'taskcomponents' ||
             n.id === 'workloads' ||
-            n.id === 'cloudconnections'
+            n.id === 'cloudcredentials'
           ),
         }"
       >
