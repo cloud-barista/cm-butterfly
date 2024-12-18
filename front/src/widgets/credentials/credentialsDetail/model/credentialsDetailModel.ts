@@ -1,85 +1,94 @@
-// front/src/widgets/credentials/credentialsDetail/model/credentialsDetailModel.ts
-
-import {
-  useConfigStore,
-  CredentialTableType,
-} from '@/entities/credentials/model/stores.ts';
+// src/entities/credentials/model/credentialsDetailModel.ts
+import { useConfigStore } from '@/entities/credentials/model/stores';
+import { IConnectionConfig } from '@/entities/credentials/model/types';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
+import { showErrorMessage } from '@/shared/utils'; // showErrorMessage 임포트
 
-export function useCredentialDetailModel() {
-  const credentialStore = useConfigStore();
-  const credentialId = ref<string | null>(null);
+type CredentialDetailTableType =
+  | 'name'
+  | 'id'
+  | 'providerName'
+  | 'regionDetail.regionName'
+  | 'regionZoneInfo.assignedZone'
+  | 'credentialName'
+  | 'driverName'
+  | 'verified'
+  | 'credentialHolder'
+  | 'regionRepresentative'
+  | 'regionZoneInfoName';
+
+export function useCredentialsDetailModel() {
+  const configStore = useConfigStore();
+  const credentialName = ref<string | null>(null);
   const tableModel =
-    useDefinitionTableModel<Record<CredentialTableType, any>>();
+    useDefinitionTableModel<Record<CredentialDetailTableType, any>>();
 
-  function setCredentialId(_credentialId: string | null) {
-    credentialId.value = _credentialId;
+  // Credential Name 설정 함수
+  function setCredentialName(name: string | null) {
+    credentialName.value = name;
   }
 
+  // 테이블 초기화
   function initTable() {
     tableModel.initState();
 
     tableModel.tableState.fields = [
-      { label: 'Credential Information', name: 'name' },
-      { label: 'Credential Holder', name: 'credentialHolder' },
-      { label: 'Credential Name', name: 'credentialName' },
-      { label: 'Driver Name', name: 'driverName' },
-      { label: 'Provider Name', name: 'providerName' },
+      { label: 'Credential 정보', name: 'name' },
+      { label: 'ID', name: 'id' },
+      { label: 'Provider', name: 'providerName' },
       { label: 'Region', name: 'regionDetail.regionName' },
-      { label: 'Description', name: 'description' },
-      { label: 'Location', name: 'location' },
-      { label: 'Zones', name: 'zones' },
-      { label: 'Region Representative', name: 'regionRepresentative' },
+      { label: 'Zone', name: 'regionZoneInfo.assignedZone' },
+      { label: 'Credential Name', name: 'credentialName' },
+      { label: 'Driver', name: 'driverName' },
       { label: 'Verified', name: 'verified' },
-      {
-        label: 'Custom & View JSON',
-        name: 'customAndViewJSON',
-        disableCopy: true,
-      },
-      { label: 'Recommend Model', name: 'recommendModel', disableCopy: true },
+      { label: 'Credential Holder', name: 'credentialHolder' },
+      { label: 'Region Representative', name: 'regionRepresentative' },
+      { label: 'Region Zone Info Name', name: 'regionZoneInfoName' },
     ];
   }
 
-  function setDefineTableData(credentialId: string) {
-    const credential = credentialStore.getCredentialById(credentialId);
-    let data: Partial<Record<CredentialTableType, any>> = {};
-
+  // 테이블 데이터 설정 함수
+  function setDefineTableData(name: string) {
+    const credential = configStore.getConfigByName(name);
+    let data: Partial<Record<CredentialDetailTableType, any>> = {};
     if (credential) {
       data = {
         name: credential.configName,
-        credentialHolder: credential.credentialHolder,
+        id: credential.configName,
+        providerName: credential.providerName,
+        'regionDetail.regionName': credential.regionDetail.regionName,
+        'regionZoneInfo.assignedZone': credential.regionZoneInfo.assignedZone,
         credentialName: credential.credentialName,
         driverName: credential.driverName,
-        providerName: credential.providerName,
-        regionDetail: credential.regionDetail.regionName,
-        description: credential.regionDetail.description,
-        location: `${credential.regionDetail.location.display} (Lat: ${credential.regionDetail.location.latitude}, Lon: ${credential.regionDetail.location.longitude})`,
-        zones: credential.regionDetail.zones.join(', '),
-        regionRepresentative: credential.regionRepresentative ? 'Yes' : 'No',
         verified: credential.verified ? 'Yes' : 'No',
-        customAndViewJSON: '',
-        recommendModel: '',
+        credentialHolder: credential.credentialHolder,
+        regionRepresentative: credential.regionRepresentative ? 'Yes' : 'No',
+        regionZoneInfoName: credential.regionZoneInfoName,
       };
-    }
-    return data;
-  }
-
-  function loadCredentialData(credentialId: string | null | undefined) {
-    tableModel.tableState.loading = true;
-    if (credentialId) {
-      tableModel.tableState.data = setDefineTableData(credentialId);
+      tableModel.tableState.data = data;
+    } else {
+      // Credential이 없는 경우 처리
+      tableModel.tableState.data = {};
+      showErrorMessage('Error', '선택한 Credential을 찾을 수 없습니다.');
     }
     tableModel.tableState.loading = false;
   }
 
-  watch(credentialId, newVal => {
-    loadCredentialData(newVal);
+  // Credential 데이터를 로드하는 함수
+  function loadCredentialData(name: string | null) {
+    tableModel.tableState.loading = true;
+    setDefineTableData(name);
+  }
+
+  // Credential Name 변경 감지
+  watch(credentialName, newName => {
+    loadCredentialData(newName);
   });
 
   return {
-    setCredentialId,
-    credentialStore,
+    setCredentialName,
+    configStore,
     initTable,
     tableModel,
   };

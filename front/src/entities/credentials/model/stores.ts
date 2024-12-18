@@ -13,5 +13,14 @@ export const useConfigStore = defineStore('CREDENTIALS', () => {
     models.value = configList;
   }
 
-  return { models, getConfig, setConfig }; // models를 반환하도록 추가
+  function getConfigByName(name: string): IConnectionConfig | undefined {
+    console.log('getConfigByName - searching for:', name);
+    console.log(
+      'getConfigByName - available configNames:',
+      models.value.map(config => config.configName),
+    );
+    return models.value.find(config => config.configName === name);
+  }
+
+  return { models, getConfig, setConfig, getConfigByName };
 });
