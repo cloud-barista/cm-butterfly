@@ -4,6 +4,7 @@ import { IConnectionConfig } from '@/entities/credentials/model/types.ts';
 
 export const useConfigStore = defineStore('CREDENTIALS', () => {
   const models = ref<IConnectionConfig[]>([]);
+  const configStoreInfo = ref<IConnectionConfig | null>(null); // 추가된 상태
 
   function getConfig() {
     return models.value;
@@ -21,6 +22,8 @@ export const useConfigStore = defineStore('CREDENTIALS', () => {
     );
     return models.value.find(config => config.configName === name);
   }
-
-  return { models, getConfig, setConfig, getConfigByName };
+  function setConfigStoreInfo(config: IConnectionConfig) {
+    configStoreInfo.value = config;
+  }
+  return { models, getConfig, setConfig, getConfigByName, configStoreInfo };
 });

@@ -1,7 +1,8 @@
 <!-- src/pages/cloudResources/cloudCredentials/ui/CredentialPage.vue -->
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { PButton, PButtonTab, PTab } from '@cloudforet-test/mirinae';
+import CustomViewCredential from '@/widgets/credentials/customViewCredential/ui/CustomViewCredential.vue';
 import CredentialsList from '@/widgets/credentials/credentialsList/ui/CredentialsList.vue';
 import CredentialsDetail from '@/widgets/credentials/credentialsDetail/ui/CredentialsDetail.vue';
 import { showSuccessMessage } from '@/shared/utils';
@@ -9,6 +10,7 @@ import { showSuccessMessage } from '@/shared/utils';
 // const selectedCredentialName = ref<string>('');
 const selectedCredentialName = ref<{ id: string } | null>(null);
 const isCredentialEditBtnClicked = ref<boolean>(false);
+const pageName = 'Cloud Credentials';
 
 // 메인 탭 상태
 const mainTabState = ref({
@@ -29,11 +31,17 @@ const credentialDetailTabState = ref({
 });
 
 // 모달 상태
-const modalStates = ref({
-  addCredential: {
+const modalStates = reactive({
+  addCredentialGroup: {
     open: false,
     category: 'add',
+    confirm() {
+      modalStates.addCredentialGroup.open = false;
+    },
     trigger: false,
+    updateTrigger() {
+      modalStates.addCredentialGroup.trigger = false;
+    },
   },
 });
 
@@ -41,10 +49,25 @@ const modalStates = ref({
 function handleCredentialEdit() {
   showSuccessMessage('Info', 'Edit functionality is currently disabled.');
 }
-
+// Add Credential 핸들러
 function handleAddCredential() {
-  showSuccessMessage('Info', 'Add functionality is currently disabled.');
+  modalStates.addCredentialGroup.open = true;
+
+  // modalStates.addServiceGroup.open = !value;
+  // modalStates.addSourceConnection.open = value;
+  // isCollapsed.value = value;
+  // isGnbToolboxShown.value = !value;
 }
+
+// // Edit Credential 핸들러
+// function handleCredentialEdit() {
+//   if (selectedCredentialName.value) {
+//     modalStates.editCredentialGroup.open = true;
+//   } else {
+//     showErrorMessage('Error', '편집할 Credential을 선택해주세요.');
+//   }
+// }
+
 let data = computed(() => selectedCredentialName.value?.id);
 // Credential 선택 핸들러
 function handleClickCredentialName(credential: { id: string }) {
@@ -59,28 +82,26 @@ function handleClickCredentialName(credential: { id: string }) {
 }
 
 // 모달 관련 핸들러 (필요 시 구현)
-function handleGroupModal(value: boolean) {}
+// 모달에서 트리거된 이벤트 처리
+function handleAddCredentialTrigger() {
+  showSuccessMessage('Success', 'Credential이 성공적으로 추가되었습니다.');
+  modalStates.addCredentialGroup.trigger = true;
+}
 </script>
 
 <template>
-  <div class="credential-page page">
-    <header
-      v-if="!modalStates.addCredential.open"
-      class="credential-page-header"
-    >
-      <p>Cloud Credentials</p>
-      <p-button icon-left="ic_add" @click="handleAddCredential">
-        Add Credential
-      </p-button>
+  <div :class="`${pageName}-page page`">
+    <header>
+      <p>{{ pageName }}</p>
     </header>
-    <section class="credential-page-body">
+    <section :class="`${pageName}-page-body`">
       <CredentialsList
-        :add-modal-state="modalStates.addCredential.open"
-        :trigger="modalStates.addCredential.trigger"
+        :add-modal-state="modalStates.addCredentialGroup.open"
+        :trigger="modalStates.addCredentialGroup.trigger"
         @select-row="handleClickCredentialName"
-        @update:addModalState="e => (modalStates.addCredential.open = e)"
-        @update:trigger="modalStates.addCredential.trigger = false"
-        @update:title="e => (modalStates.addCredential.category = e)"
+        @update:addModalState="e => (modalStates.addCredentialGroup.open = e)"
+        @update:trigger="modalStates.addCredentialGroup.trigger = false"
+        @update:title="e => (modalStates.addCredentialGroup.category = e)"
       />
       <p v-if="!selectedCredentialName" class="no-selection-message">
         Select an item for more details.
@@ -103,15 +124,21 @@ function handleGroupModal(value: boolean) {}
           <template #usage>
             <div class="tab-section-header">
               <p>Credential Usage</p>
-              <!-- Credential Usage 컴포넌트가 필요하다면 추가 -->
             </div>
-            <!-- 필요 시 Credential Usage 컴포넌트 추가 -->
           </template>
         </p-tab>
       </div>
     </section>
-    <!-- 모달 관련 코드 제거 -->
-    <div class="relative z-70"></div>
+    <div class="relative z-70">
+      <custom-view-credential
+        v-if="modalStates.addCredentialGroup.open"
+        @update:isModalOpened="
+          () => (modalStates.addCredentialGroup.open = false)
+        "
+        @update:is-connection-modal-opened="handleAddCredential"
+        @update:trigger="handleAddCredentialTrigger"
+      />
+    </div>
   </div>
 </template>
 

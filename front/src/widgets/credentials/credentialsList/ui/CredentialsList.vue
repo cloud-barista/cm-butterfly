@@ -1,6 +1,5 @@
-<!-- src/widgets/credentials/credentialsList/ui/CredentialsList.vue -->
 <script setup lang="ts">
-import { ref, onMounted, reactive, watch } from 'vue';
+import { ref, onMounted, reactive, watch, onBeforeMount } from 'vue';
 import {
   PToolboxTable,
   PHorizontalLayout,
@@ -9,7 +8,12 @@ import {
 } from '@cloudforet-test/mirinae';
 import { useCredentialsListModel } from '../model/credentialsListModel';
 import { useGetConnconfigList } from '@/entities/credentials/api/index.ts';
-import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+import {
+  insertDynamicComponent,
+  showErrorMessage,
+  showSuccessMessage,
+} from '@/shared/utils';
+import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
 
 interface IProps {
   addModalState: boolean;
@@ -22,14 +26,19 @@ const emit = defineEmits([
   'update:addModalState',
   'update:trigger',
   'update:title',
+  'update:connection-title',
   'select:multi-row',
 ]);
 
 const { tableModel, credentials, initToolBoxTableModel, configStore } =
   useCredentialsListModel();
 
-onMounted(() => {
+onBeforeMount(() => {
   initToolBoxTableModel();
+});
+
+onMounted(() => {
+  // addDeleteIconAtTable.bind(this)();
   getConfigList();
 });
 
@@ -60,6 +69,25 @@ async function getConfigList() {
   }
 }
 
+// function addDeleteIconAtTable() {
+//   const toolboxTable = this.$refs.toolboxTable.$el;
+//   const targetElement = toolboxTable.querySelector('.right-tool-group');
+//   const instance = insertDynamicComponent(
+//     DynamicTableIconButton,
+//     {
+//       name: 'ic_delete',
+//     },
+//     {
+//       click: () => {
+//         if (tableModel.tableState.selectIndex.length > 0)
+//           modals.alertModalState.open = true;
+//       },
+//     },
+//     targetElement,
+//     'prepend',
+//   );
+//   return instance;
+// }
 const loading = ref<boolean>(false);
 const selectIndex = ref<number[]>([]);
 
@@ -98,7 +126,8 @@ function handleChange() {
 
 function handleAddCredential() {
   emit('update:addModalState', true);
-  emit('update:title', 'Add Credential');
+  emit('update:title', 'add');
+  emit('update:connection-title', 'add');
 }
 
 async function handleDeleteSelected() {
@@ -157,19 +186,11 @@ async function handleDeleteSelected() {
         >
           <template #toolbox-left>
             <p-button
-              style-type="tertiary"
-              icon-left="ic_edit"
+              style-type="primary"
+              icon-left="ic_plus_bold"
               @click="handleAddCredential"
             >
               Add
-            </p-button>
-            <p-button
-              style-type="tertiary"
-              icon-left="ic_edit"
-              @click="handleDeleteSelected"
-              :disabled="selectIndex.length === 0"
-            >
-              Delete Selected
             </p-button>
           </template>
         </p-toolbox-table>
