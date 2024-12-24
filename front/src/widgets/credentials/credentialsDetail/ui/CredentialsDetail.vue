@@ -5,7 +5,7 @@ import { useCredentialsDetailModel } from '@/widgets/credentials/credentialsDeta
 import { PDefinitionTable } from '@cloudforet-test/mirinae'; // PDefinitionTable 임포트
 
 interface IProps {
-  selectedCredentialName: string;
+  selectedCredentialName: string | null;
 }
 
 const props = defineProps<IProps>();
@@ -33,8 +33,8 @@ onBeforeMount(() => {
 watch(
   () => props.selectedCredentialName,
   newName => {
-    console.log('123123123', newName);
-    setCredentialName(newName);
+    console.log('Credential Name이 변경', newName);
+    setCredentialName(newName); // 모달에서 사용
   },
 );
 

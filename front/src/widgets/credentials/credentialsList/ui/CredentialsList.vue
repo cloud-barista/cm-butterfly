@@ -1,4 +1,12 @@
 <script setup lang="ts">
+type DisplayItem = {
+  configName?: string;
+  CredentialName?: string;
+  ProviderName?: string;
+  checkbox?: any;
+  originalData?: any;
+};
+
 import { ref, onMounted, reactive, watch, onBeforeMount } from 'vue';
 import {
   PToolboxTable,
@@ -7,7 +15,7 @@ import {
   PButtonModal,
 } from '@cloudforet-test/mirinae';
 import { useCredentialsListModel } from '../model/credentialsListModel';
-import { useGetConnconfigList } from '@/entities/credentials/api/index.ts';
+import { useGetCredentialList } from '@/entities/credentials/api/index.ts';
 import {
   insertDynamicComponent,
   showErrorMessage,
@@ -39,26 +47,51 @@ onBeforeMount(() => {
 
 onMounted(() => {
   // addDeleteIconAtTable.bind(this)();
-  getConfigList();
+  getCredentialList();
 });
 
 watch(
   () => props.trigger,
   newVal => {
     if (newVal) {
-      getConfigList();
+      getCredentialList();
       emit('update:trigger', false);
     }
   },
 );
 
-async function getConfigList() {
+// async function getCredentialList() {
+//   try {
+//     await useGetCredentialList()
+//       .execute()
+//       .then(res => {
+//         if (res.data.responseData) {
+//           configStore.setConfig(res.data.responseData.credential);
+//         }
+//       });
+//   } catch (e: any) {
+//     showErrorMessage(
+//       'Error',
+//       e.errorMsg || 'Credential 목록을 불러오는 데 실패했습니다.',
+//     );
+//   }
+// }
+
+async function getCredentialList() {
   try {
-    await useGetConnconfigList()
+    await useGetCredentialList()
       .execute()
       .then(res => {
         if (res.data.responseData) {
-          configStore.setConfig(res.data.responseData.connectionconfig);
+          configStore.setConfig(res.data.responseData.credential);
+
+          // 테이블 데이터 초기화
+          tableModel.tableState.displayItems =
+            res.data.responseData.credential.map((item: any) => ({
+              configName: item.CredentialName, // 추가
+              CredentialName: item.CredentialName,
+              ProviderName: item.ProviderName,
+            }));
         }
       });
   } catch (e: any) {
@@ -68,7 +101,6 @@ async function getConfigList() {
     );
   }
 }
-
 // function addDeleteIconAtTable() {
 //   const toolboxTable = this.$refs.toolboxTable.$el;
 //   const targetElement = toolboxTable.querySelector('.right-tool-group');
@@ -112,12 +144,17 @@ const modals = reactive({
 
 function handleSelectedIndex(selectedIndex: number) {
   const selectedData = tableModel.tableState.displayItems[selectedIndex];
-  console.log('handleSelectedIndex - selectedData:', selectedData.configName);
-  if (selectedData) {
-    emit('select-row', { id: selectedData.configName ?? '' });
-  } else {
-    emit('select-row', { id: '', name: '' });
+  if (!selectedData) {
+    console.error('Invalid index selected:', selectedIndex);
+    return;
   }
+
+  // Proxy 객체를 일반 객체로 변환
+  const plainData = { ...selectedData };
+
+  console.log('handleSelectedIndex - plainData:', plainData);
+
+  emit('select-row', { id: plainData.CredentialName ?? '' });
 }
 
 function handleChange() {

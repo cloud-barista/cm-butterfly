@@ -70,15 +70,23 @@ function handleAddCredential() {
 
 let data = computed(() => selectedCredentialName.value?.id);
 // Credential 선택 핸들러
+// function handleClickCredentialName(credential: { id: string }) {
+//   selectedCredentialName.value = credential;
+//   data = selectedCredentialName.value?.id;
+//   console.log('추출된 id 값:', data);
+//   console.log('추출된 id 값:', typeof data);
+//   console.log('선택된 Credential Name:', credential);
+//   console.log('selectedCredentialName:', selectedCredentialName.value);
+
+//   // data를 필요한 곳에 사용
+// }
+
+// function handleClickCredentialName(credential: { id: string }) {
+//   selectedCredentialName.value = credential;
+//   console.log('선택된 Credential Name:', credential.id);
+// }
 function handleClickCredentialName(credential: { id: string }) {
   selectedCredentialName.value = credential;
-  data = selectedCredentialName.value?.id;
-  console.log('추출된 id 값:', data);
-  console.log('추출된 id 값:', typeof data);
-  console.log('선택된 Credential Name:', credential);
-  console.log('selectedCredentialName:', selectedCredentialName.value);
-
-  // data를 필요한 곳에 사용
 }
 
 // 모달 관련 핸들러 (필요 시 구현)
@@ -119,7 +127,9 @@ function handleAddCredentialTrigger() {
                 Edit
               </p-button>
             </div>
-            <CredentialsDetail :selectedCredentialName="data" />
+            <CredentialsDetail
+              :selectedCredentialName="selectedCredentialName?.id"
+            />
           </template>
           <template #usage>
             <div class="tab-section-header">

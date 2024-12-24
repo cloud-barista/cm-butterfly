@@ -5,18 +5,7 @@ import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/us
 import { ref, watch } from 'vue';
 import { showErrorMessage } from '@/shared/utils'; // showErrorMessage 임포트
 
-type CredentialDetailTableType =
-  | 'name'
-  | 'id'
-  | 'providerName'
-  | 'regionDetail.regionName'
-  | 'regionZoneInfo.assignedZone'
-  | 'credentialName'
-  | 'driverName'
-  | 'verified'
-  | 'credentialHolder'
-  | 'regionRepresentative'
-  | 'regionZoneInfoName';
+type CredentialDetailTableType = 'Provider' | 'CredentialName' | 'KeyValueInfo';
 
 export function useCredentialsDetailModel() {
   const configStore = useConfigStore();
@@ -34,41 +23,25 @@ export function useCredentialsDetailModel() {
     tableModel.initState();
 
     tableModel.tableState.fields = [
-      { label: 'Credential 정보', name: 'name' },
-      { label: 'ID', name: 'id' },
-      { label: 'Provider', name: 'providerName' },
-      { label: 'Region', name: 'regionDetail.regionName' },
-      { label: 'Zone', name: 'regionZoneInfo.assignedZone' },
-      { label: 'Credential Name', name: 'credentialName' },
-      { label: 'Driver', name: 'driverName' },
-      { label: 'Verified', name: 'verified' },
-      { label: 'Credential Holder', name: 'credentialHolder' },
-      { label: 'Region Representative', name: 'regionRepresentative' },
-      { label: 'Region Zone Info Name', name: 'regionZoneInfoName' },
+      { label: 'Provider', name: 'Provider' },
+      { label: 'Credential Name', name: 'CredentialName' },
+      { label: 'Key-Value Info', name: 'KeyValueInfo' },
     ];
   }
 
   // 테이블 데이터 설정 함수
   function setDefineTableData(name: string) {
     const credential = configStore.getConfigByName(name);
-    let data: Partial<Record<CredentialDetailTableType, any>> = {};
     if (credential) {
-      data = {
-        name: credential.configName,
-        id: credential.configName,
-        providerName: credential.providerName,
-        'regionDetail.regionName': credential.regionDetail.regionName,
-        'regionZoneInfo.assignedZone': credential.regionZoneInfo.assignedZone,
-        credentialName: credential.credentialName,
-        driverName: credential.driverName,
-        verified: credential.verified ? 'Yes' : 'No',
-        credentialHolder: credential.credentialHolder,
-        regionRepresentative: credential.regionRepresentative ? 'Yes' : 'No',
-        regionZoneInfoName: credential.regionZoneInfoName,
+      const keyValueInfo = credential.KeyValueInfoList.map(
+        (item: { Key: string; Value: string }) => `${item.Key}: ${item.Value}`,
+      ).join(', ');
+      tableModel.tableState.data = {
+        Provider: credential.ProviderName,
+        CredentialName: credential.CredentialName,
+        KeyValueInfo: keyValueInfo,
       };
-      tableModel.tableState.data = data;
     } else {
-      // Credential이 없는 경우 처리
       tableModel.tableState.data = {};
       showErrorMessage('Error', '선택한 Credential을 찾을 수 없습니다.');
     }
@@ -78,7 +51,12 @@ export function useCredentialsDetailModel() {
   // Credential 데이터를 로드하는 함수
   function loadCredentialData(name: string | null) {
     tableModel.tableState.loading = true;
-    setDefineTableData(name);
+    if (name) {
+      setDefineTableData(name);
+    } else {
+      tableModel.tableState.data = {};
+      tableModel.tableState.loading = false;
+    }
   }
 
   // Credential Name 변경 감지

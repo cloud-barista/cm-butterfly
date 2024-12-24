@@ -33,3 +33,16 @@ export interface IConnectionConfig {
 export interface IGetConnconfigListResponse {
   connectionconfig: IConnectionConfig[];
 }
+
+export interface ICredential {
+  CredentialName: string;
+  KeyValueInfoList: Array<{
+    Key: string;
+    Value: string;
+  }>;
+  ProviderName: string;
+}
+
+export interface IGetCredentialListResponse {
+  credential: ICredential[];
+}

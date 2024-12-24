@@ -3,15 +3,14 @@ import {
   RequestBodyWrapper,
   useAxiosPost,
 } from '@/shared/libs';
-import { IGetConnconfigListResponse } from '@/entities/credentials/model/types.ts';
+import { IGetCredentialListResponse } from '@/entities/credentials/model/types.ts';
 
-const GET_CONNECTION = 'Getconnconfiglist';
-const GET_CONNECTION_BYID = 'GetconnconfiglisGetconnconfig';
+const GET_CREDENTIAL = 'List-Credential';
 const CREATE_CREDENTIAL = 'Register-Credential';
 
-export function useGetConnconfigList() {
-  return useAxiosPost<IAxiosResponse<IGetConnconfigListResponse>, null>(
-    GET_CONNECTION,
+export function useGetCredentialList() {
+  return useAxiosPost<IAxiosResponse<IGetCredentialListResponse>, null>(
+    GET_CREDENTIAL,
     null,
   );
 }
