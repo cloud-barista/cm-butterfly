@@ -12,7 +12,7 @@ import { CreateForm } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
 import { reactive, ref, watch } from 'vue';
-import { IGetConnconfigListResponse } from '@/entities';
+import { IGetCredentialListResponse } from '@/entities';
 import { useConfigStore } from '@/entities/credentials/model/stores';
 import { useCreateCredentials } from '@/entities/credentials/api/index';
 import { PTextEditor } from '@cloudforet-test/mirinae';
@@ -24,7 +24,7 @@ const isDisabled = ref<boolean>(false);
 
 interface iProps {
   // selectedcredentialname.value
-  data: string;
+  // data: string;
   trigger?: boolean;
 }
 
@@ -50,7 +50,7 @@ const state = reactive({
 });
 
 const configStore = useConfigStore();
-const targetModel = ref<IGetConnconfigListResponse | undefined>(undefined);
+const targetModel = ref<IGetCredentialListResponse | undefined>(undefined);
 const resCreateCredential = useCreateCredentials(null);
 const serverCode = ref<string>('');
 const { configStoreInfo } = storeToRefs(configStore);
@@ -78,10 +78,11 @@ const handleCancel = () => {
   //   sourceConnectionStore.editConnections = [];
   emit('update:isModalOpened', false);
 };
+
 const handleConfirm = async () => {
   console.log('handleConfirm');
   const requestData = {
-    CredentialName: 'www',
+    CredentialName: state.credentialName,
     ProviderName: 'AWS',
     KeyValueInfoList: [
       {
@@ -103,13 +104,15 @@ const handleConfirm = async () => {
     if (data.status && data.status.code === 200) {
       showSuccessMessage('success', 'Register Success');
 
-      configStoreInfo.value = {
-        credentialName: state.credentialName,
-        aWSAccessKey: state.aWSAccessKey,
-        aWSSecretKey: state.aWSSecretKey,
-      };
+      // configStoreInfo.value = {
+      //   CredentialName: state.credentialName,
+      //   aWSAccessKey: state.aWSAccessKey,
+      //   aWSSecretKey: state.aWSSecretKey,
+      // };
+      configStore.addCredential(requestData);
 
       emit('update:trigger');
+      console.log('Trigger emitted');
       emit('update:isModalOpened', false);
     }
   } catch (error) {

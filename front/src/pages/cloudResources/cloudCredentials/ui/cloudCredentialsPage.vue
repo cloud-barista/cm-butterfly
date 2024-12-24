@@ -52,7 +52,7 @@ function handleCredentialEdit() {
 // Add Credential 핸들러
 function handleAddCredential() {
   modalStates.addCredentialGroup.open = true;
-
+  getCredentialList();
   // modalStates.addServiceGroup.open = !value;
   // modalStates.addSourceConnection.open = value;
   // isCollapsed.value = value;
@@ -68,7 +68,7 @@ function handleAddCredential() {
 //   }
 // }
 
-let data = computed(() => selectedCredentialName.value?.id);
+// let data = computed(() => selectedCredentialName.value?.id);
 // Credential 선택 핸들러
 // function handleClickCredentialName(credential: { id: string }) {
 //   selectedCredentialName.value = credential;
@@ -146,7 +146,7 @@ function handleAddCredentialTrigger() {
           () => (modalStates.addCredentialGroup.open = false)
         "
         @update:is-connection-modal-opened="handleAddCredential"
-        @update:trigger="handleAddCredentialTrigger"
+        @update:trigger="modalStates.addCredentialGroup.trigger = true"
       />
     </div>
   </div>

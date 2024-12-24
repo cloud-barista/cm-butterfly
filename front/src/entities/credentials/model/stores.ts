@@ -17,8 +17,20 @@ export const useConfigStore = defineStore('CREDENTIALS', () => {
   function getConfigByName(name: string): ICredential | undefined {
     return models.value.find(config => config.CredentialName === name);
   }
+
+  function addCredential(credential: ICredential) {
+    models.value.push(credential);
+  }
+
   function setConfigStoreInfo(config: ICredential) {
     configStoreInfo.value = config;
   }
-  return { models, getConfig, setConfig, getConfigByName, configStoreInfo };
+  return {
+    models,
+    getConfig,
+    setConfig,
+    getConfigByName,
+    addCredential,
+    configStoreInfo,
+  };
 });
