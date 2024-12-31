@@ -46,3 +46,11 @@ export interface ICredential {
 export interface IGetCredentialListResponse {
   credential: ICredential[];
 }
+export interface ICreateCredentialsPayload {
+  CredentialName: string;
+  KeyValueInfoList: Array<{
+    Key: string;
+    Value: string;
+  }>;
+  ProviderName: string;
+}

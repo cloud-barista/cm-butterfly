@@ -15,7 +15,10 @@ import {
   PButtonModal,
 } from '@cloudforet-test/mirinae';
 import { useCredentialsListModel } from '../model/credentialsListModel';
-import { useGetCredentialList } from '@/entities/credentials/api/index.ts';
+import {
+  useGetCredentialList,
+  useDeleteCredentials,
+} from '@/entities/credentials/api/index.ts';
 import {
   insertDynamicComponent,
   showErrorMessage,
@@ -45,8 +48,8 @@ onBeforeMount(() => {
   initToolBoxTableModel();
 });
 
-onMounted(() => {
-  // addDeleteIconAtTable.bind(this)();
+onMounted(function () {
+  addDeleteIconAtTable.bind(this)();
   getCredentialList();
 });
 
@@ -167,35 +170,77 @@ function handleAddCredential() {
   emit('update:connection-title', 'add');
 }
 
-async function handleDeleteSelected() {
-  if (selectIndex.value.length === 0) {
+const toolboxTableRef = ref(null);
+
+function addDeleteIconAtTable() {
+  const toolboxTable = this.$refs.toolboxTable.$el;
+  const targetElement = toolboxTable.querySelector('.right-tool-group');
+  const instance = insertDynamicComponent(
+    DynamicTableIconButton,
+    {
+      name: 'ic_delete',
+    },
+    {
+      click: () => {
+        console.log('123123');
+        // if (tableModel.tableState.selectIndex.length > 0) {
+        console.log('123123', modals.alertModalState.open);
+        modals.alertModalState.open = true;
+        // }
+      },
+    },
+    targetElement,
+    'prepend',
+  );
+  return instance;
+}
+async function handleDeleteCredentials() {
+  console.log('1aa23123123');
+  const selectedCredentialIds = selectIndex.value.map(
+    index => tableModel.tableState.displayItems[index].CredentialName,
+  );
+
+  if (selectedCredentialIds.length === 0) {
     showErrorMessage('Error', '삭제할 Credential을 선택하지 않았습니다.');
     return;
   }
-  modals.alertModalState.open = true;
-}
 
-// async function handleDeleteConfirm() {
-//   const selectedConfigs = selectIndex.value.map(
-//     index => tableModel.tableState.items[index].configName,
-//   );
-//   try {
-//     await useBulkDeleteConnconfigList(selectedConfigs);
-//     showSuccessMessage(
-//       'Success',
-//       '선택된 Credential이 성공적으로 삭제되었습니다.',
-//     );
-//     getConfigList();
-//     selectIndex.value = [];
-//   } catch (error: any) {
-//     showErrorMessage(
-//       'Error',
-//       error.message || '선택된 Credential 삭제에 실패했습니다.',
-//     );
-//   } finally {
-//     modals.alertModalState.open = false;
-//   }
-// }
+  try {
+    for (const credentialName of selectedCredentialIds) {
+      const { data } = await useDeleteCredentials(credentialName).execute();
+
+      if (data.status?.code === 200 && data.responseData?.Result === 'true') {
+        // Store에서 해당 Credential 제거
+        configStore.removeCredentials([credentialName]);
+
+        showSuccessMessage(
+          'Success',
+          `Credential '${credentialName}'이(가) 성공적으로 삭제되었습니다.`,
+        );
+      } else {
+        showErrorMessage(
+          'Error',
+          data.status?.message ||
+            `Credential '${credentialName}' 삭제에 실패했습니다.`,
+        );
+      }
+    }
+
+    // 모든 작업이 완료되면 리스트 새로고침
+    await getCredentialList();
+
+    // 선택 상태 초기화
+    selectIndex.value = [];
+  } catch (error: any) {
+    showErrorMessage(
+      'Error',
+      error.message || '삭제 요청 중 오류가 발생했습니다.',
+    );
+  } finally {
+    // 모달 닫기
+    modals.alertModalState.open = false;
+  }
+}
 </script>
 
 <template>
@@ -241,10 +286,10 @@ async function handleDeleteSelected() {
       size="sm"
       backdrop
       theme-color="alert"
-      header-title="선택한 Credential을 삭제하시겠습니까?"
+      header-title="Are you sure you want to delete it?"
       :hide-body="true"
       :hide-header-close-button="true"
-      @confirm="handleDeleteConfirm"
+      @confirm="handleDeleteCredentials"
     />
   </div>
 </template>

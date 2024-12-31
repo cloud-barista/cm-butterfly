@@ -3,10 +3,14 @@ import {
   RequestBodyWrapper,
   useAxiosPost,
 } from '@/shared/libs';
-import { IGetCredentialListResponse } from '@/entities/credentials/model/types.ts';
+import {
+  IGetCredentialListResponse,
+  ICreateCredentialsPayload,
+} from '@/entities/credentials/model/types.ts';
 
 const GET_CREDENTIAL = 'List-Credential';
 const CREATE_CREDENTIAL = 'Register-Credential';
+const DELETE_CREDENTIAL = 'Unregister-Credential';
 
 export function useGetCredentialList() {
   return useAxiosPost<IAxiosResponse<IGetCredentialListResponse>, null>(
@@ -31,11 +35,20 @@ export function useCreateCredentials(data: ICreateCredentialsPayload | null) {
     >
   >(CREATE_CREDENTIAL, requestWrapper);
 }
-export interface ICreateCredentialsPayload {
-  CredentialName: string;
-  KeyValueInfoList: Array<{
-    Key: string;
-    Value: string;
-  }>;
-  ProviderName: string;
+
+export function useDeleteCredentials(credentialName: string | null) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<{ CredentialName: string | null }>, 'pathParams'>
+  > = {
+    pathParams: {
+      CredentialName: credentialName,
+    },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<{ Result: string }>,
+    Required<
+      Pick<RequestBodyWrapper<{ CredentialName: string | null }>, 'pathParams'>
+    >
+  >(DELETE_CREDENTIAL, requestWrapper);
 }

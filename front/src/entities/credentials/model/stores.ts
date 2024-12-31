@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { ICredential } from '@/entities/credentials/model/types.ts';
+import { remove } from 'lodash';
 
 export const useConfigStore = defineStore('CREDENTIALS', () => {
   const models = ref<ICredential[]>([]);
@@ -25,12 +26,20 @@ export const useConfigStore = defineStore('CREDENTIALS', () => {
   function setConfigStoreInfo(config: ICredential) {
     configStoreInfo.value = config;
   }
+
+  function removeCredentials(credentialNames: string[]) {
+    models.value = models.value.filter(
+      credential => !credentialNames.includes(credential.CredentialName),
+    );
+  }
+
   return {
     models,
     getConfig,
     setConfig,
     getConfigByName,
     addCredential,
+    removeCredentials,
     configStoreInfo,
   };
 });
