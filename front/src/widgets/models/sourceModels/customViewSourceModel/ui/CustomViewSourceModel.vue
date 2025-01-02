@@ -125,4 +125,8 @@ function handleCodeUpdate(value: string) {
   </div>
 </template>
 
-<style scoped lang="postcss"></style>
+<style scoped lang="postcss">
+.p-text-editor {
+  max-height: 35.25rem;
+}
+</style>

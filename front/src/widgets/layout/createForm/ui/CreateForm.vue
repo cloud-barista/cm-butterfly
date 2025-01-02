@@ -113,7 +113,7 @@ const handleGoBack = () => {
 }
 
 .widget-layout {
-  min-height: 45.25rem;
+  min-height: 15.25rem;
   .icon-plus {
     @apply mb-[1.5rem];
   }
