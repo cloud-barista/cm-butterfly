@@ -187,14 +187,19 @@ watch(
   width: 100%;
   min-height: 15.125rem;
   border-radius: 0.25rem 0 0 0.25rem;
+  flex-wrap: wrap;
   .left-layer {
-    /* @apply w-[450px] mr-[1.5rem]; */
+    @apply w-[450px] mr-[1.5rem];
     .p-text-input {
-      @apply w-[450px];
+      /* @apply w-[450px]; */
+    }
+    .p-textarea {
     }
   }
   .right-layer {
-    @apply grid grid-cols-2 gap-x-[1.5rem] ml-[1.5rem];
+    @apply flex flex-wrap gap-x-[1.5rem];
+    flex: 1;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     .p-text-input {
       /* @apply w-[20rem]; */
     }
@@ -207,11 +212,32 @@ watch(
   }
 }
 
+@media screen and (max-width: 768px) {
+  .source-connection-info {
+    flex-direction: column;
+  }
+
+  .left-layer {
+    @apply w-full;
+    margin-right: 0;
+  }
+
+  .right-layer {
+    @apply w-full;
+    margin-left: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
 button {
   @apply bg-[#EDEDEF] w-[2.5rem];
 }
 
 :deep(.p-text-input) {
   @apply w-[19.25rem];
+}
+
+:deep(.p-textarea) {
+  @apply w-[23.25rem];
 }
 </style>
