@@ -79,6 +79,7 @@ function handleUpdateTargetModel(e) {
     .then(res => {
       showSuccessMessage('success', 'Successfully updated target model');
       modalStates.editModelModal.trigger = true;
+      // 여기에 targetmodellist update trigger
     })
     .catch(e => {
       showErrorMessage('error', e.errorMsg);

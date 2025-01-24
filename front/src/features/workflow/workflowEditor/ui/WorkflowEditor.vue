@@ -304,8 +304,8 @@ function handleSelectTemplate(e) {
         <p-button
           :loading="resUpdateWorkflow.isLoading.value"
           @click="handleSave"
-          >Save</p-button
-        >
+          >Save
+        </p-button>
       </template>
     </create-form>
   </div>

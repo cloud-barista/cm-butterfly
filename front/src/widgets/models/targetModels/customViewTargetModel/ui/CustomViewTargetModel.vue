@@ -75,13 +75,15 @@ function handleCreateTargetModel(e) {
     })
     .then(res => {
       showSuccessMessage('success', 'Successfully Create target model');
-      emit('update:trigger');
       modalState.open = false;
+      emit('update:close-modal', false);
+      emit('update:trigger', false);
     })
     .catch(e => {
       showErrorMessage('error', e.errorMsg);
     });
 }
+
 function handleCodeUpdate(value: string) {
   cloudInfraModelCode.value = value;
 }
