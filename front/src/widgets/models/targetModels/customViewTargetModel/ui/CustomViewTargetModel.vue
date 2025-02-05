@@ -18,7 +18,7 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['update:close-modal', 'update:trigger']);
+const emit = defineEmits(['update:close-modal', 'update:trigger', 'update:close-target-model-detail']);
 
 const modalState = reactive({
   open: false,
@@ -78,6 +78,7 @@ function handleCreateTargetModel(e) {
       modalState.open = false;
       emit('update:close-modal', false);
       emit('update:trigger', false);
+      emit('update:close-target-model-detail');
     })
     .catch(e => {
       showErrorMessage('error', e.errorMsg);

@@ -150,6 +150,11 @@ function handleUpdateTargetModel(e) {
         :selected-target-id="selectedTargetModelId"
         :selected-target-name="selectedTargetModelName"
         @update:close-modal="modalStates.customViewJsonModal.open = false"
+        @update:trigger="modalStates.editModelModal.trigger = true"
+        @update:close-target-model-detail="
+          selectedTargetModelId = '';
+          selectedTargetModelName = '';
+        "
       />
     </div>
     <div class="relative z-70">
