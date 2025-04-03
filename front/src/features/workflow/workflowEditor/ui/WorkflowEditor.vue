@@ -238,7 +238,7 @@ function handleSaveCallback(designer: Designer | null) {
 
 function handleCancel() {
   emit('update:close-modal', false);
-  emit('update:trigger');
+  // emit('update:trigger');
 }
 
 function handleSave() {

@@ -325,4 +325,9 @@ function handleSave(e: { name: string; description: string }) {
 .divider {
   margin: 7.5px 0 16px 0;
 }
+
+:deep(.menu-container) {
+  max-height: 190px;
+  overflow-y: auto;
+}
 </style>

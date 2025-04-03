@@ -79,6 +79,7 @@ function handleUpdateTargetModel(e) {
     .then(res => {
       showSuccessMessage('success', 'Successfully updated target model');
       modalStates.editModelModal.trigger = true;
+      // 여기에 targetmodellist update trigger
     })
     .catch(e => {
       showErrorMessage('error', e.errorMsg);
@@ -149,6 +150,11 @@ function handleUpdateTargetModel(e) {
         :selected-target-id="selectedTargetModelId"
         :selected-target-name="selectedTargetModelName"
         @update:close-modal="modalStates.customViewJsonModal.open = false"
+        @update:trigger="modalStates.editModelModal.trigger = true"
+        @update:close-target-model-detail="
+          selectedTargetModelId = '';
+          selectedTargetModelName = '';
+        "
       />
     </div>
     <div class="relative z-70">

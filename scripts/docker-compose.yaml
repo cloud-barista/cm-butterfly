@@ -21,21 +21,21 @@ services:
     volumes:
       - ../api/conf:/app/conf/
 
-  cm-butterfly-front:
-    container_name: cm-butterfly-front
-    build:
-      context: ../front
-      dockerfile: Dockerfile
-    networks:
-      - cm-butterfly-network
-    ports:
-      - target: 80
-        published: 80
-        protocol: tcp
-    depends_on:
-      - cm-butterfly-api
-    volumes:
-      - ../front/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
+  # cm-butterfly-front:
+  #   container_name: cm-butterfly-front
+  #   build:
+  #     context: ../front
+  #     dockerfile: Dockerfile
+  #   networks:
+  #     - cm-butterfly-network
+  #   ports:
+  #     - target: 80
+  #       published: 80
+  #       protocol: tcp
+  #   depends_on:
+  #     - cm-butterfly-api
+  #   volumes:
+  #     - ../front/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
 
   cm-butterfly-db:
     container_name: cm-butterfly-db

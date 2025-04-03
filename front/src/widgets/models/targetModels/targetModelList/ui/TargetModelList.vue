@@ -17,6 +17,7 @@ const { tableModel, initToolBoxTableModel, targetModelStore, targetModels } =
 interface IProps {
   trigger: boolean;
 }
+
 const props = defineProps<IProps>();
 
 const emit = defineEmits(['select-row', 'update:trigger']);
@@ -40,6 +41,7 @@ onMounted(function () {
 watch(
   () => props.trigger,
   () => {
+    tableModel.tableState.selectIndex = [];
     getTableList();
     emit('update:trigger', false);
   },
@@ -64,6 +66,7 @@ function addDeleteIconAtTable() {
   );
   return instance;
 }
+
 function getTableList() {
   resGetTargetModelList.execute().then(res => {
     if (res.data.responseData) {
@@ -71,6 +74,7 @@ function getTableList() {
     }
   });
 }
+
 function handleSelectedIndex(selectedIndex: number) {
   const selectedData = tableModel.tableState.displayItems[selectedIndex];
   if (selectedData) {

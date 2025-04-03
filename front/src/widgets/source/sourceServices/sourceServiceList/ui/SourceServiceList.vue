@@ -128,6 +128,11 @@ watch(
     }
   },
 );
+
+// :loading="
+//             tableModel.tableState.loading ||
+//             resSourceServiceList.isLoading.value
+//           "
 </script>
 
 <template>
@@ -136,10 +141,6 @@ watch(
       <template #container="{ height }">
         <p-toolbox-table
           ref="toolboxTable"
-          :loading="
-            tableModel.tableState.loading ||
-            resSourceServiceList.isLoading.value
-          "
           :items="tableModel.tableState.displayItems"
           :fields="tableModel.tableState.fields"
           :total-count="tableModel.tableState.tableCount"
