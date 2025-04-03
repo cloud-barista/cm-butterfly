@@ -53,7 +53,7 @@ axiosInstance.interceptors.response.use(
 
       if (!refresh_token) {
         McmpRouter.getRouter()
-          .push({ name: AUTH_ROUTE.LOGIN._NAME })
+          .replace({ name: AUTH_ROUTE.LOGIN._NAME })
           .catch(() => {});
       } else {
         try {
@@ -78,6 +78,11 @@ axiosInstance.interceptors.response.use(
           return Promise.reject(e);
         }
       }
+    } else if (error.response?.status === 403) {
+      alert('User Session Expired.\n Pleas login again');
+      McmpRouter.getRouter()
+        .replace({ name: AUTH_ROUTE.LOGIN._NAME })
+        .catch(() => {});
     }
     return Promise.reject(error);
   },

@@ -65,7 +65,7 @@ type ApiYaml struct {
 // ////////////////////////////////////////////////////////////////
 
 var (
-	ApiYamlSet  ApiYaml
+	ApiYamlSet ApiYaml
 )
 
 func init() {
@@ -352,6 +352,17 @@ func CommonResponseStatusBadRequest(responseData interface{}) *CommonResponse {
 	webStatus := WebStatus{
 		StatusCode: http.StatusBadRequest,
 		Message:    http.StatusText(http.StatusBadRequest),
+	}
+	return &CommonResponse{
+		ResponseData: responseData,
+		Status:       webStatus,
+	}
+}
+
+func CommonResponseStatusForbidden(responseData interface{}) *CommonResponse {
+	webStatus := WebStatus{
+		StatusCode: http.StatusForbidden,
+		Message:    http.StatusText(http.StatusForbidden),
 	}
 	return &CommonResponse{
 		ResponseData: responseData,

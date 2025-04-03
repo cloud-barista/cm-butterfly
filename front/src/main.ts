@@ -8,15 +8,32 @@ import VueRouter from 'vue-router';
 import { McmpRouter } from './app/providers/router';
 import { i18n } from './app/i18n';
 import './app/style/style.pcss';
+import JwtTokenProvider from '@/shared/libs/token';
+import { AUTH_ROUTE } from '@/pages/auth/auth.route.ts';
+import { axiosPost } from '@/shared/libs';
 
 const pinia = createPinia();
 Vue.use(PiniaVuePlugin);
 Vue.use(MirinaeDesignSystem);
 Vue.use(VueRouter);
 
-new Vue({
-  i18n,
-  pinia,
-  router: McmpRouter.getRouter(),
-  render: h => h(App),
-}).$mount('#app');
+async function init() {
+  const router = McmpRouter.getRouter();
+
+  try {
+    await JwtTokenProvider.validateToken();
+  } catch (e) {
+    McmpRouter.getRouter()
+      .push({ name: AUTH_ROUTE.LOGIN._NAME })
+      .catch(() => {});
+  } finally {
+    new Vue({
+      i18n,
+      pinia,
+      router: router,
+      render: h => h(App),
+    }).$mount('#app');
+  }
+}
+
+init();

@@ -44,12 +44,16 @@ func App() *buffalo.App {
 		apiPath := "/api"
 
 		auth := app.Group(apiPath + "/auth")
-		auth.Middleware.Skip(SetContextMiddleware, AuthLogin)
+
+		auth.Middleware.Skip(SetContextMiddleware, AuthLogin, AuthLoginRefresh)
 		auth.POST("/login", AuthLogin)
-		auth.POST("/refresh", AuthLoginRefresh)
 		auth.POST("/validate", AuthValidate)
 		auth.POST("/logout", AuthLogout)
 		auth.POST("/userinfo", AuthUserinfo)
+
+		refresh := auth.Group("/refresh")
+		refresh.Use(SetRefreshCtxMiddleware)
+		refresh.POST("", AuthLoginRefresh)
 
 		api := app.Group(apiPath)
 		api.POST("/disklookup", DiskLookup)

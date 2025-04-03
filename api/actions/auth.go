@@ -8,6 +8,7 @@ import (
 	"log"
 
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/buffalo/render"
 	"github.com/gobuffalo/pop/v6"
 )
 
@@ -54,16 +55,21 @@ func AuthLoginRefresh(c buffalo.Context) error {
 		return c.Render(commonResponse.Status.StatusCode, r.JSON(commonResponse))
 	}
 
+	refreshToken := c.Value("refreshToken").(string)
+	if refreshToken != sess.RefreshToken {
+		return c.Render(http.StatusForbidden, render.JSON(map[string]interface{}{"error": http.StatusText(http.StatusForbidden)}))
+	}
+
 	tokenSet, err := handler.RefreshAccessToken(sess.RefreshToken)
 	if err != nil {
 		app.Logger.Error(err.Error())
-		commonResponse := handler.CommonResponseStatusBadRequest(err.Error())
+		commonResponse := handler.CommonResponseStatusForbidden(err.Error())
 		return c.Render(commonResponse.Status.StatusCode, r.JSON(commonResponse))
 	}
 
 	sess.AccessToken = tokenSet.Accesstoken
 	sess.ExpiresIn = float64(tokenSet.ExpiresIn)
-	sess.RefreshToken = tokenSet.Accesstoken
+	sess.RefreshToken = tokenSet.RefreshToken
 	sess.RefreshExpiresIn = float64(tokenSet.RefreshExpiresIn)
 
 	_, err = handler.UpdateUserSess(tx, sess)

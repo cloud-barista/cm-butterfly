@@ -31,7 +31,7 @@ watchEffect(
   () => {
     if (sourceConnectionStore.editConnections.length > 0) {
       sourceConnectionStore.editConnections.forEach(s => {
-        if (s.ip_address && s.name && s.password && s.ssh_port && s.user) {
+        if (s.ip_address && s.name && s.ssh_port && s.user) {
           isDisabled.value = true;
         } else {
           isDisabled.value = false;

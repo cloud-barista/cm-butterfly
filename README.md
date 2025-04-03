@@ -112,7 +112,7 @@ Modify the value of services.{subsystem-name}.baseurl. The host currently in use
       password: 
   
   cb-tumblebug:
-    version: 0.10.0
+    version: 0.10.3
     baseurl: http://cb-tumblebug:1323/tumblebug ## change this end with /tumblebug
     auth: 
       type: basic

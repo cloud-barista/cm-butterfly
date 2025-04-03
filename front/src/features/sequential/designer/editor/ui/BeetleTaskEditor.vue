@@ -13,9 +13,9 @@ import Vue, {
   watch,
 } from 'vue';
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
-import { useTaskEditorModel } from '@/features/workflow/workflowEditor/sequential/designer/editor/model/beetleTaskEditorModel.ts';
+import { useTaskEditorModel } from '@/features/sequential/designer/editor/model/beetleTaskEditorModel.ts';
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
-import SequentialShortCut from '@/features/workflow/workflowEditor/sequential/designer/shortcut/ui/SequentialShortCut.vue';
+import SequentialShortCut from '@/features/sequential/designer/shortcut/ui/SequentialShortCut.vue';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 
 interface IProps {
