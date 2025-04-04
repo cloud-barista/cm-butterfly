@@ -159,7 +159,7 @@ function handleSourceConnectionList() {
         ref="toolboxTable"
         :loading="
           tableModel.tableState.loading ||
-            resSourceConnectionList.isLoading.value
+          resSourceConnectionList.isLoading.value
         "
         :items="tableModel.tableState.displayItems"
         :fields="tableModel.tableState.fields"

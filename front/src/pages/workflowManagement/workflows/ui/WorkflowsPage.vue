@@ -125,13 +125,13 @@ async function handleUpdateWorkflow(updatedData: object) {
     });
 
     if (
-      data.responseData?.data.description !== '' &&
+      // data.responseData?.data.description !== '' &&
       data.responseData?.data.task_groups !== null
     ) {
       modalState.addWorkflow.trigger = true;
       showSuccessMessage('success', 'Workflow data updated successfully.');
     } else {
-      // modalState.addWorkflow.trigger = true;
+      modalState.addWorkflow.trigger = true;
       showErrorMessage('error', 'Workflow data cannot be null.');
     }
   } catch (error) {

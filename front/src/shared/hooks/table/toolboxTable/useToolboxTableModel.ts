@@ -41,7 +41,7 @@ export const useToolboxTableModel = <T>() => {
   });
 
   const querySearchState = reactive<any>({
-    keyItemSet: [],
+    keyItemSets: [],
     valueHandlerMap: {},
     queryTag: [],
   });
