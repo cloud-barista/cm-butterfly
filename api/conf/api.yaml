@@ -3,7 +3,7 @@ cliSpecVersion: v1
 services:
   cb-spider: #service name
     version: 0.10.0
-    baseurl: https://devcm.onecloudcon.com/spider # baseurl is Scheme + Host + Base Path
+    baseurl: http://cb-spider:1024/spider # baseurl is Scheme + Host + Base Path
     auth: #If you need an authentication method, describe the type and username and password in the sub
       # type: basic
       # username: default
@@ -11,8 +11,7 @@ services:
 
   cb-tumblebug:
     version: 0.10.0
-    # baseurl: http://cb-tumblebug:1323/tumblebug
-    baseurl: https://devcm.onecloudcon.com/tumblebug
+    baseurl: http://cb-tumblebug:1323/tumblebug
     auth:
       type: basic
       username: default
@@ -33,7 +32,7 @@ services:
 
   cm-honeybee:
     version: 0.3.0
-    baseurl: https://cm.onecloudcon.com/honeybee
+    baseurl: http://cm-honeybee:8081/honeybee
     auth:
 
   cm-cicada:
