@@ -1,7 +1,7 @@
 import mirinaeTailwind from '@cloudforet-test/mirinae/tailwind.config.cjs';
 
 export default {
-  purge: ['./src/**/*.{html,js,jsx,ts,tsx,vue}', './index.html'],
+  content: ['./src/**/*.{html,js,jsx,ts,tsx,vue}', './index.html'],
 
   theme: {
     flex: {

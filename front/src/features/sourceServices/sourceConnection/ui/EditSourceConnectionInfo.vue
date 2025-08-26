@@ -63,7 +63,7 @@ watchEffect(() => {
         ...sourceConnectionStore.getConnectionById(
           props.selectedSourceConnectionIds[0],
         ),
-        ssh_port: '',
+        ssh_port: '20',
         user: '',
         password: '',
         private_key: '',
@@ -75,7 +75,7 @@ watchEffect(() => {
         ...sourceConnectionsByIds.value,
         {
           ...sourceConnectionStore.getConnectionById(connId),
-          ssh_port: '',
+          ssh_port: '20',
           user: '',
           password: '',
           private_key: '',

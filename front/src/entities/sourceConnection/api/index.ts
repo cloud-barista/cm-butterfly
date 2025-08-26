@@ -16,10 +16,12 @@ const UPDATE_SOURCE_CONNECTION = 'update-connection-info';
 const GET_SOURCE_CONNECTION_LIST = 'list-connection-info';
 const COLLECT_INFRA = 'import-infra';
 const COLLECT_SW = 'import-software';
+const COLLECT_SW_SOURCE_GROUP = 'import-software-source-group';
 const DELETE_SOURCE_CONNECTION = 'delete-connection-info';
 const REFRESH_SOURCE_GROUP_CONNECTION_INFO_STATUS =
   'Refresh-Source-Group-Connection-Info-Status';
 const GET_INFRA_INFO_REFINED = 'get-infra-info-refined';
+const GET_SOFTWARE_INFO_REFINED = 'get-software-info-refined';
 
 export function useCreateConnectionInfo(
   sgId: string | null,
@@ -125,6 +127,19 @@ export function useCollectSW(id: params | null) {
   >(COLLECT_SW, requestWrapper);
 }
 
+export function useCollectSWSourceGroup(sgId: string | null) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>
+  > = {
+    pathParams: { sgId: sgId || null },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<ISourceSoftwareCollectResponse>,
+    Required<Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>>
+  >(COLLECT_SW_SOURCE_GROUP, requestWrapper);
+}
+
 export function useBulkDeleteSourceConnection(params: params[]) {
   const promiseArr = params.map(param => {
     return axiosInstance.post(DELETE_SOURCE_CONNECTION, {
@@ -181,4 +196,36 @@ export function useGetInfraInfoRefined(
       >
     >
   >(GET_INFRA_INFO_REFINED, requestWrapper);
+}
+
+export function useGetSoftwareInfoRefined(
+  sgId: string | null,
+  connId: string | null,
+) {
+  const requestWrapper: Required<
+    Pick<
+      RequestBodyWrapper<{
+        sgId: string | null;
+        connId: string | null;
+      }>,
+      'pathParams'
+    >
+  > = {
+    pathParams: {
+      sgId,
+      connId,
+    },
+  };
+  return useAxiosPost<
+    IAxiosResponse<any>,
+    Required<
+      Pick<
+        RequestBodyWrapper<{
+          sgId: string | null;
+          connId: string | null;
+        }>,
+        'pathParams'
+      >
+    >
+  >(GET_SOFTWARE_INFO_REFINED, requestWrapper);
 }
