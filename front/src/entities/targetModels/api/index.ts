@@ -8,8 +8,8 @@ import { ITargetModelResponse } from '@/entities';
 import { ISourceConnectionResponse } from '@/entities/sourceConnection/model/types.ts';
 
 const CREATE_TARGET_MODEL = 'CreateCloudModel';
-const GET_SOURCE_MODEL_LIST = 'GetUserModel';
-const UPDATE_TARGET_MODEL = 'UpdateCloudmodel';
+const GET_SOURCE_MODEL_LIST = 'GetModels';
+const UPDATE_TARGET_MODEL = 'UpdateCloudModel';
 
 interface ICreateTargetModelPayload {
   cloudInfraModel: IRecommendModelResponse['targetInfra'];

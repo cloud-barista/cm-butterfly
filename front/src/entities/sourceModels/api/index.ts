@@ -9,10 +9,10 @@ import { IOnpremModelPayload, ISourceModelResponse } from '@/entities';
 import { IEditWorkspaceData } from '@/entities/workspace/model/types.ts';
 import { axiosInstance } from '@/shared/libs/api/instance.ts';
 
-const GET_SOURCE_MODEL_LIST = 'GetUserModel';
-const UPDATE_SOURCE_MODEL = 'UpdateOnpremmodel';
-const CREATE_ONPREMMODEL = 'CreateOnpremmodel';
-const DELETE_ONPREMMODEL = 'DeleteOnpremmodel';
+const GET_SOURCE_MODEL_LIST = 'GetModels';
+const UPDATE_SOURCE_MODEL = 'UpdateOnPremModel';
+const CREATE_ONPREMMODEL = 'CreateOnPremModel';
+const DELETE_ONPREMMODEL = 'DeleteOnPremModel';
 const CREATE_SOURCE_SOFTWARE_MODEL = 'CreateSourceSoftwareModel';
 
 export function useGetSourceModelList() {
