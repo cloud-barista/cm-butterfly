@@ -18,6 +18,10 @@ interface iProps {
 const props = defineProps<iProps>();
 const emit = defineEmits(['update:is-converted']);
 
+// formData와 convertedJSON을 computed로 최적화
+const memoizedFormData = computed(() => props.formData);
+const memoizedConvertedJSON = computed(() => props.convertedJSON);
+
 function handleConvertJson() {
   props.promiseFunc().then(res => {
     emit('update:is-converted', res);
@@ -28,8 +32,7 @@ function handleConvertJson() {
 <template>
   <div class="json-viewer-layout">
     <collect-json-editor
-      v-memo="[props.formData]"
-      :form-data="props.formData"
+      :form-data="memoizedFormData"
       title="Meta (data)"
       :read-only="true"
       :schema="{ json: true, properties: {} }"
@@ -48,8 +51,7 @@ function handleConvertJson() {
       <p-spinner v-if="loading" class="spinner" size="md" />
     </button>
     <collect-json-editor
-      v-memo="[props.convertedJSON]"
-      :form-data="props.convertedJSON"
+      :form-data="memoizedConvertedJSON"
       title="Model"
       :read-only="false"
       :schema="{ json: true, properties: {} }"

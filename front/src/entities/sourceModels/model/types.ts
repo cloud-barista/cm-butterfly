@@ -16,9 +16,13 @@ export interface ISourceModelResponse {
   id: string;
   isCloudModel: boolean;
   isInitUserModel: boolean;
+  isSoftwareModel?: boolean; // 추가: software model 여부
   isTargetModel: boolean;
+  migrationType?: string; // 추가: migration type (Infra/Software)
   onpremModelVersion: string;
-  onpremiseInfraModel: OnPremiseInfraModel;
+  onpremiseInfraModel?: OnPremiseInfraModel; // 선택적으로 변경
+  sourceSoftwareModel?: any; // 추가: software model data
+  connection_info_list?: any[]; // 추가: connection info list
   updateTime: string;
   userId: string;
   userModelName: string;
@@ -30,7 +34,10 @@ interface OnPremiseInfraModel {
   servers: Server[];
 }
 
-export interface Network {}
+export interface Network {
+  ipv4Networks?: any[];
+  ipv6Networks?: any[];
+}
 
 interface Server {
   cpu: CPU;

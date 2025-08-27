@@ -9,7 +9,8 @@ import {
   IRecommendModelResponse,
 } from '@/entities/recommendedModel/model/types.ts';
 
-const GET_RECOMMEND_MODEL = 'RecommendInfra';
+//const GET_RECOMMEND_MODEL = 'RecommendInfra';
+const GET_RECOMMEND_MODEL = 'RecommendVMInfra';
 const GET_RECOMMEND_COST = 'Updateandgetestimatecost';
 
 export function useGetRecommendModelListBySourceModel(

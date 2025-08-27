@@ -65,6 +65,18 @@ onBeforeMount(() => {
 });
 
 function handleJsonModal() {
+  // 디버깅을 위한 로그 출력
+  const sourceModel = sourceModelStore.getSourceModelById(props.selectedSourceModelId);
+  // console.log('=== SourceModelDetail Debug Info ===');
+  // console.log('selectedSourceModelId:', props.selectedSourceModelId);
+  // console.log('sourceModel:', sourceModel);
+  // console.log('sourceModelName:', sourceModelName.value);
+  // console.log('connection_info_list:', sourceModel?.connection_info_list);
+  // console.log('connection_info_list type:', typeof sourceModel?.connection_info_list);
+  // console.log('connection_info_list length:', sourceModel?.connection_info_list?.length);
+  // console.log('Full sourceModel structure:', JSON.stringify(sourceModel, null, 2));
+  // console.log('==================================');
+  
   emit('update:custom-view-json-modal', true);
   emit('update:source-model-name', sourceModelName.value);
 }

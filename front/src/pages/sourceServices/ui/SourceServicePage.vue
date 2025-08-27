@@ -141,8 +141,8 @@ function handleNewConnectionModal(value: boolean) {
 }
 
 const data = computed(() => {
-  return sourceConnectionStore.getConnectionById(selectedConnectionId.value)
-    ?.softwareData;
+  const connection = sourceConnectionStore.getConnectionById(selectedConnectionId.value);
+  return connection?.softwareData || null;
 });
 </script>
 
@@ -308,12 +308,16 @@ const data = computed(() => {
         :source-connection-name="sourceConnectionName"
         :sgId="selectedServiceId"
         :connId="selectedConnectionId"
+        data-type="infra"
         @update:is-meta-viewer-opened="modalStates.addInfraMetaViewer.confirm()"
       />
       <meta-viewer
         v-else-if="modalStates.addSoftwareMetaViewer.open && data"
         :collect-data="softwareData"
         :source-connection-name="sourceConnectionName"
+        :sgId="selectedServiceId"
+        :connId="selectedConnectionId"
+        data-type="software"
         @update:is-meta-viewer-opened="
           modalStates.addSoftwareMetaViewer.confirm()
         "
