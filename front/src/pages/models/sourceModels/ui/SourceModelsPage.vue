@@ -3,7 +3,8 @@ import { PTab, PButton } from '@cloudforet-test/mirinae';
 import { SourceModelList } from '@/widgets/models/sourceModels';
 import { SourceModelDetail } from '@/widgets/models/sourceModels';
 import { CustomViewSourceModel } from '@/widgets/models/sourceModels';
-import { RecommendedModel } from '@/widgets/models/sourceModels';
+import { RecommendedInfraModel } from '@/widgets/models/sourceModels';
+import { RecommendedSoftwareModel } from '@/widgets/models/recommendedSoftwareModel';
 import { computed, reactive, ref, watch } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
@@ -18,6 +19,7 @@ const pageName = 'Source Models';
 const selectedSourceModelId = ref<string>('');
 const sourceModelName = ref<string>('');
 const sourceModelDescription = ref<string>('');
+const recommendedModelList = ref<string>('infra'); // 추가: recommended model list type
 const sourceModelStore = useSourceModelStore();
 const resUpdateSourceModel = useUpdateSourceModel(null, null);
 const sourceModel = computed(() =>
@@ -63,6 +65,14 @@ function handleClickSourceModelId(data: { id: string; name: string }) {
 
 function handleJsonModal(value: boolean) {
   modalState.customViewJsonModal.open = value;
+}
+
+function handleRecommendedListModal(value: boolean) {
+  modalState.viewRecommendedListModal.open = value;
+}
+
+function handleRecommendedModelList(value: string) {
+  recommendedModelList.value = value;
 }
 
 function handleUpdateSourceModel(e) {
@@ -121,9 +131,8 @@ function handleUpdateSourceModel(e) {
               @update:custom-view-json-modal="
                 e => (modalState.customViewJsonModal.open = e)
               "
-              @update:view-recommend-list-modal="
-                e => (modalState.viewRecommendedListModal.open = e)
-              "
+              @update:view-recommend-list-modal="handleRecommendedListModal"
+              @update:recommended-model-list="handleRecommendedModelList"
             />
           </template>
         </p-tab>
@@ -135,7 +144,7 @@ function handleUpdateSourceModel(e) {
         header-title="Edit Model"
         name-label="Model Name"
         :name="sourceModelName"
-        :description="sourceModel['description'] ?? ''"
+        :description="sourceModel?.description ?? ''"
         :name-placeholder="'Model Name'"
         @update:save-modal="handleUpdateSourceModel"
         @update:close-modal="modalState.editModelModal.open = false"
@@ -150,13 +159,17 @@ function handleUpdateSourceModel(e) {
         @update:close-modal="handleJsonModal"
         @update:trigger="modalState.editModelModal.trigger = true"
       />
-      <recommended-model
-        v-if="modalState.viewRecommendedListModal.open"
+      <recommended-infra-model
+        v-if="modalState.viewRecommendedListModal.open && recommendedModelList === 'infra'"
         :source-model-name="sourceModelName"
         :source-model-id="selectedSourceModelId"
-        @update:close-modal="
-          e => (modalState.viewRecommendedListModal.open = e)
-        "
+        @update:close-modal="handleRecommendedListModal"
+      />
+      <recommended-software-model
+        v-if="modalState.viewRecommendedListModal.open && recommendedModelList === 'software'"
+        :source-model-name="sourceModelName"
+        :source-model-id="selectedSourceModelId"
+        @update:close-modal="handleRecommendedListModal"
       />
     </div>
   </div>

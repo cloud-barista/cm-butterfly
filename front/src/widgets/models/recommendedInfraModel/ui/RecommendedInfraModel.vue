@@ -10,7 +10,7 @@ import { CreateForm } from '@/widgets/layout';
 import { TargetModelNameSave } from '@/features/models';
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
-import { useRecommendedModel } from '@/widgets/models/recommendedModel/model/useRecommendedModel.ts';
+import { useRecommendedInfraModel } from '@/widgets/models/recommendedInfraModel/model/useRecommendedInfraModel.ts';
 import { createTargetModel, ISourceModelResponse } from '@/entities';
 import {
   getRecommendCost,
@@ -29,7 +29,7 @@ const props = defineProps<IProps>();
 
 const emit = defineEmits(['update:close-modal']);
 
-const recommendModel_Model = useRecommendedModel();
+const recommendModel_Model = useRecommendedInfraModel();
 
 const selectedRecommendedModelId = ref<string>('');
 const modelName = ref<string>('');

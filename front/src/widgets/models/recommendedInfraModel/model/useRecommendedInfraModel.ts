@@ -24,7 +24,7 @@ interface IExtendRecommendModelResponse extends IRecommendModelResponse {
   estimateResponse?: IEsimateCostSpecResponse;
 }
 
-export function useRecommendedModel() {
+export function useRecommendedInfraModel() {
   const tableModel =
     useToolboxTableModel<
       Partial<Record<RecommendedModelTableType | 'originalData', any>>

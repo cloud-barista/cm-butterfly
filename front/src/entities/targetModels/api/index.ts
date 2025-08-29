@@ -8,6 +8,7 @@ import { ITargetModelResponse } from '@/entities';
 import { ISourceConnectionResponse } from '@/entities/sourceConnection/model/types.ts';
 
 const CREATE_TARGET_MODEL = 'CreateCloudModel';
+const CREATE_TARGET_SOFTWARE_MODEL = 'CreateTargetSoftwareModel';
 const GET_SOURCE_MODEL_LIST = 'GetModels';
 const UPDATE_TARGET_MODEL = 'UpdateCloudModel';
 
@@ -24,6 +25,15 @@ interface ICreateTargetModelPayload {
   zone: string;
 }
 
+interface ICreateTargetSoftwareModelPayload {
+  description: string;
+  isInitUserModel: boolean;
+  targetSoftwareModel: any;
+  userId: string;
+  userModelName: string;
+  userModelVersion: string;
+}
+
 export function createTargetModel(data: ICreateTargetModelPayload | null) {
   const requestWrapper: Required<
     Pick<RequestBodyWrapper<ICreateTargetModelPayload | null>, 'request'>
@@ -36,6 +46,20 @@ export function createTargetModel(data: ICreateTargetModelPayload | null) {
       Pick<RequestBodyWrapper<ICreateTargetModelPayload | null>, 'request'>
     >
   >(CREATE_TARGET_MODEL, requestWrapper);
+}
+
+export function createTargetSoftwareModel(data: ICreateTargetSoftwareModelPayload | null) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<ICreateTargetSoftwareModelPayload | null>, 'request'>
+  > = {
+    request: data,
+  };
+  return useAxiosPost<
+    IAxiosResponse<any>,
+    Required<
+      Pick<RequestBodyWrapper<ICreateTargetSoftwareModelPayload | null>, 'request'>
+    >
+  >(CREATE_TARGET_SOFTWARE_MODEL, requestWrapper);
 }
 
 export function useGetTargetModelList() {
