@@ -15,6 +15,7 @@ export interface ISourceService {
   // status: SourceServiceStatusType;
   status?: string;
   infraModel?: IInfraSourceGroupResponse;
+  softwareModel?: any;
 }
 
 export interface ISourceAgentAndConnectionStatusResponse {
@@ -72,4 +73,5 @@ export type SourceServiceTableType =
   | 'description'
   | 'connectionCount'
   | 'status'
-  | 'viewInfra';
+  | 'viewInfra'
+  | 'viewSoftware';

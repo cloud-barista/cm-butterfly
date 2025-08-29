@@ -44,6 +44,17 @@ export const useSourceServiceStore = defineStore(NAMESPACE, () => {
     }
   }
 
+  function mappingSoftwareModel(
+    sgId: string,
+    softwareData: any,
+  ) {
+    const sg = getServiceById(sgId);
+
+    if (sg) {
+      sg.softwareModel = softwareData;
+    }
+  }
+
   function mappingSourceGroupStatus(sgId: string, status: string) {
     const sg = getServiceById(sgId);
 
@@ -58,6 +69,7 @@ export const useSourceServiceStore = defineStore(NAMESPACE, () => {
     setService,
     getServiceById,
     mappinginfraModel,
+    mappingSoftwareModel,
     mappingSourceGroupStatus,
   };
 });

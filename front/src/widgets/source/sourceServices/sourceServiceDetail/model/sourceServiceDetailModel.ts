@@ -36,6 +36,11 @@ export function useSourceServiceDetailModel() {
         name: 'viewInfra',
         disableCopy: true,
       },
+      {
+        label: 'view Software',
+        name: 'viewSoftware',
+        disableCopy: true,
+      },
     ];
   }
 
@@ -51,6 +56,9 @@ export function useSourceServiceDetailModel() {
         status: setServiceStatus(sourceService.status),
         viewInfra: {
           isShow: !!sourceService.infraModel,
+        },
+        viewSoftware: {
+          isShow: !!sourceService.softwareModel,
         },
       };
     }

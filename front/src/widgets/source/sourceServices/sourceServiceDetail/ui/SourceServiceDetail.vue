@@ -16,7 +16,7 @@ import {
 } from '@/entities/sourceService/api';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { storeToRefs } from 'pinia';
-import { useRefreshSourceGroupConnectionInfoStatus } from '@/entities/sourceConnection/api';
+import { useRefreshSourceGroupConnectionInfoStatus, useCollectSWSourceGroup } from '@/entities/sourceConnection/api';
 import { CustomViewSourceModel } from '@/widgets/models/sourceModels';
 import SourceServiceInfraRefineModal from '@/features/sourceServices/sourceServiceInfraRefinedModal/ui/sourceServiceInfraRefineModal.vue';
 
@@ -43,9 +43,22 @@ const refreshSourceGroupConnectionInfoStatus =
   useRefreshSourceGroupConnectionInfoStatus(null);
 const getSourceService = useGetSourceService(null);
 const resGetInfraSourceGroup = useGetInfraSourceGroup(null);
-const infraModel = ref({});
+const infraModel = ref<any>(null);
+
+// Software 관련 상태
+const softwareModel = ref<any>(null);
+const resCollectSWSourceGroup = useCollectSWSourceGroup(null);
 
 const modalState = reactive({
+  open: false,
+  context: {
+    name: '',
+    description: '',
+  },
+});
+
+// Software 모달 상태
+const softwareModalState = reactive({
   open: false,
   context: {
     name: '',
@@ -66,10 +79,10 @@ watch(
 );
 
 watchEffect(() => {
-  emit(
-    'update:source-connection-name',
-    sourceServiceStore.getServiceById(props.selectedServiceId)?.name,
-  );
+  const serviceName = sourceServiceStore.getServiceById(props.selectedServiceId)?.name;
+  if (serviceName) {
+    emit('update:source-connection-name', serviceName);
+  }
 });
 
 function getSourceGroupInfras() {
@@ -87,9 +100,41 @@ function getSourceGroupInfras() {
         );
         infraModel.value = res.data.responseData;
         loadSourceServiceData(props.selectedServiceId);
+        
+        // 데이터를 가져온 후 자동으로 모달 열기
+        modalState.open = true;
       }
     })
-    .catch(e => {});
+    .catch(e => {
+      console.error('Failed to get source group infras:', e);
+      infraModel.value = null;
+    });
+}
+
+function getSourceGroupSoftware() {
+  resCollectSWSourceGroup
+    .execute({
+      pathParams: {
+        sgId: props.selectedServiceId,
+      },
+    })
+    .then(res => {
+      if (res.data.responseData) {
+        sourceServiceStore.mappingSoftwareModel(
+          props.selectedServiceId,
+          res.data.responseData,
+        );
+        softwareModel.value = res.data.responseData;
+        loadSourceServiceData(props.selectedServiceId);
+        
+        // 데이터를 가져온 후 자동으로 모달 열기
+        softwareModalState.open = true;
+      }
+    })
+    .catch(e => {
+      console.error('Failed to get source group software:', e);
+      softwareModel.value = null;
+    });
 }
 
 async function handleSourceGroupStatusRefresh() {
@@ -109,13 +154,17 @@ async function handleSourceGroupStatusRefresh() {
       loadSourceServiceData(props.selectedServiceId);
       console.log(tableModel.tableState.data);
     }
-  } catch (err) {
-    showErrorMessage('error', err.errorMsg.value);
+  } catch (err: any) {
+    showErrorMessage('error', err.errorMsg?.value || 'Unknown error occurred');
   }
 }
 
 function handleJsonModal() {
   modalState.open = true;
+}
+
+function handleSoftwareModal() {
+  softwareModalState.open = true;
 }
 </script>
 
@@ -136,6 +185,12 @@ function handleJsonModal() {
       <template #data-viewInfra="{ data }">
         <p class="text-blue-700 cursor-pointer" @click="handleJsonModal">
           {{ data.isShow ? 'View Infra(Meta) ->' : null }}
+        </p>
+      </template>
+
+      <template #data-viewSoftware="{ data }">
+        <p class="text-blue-700 cursor-pointer" @click="handleSoftwareModal">
+          {{ data.isShow ? 'View Software(Meta) ->' : null }}
         </p>
       </template>
 
@@ -160,13 +215,31 @@ function handleJsonModal() {
             Collect Infra
           </p-button>
         </div>
+        <div v-else-if="name === 'viewSoftware'">
+          <p-button
+            style-type="tertiary"
+            size="sm"
+            :loading="resCollectSWSourceGroup.isLoading.value"
+            @click="getSourceGroupSoftware"
+          >
+            Collect SW
+          </p-button>
+        </div>
       </template>
     </p-definition-table>
     <SourceServiceInfraRefineModal
       v-if="modalState.open"
       :sgId="props.selectedServiceId"
       :collect-data="infraModel"
+      data-type="infra"
       @update:is-meta-viewer-opened="modalState.open = false"
+    />
+    <SourceServiceInfraRefineModal
+      v-if="softwareModalState.open"
+      :sgId="props.selectedServiceId"
+      :collect-data="softwareModel"
+      data-type="software"
+      @update:is-meta-viewer-opened="softwareModalState.open = false"
     />
   </div>
 </template>

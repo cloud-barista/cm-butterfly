@@ -22,7 +22,7 @@ const { sourceModelStore, setSourceModelId, initTable, tableModel } =
 
 const sourceModelName = ref<string | undefined>('');
 const sourceModelDescription = ref<string | undefined>('');
-const recommendedModelList = ref<any>([]);
+const recommendedModelList = ref<string>('infra'); // 문자열로 초기화
 
 watchEffect(() => {
   sourceModelName.value = sourceModelStore.getSourceModelById(
@@ -65,11 +65,38 @@ onBeforeMount(() => {
 });
 
 function handleJsonModal() {
+  // 디버깅을 위한 로그 출력
+  const sourceModel = sourceModelStore.getSourceModelById(props.selectedSourceModelId);
+  // console.log('=== SourceModelDetail Debug Info ===');
+  // console.log('selectedSourceModelId:', props.selectedSourceModelId);
+  // console.log('sourceModel:', sourceModel);
+  // console.log('sourceModelName:', sourceModelName.value);
+  // console.log('connection_info_list:', sourceModel?.connection_info_list);
+  // console.log('connection_info_list type:', typeof sourceModel?.connection_info_list);
+  // console.log('connection_info_list length:', sourceModel?.connection_info_list?.length);
+  // console.log('Full sourceModel structure:', JSON.stringify(sourceModel, null, 2));
+  // console.log('==================================');
+  
   emit('update:custom-view-json-modal', true);
   emit('update:source-model-name', sourceModelName.value);
 }
 
 function handleRecommendedList() {
+  const sourceModel = sourceModelStore.getSourceModelById(props.selectedSourceModelId);
+  
+  // MigrationType에 따라 다른 recommended model list 설정
+  if (sourceModel?.migrationType === 'Software' || sourceModel?.isSoftwareModel) {
+    recommendedModelList.value = 'software';
+  } else {
+    // Infra 또는 기본값
+    recommendedModelList.value = 'infra';
+  }
+  
+  // 테스트를 위한 임시 로직: 이름에 'sw'가 포함되어 있으면 software로 설정
+  if (sourceModel?.userModelName && sourceModel.userModelName.toLowerCase().includes('sw')) {
+    recommendedModelList.value = 'software';
+  }
+  
   emit('update:view-recommend-list-modal', true);
   emit('update:source-model-name', sourceModelName.value);
   emit('update:recommended-model-list', recommendedModelList.value);

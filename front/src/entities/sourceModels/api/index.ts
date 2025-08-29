@@ -9,10 +9,11 @@ import { IOnpremModelPayload, ISourceModelResponse } from '@/entities';
 import { IEditWorkspaceData } from '@/entities/workspace/model/types.ts';
 import { axiosInstance } from '@/shared/libs/api/instance.ts';
 
-const GET_SOURCE_MODEL_LIST = 'GetUserModel';
-const UPDATE_SOURCE_MODEL = 'UpdateOnpremmodel';
-const CREATE_ONPREMMODEL = 'CreateOnpremmodel';
-const DELETE_ONPREMMODEL = 'DeleteOnpremmodel';
+const GET_SOURCE_MODEL_LIST = 'GetModels';
+const UPDATE_SOURCE_MODEL = 'UpdateOnPremModel';
+const CREATE_ONPREMMODEL = 'CreateOnPremModel';
+const DELETE_ONPREMMODEL = 'DeleteOnPremModel';
+const CREATE_SOURCE_SOFTWARE_MODEL = 'CreateSourceSoftwareModel';
 
 export function useGetSourceModelList() {
   const requestWrapper: Required<Pick<RequestBodyWrapper<any>, 'pathParams'>> =
@@ -76,6 +77,27 @@ export function useCreateOnpremmodel(data: IOnpremModelPayload | null) {
     IAxiosResponse<any>,
     Required<Pick<RequestBodyWrapper<IOnpremModelPayload | null>, 'request'>>
   >(CREATE_ONPREMMODEL, requestWrapper);
+}
+
+interface ICreateSourceSoftwareModelPayload {
+  description: string;
+  isInitUserModel: boolean;
+  sourceSoftwareModel: any;
+  userId: string;
+  userModelName: string;
+  userModelVersion: string;
+}
+
+export function useCreateSourceSoftwareModel(data: ICreateSourceSoftwareModelPayload | null) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<ICreateSourceSoftwareModelPayload | null>, 'request'>
+  > = {
+    request: data,
+  };
+  return useAxiosPost<
+    IAxiosResponse<any>,
+    Required<Pick<RequestBodyWrapper<ICreateSourceSoftwareModelPayload | null>, 'request'>>
+  >(CREATE_SOURCE_SOFTWARE_MODEL, requestWrapper);
 }
 
 export function useBulkAddWorkspaceList(modelIds: string[]) {
