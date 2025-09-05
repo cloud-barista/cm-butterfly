@@ -1,6 +1,6 @@
-import { computed, reactive, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { IMci, IVm, useMCIStore } from '@/entities/mci/model';
-import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel.ts';
+import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 
 export function useVmListModel() {
   const mciStore = useMCIStore();

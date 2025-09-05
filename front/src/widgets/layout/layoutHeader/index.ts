@@ -1,3 +1,3 @@
-import LayoutHeader from './ui/LayoutHeader.vue';
+import LayoutHeader from '@/widgets/layout/layoutHeader/ui/LayoutHeader.vue';
 
 export { LayoutHeader };

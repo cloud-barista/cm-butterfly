@@ -1,7 +1,8 @@
-import { computed, reactive, ref, watch } from 'vue';
-import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel.ts';
+import { ref, watch } from 'vue';
+import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { IMci, IVm, useMCIStore } from '@/entities/mci/model';
 import { getCloudProvidersInVms } from '@/shared/hooks/vm';
+
 export type vmDetailTableType =
   | 'serverId'
   | 'description'
@@ -12,12 +13,6 @@ export type vmDetailTableType =
   | 'serverStatus'
   | 'loadStatus'
   | 'provider';
-
-interface IProps {
-  nsId: string;
-  mciId: string;
-  vmId: string;
-}
 
 export function useVmInformationModel() {
   const targetVmId = ref<string | null>();

@@ -1,3 +1,3 @@
-import SourceModelList from './ui/SourceModelList.vue';
+import SourceModelList from '@/widgets/models/sourceModels/sourceModelList/ui/SourceModelList.vue';
 
 export { SourceModelList };

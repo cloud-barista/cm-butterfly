@@ -1,11 +1,9 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import {
-  ISourceModelResponse,
-  ITargetModel,
+  useTargetModelStore,
+  TargetModelTableType,
   ITargetModelResponse,
 } from '@/entities';
-import { useTargetModelStore, TargetModelTableType } from '@/entities';
-import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 import { formatDate } from '@/shared/utils';
 

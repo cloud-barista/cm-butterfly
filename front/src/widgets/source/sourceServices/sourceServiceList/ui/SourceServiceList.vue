@@ -11,13 +11,12 @@ import {
   showErrorMessage,
   showSuccessMessage,
 } from '@/shared/utils';
-import { useSourceServiceListModel } from '@/widgets/source/sourceServices/sourceServiceList/model/sourceServiceListModel.ts';
+import { useSourceServiceListModel } from '@/widgets/source/sourceServices/sourceServiceList/model/sourceServiceListModel';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
 import { useBulkDeleteSourceGroup } from '@/entities/sourceService/api';
 
 const {
   tableModel,
-  services,
   sourceServicesStore,
   resSourceServiceList,
   initToolBoxTableModel,

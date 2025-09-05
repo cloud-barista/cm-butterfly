@@ -5,8 +5,8 @@ import {
   showErrorMessage,
   showSuccessMessage,
 } from '@/shared/utils';
-import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
-import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model/sourceConnectionListModel.ts';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
+import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model/sourceConnectionListModel';
 import { useBulkDeleteSourceConnection } from '@/entities/sourceConnection/api';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
 

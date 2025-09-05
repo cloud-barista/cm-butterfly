@@ -3,12 +3,11 @@ import {
   PToolboxTable,
   PHorizontalLayout,
   PButton,
-  PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { useWorkflowTemplatesListModel } from '../model/workflowTemplatesListModel';
+import { useWorkflowTemplatesListModel } from '@/widgets/workflow/workflowTemplates/workflowTemplatesList/model/workflowTemplatesListModel';
 import { insertDynamicComponent } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import { useGetWorkflowTemplateList } from '@/entities';
 
 interface iProps {
@@ -25,7 +24,6 @@ const { tableModel, initToolBoxTableModel, workflowStore } =
 const emit = defineEmits(['select-row', 'update:trigger']);
 
 const modals = reactive({
-  // alertModalState: { open: false },
   workflowTemplateAddModalState: { open: false },
 });
 

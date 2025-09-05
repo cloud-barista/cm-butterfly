@@ -1,4 +1,4 @@
-import WorkflowDetail from './ui/WorkflowDetail.vue';
-import { useWorkflowDetailModel } from './model/workflowDetailModel';
+import WorkflowDetail from '@/widgets/workflow/workflows/workflowDetail/ui/WorkflowDetail.vue';
+import { useWorkflowDetailModel } from '@/widgets/workflow/workflows/workflowDetail/model/workflowDetailModel';
 
 export { WorkflowDetail, useWorkflowDetailModel };

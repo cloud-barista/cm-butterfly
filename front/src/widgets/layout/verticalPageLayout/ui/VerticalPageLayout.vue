@@ -3,7 +3,6 @@ import { ref, watch } from 'vue';
 import { PVerticalLayout } from '@cloudforet-test/mirinae';
 // import { styleVariables } from '@cloudforet-test/mirinae';
 import type { Breadcrumb } from '@/shared/types';
-// import { useSidebar } from '@/shared/libs/store/sidebar';
 // import { storeToRefs } from 'pinia';
 // import { useWindowSize, useElementSize } from '@vueuse/core';
 

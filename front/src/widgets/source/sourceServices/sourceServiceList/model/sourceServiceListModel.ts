@@ -1,11 +1,11 @@
-import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel.ts';
-import { useSourceServiceStore } from '@/entities/sourceService/model/stores.ts';
+import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
+import { useSourceServiceStore } from '@/entities/sourceService/model/stores';
 import { storeToRefs } from 'pinia';
 import { useGetSourceServiceList } from '@/entities/sourceService/api';
 import {
   ISourceService,
   SourceServiceTableType,
-} from '@/entities/sourceService/model/types.ts';
+} from '@/entities/sourceService/model/types';
 import { watch } from 'vue';
 
 export function useSourceServiceListModel() {

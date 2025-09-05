@@ -1,23 +1,10 @@
 <script setup lang="ts">
 import { PDefinitionTable, PButton, PStatus } from '@cloudforet-test/mirinae';
-import {
-  onBeforeMount,
-  onMounted,
-  reactive,
-  ref,
-  watch,
-  watchEffect,
-} from 'vue';
-import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
-import {
-  useGetInfraSourceGroup,
-  useGetSourceGroupStatus,
-  useGetSourceService,
-} from '@/entities/sourceService/api';
-import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
-import { storeToRefs } from 'pinia';
+import { onBeforeMount, reactive, ref, watch, watchEffect } from 'vue';
+import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel';
+import { useGetInfraSourceGroup } from '@/entities/sourceService/api';
+import { showErrorMessage } from '@/shared/utils';
 import { useRefreshSourceGroupConnectionInfoStatus } from '@/entities/sourceConnection/api';
-import { CustomViewSourceModel } from '@/widgets/models/sourceModels';
 import SourceServiceInfraRefineModal from '@/features/sourceServices/sourceServiceInfraRefinedModal/ui/sourceServiceInfraRefineModal.vue';
 
 interface IProps {
@@ -26,10 +13,7 @@ interface IProps {
 
 const props = defineProps<IProps>();
 
-const emit = defineEmits([
-  'update:source-connection-name',
-  'update:custom-view-json-modal',
-]);
+const emit = defineEmits(['update:source-connection-name']);
 
 const {
   sourceServiceStore,
@@ -41,7 +25,6 @@ const {
 
 const refreshSourceGroupConnectionInfoStatus =
   useRefreshSourceGroupConnectionInfoStatus(null);
-const getSourceService = useGetSourceService(null);
 const resGetInfraSourceGroup = useGetInfraSourceGroup(null);
 const infraModel = ref({});
 
@@ -107,9 +90,8 @@ async function handleSourceGroupStatusRefresh() {
       );
 
       loadSourceServiceData(props.selectedServiceId);
-      console.log(tableModel.tableState.data);
     }
-  } catch (err) {
+  } catch (err: any) {
     showErrorMessage('error', err.errorMsg.value);
   }
 }
@@ -164,7 +146,7 @@ function handleJsonModal() {
     </p-definition-table>
     <SourceServiceInfraRefineModal
       v-if="modalState.open"
-      :sgId="props.selectedServiceId"
+      :sg-id="props.selectedServiceId"
       :collect-data="infraModel"
       @update:is-meta-viewer-opened="modalState.open = false"
     />

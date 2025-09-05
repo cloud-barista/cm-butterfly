@@ -1,13 +1,10 @@
-import { useSourceServiceStore } from '@/entities/sourceService/model/stores.ts';
-import { computed, ref, watch, watchEffect } from 'vue';
-import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel.ts';
+import { useSourceServiceStore } from '@/entities/sourceService/model/stores';
+import { ref, watch } from 'vue';
+import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import {
-  SourceServiceStatus,
   SourceServiceStatusType,
   SourceServiceTableType,
-  ISourceConnectionStatusCountResponse,
-} from '@/entities/sourceService/model/types.ts';
-import { storeToRefs } from 'pinia';
+} from '@/entities/sourceService/model/types';
 
 export function useSourceServiceDetailModel() {
   const sourceServiceStore = useSourceServiceStore();

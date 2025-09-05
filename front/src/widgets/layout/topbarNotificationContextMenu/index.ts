@@ -1,3 +1,3 @@
-import TopBarNotificationContextMenu from './ui/TopBarNotificationContextMenu.vue';
+import TopBarNotificationContextMenu from '@/widgets/layout/topbarNotificationContextMenu/ui/TopBarNotificationContextMenu.vue';
 
 export { TopBarNotificationContextMenu };
