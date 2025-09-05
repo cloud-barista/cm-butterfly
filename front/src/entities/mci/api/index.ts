@@ -2,13 +2,8 @@ import {
   IAxiosResponse,
   RequestBodyWrapper,
   useAxiosPost,
-} from '../../../shared/libs';
-import {
-  ILastloadtestStateResponse,
-  IMci,
-  IRunLoadTestRequest,
-  MciResponseData,
-} from '@/entities/mci/model';
+} from '@/shared/libs';
+import { IMci, MciResponseData } from '@/entities/mci/model';
 
 export interface IMciRequestParams {
   nsId: string | null;

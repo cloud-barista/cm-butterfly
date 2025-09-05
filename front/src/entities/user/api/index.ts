@@ -1,6 +1,6 @@
-import { useAxiosPost } from '../../../shared/libs/api/request.ts';
-import { IAxiosResponse, RequestBodyWrapper } from '../../../shared/libs';
-import { IUserInfoResponse } from '../../index';
+import { useAxiosPost } from '@/shared/libs/api/request';
+import { IAxiosResponse, RequestBodyWrapper } from '@/shared/libs';
+import { IUserInfoResponse } from '@/entities/user/model/types';
 
 const LOGIN_URL = 'auth/login';
 const GET_USER_INFO = 'Getuserinfo';

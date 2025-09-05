@@ -1,3 +1,3 @@
-export * from './model/types';
-export * from './model/stores';
-export * from './api';
+export * from '@/entities/credentials/model/types';
+export * from '@/entities/credentials/model/stores';
+export * from '@/entities/credentials/api';
