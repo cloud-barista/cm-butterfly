@@ -1,3 +1,3 @@
-import SourceModelsPage from './ui/SourceModelsPage.vue';
+import SourceModelsPage from '@/pages/models/sourceModels/ui/SourceModelsPage.vue';
 
 export { SourceModelsPage };

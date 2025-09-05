@@ -4,28 +4,21 @@ import { SourceModelList } from '@/widgets/models/sourceModels';
 import { SourceModelDetail } from '@/widgets/models/sourceModels';
 import { CustomViewSourceModel } from '@/widgets/models/sourceModels';
 import { RecommendedModel } from '@/widgets/models/sourceModels';
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
-import {
-  useBulkAddWorkspaceList,
-  useSourceModelStore,
-  useUpdateSourceModel,
-} from '@/entities';
+import { useSourceModelStore, useUpdateSourceModel } from '@/entities';
 
 const pageName = 'Source Models';
 
 const selectedSourceModelId = ref<string>('');
 const sourceModelName = ref<string>('');
-const sourceModelDescription = ref<string>('');
 const sourceModelStore = useSourceModelStore();
 const resUpdateSourceModel = useUpdateSourceModel(null, null);
 const sourceModel = computed(() =>
   sourceModelStore.getSourceModelById(selectedSourceModelId.value),
 );
-watch(sourceModelName, nv => {
-  console.log(nv);
-});
+
 const mainTabState = reactive({
   activeTab: 'details',
   tabs: [
@@ -56,7 +49,6 @@ const modalState = reactive({
 });
 
 function handleClickSourceModelId(data: { id: string; name: string }) {
-  console.log(data);
   selectedSourceModelId.value = data.id;
   sourceModelName.value = data.name ?? '';
 }
@@ -69,7 +61,6 @@ function handleUpdateSourceModel(e) {
   modalState.editModelModal.open = false;
   modalState.editModelModal.context.name = e.name;
   modalState.editModelModal.context.description = e.description;
-  console.log(sourceModel.value);
   const requestBody = Object.assign({}, sourceModel.value, {
     userModelName: e.name,
     description: e.description,
@@ -135,7 +126,7 @@ function handleUpdateSourceModel(e) {
         header-title="Edit Model"
         name-label="Model Name"
         :name="sourceModelName"
-        :description="sourceModel['description'] ?? ''"
+        :description="sourceModel?.description ?? ''"
         :name-placeholder="'Model Name'"
         @update:save-modal="handleUpdateSourceModel"
         @update:close-modal="modalState.editModelModal.open = false"

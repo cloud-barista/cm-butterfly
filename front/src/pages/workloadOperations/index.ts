@@ -1,3 +1,3 @@
-export * from './mci';
-export * from './workloads';
-export * from './pmk';
+export * from '@/pages/workloadOperations/mci';
+export * from '@/pages/workloadOperations/workloads';
+export * from '@/pages/workloadOperations/pmk';

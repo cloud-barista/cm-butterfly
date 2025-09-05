@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import LoginForm from '@/features/auth/ui/LoginForm.vue';
-import { IUserLoginResponse, useGetUserRole } from '@/entities';
+import { IUserLoginResponse } from '@/entities';
 import { McmpRouter } from '@/app/providers/router';
-import { useAuth } from '@/features/auth/model/useAuth.ts';
-// import { WORKLOADS_ROUTE } from '@/app/providers/router/routes/workloads.ts';
+import { useAuth } from '@/features/auth/model/useAuth';
 import { SOURCE_COMPUTING_ROUTE } from '@/app/providers/router/routes/constants';
 
 const auth = useAuth();

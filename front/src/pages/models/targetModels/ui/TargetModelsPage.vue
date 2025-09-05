@@ -6,11 +6,7 @@ import { SimpleEditForm } from '@/widgets/layout';
 import { CustomViewTargetModel } from '@/widgets/models/targetModels';
 import { reactive, ref } from 'vue';
 import WorkflowEditor from '@/features/workflow/workflowEditor/ui/WorkflowEditor.vue';
-import {
-  ITargetModelResponse,
-  useTargetModelStore,
-  useUpdateTargetModel,
-} from '@/entities';
+import { useTargetModelStore, useUpdateTargetModel } from '@/entities';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 
 const pageName = 'Target Models';
@@ -76,7 +72,7 @@ function handleUpdateTargetModel(e) {
       pathParams: { id: selectedTargetModelId.value },
       request: requestBody,
     })
-    .then(res => {
+    .then(() => {
       showSuccessMessage('success', 'Successfully updated target model');
       modalStates.editModelModal.trigger = true;
       // 여기에 targetmodellist update trigger

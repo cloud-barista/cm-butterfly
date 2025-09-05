@@ -1,3 +1,3 @@
-import WorkloadsPage from './ui/WorkloadsPage.vue';
+import WorkloadsPage from '@/pages/workloadOperations/workloads/ui/WorkloadsPage.vue';
 
 export { WorkloadsPage };
