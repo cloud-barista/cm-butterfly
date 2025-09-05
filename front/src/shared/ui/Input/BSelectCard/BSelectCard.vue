@@ -27,7 +27,7 @@ function handleChange(e) {
     <p-data-loader :data="value" :loading="loading">
       <template #defalut="context">
         {{ context }}
-        <div v-for="(el, index) of context">
+        <div v-for="(el, index) of context" :key="`b-select-card-${index}`">
           <div
             class="card"
             @click="handleChange"

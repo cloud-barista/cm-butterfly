@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { McmpRouter } from '../../../app/providers/router';
-import { AUTH_ROUTE } from '../../../pages/auth/auth.route.ts';
-import { axiosPost, IAxiosResponse } from '../index';
-import { IUserLoginResponse } from '../../../entities';
+import { McmpRouter } from '@/app/providers/router';
+import { AUTH_ROUTE } from '@/pages/auth/auth.route';
+import { axiosPost, IAxiosResponse } from '@/shared/libs/api/index';
+import { IUserLoginResponse } from '@/entities';
 import { jwtDecode } from 'jwt-decode';
-import LocalStorageConnector from '../access-localstorage/localStorageConnector.ts';
+import LocalStorageConnector from '@/shared/libs/access-localstorage/localStorageConnector';
 
 interface IJwtToken {
   access_token: string;

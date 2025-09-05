@@ -1,7 +1,7 @@
-import type { Location, Route } from 'vue-router';
+import type { Location } from 'vue-router';
 import { useRoute } from 'vue-router/composables';
-import { i18n } from '../../../app/i18n';
-import type { Breadcrumb } from '../../types';
+import { i18n } from '@/app/i18n';
+import type { Breadcrumb } from '@/shared/types';
 import { computed } from 'vue';
 
 export const useBreadcrumbs = () => {

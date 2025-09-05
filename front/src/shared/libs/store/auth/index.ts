@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { IUserLoginResponse } from '../../../../entities';
+import { IUserLoginResponse } from '@/entities';
 
 export type AuthorizationType = null | 'admin' | 'client';
 
