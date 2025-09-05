@@ -10,13 +10,8 @@ import {
 } from '@cloudforet-test/mirinae';
 import { watchEffect, ref, reactive, computed, watch } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
-import { useSourceServiceStore } from '@/shared/libs';
-import { storeToRefs } from 'pinia';
 
 const sourceConnectionStore = useSourceConnectionStore();
-const sourceServiceStore = useSourceServiceStore();
-
-const { sourceServiceInfo } = storeToRefs(sourceServiceStore);
 
 interface iProps {
   sourceServiceName?: string;

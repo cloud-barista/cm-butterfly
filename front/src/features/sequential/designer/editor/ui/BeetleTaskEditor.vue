@@ -1,22 +1,10 @@
 <script setup lang="ts">
 import { PButton, PIconButton, PTextInput } from '@cloudforet-test/mirinae';
-import Vue, {
-  onBeforeMount,
-  onBeforeUnmount,
-  onMounted,
-  onUnmounted,
-  onUpdated,
-  reactive,
-  ref,
-  toRef,
-  UnwrapRef,
-  watch,
-} from 'vue';
-import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
-import { useTaskEditorModel } from '@/features/sequential/designer/editor/model/beetleTaskEditorModel.ts';
+import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue';
+import { useTaskEditorModel } from '@/features/sequential/designer/editor/model/beetleTaskEditorModel';
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
 import SequentialShortCut from '@/features/sequential/designer/shortcut/ui/SequentialShortCut.vue';
-import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
+import { Step } from '@/features/workflow/workflowEditor/model/types';
 
 interface IProps {
   step: Step;
@@ -29,7 +17,6 @@ const emit = defineEmits([
   'saveFixedModel',
 ]);
 const taskEditorModel = useTaskEditorModel();
-console.log(JSON.parse(JSON.stringify(props)));
 const shortCutModel = ref({
   open: false,
   xPos: 0,
@@ -40,7 +27,6 @@ const shortCutModel = ref({
   },
 });
 const editorFormElement = ref(null);
-let shortCut;
 
 onBeforeMount(() => {
   taskEditorModel.setFormContext(props.step.properties.model ?? '');

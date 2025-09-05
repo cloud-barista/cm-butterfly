@@ -1,4 +1,4 @@
-import UpdateSourceService from './ui/UpdateSourceService.vue';
-import EditSourceService from './ui/EditSourceService.vue';
+import UpdateSourceService from '@/features/sourceServices/updateSourceService/ui/UpdateSourceService.vue';
+import EditSourceService from '@/features/sourceServices/updateSourceService/ui/EditSourceService.vue';
 
 export { UpdateSourceService, EditSourceService };

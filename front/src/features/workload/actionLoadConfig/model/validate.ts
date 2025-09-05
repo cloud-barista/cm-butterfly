@@ -9,8 +9,6 @@ export function validateFunc(value: string): IValidationResult {
     message: null,
   };
 
-  console.log(value);
-
   result.isValid = !!value.length;
 
   if (!result.isValid) {

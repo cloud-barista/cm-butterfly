@@ -5,11 +5,9 @@ import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
 import { ref } from 'vue';
 import { AxiosResponse } from 'axios';
-import { IUseAxiosWrapperReturnType } from '@/shared/libs';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { useCreateOnpremmodel } from '@/entities';
 import JsonViewer from '@/features/sourceServices/jsonViewer/ui/JsonViewer.vue';
-import { useGetInfraInfoRefined } from '@/entities/sourceConnection/api';
 import { useGetInfraSourceGroupInfraRefine } from '@/entities/sourceService/api';
 
 interface iProps {
