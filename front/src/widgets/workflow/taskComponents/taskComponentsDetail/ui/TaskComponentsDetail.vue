@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PDefinitionTable } from '@cloudforet-test/mirinae';
-import { useTaskComponentsDetailModel } from '../model/taskComponentsDetailModel';
+import { useTaskComponentsDetailModel } from '@/widgets/workflow/taskComponents/taskComponentsDetail/model/taskComponentsDetailModel';
 import { onBeforeMount, watch, watchEffect } from 'vue';
 
 interface iProps {
@@ -15,13 +15,8 @@ const emit = defineEmits([
   'update:task-component-json',
 ]);
 
-const {
-  workflowStore,
-  setTaskComponentId,
-  initTable,
-  tableModel,
-  taskComponentId,
-} = useTaskComponentsDetailModel();
+const { workflowStore, initTable, tableModel, taskComponentId } =
+  useTaskComponentsDetailModel();
 
 onBeforeMount(() => {
   initTable();

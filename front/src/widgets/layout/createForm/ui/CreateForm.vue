@@ -4,7 +4,7 @@ import { WidgetLayout } from '@/widgets/layout';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const sidebar = useSidebar();
 const sourceConnectionStore = useSourceConnectionStore();

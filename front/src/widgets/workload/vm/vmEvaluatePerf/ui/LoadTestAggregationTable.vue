@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { PBadge, PButton, PDataTable } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive, Ref, watch } from 'vue';
-import { useGetLoadTestEvaluationData } from '@/entities/vm/api/api.ts';
-import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel.ts';
+import { onBeforeMount, watch } from 'vue';
+import { useGetLoadTestEvaluationData } from '@/entities/vm/api/api';
+import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import {
   ILoadTestResultAggregateResponse,
   LoadTestResultAggregateTableType,
-} from '@/entities/workspace/model/types.ts';
+} from '@/entities/workspace/model/types';
 import { showErrorMessage } from '@/shared/utils';
-import _ from 'lodash';
 
 interface IProps {
   nsId: string;

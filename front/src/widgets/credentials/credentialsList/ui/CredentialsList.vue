@@ -1,12 +1,4 @@
 <script setup lang="ts">
-type DisplayItem = {
-  configName?: string;
-  CredentialName?: string;
-  ProviderName?: string;
-  checkbox?: any;
-  originalData?: any;
-};
-
 import { ref, onMounted, reactive, watch, onBeforeMount } from 'vue';
 import {
   PToolboxTable,
@@ -14,11 +6,11 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { useCredentialsListModel } from '../model/credentialsListModel';
+import { useCredentialsListModel } from '@/widgets/credentials/credentialsList/model/credentialsListModel';
 import {
   useGetCredentialList,
   useDeleteCredentials,
-} from '@/entities/credentials/api/index.ts';
+} from '@/entities/credentials/api/index';
 import {
   insertDynamicComponent,
   showErrorMessage,

@@ -1,3 +1,3 @@
-import CustomVuewCredential from './ui/CustomViewCredential.vue';
+import CustomVuewCredential from '@/widgets/credentials/customViewCredential/ui/CustomViewCredential.vue';
 
 export { CustomVuewCredential };

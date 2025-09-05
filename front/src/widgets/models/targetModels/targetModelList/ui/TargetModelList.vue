@@ -5,13 +5,13 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { useTargetModelListModel } from '../model/targetModelListModel';
+import { useTargetModelListModel } from '@/widgets/models/targetModels/targetModelList/model/targetModelListModel';
 import { insertDynamicComponent } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, watchEffect, reactive, watch } from 'vue';
-import { useGetTargetModelList } from '@/entities';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
+import { useGetTargetModelList } from '@/entities/targetModels/api';
 
-const { tableModel, initToolBoxTableModel, targetModelStore, targetModels } =
+const { tableModel, initToolBoxTableModel, targetModelStore } =
   useTargetModelListModel();
 
 interface IProps {

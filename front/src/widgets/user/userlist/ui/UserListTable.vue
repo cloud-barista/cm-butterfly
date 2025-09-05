@@ -6,25 +6,19 @@ import {
   PStatus,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, onUnmounted, ref } from 'vue';
+import { onBeforeMount, onMounted, ref } from 'vue';
 import {
-  useDeleteUser,
   getUserList,
   IUserInfoResponse,
   UserInformationTableType,
   UserWorkspaceTableType,
 } from '@/entities';
-import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel.ts';
+import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import { insertDynamicComponent } from '@/shared/utils/insertDynamicComponent';
 import DeleteUsers from '@/features/user/deleteUser/ui/DeleteUsers.vue';
 import AddUser from '@/features/user/addUser/ui/AddUser.vue';
 
 const resUserList = getUserList();
-const resDeleteUser = useDeleteUser(null);
-
-const userList: Partial<
-  Record<UserInformationTableType | UserWorkspaceTableType, any>
->[] = [];
 
 const emit = defineEmits(['selectRow']);
 
@@ -75,7 +69,7 @@ function addDeleteIconAtTable() {
       label: 'Dynamic Button',
     },
     {
-      'button-click': message => {
+      'button-click': () => {
         trashBtn.$props.focus = true;
       },
     },
@@ -148,7 +142,7 @@ onMounted(function () {
 
 <template>
   <div>
-    <p-horizontal-layout :height="400" :minHeight="400" :maxHeight="1000">
+    <p-horizontal-layout :height="400" :min-height="400" :max-height="1000">
       <template #container="{ height }">
         <p-toolbox-table
           ref="toolboxTable"
@@ -196,11 +190,11 @@ onMounted(function () {
       :visible="modalState"
       size="md"
       :header-title="'Add New User'"
-      :hideFooter="true"
+      :hide-footer="true"
       @close="handleClose"
     >
       <template #body>
-        <AddUser @modalClose="handleClose"></AddUser>
+        <AddUser @modalClose="handleClose" />
       </template>
     </p-button-modal>
   </div>

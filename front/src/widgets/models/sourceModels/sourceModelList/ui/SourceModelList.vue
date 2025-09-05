@@ -5,15 +5,16 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { useSourceModelListModel } from '../model/sourceModelListModel';
-import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
+import { useSourceModelListModel } from '@/widgets/models/sourceModels/sourceModelList/model/sourceModelListModel';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import {
   insertDynamicComponent,
   showErrorMessage,
   showSuccessMessage,
 } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { useBulkAddWorkspaceList, useGetSourceModelList } from '@/entities';
+import { useBulkAddWorkspaceList } from '@/entities';
+import { useGetSourceModelList } from '@/entities/sourceModels/api';
 
 interface IProps {
   trigger: boolean;
@@ -22,7 +23,7 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['select-row', 'update:trigger']);
 
-const { tableModel, initToolBoxTableModel, sourceModelStore, models } =
+const { tableModel, initToolBoxTableModel, sourceModelStore } =
   useSourceModelListModel();
 
 const modals = reactive({

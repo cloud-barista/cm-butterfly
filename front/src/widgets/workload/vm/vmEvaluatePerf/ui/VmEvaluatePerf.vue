@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { PButton, PDataLoader } from '@cloudforet-test/mirinae';
-import { Ref } from 'vue';
+import { PButton } from '@cloudforet-test/mirinae';
 import LoadTestEvaluationMetric from '@/widgets/workload/vm/vmEvaluatePerf/ui/LoadTestEvaluationMetric.vue';
 import LoadTestResourceMetric from '@/widgets/workload/vm/vmEvaluatePerf/ui/LoadTestResourceMetric.vue';
 import LoadTestAggregationTable from '@/widgets/workload/vm/vmEvaluatePerf/ui/LoadTestAggregationTable.vue';
+
 interface IProps {
   mciId: string;
   nsId: string;
   vmId: string;
-  loading: Ref<boolean>;
 }
 
 const props = defineProps<IProps>();
@@ -36,30 +35,22 @@ const emit = defineEmits(['openLoadconfig']);
     <div class="flex flex-col gap-4">
       <div class="font-bold text-2xl">
         Aggregation Table
-        <LoadTestAggregationTable
-          :mciId="mciId"
-          :nsId="nsId"
-          :vmId="vmId"
-        ></LoadTestAggregationTable>
+        <LoadTestAggregationTable :mci-id="mciId" :ns-id="nsId" :vm-id="vmId" />
       </div>
       <div class="chart w-full">
         <div class="font-bold text-2xl">Result metric</div>
         <div class="h-[calc(100%-2rem)]">
           <LoadTestEvaluationMetric
-            :mciId="mciId"
-            :nsId="nsId"
-            :vmId="vmId"
-          ></LoadTestEvaluationMetric>
+            :mci-id="mciId"
+            :ns-id="nsId"
+            :vm-id="vmId"
+          />
         </div>
       </div>
       <div class="chart w-full font-bold text-2xl">
         <div class="font-bold text-2xl">Resource Metric</div>
         <div class="h-[calc(100%-2rem)]">
-          <LoadTestResourceMetric
-            :mciId="mciId"
-            :nsId="nsId"
-            :vmId="vmId"
-          ></LoadTestResourceMetric>
+          <LoadTestResourceMetric :mci-id="mciId" :ns-id="nsId" :vm-id="vmId" />
         </div>
       </div>
     </div>

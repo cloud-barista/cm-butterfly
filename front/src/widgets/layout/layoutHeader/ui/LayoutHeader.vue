@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import TopBarWorkspaces from '@/features/topbar/topbarWorkspaces/ui/TopBarWorkspaces.vue';
 import { TopBarToolset } from '@/features/topbar';
 import { reactive } from 'vue';
 
