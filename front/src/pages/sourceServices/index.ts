@@ -1,3 +1,3 @@
-import SourceServicePage from './ui/SourceServicePage.vue';
+import SourceServicePage from '@/pages/sourceServices/ui/SourceServicePage.vue';
 
 export { SourceServicePage };

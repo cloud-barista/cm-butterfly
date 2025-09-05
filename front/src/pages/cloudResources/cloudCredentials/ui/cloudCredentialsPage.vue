@@ -1,7 +1,7 @@
 <!-- src/pages/cloudResources/cloudCredentials/ui/CredentialPage.vue -->
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue';
-import { PButton, PButtonTab, PTab } from '@cloudforet-test/mirinae';
+import { ref, reactive } from 'vue';
+import { PButton, PTab } from '@cloudforet-test/mirinae';
 import CustomViewCredential from '@/widgets/credentials/customViewCredential/ui/CustomViewCredential.vue';
 import CredentialsList from '@/widgets/credentials/credentialsList/ui/CredentialsList.vue';
 import CredentialsDetail from '@/widgets/credentials/credentialsDetail/ui/CredentialsDetail.vue';
@@ -9,7 +9,6 @@ import { showSuccessMessage } from '@/shared/utils';
 
 // const selectedCredentialName = ref<string>('');
 const selectedCredentialName = ref<{ id: string } | null>(null);
-const isCredentialEditBtnClicked = ref<boolean>(false);
 const pageName = 'Cloud Credentials';
 
 // 메인 탭 상태

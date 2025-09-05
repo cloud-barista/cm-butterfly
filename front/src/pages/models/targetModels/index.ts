@@ -1,3 +1,3 @@
-import TargetModelsPage from './ui/TargetModelsPage.vue';
+import TargetModelsPage from '@/pages/models/targetModels/ui/TargetModelsPage.vue';
 
 export { TargetModelsPage };

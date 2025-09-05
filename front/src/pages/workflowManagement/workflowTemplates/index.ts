@@ -1,3 +1,3 @@
-import WorkflowTemplatesPage from './ui/WorkflowTemplatesPage.vue';
+import WorkflowTemplatesPage from '@/pages/workflowManagement/workflowTemplates/ui/WorkflowTemplatesPage.vue';
 
 export { WorkflowTemplatesPage };

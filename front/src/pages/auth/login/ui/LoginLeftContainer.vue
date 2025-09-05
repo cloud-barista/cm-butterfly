@@ -1,8 +1,4 @@
 <script setup lang="ts">
-const imgSrc =
-  import.meta.env.VITE_PROJECT_NAME === 'MCMP'
-    ? require('@/shared/asset/image/logo-m-cmp.png')
-    : require('@/shared/asset/image/logo-cloud-migrator.png');
 const imgName =
   import.meta.env.VITE_PROJECT_NAME === 'MCMP' ? 'M-CMP' : 'CLOUD-MIGRATOR';
 </script>
@@ -10,7 +6,6 @@ const imgName =
 <template>
   <div class="login-left-container">
     <div class="logo-container">
-      <!-- <img class="logo" alt="logo" :src="imgSrc" /> -->
       <span class="logo-name">{{ imgName }}</span>
     </div>
   </div>

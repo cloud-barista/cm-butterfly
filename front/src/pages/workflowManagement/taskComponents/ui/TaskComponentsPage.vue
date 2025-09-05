@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PTab, PButton } from '@cloudforet-test/mirinae';
-import { ref, reactive, watchEffect } from 'vue';
+import { ref, reactive } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
 import {
   TaskComponentsDetail,
@@ -123,7 +123,7 @@ async function handleUpdateTaskComponentEdit() {
     // TODO: api
     if (selectedTaskComponentId.value.length > 0) {
       await getTaskComponentById()
-        .then(async r => {
+        .then(async () => {
           const { data } = await updateTaskComponent.execute({
             pathParams: {
               tcId: selectedTaskComponentId.value,
@@ -134,7 +134,6 @@ async function handleUpdateTaskComponentEdit() {
             },
           });
 
-          console.log('jere');
           if (data.responseData?.data !== null) {
             showSuccessMessage(
               'success',
@@ -143,7 +142,7 @@ async function handleUpdateTaskComponentEdit() {
             modalState.addTaskComponent.trigger = true;
           }
         })
-        .catch(error => {
+        .catch(() => {
           showErrorMessage('error', 'Failed to get the task component.');
         });
     }
