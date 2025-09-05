@@ -1,5 +1,5 @@
 import { RouteConfig } from 'vue-router';
-import { WORKLOAD_OPERATIONS_ROUTE } from './constants';
+import { WORKLOAD_OPERATIONS_ROUTE } from '@/app/providers/router/routes/constants';
 import { MciPage, WorkloadsPage, PmkPage } from '@/pages/workloadOperations';
 
 export const workloadsRoutes: RouteConfig[] = [

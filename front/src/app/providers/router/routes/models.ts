@@ -1,5 +1,5 @@
 import { RouteConfig } from 'vue-router';
-import { MODEL_ROUTE } from './constants';
+import { MODEL_ROUTE } from '@/app/providers/router/routes/constants';
 import { SourceModelsPage } from '@/pages/models';
 import { TargetModelsPage } from '@/pages/models';
 

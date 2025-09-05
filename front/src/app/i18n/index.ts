@@ -2,8 +2,8 @@ import Vue from 'vue';
 import type { IVueI18n } from 'vue-i18n';
 import VueI18n from 'vue-i18n';
 
-import en from './en.json';
-import ko from './ko.json';
+import en from '@/app/i18n/en.json';
+import ko from '@/app/i18n/ko.json';
 
 Vue.use(VueI18n);
 
