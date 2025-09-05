@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { vOnClickOutside } from '@vueuse/components';
-import { blue } from '@/app/style/colors';
 import { PTooltip, PI } from '@cloudforet-test/mirinae';
-import { computed, reactive } from 'vue';
 import { TopBarNotificationContextMenu } from '@/widgets/layout';
 
 interface Props {
@@ -19,14 +17,6 @@ const setVisible = (visible: boolean) => {
   emit('update:visible', visible);
   // visible ? (props.visible = false) : (props.visible = true);
 };
-
-const state = reactive({
-  hasNotification: computed(() => true),
-  notificationCount: 0,
-  iconColor: computed<string>(() => {
-    return blue[600];
-  }),
-});
 
 const showNotiMenu = () => {
   if (!props.visible) setVisible(true);

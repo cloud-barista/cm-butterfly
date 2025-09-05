@@ -9,8 +9,8 @@ import {
 } from '@/entities';
 import { Ref, ref, watch } from 'vue';
 import { i18n } from '@/app/i18n';
-import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
-import { useSidebar } from '@/shared/libs/store/sidebar.ts';
+import { useInputModel } from '@/shared/hooks/input/useInputModel';
+import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
 
 const emit = defineEmits(['handleLoginSuccess']);
