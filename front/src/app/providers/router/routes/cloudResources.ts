@@ -1,5 +1,5 @@
 import { RouteConfig } from 'vue-router';
-import { CLOUD_RESOURCES_ROUTE } from './constants';
+import { CLOUD_RESOURCES_ROUTE } from '@/app/providers/router/routes/constants';
 import { cloudCredentialsPage } from '@/pages/cloudResources';
 
 export const cloudResourcesRoutes: RouteConfig[] = [
