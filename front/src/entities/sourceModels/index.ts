@@ -1,3 +1,3 @@
-export * from './api';
-export * from './model/stores';
-export * from './model/types';
+export * from '@/entities/sourceModels/api';
+export * from '@/entities/sourceModels/model/stores';
+export * from '@/entities/sourceModels/model/types';

@@ -6,7 +6,7 @@ import {
 import {
   IProviderResponse,
   IRegionOfProviderResponse,
-} from '@/entities/provider/model/types.ts';
+} from '@/entities/provider/model/types';
 
 const GET_PROVIDER_LIST = 'GetProviderList';
 const GET_REGION_LIST = 'GetRegions';

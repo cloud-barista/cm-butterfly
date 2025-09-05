@@ -1,3 +1,3 @@
-import { useAuthenticationStore } from './authenticationStore.ts';
+import { useAuthenticationStore } from '@/entities/user/store/authenticationStore';
 
 export { useAuthenticationStore };

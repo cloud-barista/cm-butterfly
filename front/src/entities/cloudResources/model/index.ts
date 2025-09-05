@@ -1,4 +1,4 @@
-import { i18n } from '../../../app/i18n';
+import { i18n } from '@/app/i18n';
 
 export const PROVIDER_ID_LIST = Object.freeze({
   ncp: `${i18n.t('CLOUD_RESOURCES.PROVIDER.NCP')}`,

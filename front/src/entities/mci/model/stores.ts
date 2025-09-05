@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia';
-import { ref, Ref } from 'vue';
-import { ILastloadtestStateResponse, IMci, IVm } from './types.ts';
+import { ref } from 'vue';
+import {
+  ILastloadtestStateResponse,
+  IMci,
+  IVm,
+} from '@/entities/mci/model/types';
 
 const NAMESPACE = 'MCI';
 
