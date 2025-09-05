@@ -14,7 +14,6 @@ const openIndex = ref<number | null>(null);
 
 const toggleAccordion = (index: number) => {
   openIndex.value = openIndex.value === index ? null : index;
-  console.log(index);
 };
 
 const isOpen = (index: number) => {
