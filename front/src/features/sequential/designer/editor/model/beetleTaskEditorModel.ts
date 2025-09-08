@@ -1,6 +1,7 @@
 import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
 import { ref, UnwrapRef } from 'vue';
 import { isArray } from 'lodash';
+import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';
 
 interface fixedModel {
   path_params: Record<string, string>;
@@ -125,12 +126,18 @@ export function useTaskEditorModel() {
   }
 
   function setParamsContext(fixedModel: fixedModel) {
+    // path_params에서 nsId가 있으면 DEFAULT_NAMESPACE 값으로 설정
+    const processedPathParams = { ...fixedModel.path_params };
+    if ('nsId' in processedPathParams) {
+      processedPathParams.nsId = DEFAULT_NAMESPACE;
+    }
+
     paramsContext.value = {
       path_params: {
         type: 'params',
         context: {
           subject: 'Path_Params',
-          values: Object.entries(fixedModel.path_params).map(([key, value]) =>
+          values: Object.entries(processedPathParams).map(([key, value]) =>
             loadInputContext(key, value),
           ),
         },

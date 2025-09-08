@@ -4,6 +4,7 @@ import { reactive } from 'vue';
 import { PButton, PTextInput, PTextarea } from '@cloudforet-test/mirinae';
 import { showSuccessMessage, showErrorMessage } from '@/shared/utils';
 import JwtTokenProvider from '@/shared/libs/token';
+import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';
 
 // API 테스트 관련 상태
 const apiTestState = reactive({
@@ -114,7 +115,8 @@ const handleActionSelect = (actionName: string) => {
       apiTestState.pathParams = {};
       pathParamMatches.forEach(match => {
         const paramName = match.slice(1, -1);
-        apiTestState.pathParams[paramName] = '';
+        // nsId 파라미터인 경우 DEFAULT_NAMESPACE로 기본값 설정
+        apiTestState.pathParams[paramName] = paramName === 'nsId' ? DEFAULT_NAMESPACE : '';
       });
     }
   }

@@ -27,6 +27,7 @@ import {
 import getRandomId from '@/shared/utils/uuid';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import SequentialDesigner from '@/features/sequential/designer/ui/SequentialDesigner.vue';
+import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';
 
 interface IProps {
   wftId: string;
@@ -44,6 +45,7 @@ const workflowName = useInputModel<string>('');
 const workflowDescription = useInputModel<string>('');
 const workflowData = ref<IWorkflow>();
 const sequentialSequence: Ref<Step[]> = ref<Step[]>([]);
+
 
 const resWorkflowTemplateData = useGetWorkflowTemplateList();
 const resTaskComponentList = getTaskComponentList();
@@ -569,7 +571,8 @@ function postWorkflow(workflow: IWorkflow) {
           data: workflow.data,
           name: workflow.name,
           spec_version: '1.0', // Add spec_version
-        },
+          nsId: DEFAULT_NAMESPACE, // Add namespace ID
+        } as any, // Type assertion for additional parameters
       })
       .then(res => {
         showSuccessMessage('Success', 'Success');
@@ -585,7 +588,8 @@ function postWorkflow(workflow: IWorkflow) {
           data: workflow.data,
           name: workflow.name,
           spec_version: '1.0', // Add spec_version
-        },
+          nsId: DEFAULT_NAMESPACE, // Add namespace ID
+        } as any, // Type assertion for additional parameters
       })
       .then(res => {
         showSuccessMessage('Success', 'Success');

@@ -150,6 +150,7 @@ function handleClickOutside(event: MouseEvent) {
             "
             :size="'md'"
             block
+            readonly
           ></p-text-input>
         </div>
       </div>
@@ -178,6 +179,7 @@ function handleClickOutside(event: MouseEvent) {
                   :size="'md'"
                   block
                   :invalid="!entity.context.model.isValid"
+                  :readonly="entity.context.title === 'nsId'"
                   @blur="entity.context.model.onBlur"
                 ></p-text-input>
               </div>
