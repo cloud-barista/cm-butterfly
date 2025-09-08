@@ -52,3 +52,13 @@ func SubsystemAnyController(c buffalo.Context) error {
 
 	return c.Render(commonResponse.Status.StatusCode, r.JSON(commonResponse))
 }
+
+// ApiTestController handles API testing requests
+func ApiTestController(c buffalo.Context) error {
+	return handler.ApiTestController(c)
+}
+
+// GetApiListController returns the list of available APIs
+func GetApiListController(c buffalo.Context) error {
+	return handler.GetApiListController(c)
+}
