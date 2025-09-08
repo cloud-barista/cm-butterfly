@@ -24,8 +24,8 @@ export type TargetModelTableType =
   | 'workflowTool';
 
 interface Vm {
-  commonImage: string;
-  commonSpec: string;
+  imageId: string;
+  specId: string;
   description: string;
   label: string | null;
   name: string;
@@ -39,6 +39,13 @@ interface CloudInfraModel {
   name: string;
   systemLabel: string;
   vm: Vm[] | null;
+  // Add new fields for infra model data
+  targetVmInfra?: any;
+  targetSecurityGroupList?: any[];
+  targetSshKey?: any;
+  targetVNet?: any;
+  targetVmOsImageList?: any[];
+  targetVmSpecList?: any[];
 }
 
 export interface ITargetModelResponse {
@@ -51,6 +58,7 @@ export interface ITargetModelResponse {
   isCloudModel: boolean;
   isInitUserModel: boolean;
   isTargetModel: boolean;
+  migrationType?: string; // Add migrationType field
   region: string;
   updateTime: string;
   userId: string;

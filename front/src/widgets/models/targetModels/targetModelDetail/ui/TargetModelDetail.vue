@@ -68,6 +68,12 @@ function handleJsonModal() {
 }
 
 function handleOpenWorkflowEditor() {
+  console.log('TargetModelDetail - handleOpenWorkflowEditor called:', {
+    selectedTargetModelId: props.selectedTargetModelId,
+    targetModelName: targetModelName.value,
+    targetModelDescription: targetModelDescription.value,
+    targetModel: targetModelStore.getTargetModelById(props.selectedTargetModelId)
+  });
   emit('update:workflow-edit-modal', true);
 }
 </script>

@@ -4,7 +4,7 @@ import { TargetModelList } from '@/widgets/models/targetModels';
 import { TargetModelDetail } from '@/widgets/models/targetModels';
 import { SimpleEditForm } from '@/widgets/layout';
 import { CustomViewTargetModel } from '@/widgets/models/targetModels';
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import WorkflowEditor from '@/features/workflow/workflowEditor/ui/WorkflowEditor.vue';
 import {
   ITargetModelResponse,
@@ -21,6 +21,38 @@ const targetModelName = ref<string>('');
 const targetModelDescription = ref<string>('');
 const resUpdateTargetModel = useUpdateTargetModel(null, null);
 const targetModelStore = useTargetModelStore();
+
+// Add computed property for targetModel
+const targetModelForWorkflow = computed(() => {
+  const model = targetModelStore.getTargetModelById(selectedTargetModelId.value);
+  if (model) {
+    // Add migrationType to the model if it doesn't exist
+    const modelWithMigrationType = {
+      ...model,
+      migrationType: model.cloudInfraModel ? 'infra' : 'software'
+    };
+    
+    console.log('Passing targetModel to WorkflowEditor:', {
+      selectedTargetModelId: selectedTargetModelId.value,
+      model: modelWithMigrationType,
+      modelType: model?.cloudInfraModel ? 'infra' : 'software',
+      hasCloudInfraModel: !!model?.cloudInfraModel,
+      isCloudModel: model?.isCloudModel,
+      migrationType: modelWithMigrationType.migrationType
+    });
+    
+    return modelWithMigrationType;
+  }
+  return model;
+});
+
+const migrationTypeForWorkflow = computed(() => {
+  const model = targetModelForWorkflow.value;
+  if (model?.migrationType) {
+    return model.migrationType === 'infra' ? 'infra' : 'software';
+  }
+  return 'infra'; // default
+});
 
 const mainTabState = reactive({
   activeTab: 'details',
@@ -158,16 +190,16 @@ function handleUpdateTargetModel(e) {
       />
     </div>
     <div class="relative z-70">
-      <workflow-editor
-        v-if="modalStates.workflowEditorModal.open"
-        :target-model-name="targetModelName"
-        tool-type="add"
-        wft-id=""
-        :targetModel="
-          targetModelStore.getTargetModelById(selectedTargetModelId)
-        "
-        @update:close-modal="modalStates.workflowEditorModal.open = false"
-      />
+              <workflow-editor
+          v-if="modalStates.workflowEditorModal.open"
+          :target-model-name="targetModelName"
+          tool-type="add"
+          wft-id=""
+          :targetModel="targetModelForWorkflow"
+          :migrationType="migrationTypeForWorkflow"
+          :recommendedModel="targetModelForWorkflow"
+          @update:close-modal="modalStates.workflowEditorModal.open = false"
+        />
     </div>
   </div>
 </template>

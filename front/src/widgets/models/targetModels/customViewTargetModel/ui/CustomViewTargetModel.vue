@@ -12,6 +12,7 @@ import {
   useUpdateTargetModel,
 } from '@/entities';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+import { useAuth } from '@/features/auth/model/useAuth.ts';
 
 interface IProps {
   selectedTargetName: string;
@@ -30,6 +31,7 @@ const modalState = reactive({
   },
 });
 
+const auth = useAuth();
 const targetModelStore = useTargetModelStore();
 const targetModel = ref<ITargetModelResponse | undefined>(undefined);
 const resCreateTargetModel = createTargetModel(null);
@@ -102,7 +104,7 @@ function handleCreateSoftwareTargetModel(e) {
       description: e.description,
       isInitUserModel: false,
       targetSoftwareModel: parsedData,
-      userId: targetModel.value?.userId ?? '',
+      userId: auth.getUser().id,
       userModelName: e.name,
       userModelVersion: targetModel.value?.userModelVersion ?? 'v0.1',
     };
@@ -139,7 +141,7 @@ function handleCreateInfraTargetModel(e) {
       isInitUserModel: false,
       isTargetModel: true,
       region: targetModel.value?.region ?? '',
-      userId: targetModel.value?.userId ?? '',
+      userId: auth.getUser().id,
       userModelName: e.name,
       userModelVersion: targetModel.value?.userModelVersion ?? '',
       zone: targetModel.value?.zone ?? '',
