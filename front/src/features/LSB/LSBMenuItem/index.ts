@@ -1,3 +1,3 @@
-import LSBMenuItem from './ui/LSBMenuItem.vue';
+import LSBMenuItem from '@/features/LSB/LSBMenuItem/ui/LSBMenuItem.vue';
 
 export { LSBMenuItem };

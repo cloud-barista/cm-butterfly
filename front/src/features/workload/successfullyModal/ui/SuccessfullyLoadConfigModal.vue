@@ -5,8 +5,8 @@ import {
   PSpinner,
   PStatus,
 } from '@cloudforet-test/mirinae';
-import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel.ts';
-import { onBeforeMount, onMounted, ref, watch } from 'vue';
+import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
+import { onBeforeMount, watch } from 'vue';
 
 interface IProps {
   scenarioName: string;

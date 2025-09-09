@@ -1,1 +1,1 @@
-export * from './targetModelNameSave';
+export * from '@/features/models/targetModelNameSave';
