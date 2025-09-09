@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { PButton, PIconButton, PBadge } from '@cloudforet-test/mirinae';
-import { WidgetLayout } from '@/widgets/layout';
+import { WidgetLayout } from '@/widgets/layout/widgetLayout';
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const sidebar = useSidebar();
 const sourceConnectionStore = useSourceConnectionStore();

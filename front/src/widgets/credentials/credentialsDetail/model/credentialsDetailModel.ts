@@ -1,6 +1,5 @@
 // src/entities/credentials/model/credentialsDetailModel.ts
 import { useConfigStore } from '@/entities/credentials/model/stores';
-import { IConnectionConfig } from '@/entities/credentials/model/types';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
 import { showErrorMessage } from '@/shared/utils'; // showErrorMessage 임포트

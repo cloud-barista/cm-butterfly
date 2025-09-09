@@ -1,3 +1,3 @@
-import CreateForm from './ui/CreateForm.vue';
+import CreateForm from '@/widgets/layout/createForm/ui/CreateForm.vue';
 
 export { CreateForm };

@@ -1,3 +1,3 @@
-import ConsoleLayout from './ui/ConsoleLayout.vue';
+import ConsoleLayout from '@/widgets/layout/consoleLayout/ui/ConsoleLayout.vue';
 
 export { ConsoleLayout };
