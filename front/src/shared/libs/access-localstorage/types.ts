@@ -1,4 +1,4 @@
-import { AuthorizationType } from '../store/auth';
+import { AuthorizationType } from '@/shared/libs/store/auth';
 
 export interface ILoginData {
   role: AuthorizationType;
