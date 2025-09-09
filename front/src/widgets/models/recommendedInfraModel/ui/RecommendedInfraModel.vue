@@ -4,20 +4,19 @@ import {
   PIconModal,
   PToolboxTable,
   PSelectDropdown,
-  PFieldTitle,
 } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { TargetModelNameSave } from '@/features/models';
-import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
-import { useRecommendedInfraModel } from '@/widgets/models/recommendedInfraModel/model/useRecommendedInfraModel.ts';
-import { createTargetModel, ISourceModelResponse } from '@/entities';
+import { useRecommendedInfraModel } from '@/widgets/models/recommendedInfraModel/model/useRecommendedInfraModel';
+import { createTargetModel } from '@/entities';
 import {
   getRecommendCost,
   useGetRecommendModelListBySourceModel,
 } from '@/entities/recommendedModel/api';
-import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
-import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types.ts';
+import { showErrorMessage } from '@/shared/utils';
+import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types';
 import { useGetProviderList, useGetRegionList } from '@/entities/provider/api';
 
 interface IProps {
@@ -31,7 +30,6 @@ const emit = defineEmits(['update:close-modal']);
 
 const recommendModel_Model = useRecommendedInfraModel();
 
-const selectedRecommendedModelId = ref<string>('');
 const modelName = ref<string>('');
 const description = ref<string>('');
 

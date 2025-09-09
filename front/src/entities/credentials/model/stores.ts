@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { ICredential } from '@/entities/credentials/model/types.ts';
+import { ICredential } from '@/entities/credentials/model/types';
 
 export const useConfigStore = defineStore('CREDENTIALS', () => {
   const models = ref<ICredential[]>([]);

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PDefinitionTable } from '@cloudforet-test/mirinae';
-import { useWorkflowDetailModel } from '../model/workflowDetailModel';
+import { useWorkflowDetailModel } from '@/widgets/workflow/workflows/workflowDetail/model/workflowDetailModel';
 import { onBeforeMount, watch, watchEffect } from 'vue';
 
 interface iProps {

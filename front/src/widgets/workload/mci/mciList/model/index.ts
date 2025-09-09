@@ -1,13 +1,12 @@
 import { ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel.ts';
+import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import { IMci, McisTableType, useMCIStore } from '@/entities/mci/model';
 import { useGetMciInfo, useGetMciList } from '@/entities/mci/api';
 import { getCloudProvidersInVms } from '@/shared/hooks/vm';
 import { showErrorMessage } from '@/shared/utils';
 import { AxiosResponse } from 'axios';
 import { IAxiosResponse } from '@/shared/libs';
-import Uuid from '@/shared/utils/uuid';
 
 interface IProps {
   nsId: string;

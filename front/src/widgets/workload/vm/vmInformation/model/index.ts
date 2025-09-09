@@ -1,7 +1,8 @@
-import { computed, reactive, ref, watch } from 'vue';
-import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel.ts';
+import { ref, watch } from 'vue';
+import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { IMci, IVm, useMCIStore } from '@/entities/mci/model';
 import { getCloudProvidersInVms } from '@/shared/hooks/vm';
+
 export type vmDetailTableType =
   | 'serverId'
   | 'description'

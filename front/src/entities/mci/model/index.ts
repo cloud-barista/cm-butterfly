@@ -1,2 +1,2 @@
-export * from '@/entities/mci/model/stores.ts';
-export * from '@/entities/mci/model/types.ts';
+export * from '@/entities/mci/model/stores';
+export * from '@/entities/mci/model/types';

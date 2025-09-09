@@ -1,21 +1,19 @@
-import { workflowManagementRoutes } from '@/app/providers/router/routes/workflowManagement.ts';
+import { workflowManagementRoutes } from '@/app/providers/router/routes/workflowManagement';
 import VueRouter, { RouteConfig } from 'vue-router';
 import { ROOT_ROUTE } from '@/app/providers/router/routes/constants';
-import authRoutes from '@/pages/auth/auth.route.ts';
-import { sourceComputingRoutes } from '@/app/providers/router/routes/sourceComputing.ts';
-import { modelRoutes } from '@/app/providers/router/routes/models.ts';
-import { workloadsRoutes } from '@/app/providers/router/routes/workloads.ts';
-import { cloudResourcesRoutes } from '@/app/providers/router/routes/cloudResources.ts';
+import authRoutes from '@/pages/auth/auth.route';
+import { sourceComputingRoutes } from '@/app/providers/router/routes/sourceComputing';
+import { modelRoutes } from '@/app/providers/router/routes/models';
+import { workloadsRoutes } from '@/app/providers/router/routes/workloads';
+import { cloudResourcesRoutes } from '@/app/providers/router/routes/cloudResources';
 import { MainLayout } from '@/app/Layouts';
 import { Route } from 'vue-router';
-import { AUTH_ROUTE } from '@/pages/auth/auth.route.ts';
+import { AUTH_ROUTE } from '@/pages/auth/auth.route';
 import { ROLE_TYPE } from '@/shared/libs/accessControl/pageAccessHelper/constant';
 import { RoleType } from '@/shared/libs/accessControl/pageAccessHelper/types';
-import { tempRoutes } from '@/app/providers/router/routes/temp.ts';
+import { tempRoutes } from '@/app/providers/router/routes/temp';
 import NotFound from '@/pages/error/404/NotFound.vue';
 //TODO admin부분 고려
-
-const accessiblePagesWithRoles = [] as any[];
 
 export class McmpRouter {
   static router: VueRouter | null = null;

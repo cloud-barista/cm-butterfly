@@ -1,3 +1,3 @@
-import VerticalPageLayout from './ui/VerticalPageLayout.vue';
+import VerticalPageLayout from '@/widgets/layout/verticalPageLayout/ui/VerticalPageLayout.vue';
 
 export { VerticalPageLayout };

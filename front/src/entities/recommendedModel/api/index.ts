@@ -7,7 +7,7 @@ import {
 import {
   IEsimateCostSpecResponse,
   IRecommendModelResponse,
-} from '@/entities/recommendedModel/model/types.ts';
+} from '@/entities/recommendedModel/model/types';
 
 //const GET_RECOMMEND_MODEL = 'RecommendInfra';
 const GET_RECOMMEND_MODEL = 'RecommendVMInfra';

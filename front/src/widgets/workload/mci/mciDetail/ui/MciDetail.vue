@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMciDetailModel } from '@/widgets/workload/mci/mciDetail/model';
-import { onBeforeMount, onMounted, watch, PropType } from 'vue';
+import { onBeforeMount, watch } from 'vue';
 import { PBadge, PDefinitionTable } from '@cloudforet-test/mirinae';
 
 interface IProps {
