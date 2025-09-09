@@ -1,2 +1,2 @@
-export * from './sourceModels';
-export * from './targetModels';
+export * from '@/pages/models/sourceModels';
+export * from '@/pages/models/targetModels';

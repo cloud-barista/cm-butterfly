@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PButton } from '@cloudforet-test/mirinae';
-import { axiosInstance } from '@/shared/libs/api/instance.ts';
+import { axiosInstance } from '@/shared/libs/api/instance';
 
 const iframeURL = 'http://localhost:9090';
 

@@ -1,6 +1,6 @@
 //기본라우터는 dashboard이고 하위폴더에 속한 폴더 경로를 여기서 정의
 import { RouteConfig } from 'vue-router';
-import { UserPage } from './users';
+import { UserPage } from '@/pages/account&access/users';
 
 export const ACCOINTANDACCESS_ROUTE = {
   _NAME: 'ACCOINTANDACCESS_ROUTE',

@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router/composables';
 import { vpcStore } from '@/shared/libs';
 import { storeToRefs } from 'pinia';
 import { i18n } from '@/app/i18n';
-import { computed, onMounted, reactive, watchEffect } from 'vue';
+import { computed, reactive } from 'vue';
 
 const vpcStoreInstance = vpcStore.useVpcStore();
 

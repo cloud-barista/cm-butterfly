@@ -2,13 +2,7 @@
 import UserListTable from '@/widgets/user/userlist/ui/UserListTable.vue';
 import UserInformation from '@/widgets/user/userinfomation/ui/UserInformation.vue';
 import { UserInformationTableType, UserWorkspaceTableType } from '@/entities';
-import { onMounted, Ref, ref } from 'vue';
-import { useGnbStore } from '@/shared/libs/store/gnb-store';
-import { useRoute, useRouter } from 'vue-router/composables';
-
-const router = useRouter();
-const route = useRoute();
-const gnbStore = useGnbStore();
+import { Ref, ref } from 'vue';
 
 // onMounted(() => {
 //   router.currentRoute.matched.forEach(matchedRoute => {

@@ -1,17 +1,10 @@
 <script setup lang="ts">
 import MciList from '@/widgets/workload/mci/mciList/ui/MciList.vue';
 import { reactive, ref } from 'vue';
-import {
-  PTab,
-  PButtonTab,
-  PButton,
-  PDataLoader,
-} from '@cloudforet-test/mirinae';
+import { PTab, PButton } from '@cloudforet-test/mirinae';
 import MciDetail from '@/widgets/workload/mci/mciDetail/ui/MciDetail.vue';
 import VmList from '@/widgets/workload/vm/vmList/ui/VmList.vue';
-import VmInformation from '@/widgets/workload/vm/vmInformation/ui/VmInformation.vue';
 import { isNullOrUndefined } from '@/shared/utils';
-import VmEvaluatePerf from '@/widgets/workload/vm/vmEvaluatePerf/ui/VmEvaluatePerf.vue';
 
 const pageName = 'MCI';
 
