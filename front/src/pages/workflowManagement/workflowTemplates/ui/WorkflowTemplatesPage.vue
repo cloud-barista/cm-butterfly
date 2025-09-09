@@ -6,7 +6,6 @@ import {
   WorkflowJsonViewer,
 } from '@/widgets/workflow';
 import { reactive, ref } from 'vue';
-// import { SimpleEditForm } from '@/widgets/layout';
 
 const pageName = 'Workflow Templates';
 

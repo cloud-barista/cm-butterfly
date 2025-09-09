@@ -1,4 +1,4 @@
-import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
+import { Step } from '@/features/workflow/workflowEditor/model/types';
 
 export function toolboxSteps() {
   return {

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import TopBarWorkspaces from '@/features/topbar/topbarWorkspaces/ui/TopBarWorkspaces.vue';
 import { TopBarToolset } from '@/features/topbar';
 import { reactive } from 'vue';
 
@@ -25,7 +24,6 @@ const imgName =
 
 <template>
   <div class="top-bar">
-    <!-- <top-bar-workspaces ref="topBarWorkspaceRef" class="top-bar-workspace" /> -->
     <div class="top-bar-workspacc">
       <span class="logo-name">{{ imgName }}</span>
     </div>

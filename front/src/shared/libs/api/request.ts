@@ -1,7 +1,10 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Ref, ref } from 'vue';
-import { AsyncStatus, IUseAxiosWrapperReturnType } from '../index';
-import { axiosInstance } from '@/shared/libs/api/instance.ts';
+import {
+  AsyncStatus,
+  IUseAxiosWrapperReturnType,
+} from '@/shared/libs/api/index';
+import { axiosInstance } from '@/shared/libs/api/instance';
 
 export function axiosGet<T>(url: string, config?: AxiosRequestConfig) {
   return axiosInstance.get<T>(`/${url}`, config);

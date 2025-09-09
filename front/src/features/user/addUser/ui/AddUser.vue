@@ -7,7 +7,7 @@ import {
   PI,
   PTextarea,
 } from '@cloudforet-test/mirinae';
-import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
+import { useInputModel } from '@/shared/hooks/input/useInputModel';
 import { i18n } from '@/app/i18n';
 import {
   IPasswordConfirm,
@@ -17,7 +17,7 @@ import {
   validateId,
   validatePassword,
 } from '@/entities';
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { IAxiosResponse } from '@/shared/libs';
 import { showSuccessMessage } from '@/shared/utils';
 

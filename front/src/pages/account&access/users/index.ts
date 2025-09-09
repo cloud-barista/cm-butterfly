@@ -1,4 +1,4 @@
 // @ts-ignore
-import UserPage from './ui/UserPage.vue';
+import UserPage from '@/pages/account&access/users/ui/UserPage.vue';
 
 export { UserPage };

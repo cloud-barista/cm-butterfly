@@ -1,5 +1,4 @@
 import { IVm } from '@/entities/mci/model';
-import { yellow } from '@/app/style/colors.ts';
 
 export function getCloudProvidersInVms(vms: IVm[]) {
   const provider: { [key: string]: any } = {};

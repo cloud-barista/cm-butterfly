@@ -1,9 +1,9 @@
 import { reactive, ref } from 'vue';
-import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
+import { useInputModel } from '@/shared/hooks/input/useInputModel';
 import {
   validateFunc,
   validateNumberFunc,
-} from '@/features/workload/actionLoadConfig/model/validate.ts';
+} from '@/features/workload/actionLoadConfig/model/validate';
 
 export function useLoadConfigModel() {
   const protocol = reactive({

@@ -12,7 +12,7 @@ import {
   IGetlastloadtestmetricsResponse,
   IGetLoadTestEvaluationDataResponse,
   ILoadTestResultAggregateResponse,
-} from '@/entities/workspace/model/types.ts';
+} from '@/entities/workspace/model/types';
 const RUN_LOAD_TEST = 'Runloadtest';
 const GET_LAST_LOAD_TEST_CONFIG = 'Getlastloadtestexecutionstate';
 const GET_LOAD_TEST_EVALUATION_DATA = 'Getlastloadtestresult';

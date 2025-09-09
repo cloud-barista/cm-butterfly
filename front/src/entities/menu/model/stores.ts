@@ -1,5 +1,9 @@
 import { defineStore } from 'pinia';
-import { IMigratorMenu, MENU_ID, MigratorMenu } from './types';
+import {
+  IMigratorMenu,
+  MENU_ID,
+  MigratorMenu,
+} from '@/entities/menu/model/types';
 
 export const useMigratorMenuStore = defineStore('MIGRATOR_MENU', {
   state: () => ({

@@ -1,4 +1,4 @@
-import { Breadcrumb } from '../../types';
+import { Breadcrumb } from '@/shared/types';
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
 

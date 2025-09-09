@@ -1,2 +1,2 @@
-export * from './request';
-export * from './types.ts';
+export * from '@/shared/libs/api/request';
+export * from '@/shared/libs/api/types';

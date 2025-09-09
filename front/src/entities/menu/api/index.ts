@@ -1,5 +1,5 @@
 import { IAxiosResponse, useAxiosPost } from '@/shared/libs';
-import { IMigratorMenu } from '../model/types';
+import { IMigratorMenu } from '@/entities/menu/model/types';
 
 const GET_MENU_TREE = 'getmenutree';
 

@@ -1,1 +1,1 @@
-export * from './pageAccessHelper';
+export * from '@/shared/libs/accessControl/pageAccessHelper';
