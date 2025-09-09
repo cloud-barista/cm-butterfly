@@ -6,9 +6,9 @@ import {
 import {
   IInfraSourceGroupResponse,
   ISourceAgentAndConnectionStatusResponse,
-} from '@/entities/sourceService/model/types.ts';
-import { axiosInstance } from '@/shared/libs/api/instance.ts';
-import type { ISourceGroup } from '@/entities/sourceService/model/types.ts';
+} from '@/entities/sourceService/model/types';
+import { axiosInstance } from '@/shared/libs/api/instance';
+import type { ISourceGroup } from '@/entities/sourceService/model/types';
 
 const REGISTER_SOURCE_GROUP = 'cm-honeybee/register-source-group';
 const UPDATE_SOURCE_GROUP = 'Update-Source-Group';

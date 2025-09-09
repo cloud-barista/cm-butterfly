@@ -3,11 +3,9 @@ import {
   RequestBodyWrapper,
   useAxiosPost,
 } from '@/shared/libs';
-import { ISourceConnectionResponse } from '@/entities/sourceConnection/model/types.ts';
-import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types.ts';
+import { ISourceConnectionResponse } from '@/entities/sourceConnection/model/types';
 import { IOnpremModelPayload, ISourceModelResponse } from '@/entities';
-import { IEditWorkspaceData } from '@/entities/workspace/model/types.ts';
-import { axiosInstance } from '@/shared/libs/api/instance.ts';
+import { axiosInstance } from '@/shared/libs/api/instance';
 
 const GET_SOURCE_MODEL_LIST = 'GetModels';
 const UPDATE_SOURCE_MODEL = 'UpdateOnPremModel';

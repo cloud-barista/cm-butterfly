@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { ICredential } from '@/entities/credentials/model/types.ts';
-import { remove } from 'lodash';
 
 export const useConfigStore = defineStore('CREDENTIALS', () => {
   const models = ref<ICredential[]>([]);

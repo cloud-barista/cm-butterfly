@@ -2,8 +2,8 @@ import {
   useAxiosPost,
   IAxiosResponse,
   RequestBodyWrapper,
-} from '../../../shared/libs';
-import JwtTokenProvider from '../../../shared/libs/token';
+} from '@/shared/libs';
+import JwtTokenProvider from '@/shared/libs/token';
 
 const GET_ALL_VPCS = 'getallvnet';
 const CREATE_VPC = 'postvnet';

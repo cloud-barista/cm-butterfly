@@ -2,9 +2,9 @@ import { defineStore } from 'pinia';
 import {
   IWorkflow,
   IWorkflowResponse,
-} from '@/entities/workflow/model/types.ts';
+  ITaskComponent,
+} from '@/entities/workflow/model/types';
 import { ref } from 'vue';
-import { ITaskComponent } from '@/entities';
 
 const NAMESPACE = 'WORKFLOW';
 

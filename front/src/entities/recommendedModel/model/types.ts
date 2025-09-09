@@ -6,6 +6,20 @@ export type RecommendedModelTableType =
   | 'image'
   | 'estimateCost';
 
+export interface IRecommendedModel {
+  name: string;
+  id: string;
+  description: string;
+  label: string;
+  spec: string;
+  image: string;
+  rootDiskType: string;
+  rootDiskSize: string;
+  userPassword: string;
+  connection: string;
+  estimateCost: string;
+}
+
 interface Vm {
   commonImage: string;
   commonSpec: string;
