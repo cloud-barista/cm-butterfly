@@ -35,6 +35,12 @@ services:
     baseurl: http://cm-honeybee:8081/honeybee
     auth:
 
+  cm-honeybee-server:
+    version: 0.3.0
+    baseurl: http://cm-honeybee:8081/honeybee
+    auth:
+      type: none 
+
   cm-cicada:
     version: 0.3.0
     baseurl: http://cm-cicada:8083/cicada
