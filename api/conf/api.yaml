@@ -2889,7 +2889,7 @@ serviceActions:
       method: get
       resourcePath: /readyz
       description: Check Honeybee Agent is ready
-  cm-honeybee-server:
+  cm-honeybee:
     Create-Connection-Info:
       method: post
       resourcePath: /source_group/{sgId}/connection_info
