@@ -60,6 +60,7 @@ export interface ITargetModelResponse {
   isTargetModel: boolean;
   migrationType?: string; // Add migrationType field
   region: string;
+  targetSoftwareModel?: any; // Add targetSoftwareModel field for software models
   updateTime: string;
   userId: string;
   userModelName: string;

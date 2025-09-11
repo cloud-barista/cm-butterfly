@@ -307,10 +307,36 @@ function mapTargetModelToTaskComponent(
       }
     }
     console.log('Processed infra model data:', parseString);
-  } else if (isSoftwareModel) {
-    // Handle software model data
-    // Add software-specific data processing here
+  } else if (isSoftwareModel && (targetModel as any)?.targetSoftwareModel) {
+    // Handle software model data - use targetSoftwareModel
+    const targetSoftwareModel = (targetModel as any).targetSoftwareModel;
+    console.log('Processing software model with targetSoftwareModel:', targetSoftwareModel);
+    
     if (parseString) {
+      // Set the targetSoftwareModel data directly
+      parseString['targetSoftwareModel'] = targetSoftwareModel;
+      
+      // Also set other related software data if available
+      if (targetSoftwareModel.softwareList) {
+        parseString['softwareList'] = targetSoftwareModel.softwareList;
+      }
+      if (targetSoftwareModel.targetVmSpecList) {
+        parseString['targetVmSpecList'] = targetSoftwareModel.targetVmSpecList;
+      }
+      if (targetSoftwareModel.targetVmOsImageList) {
+        parseString['targetVmOsImageList'] = targetSoftwareModel.targetVmOsImageList;
+      }
+      if (targetSoftwareModel.targetSecurityGroupList) {
+        parseString['targetSecurityGroupList'] = targetSoftwareModel.targetSecurityGroupList;
+      }
+      if (targetSoftwareModel.targetSshKey) {
+        parseString['targetSshKey'] = targetSoftwareModel.targetSshKey;
+      }
+      if (targetSoftwareModel.targetVNet) {
+        parseString['targetVNet'] = targetSoftwareModel.targetVNet;
+      }
+      
+      // Set basic model information
       parseString['softwareModel'] = {
         id: targetModel.id,
         name: targetModel.userModelName,
@@ -440,10 +466,36 @@ function createTaskForModel(
       }
     }
     console.log('Processed infra model data:', parseString);
-  } else if (isSoftwareModel) {
-    // Handle software model data
-    // Add software-specific data processing here
+  } else if (isSoftwareModel && (targetModel as any)?.targetSoftwareModel) {
+    // Handle software model data - use targetSoftwareModel
+    const targetSoftwareModel = (targetModel as any).targetSoftwareModel;
+    console.log('Processing software model with targetSoftwareModel:', targetSoftwareModel);
+    
     if (parseString) {
+      // Set the targetSoftwareModel data directly
+      parseString['targetSoftwareModel'] = targetSoftwareModel;
+      
+      // Also set other related software data if available
+      if (targetSoftwareModel.softwareList) {
+        parseString['softwareList'] = targetSoftwareModel.softwareList;
+      }
+      if (targetSoftwareModel.targetVmSpecList) {
+        parseString['targetVmSpecList'] = targetSoftwareModel.targetVmSpecList;
+      }
+      if (targetSoftwareModel.targetVmOsImageList) {
+        parseString['targetVmOsImageList'] = targetSoftwareModel.targetVmOsImageList;
+      }
+      if (targetSoftwareModel.targetSecurityGroupList) {
+        parseString['targetSecurityGroupList'] = targetSoftwareModel.targetSecurityGroupList;
+      }
+      if (targetSoftwareModel.targetSshKey) {
+        parseString['targetSshKey'] = targetSoftwareModel.targetSshKey;
+      }
+      if (targetSoftwareModel.targetVNet) {
+        parseString['targetVNet'] = targetSoftwareModel.targetVNet;
+      }
+      
+      // Set basic model information
       parseString['softwareModel'] = {
         id: targetModel.id,
         name: targetModel.userModelName,

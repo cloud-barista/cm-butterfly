@@ -43,6 +43,13 @@ const modelData = computed(() => {
   if (props.migrationData) {
     return props.migrationData;
   }
+  
+  // Software 모델인 경우 targetSoftwareModel을 반환
+  if (isSoftwareModel.value && targetModel.value?.targetSoftwareModel) {
+    return targetModel.value.targetSoftwareModel;
+  }
+  
+  // Infra 모델인 경우 cloudInfraModel을 반환
   return targetModel.value?.cloudInfraModel;
 });
 
@@ -53,10 +60,14 @@ const isSoftwareModel = computed(() => {
     return true;
   }
   
-  // 기존 target model의 속성으로 판단 (ITargetModelResponse에는 isSoftwareModel이 없으므로 다른 방법 사용)
-  // cloudInfraModel이 있으면 Infra 모델로 간주
-  if (targetModel.value?.cloudInfraModel) {
-    return false;
+  // targetSoftwareModel이 있으면 Software 모델로 간주
+  if (targetModel.value?.targetSoftwareModel) {
+    return true;
+  }
+  
+  // migrationType이 'software'이면 Software 모델로 간주
+  if (targetModel.value?.migrationType === 'software') {
+    return true;
   }
   
   // 기본적으로 Infra 모델로 간주 (기존 로직과 호환성 유지)
@@ -76,7 +87,13 @@ watch(
     if (props.migrationData) {
       cloudInfraModelCode.value = JSON.stringify(props.migrationData, null, 2);
     } else {
-      cloudInfraModelCode.value = JSON.stringify(targetModel.value?.cloudInfraModel || {}, null, 2);
+      // Software 모델인 경우 targetSoftwareModel을 표시
+      if (isSoftwareModel.value && targetModel.value?.targetSoftwareModel) {
+        cloudInfraModelCode.value = JSON.stringify(targetModel.value.targetSoftwareModel, null, 2);
+      } else {
+        // Infra 모델인 경우 cloudInfraModel을 표시
+        cloudInfraModelCode.value = JSON.stringify(targetModel.value?.cloudInfraModel || {}, null, 2);
+      }
     }
   },
   { immediate: true },

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PDefinitionTable } from '@cloudforet-test/mirinae';
 import { useTargetModelDetailModel } from '@/widgets/models/targetModels/targetModelDetail';
-import { onBeforeMount, watch, watchEffect, ref } from 'vue';
+import { onBeforeMount, watch, watchEffect, ref, computed } from 'vue';
 
 interface iProps {
   selectedTargetModelId: string;
@@ -18,6 +18,24 @@ const emit = defineEmits([
 
 const { targetModelStore, setTargetModelId, initTable, tableModel } =
   useTargetModelDetailModel();
+
+// Software 모델인지 판단하는 computed
+const isSoftwareModel = computed(() => {
+  const targetModel = targetModelStore.getTargetModelById(props.selectedTargetModelId);
+  
+  // targetSoftwareModel이 있으면 Software 모델로 간주
+  if (targetModel?.targetSoftwareModel) {
+    return true;
+  }
+  
+  // migrationType이 'software'이면 Software 모델로 간주
+  if (targetModel?.migrationType === 'software') {
+    return true;
+  }
+  
+  // 기본적으로 Infra 모델로 간주
+  return false;
+});
 
 watch(
   props,
@@ -65,15 +83,30 @@ watch(
 function handleJsonModal() {
   emit('update:custom-view-json-modal', true);
   emit('update:target-model-name', targetModelName.value);
+  
+  // Software 모델인 경우 targetSoftwareModel 정보를 전달
+  if (isSoftwareModel.value) {
+    const targetModel = targetModelStore.getTargetModelById(props.selectedTargetModelId);
+    if (targetModel?.targetSoftwareModel) {
+      // targetSoftwareModel 정보를 부모 컴포넌트로 전달
+      // 이 정보는 CustomViewTargetModel에서 사용됩니다
+      console.log('Software model detected, targetSoftwareModel:', targetModel.targetSoftwareModel);
+    }
+  }
 }
 
 function handleOpenWorkflowEditor() {
+  const targetModel = targetModelStore.getTargetModelById(props.selectedTargetModelId);
+  
   console.log('TargetModelDetail - handleOpenWorkflowEditor called:', {
     selectedTargetModelId: props.selectedTargetModelId,
     targetModelName: targetModelName.value,
     targetModelDescription: targetModelDescription.value,
-    targetModel: targetModelStore.getTargetModelById(props.selectedTargetModelId)
+    targetModel: targetModel,
+    isSoftwareModel: isSoftwareModel.value,
+    targetSoftwareModel: targetModel?.targetSoftwareModel
   });
+  
   emit('update:workflow-edit-modal', true);
 }
 </script>
