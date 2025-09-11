@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PTab, PButton } from '@cloudforet-test/mirinae';
-import { ref, reactive, watchEffect } from 'vue';
+import { ref, reactive } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
 import {
   TaskComponentsDetail,

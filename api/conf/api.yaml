@@ -1,9 +1,14 @@
 services:
-  cb-spider:
-    baseurl: http://cb-spider:1024/spider
-    auth:
-      type: basic
+  cb-spider: #service name
+    version: 0.11.5
+    baseurl: http://cb-spider:1024/spider # baseurl is Scheme + Host + Base Path
+    auth: #If you need an authentication method, describe the type and username and password in the sub
+      # type: basic
+      # username: default
+      # password: default
+
   cb-tumblebug:
+    version: 0.11.9
     baseurl: http://cb-tumblebug:1323/tumblebug
     auth:
       type: basic
@@ -14,36 +19,51 @@ services:
     auth:
       type: none
   cm-beetle:
+    version: 0.3.8
     baseurl: http://cm-beetle:8056/beetle
     auth:
       type: basic
       username: default
       password: default
+
   cm-butterfly-api:
     #baseurl: http://localhost:4000
     baseurl: http://cm-butterfly-api:4000
     auth:
       type: none
+      
   cm-cicada:
     baseurl: http://cm-cicada:8083/cicada
     auth:
       type: none
+
+  cm-honeybee:
+    version: 0.3.4
+    baseurl: http://cm-honeybee:8081/honeybee
+      type: none 
+
+  cm-grasshopper:
+    version: 0.3.3
+    baseurl: http://cm-grasshopper:8084/grasshopper
+    auth:
+
   cm-damselfly:
     baseurl: http://cm-damselfly:8088/damselfly
     auth:
       type: basic
       username: default
       password: default
-  cm-grasshopper:
-    baseurl: http://cm-grasshopper:8084/grasshopper
-    auth:
-      type: none
-  cm-honeybee:
-    baseurl: http://cm-honeybee:8081/honeybee
-    auth:
-      type: none
 
 serviceActions:
+  # sample: #for sample
+  #   #cb-spider CCIM v0.6.0
+  #   NormalGetAction:
+  #     method: get
+  #     resourcePath: /sample
+  #     description: #Use when necessary for user understanding
+  #   PathParamGetAction:
+  #     method: get
+  #     resourcePath: /sample/{param_name}
   cb-spider:
     Add-Nlb-Vm:
       method: post

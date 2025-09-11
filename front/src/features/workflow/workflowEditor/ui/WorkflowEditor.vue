@@ -6,10 +6,10 @@ import {
   PSelectDropdown,
   PTextInput,
 } from '@cloudforet-test/mirinae';
-import { useWorkflowToolModel } from '@/features/workflow/workflowEditor/model/workflowEditorModel.ts';
-import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
+import { useWorkflowToolModel } from '@/features/workflow/workflowEditor/model/workflowEditorModel';
+import { useInputModel } from '@/shared/hooks/input/useInputModel';
 import { onBeforeMount, onMounted, reactive, ref, Ref } from 'vue';
-import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
+import { Step } from '@/features/workflow/workflowEditor/model/types';
 import {
   ITargetModelResponse,
   ITaskResponse,

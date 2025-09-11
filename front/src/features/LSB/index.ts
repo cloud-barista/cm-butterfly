@@ -1,2 +1,2 @@
-export * from './LSBMenuItem';
-export * from './LSBRouterMenuItem';
+export * from '@/features/LSB/LSBMenuItem';
+export * from '@/features/LSB/LSBRouterMenuItem';

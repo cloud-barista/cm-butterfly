@@ -1,4 +1,4 @@
-import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
+import { useInputModel } from '@/shared/hooks/input/useInputModel';
 import { ref, UnwrapRef } from 'vue';
 import { isArray } from 'lodash';
 import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';

@@ -1,3 +1,3 @@
-export * from './model/types';
-export * from './model/stores';
-export * from './api';
+export * from '@/entities/menu/model/types';
+export * from '@/entities/menu/model/stores';
+export * from '@/entities/menu/api';

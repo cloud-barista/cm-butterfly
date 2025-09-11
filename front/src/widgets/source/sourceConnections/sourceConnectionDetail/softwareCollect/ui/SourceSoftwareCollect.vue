@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PButton, PDefinitionTable, PStatus } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive, watch } from 'vue';
-import { useSourceSoftwareCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/softwareCollect/model/sourceSoftwareCollectModel.ts';
+import { onBeforeMount, watch } from 'vue';
+import { useSourceSoftwareCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/softwareCollect/model/sourceSoftwareCollectModel';
 import { useCollectSW } from '@/entities/sourceConnection/api';
 import { showErrorMessage } from '@/shared/utils';
 

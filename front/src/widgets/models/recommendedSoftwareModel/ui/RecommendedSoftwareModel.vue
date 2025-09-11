@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import {
-  PButton,
-  PIconModal,
-  PToolboxTable,
-  PI,
-  PSpinner,
-} from '@cloudforet-test/mirinae';
+import { PButton, PI, PSpinner } from '@cloudforet-test/mirinae';
 import { CreateForm, SimpleEditForm } from '@/widgets/layout';
 import { computed, onMounted, ref, reactive } from 'vue';
-import { useRecommendedSoftwareModel } from '@/widgets/models/recommendedSoftwareModel/model/useRecommendedSoftwareModel.ts';
+import { useRecommendedSoftwareModel } from '@/widgets/models/recommendedSoftwareModel/model/useRecommendedSoftwareModel';
 import { useSourceModelStore } from '@/entities';
 import { collectJsonEditor } from '@/features/sourceServices';
 import { createTargetSoftwareModel } from '@/entities/targetModels/api';
@@ -29,8 +23,8 @@ const authStore = useAuthStore();
 const resCreateTargetSoftwareModel = createTargetSoftwareModel(null);
 
 // 소스 모델 데이터
-const sourceModel = computed(() => 
-  sourceModelStore.getSourceModelById(props.sourceModelId)
+const sourceModel = computed(() =>
+  sourceModelStore.getSourceModelById(props.sourceModelId),
 );
 
 // 소스 소프트웨어 모델 데이터 (JSON 표시용)
@@ -68,153 +62,139 @@ async function handleGetMigrationList() {
   }
 
   isLoading.value = true;
-  
+
   try {
     // 먼저 실제 API 호출 시도
     const response = await recommendSoftwareModel.getSoftwareMigrationListData(sourceSoftwareModelData.value);
-    
+
     // 응답의 status.code를 확인하여 에러 여부 판단
     const statusCode = response?.data?.status?.code;
     if (statusCode && statusCode >= 400) {
-      console.warn('API returned error status, using dummy data:', response.data.status);
-      throw new Error(`API Error: ${statusCode} - ${response.data.status?.message || 'Unknown error'}`);
+      console.warn(
+        'API returned error status, using dummy data:',
+        response.data.status,
+      );
+      throw new Error(
+        `API Error: ${statusCode} - ${response.data.status?.message || 'Unknown error'}`,
+      );
     }
-    
+
     // API 응답 데이터를 recommendedModelData에 저장
     recommendedModelData.value = recommendSoftwareModel.tableModel.tableState.items[0]?.originalData || null;
+
     console.log('API migration data loaded:', recommendedModelData.value);
   } catch (error) {
     console.warn('API call failed, using dummy data:', error);
-    
+
     // API 호출 실패 시 더미 데이터 사용
     const dummyMigrationData = {
-      "description": "Software Migration Recommendations",
-      "isInitUserModel": true,
-      "targetSoftwareModel": {
-        "servers": [
+      description: 'Software Migration Recommendations',
+      isInitUserModel: true,
+      targetSoftwareModel: {
+        servers: [
           {
-            "errors": [
-              "No critical errors found"
-            ],
-            "migration_list": {
-              "binaries": [
+            errors: ['No critical errors found'],
+            migration_list: {
+              binaries: [
                 {
-                  "binary_path": "/usr/local/bin/app",
-                  "custom_configs": [
-                    "/etc/app/config.json"
-                  ],
-                  "custom_data_paths": [
-                    "/var/lib/app/data"
-                  ],
-                  "name": "Sample Application",
-                  "needed_libraries": [
-                    "libssl-dev",
-                    "libcurl4-openssl-dev"
-                  ],
-                  "order": 1,
-                  "version": "1.0.0"
-                }
+                  binary_path: '/usr/local/bin/app',
+                  custom_configs: ['/etc/app/config.json'],
+                  custom_data_paths: ['/var/lib/app/data'],
+                  name: 'Sample Application',
+                  needed_libraries: ['libssl-dev', 'libcurl4-openssl-dev'],
+                  order: 1,
+                  version: '1.0.0',
+                },
               ],
-              "containers": [
+              containers: [
                 {
-                  "container_id": "sample-container-1",
-                  "container_image": {
-                    "image_architecture": "common",
-                    "image_hash": "sha256:abc123def456",
-                    "image_name": "sample-app",
-                    "image_version": "latest"
+                  container_id: 'sample-container-1',
+                  container_image: {
+                    image_architecture: 'common',
+                    image_hash: 'sha256:abc123def456',
+                    image_name: 'sample-app',
+                    image_version: 'latest',
                   },
-                  "container_ports": [
+                  container_ports: [
                     {
-                      "container_port": 8080,
-                      "host_ip": "0.0.0.0",
-                      "host_port": 8080,
-                      "protocol": "tcp"
-                    }
+                      container_port: 8080,
+                      host_ip: '0.0.0.0',
+                      host_port: 8080,
+                      protocol: 'tcp',
+                    },
                   ],
-                  "container_status": "running",
-                  "docker_compose_path": "/opt/docker-compose.yml",
-                  "envs": [
+                  container_status: 'running',
+                  docker_compose_path: '/opt/docker-compose.yml',
+                  envs: [
                     {
-                      "name": "DB_HOST",
-                      "value": "localhost"
+                      name: 'DB_HOST',
+                      value: 'localhost',
                     },
                     {
-                      "name": "DB_PORT",
-                      "value": "5432"
-                    }
+                      name: 'DB_PORT',
+                      value: '5432',
+                    },
                   ],
-                  "mount_paths": [
-                    "/var/lib/app:/app/data"
-                  ],
-                  "name": "sample-app-container",
-                  "network_mode": "bridge",
-                  "order": 1,
-                  "restart_policy": "unless-stopped",
-                  "runtime": "docker"
-                }
+                  mount_paths: ['/var/lib/app:/app/data'],
+                  name: 'sample-app-container',
+                  network_mode: 'bridge',
+                  order: 1,
+                  restart_policy: 'unless-stopped',
+                  runtime: 'docker',
+                },
               ],
-              "kubernetes": [
+              kubernetes: [
                 {
-                  "kube_config": "/etc/kubernetes/admin.conf",
-                  "order": 1,
-                  "resources": {
-                    "deployment": {
-                      "replicas": 3,
-                      "resources": {
-                        "requests": {
-                          "cpu": "100m",
-                          "memory": "128Mi"
+                  kube_config: '/etc/kubernetes/admin.conf',
+                  order: 1,
+                  resources: {
+                    deployment: {
+                      replicas: 3,
+                      resources: {
+                        requests: {
+                          cpu: '100m',
+                          memory: '128Mi',
                         },
-                        "limits": {
-                          "cpu": "500m",
-                          "memory": "512Mi"
-                        }
-                      }
-                    }
+                        limits: {
+                          cpu: '500m',
+                          memory: '512Mi',
+                        },
+                      },
+                    },
                   },
-                  "velero": {
-                    "backup_location_config": "default",
-                    "bucket": "backup-bucket",
-                    "features": "EnableCSI",
-                    "plugins": "velero/velero-plugin-for-aws:v1.0.0",
-                    "provider": "aws",
-                    "secret_file": "/etc/velero/credentials"
+                  velero: {
+                    backup_location_config: 'default',
+                    bucket: 'backup-bucket',
+                    features: 'EnableCSI',
+                    plugins: 'velero/velero-plugin-for-aws:v1.0.0',
+                    provider: 'aws',
+                    secret_file: '/etc/velero/credentials',
                   },
-                  "version": "1.24.0"
-                }
+                  version: '1.24.0',
+                },
               ],
-              "packages": [
+              packages: [
                 {
-                  "custom_configs": [
-                    "/etc/nginx/nginx.conf"
-                  ],
-                  "custom_data_paths": [
-                    "/var/www/html"
-                  ],
-                  "gpg_key_url": "https://nginx.org/keys/nginx_signing.key",
-                  "name": "nginx",
-                  "need_to_delete_packages": [
-                    "apache2"
-                  ],
-                  "needed_packages": [
-                    "nginx",
-                    "nginx-common"
-                  ],
-                  "order": 1,
-                  "repo_url": "http://nginx.org/packages/ubuntu",
-                  "repo_use_os_version_code": false,
-                  "version": "1.18.0"
-                }
-              ]
+                  custom_configs: ['/etc/nginx/nginx.conf'],
+                  custom_data_paths: ['/var/www/html'],
+                  gpg_key_url: 'https://nginx.org/keys/nginx_signing.key',
+                  name: 'nginx',
+                  need_to_delete_packages: ['apache2'],
+                  needed_packages: ['nginx', 'nginx-common'],
+                  order: 1,
+                  repo_url: 'http://nginx.org/packages/ubuntu',
+                  repo_use_os_version_code: false,
+                  version: '1.18.0',
+                },
+              ],
             },
-            "source_connection_info_id": "conn-12345"
-          }
-        ]
+            source_connection_info_id: 'conn-12345',
+          },
+        ],
       },
-      "userId": "user-123",
-      "userModelName": `${props.sourceModelName}_Migration`,
-      "userModelVersion": "v0.1"
+      userId: 'user-123',
+      userModelName: `${props.sourceModelName}_Migration`,
+      userModelVersion: 'v0.1',
     };
 
     // 더미 데이터를 recommendedModelData에 저장
@@ -235,7 +215,7 @@ function handleSaveTargetModel() {
     console.warn('No migration recommendations data to save');
     return;
   }
-  
+
   saveTargetModelModal.open = true;
 }
 
@@ -268,7 +248,10 @@ function handleCreateTargetModel(e) {
       request: requestBody,
     })
     .then(res => {
-      showSuccessMessage('success', 'Successfully created software target model');
+      showSuccessMessage(
+        'success',
+        'Successfully created software target model',
+      );
       saveTargetModelModal.open = false;
       emit('update:close-modal', false);
     })
@@ -301,8 +284,8 @@ function handleCreateTargetModel(e) {
           </div>
 
           <!-- 가운데: Recommend Model 버튼 -->
-          <button 
-            class="convert-btn" 
+          <button
+            class="convert-btn"
             :disabled="!sourceSoftwareModelData || isLoading"
             @click="handleGetMigrationList"
           >
@@ -330,12 +313,12 @@ function handleCreateTargetModel(e) {
           </div>
         </div>
       </template>
-      
+
       <template #buttons>
         <p-button style-type="tertiary" @click="handleCloseModal">
           Cancel
         </p-button>
-        <p-button 
+        <p-button
           :disabled="!recommendedModelData"
           @click="handleSaveTargetModel"
         >
@@ -369,7 +352,7 @@ function handleCreateTargetModel(e) {
   min-width: 600px;
   max-width: 100%;
   overflow-x: auto;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
@@ -395,7 +378,7 @@ function handleCreateTargetModel(e) {
   margin: 0 8px;
   border: none;
   cursor: pointer;
-  
+
   @media (max-width: 768px) {
     margin: 8px 0;
     min-width: 120px;
@@ -405,7 +388,7 @@ function handleCreateTargetModel(e) {
     @apply pl-[8px];
     position: absolute;
     top: 450px;
-    
+
     @media (max-width: 768px) {
       top: 60px;
     }

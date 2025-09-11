@@ -5,8 +5,8 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { useSourceModelListModel } from '../model/sourceModelListModel';
-import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
+import { useSourceModelListModel } from '@/widgets/models/sourceModels/sourceModelList/model/sourceModelListModel';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import {
   insertDynamicComponent,
   showErrorMessage,
@@ -22,7 +22,7 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['select-row', 'update:trigger']);
 
-const { tableModel, initToolBoxTableModel, sourceModelStore, models } =
+const { tableModel, initToolBoxTableModel, sourceModelStore } =
   useSourceModelListModel();
 
 const modals = reactive({

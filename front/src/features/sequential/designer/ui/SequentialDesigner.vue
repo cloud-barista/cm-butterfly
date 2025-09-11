@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, triggerRef, watch } from 'vue';
-import { useSequentialDesignerModel } from '@/features/sequential/designer/model/sequentialDesignerModel.ts';
+import { onMounted, ref, watch } from 'vue';
+import { useSequentialDesignerModel } from '@/features/sequential/designer/model/sequentialDesignerModel';
 
-import { useSequentialToolboxModel } from '@/features/sequential/designer/toolbox/model/toolboxModel.ts';
+import { useSequentialToolboxModel } from '@/features/sequential/designer/toolbox/model/toolboxModel';
 import { Designer } from 'sequential-workflow-designer';
-import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
+import { Step } from '@/features/workflow/workflowEditor/model/types';
 import { ITaskComponentInfoResponse } from '@/features/sequential/designer/toolbox/model/api';
 import { Definition } from 'sequential-workflow-model';
 

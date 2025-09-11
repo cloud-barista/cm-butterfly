@@ -14,8 +14,6 @@ import { PTextEditor } from '@cloudforet-test/mirinae';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { useAuth } from '@/features/auth/model/useAuth.ts';
 
-const modelName = ref<string>('');
-
 interface iProps {
   sourceModelName: string;
   sourceModelId: string;

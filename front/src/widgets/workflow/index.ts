@@ -1,3 +1,3 @@
-export * from './workflows';
-export * from './workflowTemplates';
-export * from './taskComponents';
+export * from '@/widgets/workflow/workflows';
+export * from '@/widgets/workflow/workflowTemplates';
+export * from '@/widgets/workflow/taskComponents';

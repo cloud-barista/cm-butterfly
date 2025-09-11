@@ -1,5 +1,5 @@
 import { insertDynamicComponent } from '@/shared/utils';
-import { getSequencePath } from '@/features/sequential/designer/editor/model/utils.ts';
+import { getSequencePath } from '@/features/sequential/designer/editor/model/utils';
 import BeetleTaskEditor from '@/features/sequential/designer/editor/ui/BeetleTaskEditor.vue';
 import GrasshopperTaskEditor from '@/features/sequential/designer/editor/ui/GrasshopperTaskEditor.vue';
 

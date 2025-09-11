@@ -5,7 +5,7 @@ import {
   ISourceConnectionResponse,
   ISourceInfraInfoResponse,
   ISourceSoftwareCollectResponse,
-} from '@/entities/sourceConnection/model/types.ts';
+} from '@/entities/sourceConnection/model/types';
 import { ref } from 'vue';
 import { formatDate } from '@/shared/utils';
 

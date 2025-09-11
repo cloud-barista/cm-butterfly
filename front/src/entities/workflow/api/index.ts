@@ -5,11 +5,9 @@ import {
 } from '@/shared/libs';
 import {
   ITaskComponentResponse,
-  IWorkflow,
   IWorkflowResponse,
-} from '../model/types';
+} from '@/entities/workflow/model/types';
 import { axiosInstance } from '@/shared/libs/api/instance';
-import { IMciRequestParams } from '@/entities/mci/api';
 
 const GET_WORKFLOW_LIST = 'list-workflow';
 const GET_WORKFLOW = 'get-workflow';

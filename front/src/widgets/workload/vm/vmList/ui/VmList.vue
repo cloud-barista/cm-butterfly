@@ -4,19 +4,17 @@ import {
   PSelectCard,
   PToolbox,
   PDataLoader,
-  PToolboxTable,
   PButtonTab,
 } from '@cloudforet-test/mirinae';
 import { useVmListModel } from '@/widgets/workload/vm/vmList/model';
-import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import SuccessfullyLoadConfigModal from '@/features/workload/successfullyModal/ui/SuccessfullyLoadConfigModal.vue';
 import LoadConfig from '@/features/workload/actionLoadConfig/ui/LoadConfig.vue';
 import { showErrorMessage } from '@/shared/utils';
 import { IVm } from '@/entities/mci/model';
 import VmInformation from '@/widgets/workload/vm/vmInformation/ui/VmInformation.vue';
 import VmEvaluatePerf from '@/widgets/workload/vm/vmEvaluatePerf/ui/VmEvaluatePerf.vue';
-import { useGetLastLoadTestState } from '@/entities/vm/api/api.ts';
-import LoadTestMetric from '@/widgets/workload/vm/vmEvaluatePerf/ui/LoadTestResourceMetric.vue';
+import { useGetLastLoadTestState } from '@/entities/vm/api/api';
 import { useGetMciInfo } from '@/entities/mci/api';
 
 interface IProps {

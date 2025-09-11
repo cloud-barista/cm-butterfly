@@ -8,8 +8,8 @@ import {
   ISourceConnectionResponse,
   ISourceInfraInfoResponse,
   ISourceSoftwareCollectResponse,
-} from '@/entities/sourceConnection/model/types.ts';
-import { axiosInstance } from '@/shared/libs/api/instance.ts';
+} from '@/entities/sourceConnection/model/types';
+import { axiosInstance } from '@/shared/libs/api/instance';
 
 const CREATE_SOURCE_CONNECTION = 'create-connection-info';
 const UPDATE_SOURCE_CONNECTION = 'update-connection-info';

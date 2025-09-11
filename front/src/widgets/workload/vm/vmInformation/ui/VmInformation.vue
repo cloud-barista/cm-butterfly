@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useVmInformationModel } from '@/widgets/workload/vm/vmInformation/model';
 import { PBadge, PButton, PDefinitionTable } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive, Ref, watch } from 'vue';
+import { onBeforeMount, watch } from 'vue';
 import { ILastloadtestStateResponse } from '@/entities/mci/model';
 
 interface IProps {
@@ -13,14 +13,11 @@ interface IProps {
 
 const props = defineProps<IProps>();
 const emit = defineEmits(['openLoadconfig']);
-console.log(props);
 const {
   initTable,
   setVmId,
   detailTableModel,
-  targetVm,
   setMci,
-  mciStore,
   remappingData,
   mappdingLoadConfigStatus,
 } = useVmInformationModel();

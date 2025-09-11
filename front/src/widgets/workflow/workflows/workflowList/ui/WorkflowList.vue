@@ -5,7 +5,7 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { useWorkflowListModel } from '../model/workflowListModel';
+import { useWorkflowListModel } from '@/widgets/workflow/workflows/workflowList/model/workflowListModel';
 import {
   insertDynamicComponent,
   showSuccessMessage,

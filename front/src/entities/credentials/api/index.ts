@@ -6,7 +6,7 @@ import {
 import {
   IGetCredentialListResponse,
   ICreateCredentialsPayload,
-} from '@/entities/credentials/model/types.ts';
+} from '@/entities/credentials/model/types';
 
 const GET_CREDENTIAL = 'List-Credential';
 const CREATE_CREDENTIAL = 'Register-Credential';

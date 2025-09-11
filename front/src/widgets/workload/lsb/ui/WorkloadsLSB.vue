@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { LSB } from '@/widgets/layout';
-import { watchEffect } from 'vue';
-import { PTextInput, PDivider, PI } from '@cloudforet-test/mirinae';
+import { PDivider, PI } from '@cloudforet-test/mirinae';
 
 const pageName = 'Workloads';
 

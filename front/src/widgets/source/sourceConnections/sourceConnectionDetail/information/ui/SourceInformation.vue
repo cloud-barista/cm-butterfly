@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useSourceInformationModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/information/model/sourceInformationModel.ts';
-import { onBeforeMount, onMounted, watch } from 'vue';
+import { useSourceInformationModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/information/model/sourceInformationModel';
+import { onBeforeMount, watch } from 'vue';
 import { PDefinitionTable } from '@cloudforet-test/mirinae';
 
 interface IProps {
@@ -9,7 +9,7 @@ interface IProps {
 
 const props = defineProps<IProps>();
 
-const { sourceConnectionStore, setConnectionId, defineTableModel, initTable } =
+const { setConnectionId, defineTableModel, initTable } =
   useSourceInformationModel();
 
 watch(

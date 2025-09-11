@@ -5,29 +5,21 @@ import { SourceModelDetail } from '@/widgets/models/sourceModels';
 import { CustomViewSourceModel } from '@/widgets/models/sourceModels';
 import { RecommendedInfraModel } from '@/widgets/models/sourceModels';
 import { RecommendedSoftwareModel } from '@/widgets/models/recommendedSoftwareModel';
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
-import {
-  useBulkAddWorkspaceList,
-  useSourceModelStore,
-  useUpdateSourceModel,
-} from '@/entities';
+import { useSourceModelStore, useUpdateSourceModel } from '@/entities';
 
 const pageName = 'Source Models';
 
 const selectedSourceModelId = ref<string>('');
 const sourceModelName = ref<string>('');
-const sourceModelDescription = ref<string>('');
 const recommendedModelList = ref<string>('infra'); // 추가: recommended model list type
 const sourceModelStore = useSourceModelStore();
 const resUpdateSourceModel = useUpdateSourceModel(null, null);
 const sourceModel = computed(() =>
   sourceModelStore.getSourceModelById(selectedSourceModelId.value),
 );
-watch(sourceModelName, nv => {
-  console.log(nv);
-});
 const mainTabState = reactive({
   activeTab: 'details',
   tabs: [

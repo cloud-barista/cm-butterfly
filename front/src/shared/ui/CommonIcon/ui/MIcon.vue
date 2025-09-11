@@ -3,7 +3,7 @@ import { computed, reactive } from 'vue';
 import {
   EMOJI_RANGES,
   TopBarLogoIconTheme,
-} from '@/shared/ui/CommonIcon/model/types.ts';
+} from '@/shared/ui/CommonIcon/model/types';
 
 interface Props {
   theme?: TopBarLogoIconTheme;

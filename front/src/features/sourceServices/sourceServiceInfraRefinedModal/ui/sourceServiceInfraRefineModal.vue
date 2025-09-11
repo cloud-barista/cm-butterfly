@@ -5,11 +5,10 @@ import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
 import { ref, computed } from 'vue';
 import { AxiosResponse } from 'axios';
-import { IUseAxiosWrapperReturnType } from '@/shared/libs';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { useCreateOnpremmodel, useCreateSourceSoftwareModel } from '@/entities';
 import JsonViewer from '@/features/sourceServices/jsonViewer/ui/JsonViewer.vue';
-import { useGetInfraInfoRefined, useGetSoftwareInfoRefined } from '@/entities/sourceConnection/api';
+import { useGetSoftwareInfoRefined } from '@/entities/sourceConnection/api';
 import { useGetInfraSourceGroupInfraRefine } from '@/entities/sourceService/api';
 import { useAuth } from '@/features/auth/model/useAuth.ts';
 

@@ -1,3 +1,3 @@
-import SimpleEditForm from './ui/SimpleEditForm.vue';
+import SimpleEditForm from '@/widgets/layout/simpleEditForm/ui/SimpleEditForm.vue';
 
 export { SimpleEditForm };

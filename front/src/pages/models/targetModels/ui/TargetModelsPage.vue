@@ -6,11 +6,7 @@ import { SimpleEditForm } from '@/widgets/layout';
 import { CustomViewTargetModel } from '@/widgets/models/targetModels';
 import { reactive, ref, computed } from 'vue';
 import WorkflowEditor from '@/features/workflow/workflowEditor/ui/WorkflowEditor.vue';
-import {
-  ITargetModelResponse,
-  useTargetModelStore,
-  useUpdateTargetModel,
-} from '@/entities';
+import { useTargetModelStore, useUpdateTargetModel } from '@/entities';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 
 const pageName = 'Target Models';

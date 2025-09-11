@@ -2,14 +2,12 @@
 import { PButton, PTextEditor } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { SimpleEditForm } from '@/widgets/layout';
-import { JsonEditor } from '@/widgets/layout';
 import { reactive, ref, watch, computed } from 'vue';
 import {
   createTargetModel,
   createTargetSoftwareModel,
   ITargetModelResponse,
   useTargetModelStore,
-  useUpdateTargetModel,
 } from '@/entities';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { useAuth } from '@/features/auth/model/useAuth.ts';
