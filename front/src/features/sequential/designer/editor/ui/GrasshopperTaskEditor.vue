@@ -178,38 +178,65 @@ function handleClickOutside(event: MouseEvent) {
           {{ taskEditorModel.componentNameModel.value.context.title }}
         </div>
         <div class="field-content-box">
-          <p-text-input></p-text-input>
+          <p-text-input
+            v-model="taskEditorModel.componentNameModel.value.context.model.value"
+            :size="'md'"
+            block
+            readonly
+          ></p-text-input>
         </div>
       </div>
     </div>
     <div>
       <div class="params-box w-full h-full">
         <!-- Path Params -->
-        <div v-if="taskEditorModel.paramsContext.value?.path_params">
-            <div class="subject-title border-bottom">
-            Path Params
+        <div v-if="taskEditorModel.paramsContext.value?.path_params && taskEditorModel.paramsContext.value.path_params.context.values.length > 0">
+          <div class="subject-title border-bottom">
+            {{ taskEditorModel.paramsContext.value.path_params.context.subject }}
           </div>
-          <div class="field-group flex border-bottom">
+          <div
+            v-for="(param, paramIndex) of taskEditorModel.paramsContext.value.path_params.context.values"
+            :key="paramIndex"
+            class="field-group flex border-bottom"
+          >
             <div class="field-title-box">
-              Path Params
+              {{ param.context.title }}
             </div>
             <div class="field-content-box">
-              <p-text-input></p-text-input>
+              <p-text-input
+                v-model="param.context.model.value"
+                :size="'md'"
+                block
+                :invalid="!param.context.model.isValid"
+                :readonly="param.context.title === 'nsId'"
+                @blur="param.context.model.onBlur"
+              ></p-text-input>
             </div>
           </div>
         </div>
         
         <!-- Query Params -->
-        <div v-if="taskEditorModel.paramsContext.value?.query_params">
+        <div v-if="taskEditorModel.paramsContext.value?.query_params && taskEditorModel.paramsContext.value.query_params.context.values.length > 0">
           <div class="subject-title border-bottom">
-            Query Params
+            {{ taskEditorModel.paramsContext.value.query_params.context.subject }}
           </div>
-          <div class="field-group flex border-bottom">
+          <div
+            v-for="(param, paramIndex) of taskEditorModel.paramsContext.value.query_params.context.values"
+            :key="paramIndex"
+            class="field-group flex border-bottom"
+          >
             <div class="field-title-box">
-              Query Params
-              </div>
-              <div class="field-content-box">
-              <p-text-input></p-text-input>
+              {{ param.context.title }}
+            </div>
+            <div class="field-content-box">
+              <p-text-input
+                v-model="param.context.model.value"
+                :size="'md'"
+                block
+                :invalid="!param.context.model.isValid"
+                :readonly="param.context.title === 'nsId'"
+                @blur="param.context.model.onBlur"
+              ></p-text-input>
             </div>
           </div>
         </div>
@@ -255,7 +282,7 @@ function handleClickOutside(event: MouseEvent) {
               {{ item.context.subject }}
             </div>
             <div 
-              v-for="(field, fieldIndex) of item.context.values" 
+              v-for="(field, fieldIndex) of item.context.values.filter(f => f.context.title !== 'errors' && f.context.subject !== 'errors')" 
               :key="fieldIndex"
               class="field-group-vertical border-bottom"
             >
@@ -372,14 +399,13 @@ function handleClickOutside(event: MouseEvent) {
                         {{ nestedField.context.subject }}
                       </div>
                       <div class="field-content-box migration-list-box">
-                        <!-- binaries만 표시 -->
-                        <div v-if="nestedField.context.subject === 'binaries'">
-                          <div 
-                            v-for="(arrayItem, arrayIndex) of nestedField.context.values" 
-                            :key="arrayIndex"
-                            class="migration-array-item"
-                          >
-                            <!-- InputContext인 경우 -->
+                        <!-- migration_list 내부의 모든 배열들을 순차적으로 표시 -->
+                        <div 
+                          v-for="(arrayItem, arrayIndex) of nestedField.context.values" 
+                          :key="arrayIndex"
+                          class="migration-array-item"
+                        >
+                          <!-- InputContext인 경우 -->
                           <div v-if="arrayItem.type === 'input'" class="field-group flex">
                             <div class="field-row">
                               <div class="field-title-box">
@@ -391,7 +417,7 @@ function handleClickOutside(event: MouseEvent) {
                               </div>
                             </div>
                           </div>
-                          <!-- NestedObjectContext인 경우 (binaries의 각 항목) -->
+                          <!-- NestedObjectContext인 경우 (binaries, containers, kubernetes의 각 항목) -->
                           <div v-else-if="arrayItem.type === 'nestedObject'">
                             <div class="subject-title border-bottom">
                               {{ arrayItem.context.subject }}
@@ -440,142 +466,7 @@ function handleClickOutside(event: MouseEvent) {
                             </div>
                           </div>
                         </div>
-                        </div>
-                        <!-- containers 추가 -->
-                        <div v-else-if="nestedField.context.subject === 'containers'">
-                          <div 
-                            v-for="(arrayItem, arrayIndex) of nestedField.context.values" 
-                            :key="arrayIndex"
-                            class="migration-array-item"
-                          >
-                            <!-- InputContext인 경우 -->
-                            <div v-if="arrayItem.type === 'input'" class="field-group flex">
-                              <div class="field-row">
-                                <div class="field-title-box">
-                                  {{ arrayItem.context.title }}
-                                </div>
-                                <div class="field-content-box">
-                                  <p-text-input v-if="arrayItem.context.model && arrayItem.context.model.value !== undefined" v-model="arrayItem.context.model.value"></p-text-input>
-                                  <p-text-input v-else></p-text-input>
-                                </div>
-                              </div>
-                            </div>
-                            <!-- NestedObjectContext인 경우 (containers의 각 항목) -->
-                            <div v-else-if="arrayItem.type === 'nestedObject'">
-                              <div class="subject-title border-bottom">
-                                {{ arrayItem.context.subject }}
-                              </div>
-                              <div 
-                                v-for="(subNestedField, subNestedIndex) of arrayItem.context.values" 
-                                :key="subNestedIndex"
-                                class="field-group-vertical border-bottom"
-                              >
-                                <div v-if="subNestedField.type === 'input'" class="field-group flex">
-                                <div class="field-row">
-                                  <div class="field-title-box">
-                                    {{ subNestedField.context.title }}
-                                  </div>
-                                  <div class="field-content-box">
-                                    <p-text-input v-if="subNestedField.context.model && subNestedField.context.model.value !== undefined" v-model="subNestedField.context.model.value"></p-text-input>
-                                    <p-text-input v-else></p-text-input>
-                                  </div>
-                                </div>
-                              </div>
-                                <!-- ArrayContext인 경우 (custom_configs, custom_data_paths, needed_libraries) -->
-                                <div v-else-if="subNestedField.type === 'array'">
-                                  <div class="field-title-box">
-                                    {{ subNestedField.context.subject }}
-                                  </div>
-                                  <div class="field-content-box">
-                                    <div 
-                                      v-for="(subArrayItem, subArrayIndex) of subNestedField.context.values" 
-                                      :key="subArrayIndex"
-                                      class="array-item"
-                                    >
-                                      <div v-if="subArrayItem.type === 'input'">
-                                        <div class="field-title-box">
-                                          {{ subArrayItem.context.title }}
-                                        </div>
-                                        <div class="field-content-box">
-                                          <p-text-input v-if="subArrayItem.context.model && subArrayItem.context.model.value !== undefined" v-model="subArrayItem.context.model.value"></p-text-input>
-                                          <p-text-input v-else></p-text-input>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <!-- kubernetes 추가 -->
-                        <div v-else-if="nestedField.context.subject === 'kubernetes'">
-                          <div 
-                            v-for="(arrayItem, arrayIndex) of nestedField.context.values" 
-                            :key="arrayIndex"
-                            class="migration-array-item"
-                          >
-                            <!-- InputContext인 경우 -->
-                            <div v-if="arrayItem.type === 'input'" class="field-group flex">
-                              <div class="field-row">
-                                <div class="field-title-box">
-                                  {{ arrayItem.context.title }}
-                                </div>
-                                <div class="field-content-box">
-                                  <p-text-input v-if="arrayItem.context.model && arrayItem.context.model.value !== undefined" v-model="arrayItem.context.model.value"></p-text-input>
-                                  <p-text-input v-else></p-text-input>
-                                </div>
-                              </div>
-                            </div>
-                            <!-- NestedObjectContext인 경우 (kubernetes의 각 항목) -->
-                            <div v-else-if="arrayItem.type === 'nestedObject'">
-                              <div class="subject-title border-bottom">
-                                {{ arrayItem.context.subject }}
-                              </div>
-                              <div 
-                                v-for="(subNestedField, subNestedIndex) of arrayItem.context.values" 
-                                :key="subNestedIndex"
-                                class="field-group-vertical border-bottom"
-                              >
-                                <div v-if="subNestedField.type === 'input'" class="field-group flex">
-                                <div class="field-row">
-                                  <div class="field-title-box">
-                                    {{ subNestedField.context.title }}
-                                  </div>
-                                  <div class="field-content-box">
-                                    <p-text-input v-if="subNestedField.context.model && subNestedField.context.model.value !== undefined" v-model="subNestedField.context.model.value"></p-text-input>
-                                    <p-text-input v-else></p-text-input>
-                                  </div>
-                                </div>
-                              </div>
-                                <!-- ArrayContext인 경우 (custom_configs, custom_data_paths, needed_libraries) -->
-                                <div v-else-if="subNestedField.type === 'array'">
-                                  <div class="field-title-box">
-                                    {{ subNestedField.context.subject }}
-                                  </div>
-                                  <div class="field-content-box">
-                                    <div 
-                                      v-for="(subArrayItem, subArrayIndex) of subNestedField.context.values" 
-                                      :key="subArrayIndex"
-                                      class="array-item"
-                                    >
-                                      <div v-if="subArrayItem.type === 'input'">
-                                        <div class="field-title-box">
-                                          {{ subArrayItem.context.title }}
-                  </div>
-                  <div class="field-content-box">
-                                          <p-text-input v-if="subArrayItem.context.model && subArrayItem.context.model.value !== undefined" v-model="subArrayItem.context.model.value"></p-text-input>
-                                          <p-text-input v-else></p-text-input>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                  </div>
+                      </div>
                 </div>
               </div>
             </div>
