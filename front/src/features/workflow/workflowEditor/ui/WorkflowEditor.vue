@@ -349,11 +349,44 @@ function mapTargetModelToTaskComponent(
     console.log('Processed software model data:', parseString);
   }
 
+  // Set path_params and query_params from task component with nsId default value
+  // Extract actual values from task component properties (similar to getFixedModel in toolboxModel.ts)
+  const pathParamsKeyValue = taskComponent?.data.path_params?.properties
+    ? Object.entries(taskComponent.data.path_params.properties).reduce(
+        (acc, [key, value]) => {
+          acc[key] = value.description;
+          return acc;
+        },
+        {} as Record<string, string>,
+      )
+    : {};
+
+  const queryParamsKeyValue = taskComponent?.data.query_params?.properties
+    ? Object.entries(taskComponent.data.query_params.properties).reduce(
+        (acc, [key, value]) => {
+          acc[key] = value.description;
+          return acc;
+        },
+        {} as Record<string, string>,
+      )
+    : {};
+
+  // Set nsId to DEFAULT_NAMESPACE if it exists in path_params or query_params
+  let pathParams = Object.keys(pathParamsKeyValue).length > 0 ? pathParamsKeyValue : null;
+  let queryParams = Object.keys(queryParamsKeyValue).length > 0 ? queryParamsKeyValue : null;
+  
+  if (pathParams && 'nsId' in pathParams) {
+    pathParams = { ...pathParams, nsId: DEFAULT_NAMESPACE };
+  }
+  if (queryParams && 'nsId' in queryParams) {
+    queryParams = { ...queryParams, nsId: DEFAULT_NAMESPACE };
+  }
+  
   const task: ITaskResponse = {
     dependencies: [],
     name: taskComponentName,
-    path_params: null,
-    query_params: null,
+    path_params: pathParams,
+    query_params: queryParams,
     request_body: JSON.stringify(parseString),
     id: '',
     task_component: taskComponentName,
@@ -508,11 +541,44 @@ function createTaskForModel(
     console.log('Processed software model data:', parseString);
   }
 
+  // Set path_params and query_params from task component with nsId default value
+  // Extract actual values from task component properties (similar to getFixedModel in toolboxModel.ts)
+  const pathParamsKeyValue = taskComponent?.data.path_params?.properties
+    ? Object.entries(taskComponent.data.path_params.properties).reduce(
+        (acc, [key, value]) => {
+          acc[key] = value.description;
+          return acc;
+        },
+        {} as Record<string, string>,
+      )
+    : {};
+
+  const queryParamsKeyValue = taskComponent?.data.query_params?.properties
+    ? Object.entries(taskComponent.data.query_params.properties).reduce(
+        (acc, [key, value]) => {
+          acc[key] = value.description;
+          return acc;
+        },
+        {} as Record<string, string>,
+      )
+    : {};
+
+  // Set nsId to DEFAULT_NAMESPACE if it exists in path_params or query_params
+  let pathParams = Object.keys(pathParamsKeyValue).length > 0 ? pathParamsKeyValue : null;
+  let queryParams = Object.keys(queryParamsKeyValue).length > 0 ? queryParamsKeyValue : null;
+  
+  if (pathParams && 'nsId' in pathParams) {
+    pathParams = { ...pathParams, nsId: DEFAULT_NAMESPACE };
+  }
+  if (queryParams && 'nsId' in queryParams) {
+    queryParams = { ...queryParams, nsId: DEFAULT_NAMESPACE };
+  }
+  
   const task: ITaskResponse = {
     dependencies: [],
     name: taskComponentName,
-    path_params: null,
-    query_params: null,
+    path_params: pathParams,
+    query_params: queryParams,
     request_body: JSON.stringify(parseString),
     id: '',
     task_component: taskComponentName,
