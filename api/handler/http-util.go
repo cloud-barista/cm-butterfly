@@ -193,17 +193,17 @@ func GetApiSpec(requestOpertinoId string) (string, Service, Spec, error) {
 	log.Printf("DEBUG: - ApiYamlSet.ServiceActions: %+v", ApiYamlSet.ServiceActions)
 
 	for framework, api := range ApiYamlSet.ServiceActions {
-		log.Printf("DEBUG: - checking framework: %s", framework)
-		log.Printf("DEBUG: - framework api: %+v", api)
+		// log.Printf("DEBUG: - checking framework: %s", framework)
+		// log.Printf("DEBUG: - framework api: %+v", api)
 
 		for opertinoId, spec := range api {
-			log.Printf("DEBUG: - checking opertinoId: %s vs request: %s", opertinoId, requestOpertinoId)
+			// log.Printf("DEBUG: - checking opertinoId: %s vs request: %s", opertinoId, requestOpertinoId)
 
 			if opertinoId == strings.ToLower(requestOpertinoId) {
-				log.Printf("DEBUG: - MATCH FOUND!")
-				log.Printf("DEBUG: - framework: %s", framework)
-				log.Printf("DEBUG: - service: %+v", ApiYamlSet.Services[framework])
-				log.Printf("DEBUG: - spec: %+v", spec)
+				// log.Printf("DEBUG: - MATCH FOUND!")
+				// log.Printf("DEBUG: - framework: %s", framework)
+				// log.Printf("DEBUG: - service: %+v", ApiYamlSet.Services[framework])
+				// log.Printf("DEBUG: - spec: %+v", spec)
 
 				return framework, ApiYamlSet.Services[framework], spec, nil
 			}
