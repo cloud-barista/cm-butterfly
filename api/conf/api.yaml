@@ -40,12 +40,14 @@ services:
   cm-honeybee:
     version: 0.3.4
     baseurl: http://cm-honeybee:8081/honeybee
+    auth:
       type: none 
 
   cm-grasshopper:
     version: 0.3.3
     baseurl: http://cm-grasshopper:8084/grasshopper
     auth:
+      type: none
 
   cm-damselfly:
     baseurl: http://cm-damselfly:8088/damselfly
