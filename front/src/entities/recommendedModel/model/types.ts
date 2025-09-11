@@ -21,27 +21,27 @@ export interface IRecommendedModel {
 }
 
 interface Vm {
-  commonImage: string;
-  commonSpec: string;
+  imageId: string;
+  specId: string;
   description: string;
   label: string | null;
   name: string;
   subGroupSize: string;
 }
 
-interface TargetInfra {
+interface TargetVmInfra {
   description: string;
   installMonAgent: string;
   label: string | null;
   name: string;
   systemLabel: string;
-  vm: Vm[];
+  subGroups: Vm[];
 }
 
 export interface IRecommendModelResponse {
   description: string;
   status: string;
-  targetInfra: TargetInfra;
+  targetVmInfra: TargetVmInfra;
 }
 
 interface EstimateCostSpecDetail {

@@ -259,23 +259,32 @@ func getApiSpecBySubsystem(subsystemName, requestOpertinoId string) (Service, Sp
 // 오류의 경우 각 경우, 해당하는 오류가 반환됩니다.
 // Auth 방식이 없을경우, 아무것도 반환되지 않습니다.
 func getAuth(c buffalo.Context, service Service) (string, error) {
+	log.Printf("DEBUG: getAuth called with service.Auth.Type: %s", service.Auth.Type)
+	log.Printf("DEBUG: - service.Auth.Username: %s", service.Auth.Username)
+	log.Printf("DEBUG: - service.Auth.Password: %s", service.Auth.Password)
+
 	switch service.Auth.Type {
 	case "basic":
 		if apiUserInfo := service.Auth.Username + ":" + service.Auth.Password; service.Auth.Username != "" && service.Auth.Password != "" {
 			encA := base64.StdEncoding.EncodeToString([]byte(apiUserInfo))
+			log.Printf("DEBUG: Basic auth generated: Basic %s", encA)
 			return "Basic " + encA, nil
 		} else {
+			log.Printf("ERROR: username or password is empty - username: '%s', password: '%s'", service.Auth.Username, service.Auth.Password)
 			return "", fmt.Errorf("username or password is empty")
 		}
 
 	case "bearer":
 		if authValue, ok := c.Value("Authorization").(string); ok {
+			log.Printf("DEBUG: Bearer auth from context: %s", authValue)
 			return authValue, nil
 		} else {
+			log.Printf("ERROR: authorization key does not exist or is not a string")
 			return "", fmt.Errorf("authorization key does not exist or is not a string")
 		}
 
 	default:
+		log.Printf("DEBUG: No auth required (type: %s)", service.Auth.Type)
 		return "", nil
 	}
 }
@@ -349,46 +358,79 @@ func mappingQueryParams(targeturl string, commonRequest *CommonRequest) string {
 }
 
 func CommonHttpToCommonResponse(url string, s interface{}, httpMethod string, auth string) (*CommonResponse, error) {
-	log.Println("CommonHttp - METHOD:" + httpMethod + " => url:" + url)
-	log.Println("isauth:", auth)
+	log.Printf("DEBUG: CommonHttpToCommonResponse called")
+	log.Printf("DEBUG: - METHOD: %s", httpMethod)
+	log.Printf("DEBUG: - URL: %s", url)
+	log.Printf("DEBUG: - Auth: %s", auth)
+	log.Printf("DEBUG: - Request Data: %+v", s)
 
 	jsonData, err := json.Marshal(s)
 	if err != nil {
-		log.Println("commonPostERR : json.Marshal : ", err.Error())
+		log.Printf("ERROR: json.Marshal failed: %v", err)
 		return nil, err
 	}
+	log.Printf("DEBUG: - JSON Data: %s", string(jsonData))
 
 	req, err := http.NewRequest(httpMethod, url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Println("Error CommonHttp creating request:", err)
+		log.Printf("ERROR: Failed to create HTTP request: %v", err)
 		return nil, err
 	}
+
 	req.Header.Set("Content-Type", "application/json")
 	if auth != "" {
 		req.Header.Add("Authorization", auth)
+		log.Printf("DEBUG: - Authorization header added: %s", auth)
+	} else {
+		log.Printf("DEBUG: - No authorization header (auth is empty)")
+	}
+
+	// Log all request headers
+	log.Printf("DEBUG: - Request Headers:")
+	for name, values := range req.Header {
+		for _, value := range values {
+			log.Printf("DEBUG:   %s: %s", name, value)
+		}
 	}
 
 	requestDump, err := httputil.DumpRequest(req, true)
 	if err != nil {
-		log.Println("Error CommonHttp creating httputil.DumpRequest:", err)
+		log.Printf("ERROR: Failed to dump request: %v", err)
+	} else {
+		log.Printf("DEBUG: - Full Request Dump:\n%s", string(requestDump))
 	}
-	log.Println("\n", string(requestDump))
 
 	// TODO : TLSClientConfig InsecureSkipVerify 해제 v0.2.0 이후 작업예정
 	customTransport := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: customTransport}
+
+	log.Printf("DEBUG: - Sending HTTP request...")
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Println("Error CommonHttp request:", err)
+		log.Printf("ERROR: HTTP request failed: %v", err)
 		return CommonResponseStatusInternalServerError(err), err
 	}
 	defer resp.Body.Close()
 
+	log.Printf("DEBUG: - HTTP Response received")
+	log.Printf("DEBUG: - Response Status: %s", resp.Status)
+	log.Printf("DEBUG: - Response Status Code: %d", resp.StatusCode)
+
+	// Log response headers
+	log.Printf("DEBUG: - Response Headers:")
+	for name, values := range resp.Header {
+		for _, value := range values {
+			log.Printf("DEBUG:   %s: %s", name, value)
+		}
+	}
+
 	respBody, ioerr := io.ReadAll(resp.Body)
 	if ioerr != nil {
-		log.Println("Error CommonHttp reading response:", ioerr)
+		log.Printf("ERROR: Failed to read response body: %v", ioerr)
+	} else {
+		log.Printf("DEBUG: - Response Body: %s", string(respBody))
 	}
 
 	commonResponse := &CommonResponse{}
@@ -397,10 +439,13 @@ func CommonHttpToCommonResponse(url string, s interface{}, httpMethod string, au
 
 	jsonerr := json.Unmarshal(respBody, &commonResponse.ResponseData)
 	if jsonerr != nil {
+		log.Printf("DEBUG: - Response is not valid JSON, treating as plain text")
 		commonResponse.ResponseData = strings.TrimSpace(string(respBody))
-		return commonResponse, nil
+	} else {
+		log.Printf("DEBUG: - Response parsed as JSON successfully")
 	}
 
+	log.Printf("DEBUG: - Final CommonResponse: %+v", commonResponse)
 	return commonResponse, nil
 }
 

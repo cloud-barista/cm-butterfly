@@ -13,7 +13,7 @@ const GET_SOURCE_MODEL_LIST = 'GetModels';
 const UPDATE_TARGET_MODEL = 'UpdateCloudModel';
 
 interface ICreateTargetModelPayload {
-  cloudInfraModel: IRecommendModelResponse['targetInfra'];
+  cloudInfraModel: IRecommendModelResponse['targetVmInfra'];
   csp: string;
   description: string;
   isInitUserModel: boolean;

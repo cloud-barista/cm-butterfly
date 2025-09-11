@@ -74,6 +74,8 @@ export function useUpdateWorkflowV2(
         | {
             data: IWorkflowResponse['data'] | null;
             name: string | null;
+            spec_version?: string;
+            nsId?: string;
           }
       >,
       'pathParams' | 'request'
@@ -99,6 +101,8 @@ export function useUpdateWorkflowV2(
           | {
               data: IWorkflowResponse['data'] | null;
               name: string | null;
+              spec_version?: string;
+              nsId?: string;
             }
         >,
         'pathParams' | 'request'
@@ -225,6 +229,9 @@ export function useCreateWorkflow(data: IWorkflowResponse['data'] | null) {
     Pick<
       RequestBodyWrapper<{
         data: IWorkflowResponse['data'] | null;
+        name?: string;
+        spec_version?: string;
+        nsId?: string;
       }>,
       'request'
     >
@@ -240,6 +247,9 @@ export function useCreateWorkflow(data: IWorkflowResponse['data'] | null) {
       Pick<
         RequestBodyWrapper<{
           data: IWorkflowResponse['data'] | null;
+          name?: string;
+          spec_version?: string;
+          nsId?: string;
         }>,
         'request'
       >

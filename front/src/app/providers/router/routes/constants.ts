@@ -57,4 +57,7 @@ export const CLOUD_RESOURCES_ROUTE = {
   CLOUD_CREDENTIALS: {
     _NAME: MENU_ID.CLOUD_CREDENTIALS,
   },
+  APIS: {
+    _NAME: 'apis',
+  },
 };

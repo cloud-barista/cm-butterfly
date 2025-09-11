@@ -75,6 +75,12 @@ func App() *buffalo.App {
 		// api.POST("/agent-and-connection-check", AgentAndConnectionCheck)
 		// api.POST("/register-source-group", RegisterSourceGroup)
 
+		// API Test endpoints
+		api.POST("/test", ApiTestController)
+		api.Middleware.Skip(SetContextMiddleware, GetApiListController)
+		api.GET("/list", GetApiListController)
+
+		// API routing for operations
 		api.POST("/{operationId}", AnyController)
 		api.POST("/{subsystemName}/{operationId}", SubsystemAnyController)
 	})

@@ -18,6 +18,7 @@ import {
 import { showErrorMessage } from '@/shared/utils';
 import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types';
 import { useGetProviderList, useGetRegionList } from '@/entities/provider/api';
+import { useAuth } from '@/features/auth/model/useAuth.ts';
 
 interface IProps {
   sourceModelName: string;
@@ -28,7 +29,8 @@ const props = defineProps<IProps>();
 
 const emit = defineEmits(['update:close-modal']);
 
-const recommendModel_Model = useRecommendedInfraModel();
+const auth = useAuth();
+const recommendInfraModel = useRecommendedInfraModel();
 
 const modelName = ref<string>('');
 const description = ref<string>('');
@@ -40,13 +42,13 @@ const resCreateTargetModel = createTargetModel(null);
 const resGetRecommendCost = getRecommendCost(null);
 
 const provider = reactive({
-  menu: [],
+  menu: [] as any[],
   loading: true,
   selected: '',
 });
 
 const region = reactive({
-  menu: [],
+  menu: [] as any[],
   loading: true,
   selected: '',
 });
@@ -58,7 +60,7 @@ async function handleProviderMenuClick(e: any) {
   const { data } = await resGetProviderList.execute();
 
   if (data.responseData) {
-    provider.menu = recommendModel_Model.generateProviderSelectMenu(
+    provider.menu = recommendInfraModel.generateProviderSelectMenu(
       data.responseData,
     );
   }
@@ -77,7 +79,7 @@ async function handleRegionMenuClick(e: any) {
   });
 
   if (data.responseData) {
-    region.menu = recommendModel_Model.generateRegionSelectMenu(
+    region.menu = recommendInfraModel.generateRegionSelectMenu(
       data.responseData,
     );
   }
@@ -86,7 +88,7 @@ async function handleRegionMenuClick(e: any) {
 }
 
 const targetSourceModel = computed(() =>
-  recommendModel_Model.sourceModelStore.getSourceModelById(props.sourceModelId),
+  recommendInfraModel.sourceModelStore.getSourceModelById(props.sourceModelId),
 );
 
 const getRecommendModel = useGetRecommendModelListBySourceModel(
@@ -101,18 +103,20 @@ const modalState = reactive({
 });
 
 onMounted(() => {
-  recommendModel_Model.initToolBoxTableModel();
+  recommendInfraModel.initToolBoxTableModel();
   handleProviderMenuClick(true);
 });
 
 async function getRecommendModelList() {
-  recommendModel_Model.initToolBoxTableModel();
+  recommendInfraModel.initToolBoxTableModel();
 
   try {
     const res = await getRecommendModel.execute({
       request: {
-        desiredProvider: provider.selected,
-        desiredRegion: region.selected,
+        desiredCspAndRegionPair: {
+          csp: provider.selected,
+          region: region.selected,
+        },
         onpremiseInfraModel: targetSourceModel.value
           ? targetSourceModel.value.onpremiseInfraModel
           : null,
@@ -120,22 +124,71 @@ async function getRecommendModelList() {
     });
 
     const recommendModel = res.data.responseData;
+    
+    console.log('=== Recommend Model Response ===');
+    console.log('Full response:', recommendModel);
+    
+    if (recommendModel) {
+      console.log('Response keys:', Object.keys(recommendModel));
+      console.log('targetVmInfra:', recommendModel.targetVmInfra);
+      console.log('targetVmInfra type:', typeof recommendModel.targetVmInfra);
+      
+      if (recommendModel.targetVmInfra) {
+        console.log('targetVmInfra keys:', Object.keys(recommendModel.targetVmInfra));
+        
+        if ('vm' in recommendModel.targetVmInfra && recommendModel.targetVmInfra.vm) {
+          console.log('targetVmInfra.vm:', recommendModel.targetVmInfra.vm);
+          console.log('VM count:', recommendModel.targetVmInfra.vm.length);
+          
+          // VM 객체의 상세 구조 확인
+          recommendModel.targetVmInfra.vm.forEach((vm, index) => {
+            console.log(`VM[${index}]:`, vm);
+            console.log(`VM[${index}].specId:`, vm.specId);
+            console.log(`VM[${index}].specId type:`, typeof vm.specId);
+          });
+        }
+      }
+      
+      if ('vm' in recommendModel && recommendModel.vm && Array.isArray(recommendModel.vm)) {
+        console.log('direct vm:', recommendModel.vm);
+        console.log('Direct VM count:', recommendModel.vm.length);
+      }
+    }
+    
+    console.log('=== End Response Log ===');
 
     if (recommendModel) {
-      const validationRes = recommendModel.targetInfra.vm.some(vm => {
-        return vm.commonSpec === '';
+      console.log('=== Validation Data ===');
+      console.log('VM array for validation:', recommendModel.targetVmInfra.subGroups);
+      
+      const validationRes = recommendModel.targetVmInfra.subGroups?.some(vm => {
+        console.log('Checking VM:', vm);
+        console.log('VM keys:', Object.keys(vm));
+        console.log('VM.specId:', vm.specId);
+        console.log('VM.imageId:', vm.imageId);
+        console.log('VM.specId === undefined:', vm.specId === undefined);
+        console.log('VM.specId === null:', vm.specId === null);
+        console.log('VM.specId === empty string:', vm.specId === '');
+        
+        const isInvalid = vm.specId === undefined || vm.specId === null || vm.specId === '';
+        console.log('Is invalid:', isInvalid);
+        
+        return isInvalid;
       });
+
+      console.log('Validation result:', validationRes);
 
       if (validationRes) {
-        throw new Error();
+        console.log('Validation failed - throwing error');
+        throw new Error('Validation failed: specId is undefined or null');
       }
 
-      const specsWithFormat = recommendModel.targetInfra.vm.map(vm => {
+      const specsWithFormat = recommendModel.targetVmInfra.subGroups?.map(vm => {
         return {
-          commonSpec: vm.commonSpec,
-          commonImage: vm.commonImage,
+          specId: vm.specId,
+          imageId: vm.imageId,
         };
-      });
+      }) || [];
 
       try {
         const estimateCostList = await resGetRecommendCost.execute({
@@ -149,15 +202,15 @@ async function getRecommendModelList() {
       } catch (e) {
         /* empty */
       } finally {
-        recommendModel_Model.setTargetRecommendModel(recommendModel);
+        recommendInfraModel.setTargetRecommendInfraModel(recommendModel);
       }
     }
-  } catch (err) {
-    showErrorMessage('error', err.errorMsg);
-    recommendModel_Model.targetRecommendModel.value = null;
-    recommendModel_Model.initToolBoxTableModel();
+  } catch (err: any) {
+    showErrorMessage('error', err?.errorMsg || 'An error occurred');
+    recommendInfraModel.targetRecommendModel.value = null;
+    recommendInfraModel.initToolBoxTableModel();
   } finally {
-    recommendModel_Model.setTableStateItem();
+    recommendInfraModel.setTableStateItem();
   }
 }
 
@@ -179,26 +232,61 @@ function handleSave(e: { name: string; description: string }) {
 
   try {
     let selectedModel: IRecommendModelResponse =
-      recommendModel_Model.tableModel.tableState.displayItems[
-        recommendModel_Model.tableModel.tableState.selectIndex
+      recommendInfraModel.tableModel.tableState.displayItems[
+        (recommendInfraModel.tableModel.tableState.selectIndex as unknown) as number
       ].originalData;
 
-    const commonSpecSplitData =
-      selectedModel.targetInfra.vm[0].commonSpec.split('+');
+    // 선택된 VM만 포함하는 새로운 targetVmInfra 객체 생성
+    const selectedVmIndex = recommendInfraModel.tableModel.tableState.selectIndex as number;
+    const selectedVm = selectedModel.targetVmInfra.subGroups[selectedVmIndex];
+    
+    // 기존 targetVmInfra를 복사하고 subGroups 배열을 선택된 VM만 포함하도록 수정
+    const modifiedTargetVmInfra = {
+      ...selectedModel.targetVmInfra,
+      subGroups: [selectedVm] // 선택된 VM만 포함
+    };
+
+    // API 스펙에 맞는 cloudInfraModel 구조 생성
+    const cloudInfraModel = {
+      description: selectedModel.description || '',
+      status: selectedModel.status || '',
+      targetSecurityGroupList: selectedModel.targetSecurityGroupList || [],
+      targetSshKey: selectedModel.targetSshKey || {},
+      targetVNet: selectedModel.targetVNet || {},
+      targetVmInfra: modifiedTargetVmInfra, // 수정된 targetVmInfra 사용
+      targetVmOsImageList: selectedModel.targetVmOsImageList || [],
+      targetVmSpecList: selectedModel.targetVmSpecList || []
+    };
+
+    console.log('=== Save Target Model ===');
+    console.log('Selected VM index:', selectedVmIndex);
+    console.log('Selected VM:', selectedVm);
+    console.log('Modified targetVmInfra:', modifiedTargetVmInfra);
+    console.log('CloudInfraModel:', cloudInfraModel);
+
+    // specId가 빈 문자열이거나 +가 없는 경우 기본값 사용
+    let csp = 'default-csp';
+    let region = 'default-region';
+    
+    if (selectedVm.specId && selectedVm.specId.includes('+')) {
+      const commonSpecSplitData = selectedVm.specId.split('+');
+      csp = commonSpecSplitData[0];
+      region = commonSpecSplitData[1];
+    }
 
     resCreateTargetModel
       .execute({
         request: {
-          cloudInfraModel: selectedModel.targetInfra,
-          csp: commonSpecSplitData[0],
+          cloudInfraModel: cloudInfraModel, // 올바른 구조 전달
+          csp: csp,
           description: description.value,
           isInitUserModel: true,
           isTargetModel: true,
-          region: commonSpecSplitData[1],
+          region: region,
           userModelName: modelName.value,
           userModelVersion: '1',
           zone: '',
-          userId: recommendModel_Model.userStore.id,
+          userId: auth.getUser().id,
         },
       })
       .then(res => {
@@ -206,8 +294,8 @@ function handleSave(e: { name: string; description: string }) {
         modalState.checkModal = true;
       })
       .catch();
-  } catch (e) {
-    showErrorMessage('error', e);
+  } catch (e: any) {
+    showErrorMessage('error', e?.message || 'An error occurred');
   }
 }
 </script>
@@ -246,28 +334,34 @@ function handleSave(e: { name: string; description: string }) {
               @select="
                 e => {
                   region.selected = e;
-                  getRecommendModelList();
                 }
               "
             ></p-select-dropdown>
+            <p-button
+              class="ml-2"
+              :disabled="!provider.selected || !region.selected"
+              @click="getRecommendModelList"
+            >
+              조회
+            </p-button>
           </section>
           <p-toolbox-table
             ref="toolboxTable"
-            :items="recommendModel_Model.tableModel.tableState.displayItems"
-            :fields="recommendModel_Model.tableModel.tableState.fields"
-            :total-count="recommendModel_Model.tableModel.tableState.tableCount"
+            :items="recommendInfraModel.tableModel.tableState.displayItems"
+            :fields="recommendInfraModel.tableModel.tableState.fields"
+            :total-count="recommendInfraModel.tableModel.tableState.tableCount"
             :style="{ height: '500px' }"
-            :sortable="recommendModel_Model.tableModel.tableOptions.sortable"
-            :sort-by="recommendModel_Model.tableModel.tableOptions.sortBy"
+            :sortable="recommendInfraModel.tableModel.tableOptions.sortable"
+            :sort-by="recommendInfraModel.tableModel.tableOptions.sortBy"
             :selectable="
-              recommendModel_Model.tableModel.tableOptions.selectable
+              recommendInfraModel.tableModel.tableOptions.selectable
             "
             :loading="
               getRecommendModel.isLoading.value ||
               resGetRecommendCost.isLoading.value
             "
             :select-index.sync="
-              recommendModel_Model.tableModel.tableState.selectIndex
+              recommendInfraModel.tableModel.tableState.selectIndex
             "
             :multi-select="false"
           >

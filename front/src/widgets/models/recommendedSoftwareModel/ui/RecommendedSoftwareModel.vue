@@ -7,6 +7,7 @@ import { useSourceModelStore } from '@/entities';
 import { collectJsonEditor } from '@/features/sourceServices';
 import { createTargetSoftwareModel } from '@/entities/targetModels/api';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+import { useAuthStore } from '@/shared/libs/store/auth';
 
 interface IProps {
   sourceModelName: string;
@@ -16,8 +17,9 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['update:close-modal']);
 
-const recommendModel_Model = useRecommendedSoftwareModel();
+const recommendSoftwareModel = useRecommendedSoftwareModel();
 const sourceModelStore = useSourceModelStore();
+const authStore = useAuthStore();
 const resCreateTargetSoftwareModel = createTargetSoftwareModel(null);
 
 // 소스 모델 데이터
@@ -49,7 +51,7 @@ const saveTargetModelModal = reactive({
 });
 
 onMounted(() => {
-  recommendModel_Model.initToolBoxTableModel();
+  recommendSoftwareModel.initToolBoxTableModel();
 });
 
 // Get-Migration-List API 호출 (실패 시 더미 데이터 사용)
@@ -63,9 +65,7 @@ async function handleGetMigrationList() {
 
   try {
     // 먼저 실제 API 호출 시도
-    const response = await recommendModel_Model.getSoftwareMigrationListData(
-      sourceSoftwareModelData.value,
-    );
+    const response = await recommendSoftwareModel.getSoftwareMigrationListData(sourceSoftwareModelData.value);
 
     // 응답의 status.code를 확인하여 에러 여부 판단
     const statusCode = response?.data?.status?.code;
@@ -80,8 +80,8 @@ async function handleGetMigrationList() {
     }
 
     // API 응답 데이터를 recommendedModelData에 저장
-    recommendedModelData.value =
-      recommendModel_Model.tableModel.tableState.items[0]?.originalData || null;
+    recommendedModelData.value = recommendSoftwareModel.tableModel.tableState.items[0]?.originalData || null;
+
     console.log('API migration data loaded:', recommendedModelData.value);
   } catch (error) {
     console.warn('API call failed, using dummy data:', error);
@@ -229,13 +229,18 @@ function handleCreateTargetModel(e) {
   saveTargetModelModal.context.name = e.name;
   saveTargetModelModal.context.description = e.description;
 
+  // Source Software Model에서 isInitUserModel 값 가져오기
+  const isInitUserModel = sourceSoftwareModelData.value?.isInitUserModel ?? false;
+  const userId = authStore.id; // 로그인 유저의 ID 사용
+  const userModelVersion = sourceModel.value?.userModelVersion ?? 'v0.1';
+
   const requestBody = {
     description: e.description,
-    isInitUserModel: false,
+    isInitUserModel: isInitUserModel,
     targetSoftwareModel: recommendedModelData.value.targetSoftwareModel,
-    userId: sourceModel.value?.userId ?? 'user-123',
+    userId: userId,
+    userModelVersion: userModelVersion,
     userModelName: e.name,
-    userModelVersion: 'v0.1',
   };
 
   resCreateTargetSoftwareModel

@@ -52,6 +52,7 @@ front/pnpm-debug.log*
 front/lerna-debug.log*
 
 front/node_modules
+front/pkg
 front/dist
 front/dist-ssr
 

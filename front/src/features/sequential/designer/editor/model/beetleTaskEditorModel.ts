@@ -1,6 +1,7 @@
 import { useInputModel } from '@/shared/hooks/input/useInputModel';
 import { ref, UnwrapRef } from 'vue';
 import { isArray } from 'lodash';
+import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';
 
 interface fixedModel {
   path_params: Record<string, string>;
@@ -74,6 +75,9 @@ export function useTaskEditorModel() {
     query_params: QueryParamsModel;
   }>();
   const componentNameModel = ref();
+  
+  // originalObject를 저장할 변수 추가
+  let originalObject: any = null;
 
   function loadInputContext(
     key: string,
@@ -122,12 +126,18 @@ export function useTaskEditorModel() {
   }
 
   function setParamsContext(fixedModel: fixedModel) {
+    // path_params에서 nsId가 있으면 DEFAULT_NAMESPACE 값으로 설정
+    const processedPathParams = { ...fixedModel.path_params };
+    if ('nsId' in processedPathParams) {
+      processedPathParams.nsId = DEFAULT_NAMESPACE;
+    }
+
     paramsContext.value = {
       path_params: {
         type: 'params',
         context: {
           subject: 'Path_Params',
-          values: Object.entries(fixedModel.path_params).map(([key, value]) =>
+          values: Object.entries(processedPathParams).map(([key, value]) =>
             loadInputContext(key, value),
           ),
         },
@@ -145,6 +155,15 @@ export function useTaskEditorModel() {
   }
 
   function setFormContext(object: object | '') {
+    // originalObject 저장 (새로운 모델 구조인 경우 전체 객체 저장)
+    if (typeof object === 'object' && object !== null && 'targetVmInfra' in object) {
+      originalObject = object;
+      // targetVmInfra만 추출하여 처리
+      object = (object as any).targetVmInfra || '';
+    } else {
+      originalObject = null;
+    }
+    
     const context: ConvertedData[] = [
       {
         type: 'entity',
@@ -154,6 +173,7 @@ export function useTaskEditorModel() {
         },
       },
     ];
+    
     if (typeof object === 'object') {
       Object.entries(object).forEach(
         ([key, value]: [key: string, value: string | Array<object>], index) => {
@@ -177,16 +197,18 @@ export function useTaskEditorModel() {
         },
       );
     }
+    
     // @ts-ignore
     formContext.value = context;
   }
 
   function convertFormModelToStepProperties(): object {
-    const properties = {};
-
+    // 새로운 모델 구조만 지원: originalObject에 targetVmInfra 값만 업데이트
+    const updatedTargetVmInfra: any = {};
+    
     formContext.value.forEach(data => {
       if (data.type === 'entity') {
-        const convertedObject = [];
+        const convertedObject: any[] = [];
         data.context.values.forEach(value => {
           if (value.type === 'keyValueInput') {
             if (
@@ -202,19 +224,22 @@ export function useTaskEditorModel() {
           }
         });
 
-        Object.assign(properties, ...convertedObject);
+        Object.assign(updatedTargetVmInfra, ...convertedObject);
       } else if (data.type === 'accordion') {
-        const accordionData = {
-          [data.context.subject]: data.context.values.map(value =>
+        if (data.context.subject === 'vm') {
+          updatedTargetVmInfra.vm = data.context.values.map(value =>
             // @ts-ignore
             getAccordionSlotData(value),
-          ),
-        };
-        Object.assign(properties, accordionData);
+          );
+        }
       }
     });
-
-    return properties;
+    
+    // originalObject의 targetVmInfra만 업데이트하고 전체 객체 반환
+    return {
+      ...originalObject,
+      targetVmInfra: updatedTargetVmInfra
+    };
   }
 
   function convertParamsModelToStepProperties() {
