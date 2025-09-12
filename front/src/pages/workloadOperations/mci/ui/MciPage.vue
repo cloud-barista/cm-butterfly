@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import MciList from '@/widgets/workload/mci/mciList/ui/MciList.vue';
 import { reactive, ref } from 'vue';
-import {
-  PTab,
-  PButtonTab,
-  PButton,
-  PDataLoader,
-} from '@cloudforet-test/mirinae';
+import { PTab, PButton } from '@cloudforet-test/mirinae';
 import MciDetail from '@/widgets/workload/mci/mciDetail/ui/MciDetail.vue';
 import VmList from '@/widgets/workload/vm/vmList/ui/VmList.vue';
-import VmInformation from '@/widgets/workload/vm/vmInformation/ui/VmInformation.vue';
 import { isNullOrUndefined } from '@/shared/utils';
 import VmEvaluatePerf from '@/widgets/workload/vm/vmEvaluatePerf/ui/VmEvaluatePerf.vue';
+import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';
+
 
 const pageName = 'MCI';
 
@@ -29,8 +25,6 @@ const tabState = reactive({
   ],
 });
 
-//TODO projectId 가져와야함.
-const nsId = 'mig01';
 
 const selectedMciId = ref<string>('');
 const selectedVmId = ref<string>('');
@@ -55,7 +49,7 @@ function handleSelectVmListTableRow(id: string) {
       <p>{{ pageName }}</p>
     </header>
     <section :class="`${pageName}-page-body`">
-      <MciList :ns-id="nsId" @selectRow="handleSelectMciTableRow"></MciList>
+      <MciList :ns-id="DEFAULT_NAMESPACE" @selectRow="handleSelectMciTableRow"></MciList>
       <p
         v-if="!selectedMciId"
         class="flex justify-center text-gray-300 text-sm font-normal"
@@ -83,8 +77,9 @@ function handleSelectVmListTableRow(id: string) {
               <p>Server List</p>
             </div>
             <VmList
-              :nsId="nsId"
+              :nsId="DEFAULT_NAMESPACE"
               :mciId="selectedMciId"
+              :selectedVmId="selectedVmId"
               @selectCard="handleSelectVmListTableRow"
             >
             </VmList>

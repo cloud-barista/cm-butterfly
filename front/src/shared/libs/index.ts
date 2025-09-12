@@ -1,9 +1,9 @@
-import * as store from './store/auth';
-import * as localstorage from './access-localstorage';
-import * as vpcStore from './store/vpc-store';
+import * as store from '@/shared/libs/store/auth';
+import * as localstorage from '@/shared/libs/access-localstorage';
+import * as vpcStore from '@/shared/libs/store/vpc-store';
 
-export * from './api';
-export * from './accessControl';
-export * from './token';
-export * from './store/source-service-store';
+export * from '@/shared/libs/api';
+export * from '@/shared/libs/accessControl';
+export * from '@/shared/libs/token';
+export * from '@/shared/libs/store/source-service-store';
 export { store, localstorage, vpcStore };

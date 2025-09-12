@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { LSBRouterMenuItem } from '../../LSBRouterMenuItem';
+import { LSBRouterMenuItem } from '@/features/LSB/LSBRouterMenuItem';
 
 interface Props {
-  menuData: any;
+  menuData?: any;
   currentPath: string;
   lsbTitle: string;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  menuData: () => ({}),
+});
 </script>
 
 <template>

@@ -129,6 +129,13 @@ menus:
     isaction: "true"
     priority: 0
 
+  - id: apis
+    parentid: cloudresources
+    displayname: APIs
+    restype: menu
+    isaction: "true"
+    priority: 1
+
   ###################### step4 : submenu : migrations > workloadoperations > workloads ################
   - id: mciwls
     parentid: workloads

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { PIconButton } from '@cloudforet-test/mirinae';
 import { useDeleteVPC } from '@/entities';
+import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';
 
 const resDeleteVPC = useDeleteVPC<
   any,
@@ -16,7 +17,7 @@ const props = defineProps({
 const handleDelete = async () => {
   const { data } = await resDeleteVPC.execute({
     pathParams: {
-      nsId: 'ns01',
+      nsId: DEFAULT_NAMESPACE,
       vNetId: props.focusedData?.vpcName,
     },
   });

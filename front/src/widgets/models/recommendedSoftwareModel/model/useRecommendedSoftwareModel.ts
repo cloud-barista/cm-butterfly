@@ -1,19 +1,20 @@
-import { useRecommendedModelStore } from '@/entities/recommendedModel/model/stores.ts';
-import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel.ts';
+import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import {
   IEsimateCostSpecResponse,
   IRecommendModelResponse,
-} from '@/entities/recommendedModel/model/types.ts';
-import { RecommendedModelTableType } from '@/entities/recommendedModel/model/types.ts';
-import { storeToRefs } from 'pinia';
+} from '@/entities/recommendedModel/model/types';
 import { ref, watch } from 'vue';
 import { useSourceModelStore } from '@/entities';
 import { useAuthStore } from '@/shared/libs/store/auth';
 import {
   IProviderResponse,
   IRegionOfProviderResponse,
-} from '@/entities/provider/model/types.ts';
-import { useAxiosPost, IAxiosResponse, RequestBodyWrapper } from '@/shared/libs';
+} from '@/entities/provider/model/types';
+import {
+  useAxiosPost,
+  IAxiosResponse,
+  RequestBodyWrapper,
+} from '@/shared/libs';
 
 interface ISelectMenu {
   name: string;

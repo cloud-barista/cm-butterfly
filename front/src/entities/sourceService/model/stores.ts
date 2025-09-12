@@ -1,11 +1,10 @@
-import { ref, Ref, watchEffect } from 'vue';
+import { ref } from 'vue';
 import {
   ISourceService,
   ISourceServiceResponse,
-  SourceServiceStatusType,
   ISourceServiceResponseElement,
   IInfraSourceGroupResponse,
-} from '@/entities/sourceService/model/types.ts';
+} from '@/entities/sourceService/model/types';
 import { defineStore } from 'pinia';
 
 const NAMESPACE = 'SOURCESERVICE';

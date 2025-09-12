@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { PBadge, PButton, PDataTable } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive, Ref, watch } from 'vue';
-import { useGetLoadTestEvaluationData } from '@/entities/vm/api/api.ts';
-import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel.ts';
+import { onBeforeMount, watch } from 'vue';
+import { useGetLoadTestEvaluationData } from '@/entities/vm/api/api';
+import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import {
   ILoadTestResultAggregateResponse,
   LoadTestResultAggregateTableType,
-} from '@/entities/workspace/model/types.ts';
+} from '@/entities/workspace/model/types';
 import { showErrorMessage } from '@/shared/utils';
-import _ from 'lodash';
 
 interface IProps {
   nsId: string;
@@ -40,6 +39,9 @@ function initTable() {
     { label: 'Sent KB', name: 'sentKB' },
     { label: 'Throughput', name: 'throughput' },
   ];
+  
+  // Initialize data as empty array to prevent type error
+  detailTableModel.tableState.data = [];
 }
 
 function organizeDefineTableData(response: ILoadTestResultAggregateResponse) {
@@ -84,16 +86,19 @@ watch(
       .then(res => {
         detailTableModel.tableState.loading = true;
 
-        if (res.data.responseData && res.data.responseData['result']) {
+        if (res.data.responseData && res.data.responseData['result'] && Array.isArray(res.data.responseData['result'])) {
           detailTableModel.tableState.data = res.data.responseData[
             'result'
           ].map((item: ILoadTestResultAggregateResponse) =>
             organizeDefineTableData(item),
           );
+        } else {
+          detailTableModel.tableState.data = [];
         }
       })
       .catch(e => {
         showErrorMessage('error', e.errorMsg.value);
+        detailTableModel.tableState.data = [];
       })
       .finally(() => {
         detailTableModel.tableState.loading = false;

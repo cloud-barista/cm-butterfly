@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import getRandomId from '../uuid';
+import getRandomId from '@/shared/utils/uuid';
 
 /** * @function
  *   @name showErrorMessage

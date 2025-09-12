@@ -8,8 +8,8 @@ import {
   OPERATOR_DEFAULT_PERMISSIONS,
   PLATFORM_ADMIN_DEFAULT_PERMISSIONS,
   VIEWER_DEFAULT_PERMISSIONS,
-} from './config';
-import { RoleType } from './types';
+} from '@/shared/libs/accessControl/pageAccessHelper/config';
+import { RoleType } from '@/shared/libs/accessControl/pageAccessHelper/types';
 /**
  * @description
  * Role Type

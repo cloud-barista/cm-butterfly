@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { PButton, PDataLoader } from '@cloudforet-test/mirinae';
+import { PButton } from '@cloudforet-test/mirinae';
 import { Ref } from 'vue';
 import LoadTestEvaluationMetric from '@/widgets/workload/vm/vmEvaluatePerf/ui/LoadTestEvaluationMetric.vue';
 import LoadTestResourceMetric from '@/widgets/workload/vm/vmEvaluatePerf/ui/LoadTestResourceMetric.vue';
 import LoadTestAggregationTable from '@/widgets/workload/vm/vmEvaluatePerf/ui/LoadTestAggregationTable.vue';
+
 interface IProps {
   mciId: string;
   nsId: string;
@@ -37,18 +38,18 @@ const emit = defineEmits(['openLoadconfig']);
       <div class="font-bold text-2xl">
         Aggregation Table
         <LoadTestAggregationTable
-          :mciId="mciId"
-          :nsId="nsId"
-          :vmId="vmId"
+          :mciId="props.mciId"
+          :nsId="props.nsId"
+          :vmId="props.vmId"
         ></LoadTestAggregationTable>
       </div>
       <div class="chart w-full">
         <div class="font-bold text-2xl">Result metric</div>
         <div class="h-[calc(100%-2rem)]">
           <LoadTestEvaluationMetric
-            :mciId="mciId"
-            :nsId="nsId"
-            :vmId="vmId"
+            :mciId="props.mciId"
+            :nsId="props.nsId"
+            :vmId="props.vmId"
           ></LoadTestEvaluationMetric>
         </div>
       </div>
@@ -56,9 +57,9 @@ const emit = defineEmits(['openLoadconfig']);
         <div class="font-bold text-2xl">Resource Metric</div>
         <div class="h-[calc(100%-2rem)]">
           <LoadTestResourceMetric
-            :mciId="mciId"
-            :nsId="nsId"
-            :vmId="vmId"
+            :mciId="props.mciId"
+            :nsId="props.nsId"
+            :vmId="props.vmId"
           ></LoadTestResourceMetric>
         </div>
       </div>

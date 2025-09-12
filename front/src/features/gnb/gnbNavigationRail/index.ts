@@ -1,3 +1,3 @@
-import GNBNavigationRail from './ui/GNBNavigationRail.vue';
+import GNBNavigationRail from '@/features/gnb/gnbNavigationRail/ui/GNBNavigationRail.vue';
 
 export { GNBNavigationRail };

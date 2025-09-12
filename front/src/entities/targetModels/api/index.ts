@@ -3,9 +3,9 @@ import {
   RequestBodyWrapper,
   useAxiosPost,
 } from '@/shared/libs';
-import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types.ts';
+import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types';
 import { ITargetModelResponse } from '@/entities';
-import { ISourceConnectionResponse } from '@/entities/sourceConnection/model/types.ts';
+import { ISourceConnectionResponse } from '@/entities/sourceConnection/model/types';
 
 const CREATE_TARGET_MODEL = 'CreateCloudModel';
 const CREATE_TARGET_SOFTWARE_MODEL = 'CreateTargetSoftwareModel';
@@ -13,7 +13,7 @@ const GET_SOURCE_MODEL_LIST = 'GetModels';
 const UPDATE_TARGET_MODEL = 'UpdateCloudModel';
 
 interface ICreateTargetModelPayload {
-  cloudInfraModel: IRecommendModelResponse['targetInfra'];
+  cloudInfraModel: IRecommendModelResponse['targetVmInfra'];
   csp: string;
   description: string;
   isInitUserModel: boolean;

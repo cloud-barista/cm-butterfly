@@ -11,7 +11,7 @@ import SourceConnectionModal from '@/widgets/source/sourceConnections/sourceConn
 import { useSidebar } from '@/shared/libs/store/sidebar';
 import { storeToRefs } from 'pinia';
 import MetaViewer from '@/widgets/source/sourceConnections/sourceConnectionDetail/metaViewer/ui/MetaViewer.vue';
-import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel.ts';
+import { useSourceInfraCollectModel } from '@/widgets/source/sourceConnections/sourceConnectionDetail/infraCollect/model/sourceInfraCollectModel';
 import EditSourceConnectionModal from '@/widgets/source/sourceConnections/sourceConnectionModal/ui/EditSourceConnectionModal.vue';
 import { showSuccessMessage } from '@/shared/utils';
 import AddSourceServiceModal from '@/features/sourceServices/addSourceServiceModal/ui/AddSourceServiceModal.vue';
@@ -141,7 +141,9 @@ function handleNewConnectionModal(value: boolean) {
 }
 
 const data = computed(() => {
-  const connection = sourceConnectionStore.getConnectionById(selectedConnectionId.value);
+  const connection = sourceConnectionStore.getConnectionById(
+    selectedConnectionId.value,
+  );
   return connection?.softwareData || null;
 });
 </script>
@@ -306,8 +308,8 @@ const data = computed(() => {
         "
         :collect-data="infraData"
         :source-connection-name="sourceConnectionName"
-        :sgId="selectedServiceId"
-        :connId="selectedConnectionId"
+        :sg-id="selectedServiceId"
+        :conn-id="selectedConnectionId"
         data-type="infra"
         @update:is-meta-viewer-opened="modalStates.addInfraMetaViewer.confirm()"
       />
@@ -315,8 +317,8 @@ const data = computed(() => {
         v-else-if="modalStates.addSoftwareMetaViewer.open && data"
         :collect-data="softwareData"
         :source-connection-name="sourceConnectionName"
-        :sgId="selectedServiceId"
-        :connId="selectedConnectionId"
+        :sg-id="selectedServiceId"
+        :conn-id="selectedConnectionId"
         data-type="software"
         @update:is-meta-viewer-opened="
           modalStates.addSoftwareMetaViewer.confirm()

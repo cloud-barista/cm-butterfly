@@ -5,12 +5,12 @@ import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
 import { ref, computed } from 'vue';
 import { AxiosResponse } from 'axios';
-import { IUseAxiosWrapperReturnType } from '@/shared/libs';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { useCreateOnpremmodel, useCreateSourceSoftwareModel } from '@/entities';
 import JsonViewer from '@/features/sourceServices/jsonViewer/ui/JsonViewer.vue';
-import { useGetInfraInfoRefined, useGetSoftwareInfoRefined } from '@/entities/sourceConnection/api';
+import { useGetSoftwareInfoRefined } from '@/entities/sourceConnection/api';
 import { useGetInfraSourceGroupInfraRefine } from '@/entities/sourceService/api';
+import { useAuth } from '@/features/auth/model/useAuth.ts';
 
 interface iProps {
   collectData: any;
@@ -108,6 +108,7 @@ const modalTitle = computed(() => {
   }
 });
 
+const auth = useAuth();
 const createOnpremmodel = useCreateOnpremmodel(null);
 const createSourceSoftwareModel = useCreateSourceSoftwareModel(null);
 const getInfraInfoRefined = useGetInfraSourceGroupInfraRefine(props.sgId);
@@ -127,7 +128,7 @@ const handleMetaViewer = e => {
           description: e.description,
           isInitUserModel: true,
           sourceSoftwareModel: convertedData.value,
-          userId: 'string', // TODO: 실제 userId로 변경 필요
+          userId: auth.getUser().id,
           userModelName: e.name,
           userModelVersion: 'v0.1',
         },

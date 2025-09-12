@@ -5,11 +5,9 @@ import {
 } from '@/shared/libs';
 import {
   ITaskComponentResponse,
-  IWorkflow,
   IWorkflowResponse,
-} from '../model/types';
+} from '@/entities/workflow/model/types';
 import { axiosInstance } from '@/shared/libs/api/instance';
-import { IMciRequestParams } from '@/entities/mci/api';
 
 const GET_WORKFLOW_LIST = 'list-workflow';
 const GET_WORKFLOW = 'get-workflow';
@@ -76,6 +74,8 @@ export function useUpdateWorkflowV2(
         | {
             data: IWorkflowResponse['data'] | null;
             name: string | null;
+            spec_version?: string;
+            nsId?: string;
           }
       >,
       'pathParams' | 'request'
@@ -101,6 +101,8 @@ export function useUpdateWorkflowV2(
           | {
               data: IWorkflowResponse['data'] | null;
               name: string | null;
+              spec_version?: string;
+              nsId?: string;
             }
         >,
         'pathParams' | 'request'
@@ -227,6 +229,9 @@ export function useCreateWorkflow(data: IWorkflowResponse['data'] | null) {
     Pick<
       RequestBodyWrapper<{
         data: IWorkflowResponse['data'] | null;
+        name?: string;
+        spec_version?: string;
+        nsId?: string;
       }>,
       'request'
     >
@@ -242,6 +247,9 @@ export function useCreateWorkflow(data: IWorkflowResponse['data'] | null) {
       Pick<
         RequestBodyWrapper<{
           data: IWorkflowResponse['data'] | null;
+          name?: string;
+          spec_version?: string;
+          nsId?: string;
         }>,
         'request'
       >

@@ -1,6 +1,7 @@
 import { RouteConfig } from 'vue-router';
-import { CLOUD_RESOURCES_ROUTE } from './constants';
-import { cloudCredentialsPage } from '@/pages/cloudResources';
+import { CLOUD_RESOURCES_ROUTE } from '@/app/providers/router/routes/constants';
+import { cloudCredentialsPage, apisPage } from '@/pages/cloudResources';
+
 
 export const cloudResourcesRoutes: RouteConfig[] = [
   {
@@ -14,6 +15,15 @@ export const cloudResourcesRoutes: RouteConfig[] = [
         component: cloudCredentialsPage,
         meta: {
           menuId: CLOUD_RESOURCES_ROUTE.CLOUD_CREDENTIALS._NAME,
+          category: CLOUD_RESOURCES_ROUTE._NAME,
+        },
+      },
+      {
+        path: 'apis',
+        name: CLOUD_RESOURCES_ROUTE.APIS._NAME,
+        component: apisPage,
+        meta: {
+          menuId: CLOUD_RESOURCES_ROUTE.APIS._NAME,
           category: CLOUD_RESOURCES_ROUTE._NAME,
         },
       },

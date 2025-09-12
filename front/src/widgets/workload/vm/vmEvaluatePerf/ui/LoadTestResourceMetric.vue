@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { useGetLoadTestResourceMetric } from '@/entities/vm/api/api.ts';
+import { useGetLoadTestResourceMetric } from '@/entities/vm/api/api';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { IResourceMetricData } from '@/entities/workspace/model/types.ts';
+import { IResourceMetricData } from '@/entities/workspace/model/types';
 import * as echarts from 'echarts';
 import { PDataLoader } from '@cloudforet-test/mirinae';
-import { formatDate, showErrorMessage } from '@/shared/utils';
+import { formatDate } from '@/shared/utils';
+
 interface IProps {
   nsId: string;
   mciId: string;

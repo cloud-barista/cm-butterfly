@@ -1,5 +1,5 @@
 import { RouteConfig } from 'vue-router';
-import { WORKFLOW_MANAGEMENT_ROUTE } from './constants';
+import { WORKFLOW_MANAGEMENT_ROUTE } from '@/app/providers/router/routes/constants';
 import {
   WorkflowsPage,
   WorkflowTemplatesPage,

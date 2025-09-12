@@ -1,18 +1,16 @@
-import { useRecommendedModelStore } from '@/entities/recommendedModel/model/stores.ts';
-import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel.ts';
+import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import {
   IEsimateCostSpecResponse,
   IRecommendModelResponse,
-} from '@/entities/recommendedModel/model/types.ts';
-import { RecommendedModelTableType } from '@/entities/recommendedModel/model/types.ts';
-import { storeToRefs } from 'pinia';
+} from '@/entities/recommendedModel/model/types';
+import { RecommendedModelTableType } from '@/entities/recommendedModel/model/types';
 import { ref, watch } from 'vue';
 import { useSourceModelStore } from '@/entities';
 import { useAuthStore } from '@/shared/libs/store/auth';
 import {
   IProviderResponse,
   IRegionOfProviderResponse,
-} from '@/entities/provider/model/types.ts';
+} from '@/entities/provider/model/types';
 
 interface ISelectMenu {
   name: string;
@@ -37,8 +35,8 @@ export function useRecommendedInfraModel() {
     tableModel.initState();
     tableModel.tableState.fields = [
       { name: 'name', label: 'Name' },
-      { name: 'id', label: 'ID' },
-      { name: 'description', label: 'Description' },
+      //{ name: 'id', label: 'ID' },
+      //{ name: 'description', label: 'Description' },
       { name: 'spec', label: 'Spec' },
       { name: 'image', label: 'Image' },
       { name: 'estimateCost', label: 'Total Estimate Cost' },
@@ -48,9 +46,9 @@ export function useRecommendedInfraModel() {
       {
         title: 'columns',
         items: [
-          { name: 'id', label: 'ID' },
+          //{ name: 'id', label: 'ID' },
           { name: 'name', label: 'Name' },
-          { name: 'description', label: 'Description' },
+          //{ name: 'description', label: 'Description' },
           { name: 'spec', label: 'Spec' },
           { name: 'image', label: 'Image' },
           { name: 'estimateCost', label: 'Total Estimate Cost' },
@@ -65,22 +63,28 @@ export function useRecommendedInfraModel() {
     recommendedModel: IExtendRecommendModelResponse,
   ) {
     let estimateCost: string;
-  
     try {
-      estimateCost = `${
-        recommendedModel?.estimateResponse?.result?.esimateCostSpecResults?.reduce(
-          (acc, cur) => {
-            return (
-              acc +
-              cur.estimateForecastCostSpecDetailResults[0].calculatedMonthlyPrice
-            );
-          },
-          0,
-        )
-      }${
-        recommendedModel?.estimateResponse?.result?.esimateCostSpecResults[0]
-          .estimateForecastCostSpecDetailResults[0].currency || ''
-      }`;
+      const monthlyPrice = recommendedModel?.estimateResponse?.result?.esimateCostSpecResults?.reduce(
+        (acc, cur) => {
+          return (
+            acc +
+            cur.estimateForecastCostSpecDetailResults[0].calculatedMonthlyPrice
+          );
+        },
+        0,
+      );
+      
+      const hourlyPrice = recommendedModel?.estimateResponse?.result?.esimateCostSpecResults?.[0]
+        ?.estimateForecastCostSpecDetailResults[0]?.calculatedHourlyPrice;
+      
+      const currency = recommendedModel?.estimateResponse?.result?.esimateCostSpecResults[0]
+        ?.estimateForecastCostSpecDetailResults[0]?.currency || '';
+      
+      if (monthlyPrice !== undefined && hourlyPrice !== undefined) {
+        estimateCost = `${monthlyPrice.toFixed(4)}/mon (${hourlyPrice.toFixed(5)}/hour)${currency}`;
+      } else {
+        estimateCost = 'n/a';
+      }
     } catch (error) {
       console.error('Error calculating estimateCost:', error);
       estimateCost = 'n/a';
@@ -89,19 +93,23 @@ export function useRecommendedInfraModel() {
     const organizedDatum: Partial<
       Record<RecommendedModelTableType | 'originalData', any>
     > = {
-      name: recommendedModel.targetInfra.name,
-      id: recommendedModel['id'] || '',
-      description: recommendedModel['description'] || '',
+      name: recommendedModel.targetVmInfra.name,
+      //id: recommendedModel['id'] || '',
+      //description: recommendedModel['description'] || '',
       spec:
-        recommendedModel.targetInfra.vm
-          .reduce((acc, cur) => {
-            return `${acc}${cur.commonSpec.split('+').at(-1)} / `;
+        recommendedModel.targetVmInfra.subGroups
+          ?.reduce((acc, cur) => {
+            // specId에 +가 있으면 마지막 부분을, 없으면 전체를 사용
+            const specValue = cur.specId.includes('+') ? cur.specId.split('+').at(-1) : cur.specId;
+            return `${acc}${specValue} / `;
           }, '')
           .replace(/\/\s$/g, '') || 'n/a',
       image:
-        recommendedModel.targetInfra.vm
-          .reduce((acc, cur) => {
-            return `${acc}${cur.commonImage.split('+').at(-1)} / `;
+        recommendedModel.targetVmInfra.subGroups
+          ?.reduce((acc, cur) => {
+            // imageId에 +가 있으면 마지막 부분을, 없으면 전체를 사용
+            const imageValue = cur.imageId.includes('+') ? cur.imageId.split('+').at(-1) : cur.imageId;
+            return `${acc}${imageValue} / `;
           }, '')
           .replace(/\/\s$/g, '') || 'n/a',
       estimateCost: estimateCost || 'n/a',
@@ -111,7 +119,7 @@ export function useRecommendedInfraModel() {
     return organizedDatum;
   }
 
-  function setTargetRecommendModel(
+  function setTargetRecommendInfraModel(
     _targetRecommendModel: IExtendRecommendModelResponse,
   ) {
     targetRecommendModel.value = _targetRecommendModel;
@@ -169,7 +177,7 @@ export function useRecommendedInfraModel() {
     targetRecommendModel,
     sourceModelStore,
     setTableStateItem,
-    setTargetRecommendModel,
+    setTargetRecommendInfraModel,
     generateProviderSelectMenu,
     generateRegionSelectMenu,
   };

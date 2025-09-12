@@ -1,3 +1,3 @@
-import MenuCategory from './ui/MenuCategory.vue';
+import MenuCategory from '@/widgets/layout/menuCategory/ui/MenuCategory.vue';
 
 export { MenuCategory };

@@ -1,30 +1,19 @@
-import { workflowManagementRoutes } from './routes/workflowManagement.ts';
+import { workflowManagementRoutes } from '@/app/providers/router/routes/workflowManagement';
 import VueRouter, { RouteConfig } from 'vue-router';
-import { ROOT_ROUTE } from './routes/constants';
-import authRoutes from '../../../pages/auth/auth.route.ts';
-import { sourceComputingRoutes } from './routes/sourceComputing.ts';
-import { modelRoutes } from './routes/models.ts';
-import { workloadsRoutes } from './routes/workloads.ts';
-import { cloudResourcesRoutes } from './routes/cloudResources.ts';
-import { MainLayout } from '../../Layouts';
-import { useAuthenticationStore } from '../../../entities';
+import { ROOT_ROUTE } from '@/app/providers/router/routes/constants';
+import authRoutes from '@/pages/auth/auth.route';
+import { sourceComputingRoutes } from '@/app/providers/router/routes/sourceComputing';
+import { modelRoutes } from '@/app/providers/router/routes/models';
+import { workloadsRoutes } from '@/app/providers/router/routes/workloads';
+import { cloudResourcesRoutes } from '@/app/providers/router/routes/cloudResources';
+import { MainLayout } from '@/app/Layouts';
 import { Route } from 'vue-router';
-import { AUTH_ROUTE } from '../../../pages/auth/auth.route.ts';
-import { AuthorizationType } from '../../../shared/libs/store/auth';
-import { useAuthStore } from '../../../shared/libs/store/auth';
-import { ROLE_TYPE } from '../../../shared/libs/accessControl/pageAccessHelper/constant';
-import { RoleType } from '../../../shared/libs/accessControl/pageAccessHelper/types';
-import {
-  axiosPost,
-  getMinimalPageAccessPermissionList,
-} from '../../../shared/libs';
-import { toLower } from 'lodash';
-import { tempRoutes } from './routes/temp.ts';
+import { AUTH_ROUTE } from '@/pages/auth/auth.route';
+import { ROLE_TYPE } from '@/shared/libs/accessControl/pageAccessHelper/constant';
+import { RoleType } from '@/shared/libs/accessControl/pageAccessHelper/types';
+import { tempRoutes } from '@/app/providers/router/routes/temp';
 import NotFound from '@/pages/error/404/NotFound.vue';
-import { axiosInstance, createInstance } from '@/shared/libs/api/instance.ts';
 //TODO admin부분 고려
-
-const accessiblePagesWithRoles = [] as any[];
 
 export class McmpRouter {
   static router: VueRouter | null = null;

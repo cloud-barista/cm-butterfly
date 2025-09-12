@@ -1,12 +1,12 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Ref, ref } from 'vue';
-import { axiosInstance } from './instance.ts';
+import { axiosInstance } from '@/shared/libs/api/instance';
 import {
   AsyncStatus,
   extractErrorMessage,
   IUseBulkAxiosWrapperReturnType,
   IUseAxiosErrorDetail,
-} from '../index';
+} from '@/shared/libs/api/index';
 
 export function axiosBulkPost<T, D extends Array<unknown> = any>(
   url: string,

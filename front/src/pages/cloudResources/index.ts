@@ -1,1 +1,2 @@
-export * from './cloudCredentials';
+export * from '@/pages/cloudResources/cloudCredentials';
+export * from './apis';

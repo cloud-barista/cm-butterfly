@@ -1,9 +1,6 @@
-// src/widgets/credentials/credentialsList/model/credentialsListModel.ts
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import { useConfigStore } from '@/entities/credentials/model/stores';
-import { IConnectionConfig } from '@/entities/credentials/model/types';
-import { ref, watch } from 'vue';
-import { formatDate } from '@/shared/utils';
+import { watch } from 'vue';
 
 // Credential 테이블 필드 타입 정의
 type CredentialTableType = 'checkbox' | 'CredentialName' | 'ProviderName';

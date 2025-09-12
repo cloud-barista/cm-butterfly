@@ -1,3 +1,3 @@
-import TopBarNotifications from './ui/TopBarNotifications.vue';
+import TopBarNotifications from '@/features/topbar/topbarNotifications/ui/TopBarNotifications.vue';
 
 export { TopBarNotifications };

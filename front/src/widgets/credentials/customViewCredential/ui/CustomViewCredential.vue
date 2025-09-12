@@ -1,26 +1,17 @@
 <script setup lang="ts">
 import {
-  PButton,
   PButtonModal,
   PPaneLayout,
   PFieldGroup,
   PTextInput,
-  PDivider,
-  PTextarea,
 } from '@cloudforet-test/mirinae';
-import { CreateForm } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
-import { SimpleEditForm } from '@/widgets/layout';
 import { reactive, ref, watch } from 'vue';
-import { IGetCredentialListResponse } from '@/entities';
+import { IGetCredentialListResponse } from '@/entities/credentials/model/types';
 import { useConfigStore } from '@/entities/credentials/model/stores';
 import { useCreateCredentials } from '@/entities/credentials/api/index';
-import { PTextEditor } from '@cloudforet-test/mirinae';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { storeToRefs } from 'pinia';
-
-const modelName = ref<string>('');
-const isDisabled = ref<boolean>(false);
 
 interface iProps {
   // selectedcredentialname.value

@@ -7,7 +7,7 @@ import {
 import {
   IEsimateCostSpecResponse,
   IRecommendModelResponse,
-} from '@/entities/recommendedModel/model/types.ts';
+} from '@/entities/recommendedModel/model/types';
 
 //const GET_RECOMMEND_MODEL = 'RecommendInfra';
 const GET_RECOMMEND_MODEL = 'RecommendVMInfra';
@@ -21,16 +21,20 @@ export function useGetRecommendModelListBySourceModel(
   const requestWrapper: Required<
     Pick<
       RequestBodyWrapper<{
-        desiredProvider: string | null;
-        desiredRegion: string | null;
+        desiredCspAndRegionPair: {
+          csp: string | null;
+          region: string | null;
+        };
         onpremiseInfraModel: ISourceModelResponse['onpremiseInfraModel'] | null;
       }>,
       'request'
     >
   > = {
     request: {
-      desiredProvider: provider,
-      desiredRegion: region,
+      desiredCspAndRegionPair: {
+        csp: provider,
+        region: region,
+      },
       onpremiseInfraModel: sourceModelInfo,
     },
   };
@@ -39,8 +43,10 @@ export function useGetRecommendModelListBySourceModel(
     Required<
       Pick<
         RequestBodyWrapper<{
-          desiredProvider: string | null;
-          desiredRegion: string | null;
+          desiredCspAndRegionPair: {
+            csp: string | null;
+            region: string | null;
+          };
           onpremiseInfraModel:
             | ISourceModelResponse['onpremiseInfraModel']
             | null;
@@ -52,8 +58,8 @@ export function useGetRecommendModelListBySourceModel(
 }
 
 interface ISpecFormat {
-  commonSpec: string;
-  commonImage: string;
+  specId: string;
+  imageId: string;
 }
 
 export function getRecommendCost(specsWithFormat: ISpecFormat[] | null) {

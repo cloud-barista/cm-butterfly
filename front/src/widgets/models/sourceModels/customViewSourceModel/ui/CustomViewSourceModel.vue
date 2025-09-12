@@ -12,8 +12,7 @@ import {
 import { useCreateSourceSoftwareModel } from '@/entities/sourceModels/api';
 import { PTextEditor } from '@cloudforet-test/mirinae';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
-
-const modelName = ref<string>('');
+import { useAuth } from '@/features/auth/model/useAuth.ts';
 
 interface iProps {
   sourceModelName: string;
@@ -31,6 +30,7 @@ const modalState = reactive({
   },
 });
 
+const auth = useAuth();
 const sourceModelStore = useSourceModelStore();
 const targetModel = ref<ISourceModelResponse | undefined>(undefined);
 const resCreateSourceModel = useCreateOnpremmodel(null);
@@ -135,7 +135,7 @@ function handleSaveModal(e) {
       description: e.description,
       isInitUserModel: false,
       sourceSoftwareModel: JSON.parse(serverCode.value),
-      userId: targetModel.value?.userId || 'string',
+      userId: auth.getUser().id,
       userModelName: e.name,
       userModelVersion: targetModel.value?.userModelVersion || 'v0.1',
     };

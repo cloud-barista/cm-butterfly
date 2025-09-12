@@ -5,14 +5,14 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { useTaskComponentsListModel } from '../model/taskComponenetsListModel';
+import { useTaskComponentsListModel } from '@/widgets/workflow/taskComponents/taskComponentsList/model/taskComponenetsListModel';
 import {
   insertDynamicComponent,
   showErrorMessage,
   showSuccessMessage,
 } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, reactive, watch, watchEffect } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
 import {
   useBulkDeleteTaskComponent,
   useGetTaskComponentList,

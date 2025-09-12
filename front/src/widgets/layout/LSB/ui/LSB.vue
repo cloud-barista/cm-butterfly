@@ -6,12 +6,14 @@ import { LSBMenuItem } from '@/features/LSB';
 interface Props {
   backLink?: any;
   topTitle?: any;
-  menuSet: any[];
+  menuSet?: any[];
   hideHeader?: boolean;
   lsbTitle: string;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  menuSet: () => [],
+});
 
 const route = useRoute();
 const state = reactive({

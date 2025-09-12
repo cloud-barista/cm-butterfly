@@ -5,13 +5,16 @@ import { useElementSize } from '@vueuse/core';
 import { McmpRouter } from '@/app/providers/router';
 
 interface Props {
-  submenu: string;
+  submenu?: string;
   currentPath?: string;
   item: any;
   lsbTitle: string;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  submenu: '',
+  currentPath: '',
+});
 
 const itemEl = ref<HTMLElement | null>(null);
 const textEl = ref<HTMLElement | null>(null);

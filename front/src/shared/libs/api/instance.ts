@@ -3,9 +3,9 @@ import axios, {
   AxiosRequestConfig,
   CancelTokenSource,
 } from 'axios';
-import { McmpRouter } from '../../../app/providers/router';
-import { AUTH_ROUTE } from '../../../pages/auth/auth.route.ts';
-import JwtTokenProvider from '../token';
+import { McmpRouter } from '@/app/providers/router';
+import { AUTH_ROUTE } from '@/pages/auth/auth.route';
+import JwtTokenProvider from '@/shared/libs/token';
 
 const url = import.meta.env.VITE_BACKEND_ENDPOINT;
 const createInstance = () => {

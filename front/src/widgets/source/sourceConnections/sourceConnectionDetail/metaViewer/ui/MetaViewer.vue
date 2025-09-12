@@ -3,13 +3,14 @@ import CreateForm from '@/widgets/layout/createForm/ui/CreateForm.vue';
 import { PButton } from '@cloudforet-test/mirinae';
 import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
-import { ref, computed, watchEffect } from 'vue';
+import { ref, computed } from 'vue';
 import { AxiosResponse } from 'axios';
-import { IUseAxiosWrapperReturnType } from '@/shared/libs';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { useCreateOnpremmodel, useCreateSourceSoftwareModel } from '@/entities';
 import JsonViewer from '@/features/sourceServices/jsonViewer/ui/JsonViewer.vue';
 import { useGetInfraInfoRefined, useGetSoftwareInfoRefined } from '@/entities/sourceConnection/api';
+import { useAuth } from '@/features/auth/model/useAuth.ts';
+
 
 interface iProps {
   collectData: string | undefined;
@@ -28,6 +29,7 @@ const isSaveModal = ref<boolean>(false);
 
 const convertedData = ref();
 
+const auth = useAuth();
 const createOnpremmodel = useCreateOnpremmodel(null);
 const createSourceSoftwareModel = useCreateSourceSoftwareModel(null);
 const getInfraInfoRefined = useGetInfraInfoRefined(props.sgId, props.connId);
@@ -73,7 +75,7 @@ const handleMetaViewer = e => {
             connection_info_list: [convertedData.value],
             source_group_id: props.sgId,
           },
-          userId: 'string', // TODO: 실제 userId로 변경 필요
+          userId: auth.getUser().id,
           userModelName: e.name,
           userModelVersion: 'v0.1',
         },

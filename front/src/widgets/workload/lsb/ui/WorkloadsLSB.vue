@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { LSB } from '@/widgets/layout';
-import { watchEffect } from 'vue';
-import { PTextInput, PDivider, PI } from '@cloudforet-test/mirinae';
+import { PDivider, PI } from '@cloudforet-test/mirinae';
 
 const pageName = 'Workloads';
 
 interface iProps {
-  menuSet: any;
+  menuSet?: any;
 }
 
-const props = defineProps<iProps>();
+const props = withDefaults(defineProps<iProps>(), {
+  menuSet: () => [],
+});
 </script>
 
 <template>

@@ -4,21 +4,21 @@ import {
   PIconModal,
   PToolboxTable,
   PSelectDropdown,
-  PFieldTitle,
 } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { TargetModelNameSave } from '@/features/models';
-import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { SimpleEditForm } from '@/widgets/layout';
-import { useRecommendedInfraModel } from '@/widgets/models/recommendedInfraModel/model/useRecommendedInfraModel.ts';
-import { createTargetModel, ISourceModelResponse } from '@/entities';
+import { useRecommendedInfraModel } from '@/widgets/models/recommendedInfraModel/model/useRecommendedInfraModel';
+import { createTargetModel } from '@/entities';
 import {
   getRecommendCost,
   useGetRecommendModelListBySourceModel,
 } from '@/entities/recommendedModel/api';
-import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
-import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types.ts';
+import { showErrorMessage } from '@/shared/utils';
+import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types';
 import { useGetProviderList, useGetRegionList } from '@/entities/provider/api';
+import { useAuth } from '@/features/auth/model/useAuth.ts';
 
 interface IProps {
   sourceModelName: string;
@@ -29,9 +29,9 @@ const props = defineProps<IProps>();
 
 const emit = defineEmits(['update:close-modal']);
 
-const recommendModel_Model = useRecommendedInfraModel();
+const auth = useAuth();
+const recommendInfraModel = useRecommendedInfraModel();
 
-const selectedRecommendedModelId = ref<string>('');
 const modelName = ref<string>('');
 const description = ref<string>('');
 
@@ -42,13 +42,13 @@ const resCreateTargetModel = createTargetModel(null);
 const resGetRecommendCost = getRecommendCost(null);
 
 const provider = reactive({
-  menu: [],
+  menu: [] as any[],
   loading: true,
   selected: '',
 });
 
 const region = reactive({
-  menu: [],
+  menu: [] as any[],
   loading: true,
   selected: '',
 });
@@ -60,7 +60,7 @@ async function handleProviderMenuClick(e: any) {
   const { data } = await resGetProviderList.execute();
 
   if (data.responseData) {
-    provider.menu = recommendModel_Model.generateProviderSelectMenu(
+    provider.menu = recommendInfraModel.generateProviderSelectMenu(
       data.responseData,
     );
   }
@@ -79,7 +79,7 @@ async function handleRegionMenuClick(e: any) {
   });
 
   if (data.responseData) {
-    region.menu = recommendModel_Model.generateRegionSelectMenu(
+    region.menu = recommendInfraModel.generateRegionSelectMenu(
       data.responseData,
     );
   }
@@ -88,7 +88,7 @@ async function handleRegionMenuClick(e: any) {
 }
 
 const targetSourceModel = computed(() =>
-  recommendModel_Model.sourceModelStore.getSourceModelById(props.sourceModelId),
+  recommendInfraModel.sourceModelStore.getSourceModelById(props.sourceModelId),
 );
 
 const getRecommendModel = useGetRecommendModelListBySourceModel(
@@ -103,18 +103,20 @@ const modalState = reactive({
 });
 
 onMounted(() => {
-  recommendModel_Model.initToolBoxTableModel();
+  recommendInfraModel.initToolBoxTableModel();
   handleProviderMenuClick(true);
 });
 
 async function getRecommendModelList() {
-  recommendModel_Model.initToolBoxTableModel();
+  recommendInfraModel.initToolBoxTableModel();
 
   try {
     const res = await getRecommendModel.execute({
       request: {
-        desiredProvider: provider.selected,
-        desiredRegion: region.selected,
+        desiredCspAndRegionPair: {
+          csp: provider.selected,
+          region: region.selected,
+        },
         onpremiseInfraModel: targetSourceModel.value
           ? targetSourceModel.value.onpremiseInfraModel
           : null,
@@ -122,44 +124,125 @@ async function getRecommendModelList() {
     });
 
     const recommendModel = res.data.responseData;
+    
+    console.log('=== Recommend Model Response ===');
+    console.log('Full response:', recommendModel);
+    
+    if (recommendModel) {
+      console.log('Response keys:', Object.keys(recommendModel));
+      console.log('targetVmInfra:', recommendModel.targetVmInfra);
+      console.log('targetVmInfra type:', typeof recommendModel.targetVmInfra);
+      
+      if (recommendModel.targetVmInfra) {
+        console.log('targetVmInfra keys:', Object.keys(recommendModel.targetVmInfra));
+        
+        if ('subGroups' in recommendModel.targetVmInfra && recommendModel.targetVmInfra.subGroups) {
+          console.log('targetVmInfra.subGroups:', recommendModel.targetVmInfra.subGroups);
+          console.log('VM count:', recommendModel.targetVmInfra.subGroups.length);
+          
+          // VM 객체의 상세 구조 확인
+          recommendModel.targetVmInfra.subGroups.forEach((vm, index) => {
+            console.log(`VM[${index}]:`, vm);
+            console.log(`VM[${index}].specId:`, vm.specId);
+            console.log(`VM[${index}].specId type:`, typeof vm.specId);
+          });
+        }
+      }
+      
+      if ('vm' in recommendModel && recommendModel.vm && Array.isArray(recommendModel.vm)) {
+        console.log('direct vm:', recommendModel.vm);
+        console.log('Direct VM count:', recommendModel.vm.length);
+      }
+    }
+    
+    console.log('=== End Response Log ===');
 
     if (recommendModel) {
-      const validationRes = recommendModel.targetInfra.vm.some(vm => {
-        return vm.commonSpec === '';
+      console.log('=== Validation Data ===');
+      console.log('VM array for validation:', recommendModel.targetVmInfra.subGroups);
+      console.log('targetVmSpecList:', recommendModel.targetVmSpecList);
+      
+      const validationRes = recommendModel.targetVmInfra.subGroups?.some(vm => {
+        console.log('Checking VM:', vm);
+        console.log('VM keys:', Object.keys(vm));
+        console.log('VM.specId:', vm.specId);
+        console.log('VM.imageId:', vm.imageId);
+        console.log('VM.specId === undefined:', vm.specId === undefined);
+        console.log('VM.specId === null:', vm.specId === null);
+        console.log('VM.specId === empty string:', vm.specId === '');
+        
+        const isInvalid = vm.specId === undefined || vm.specId === null || vm.specId === '';
+        console.log('Is invalid:', isInvalid);
+        
+        return isInvalid;
       });
+
+      console.log('Validation result:', validationRes);
 
       if (validationRes) {
-        throw new Error();
+        console.log('Validation failed - throwing error');
+        throw new Error('Validation failed: specId is undefined or null');
       }
 
-      const specsWithFormat = recommendModel.targetInfra.vm.map(vm => {
-        return {
-          commonSpec: vm.commonSpec,
-          commonImage: vm.commonImage,
-        };
-      });
-
+      // GET_RECOMMEND_COST API 호출 대신 targetVmSpecList에서 비용 계산
       try {
-        const estimateCostList = await resGetRecommendCost.execute({
-          request: { specsWithFormat },
+        let totalCostPerHour = 0;
+        let currency = '';
+        
+        // targetVmSpecList에서 각 VM의 비용을 계산
+        recommendModel.targetVmInfra.subGroups?.forEach(vm => {
+          const matchingSpec = recommendModel.targetVmSpecList?.find(spec => spec.id === vm.specId);
+          if (matchingSpec && matchingSpec.costPerHour) {
+            totalCostPerHour += matchingSpec.costPerHour;
+            currency = matchingSpec.currency || 'USD'; // 통화 정보가 있다면 사용
+          }
         });
 
+        const totalCostPerMonth = totalCostPerHour * 24 * 30; // 시간당 비용을 월 비용으로 변환
+
+        // estimateResponse 구조에 맞게 설정 (시간당과 월 비용 모두 포함)
+        const estimateResponse = {
+          result: {
+            esimateCostSpecResults: [{
+              estimateForecastCostSpecDetailResults: [{
+                calculatedMonthlyPrice: totalCostPerMonth,
+                calculatedHourlyPrice: totalCostPerHour, // 시간당 비용 추가
+                currency: currency
+              }]
+            }]
+          }
+        };
+
         Object.assign(recommendModel, {
-          estimateResponse: estimateCostList.data.responseData,
+          estimateResponse: estimateResponse,
         });
 
       } catch (e) {
-        /* empty */
+        console.error('Error calculating cost from targetVmSpecList:', e);
+        // 에러가 발생해도 기본값으로 설정
+        Object.assign(recommendModel, {
+          estimateResponse: {
+            result: {
+              esimateCostSpecResults: [{
+                estimateForecastCostSpecDetailResults: [{
+                  calculatedMonthlyPrice: 0,
+                  calculatedHourlyPrice: 0,
+                  currency: 'USD'
+                }]
+              }]
+            }
+          }
+        });
       } finally {
-        recommendModel_Model.setTargetRecommendModel(recommendModel);
+        recommendInfraModel.setTargetRecommendInfraModel(recommendModel);
       }
     }
-  } catch (err) {
-    showErrorMessage('error', err.errorMsg);
-    recommendModel_Model.targetRecommendModel.value = null;
-    recommendModel_Model.initToolBoxTableModel();
+  } catch (err: any) {
+    showErrorMessage('error', err?.errorMsg || 'An error occurred');
+    recommendInfraModel.targetRecommendModel.value = null;
+    recommendInfraModel.initToolBoxTableModel();
   } finally {
-    recommendModel_Model.setTableStateItem();
+    recommendInfraModel.setTableStateItem();
   }
 }
 
@@ -181,26 +264,63 @@ function handleSave(e: { name: string; description: string }) {
 
   try {
     let selectedModel: IRecommendModelResponse =
-      recommendModel_Model.tableModel.tableState.displayItems[
-        recommendModel_Model.tableModel.tableState.selectIndex
+      recommendInfraModel.tableModel.tableState.displayItems[
+        (recommendInfraModel.tableModel.tableState.selectIndex as unknown) as number
       ].originalData;
 
-    const commonSpecSplitData =
-      selectedModel.targetInfra.vm[0].commonSpec.split('+');
+    // 선택된 Row의 데이터를 가공 없이 그대로 사용
+    const selectedVmIndex = Array.isArray(recommendInfraModel.tableModel.tableState.selectIndex) 
+      ? recommendInfraModel.tableModel.tableState.selectIndex[0] 
+      : recommendInfraModel.tableModel.tableState.selectIndex as number;
+    const selectedVm = selectedModel.targetVmInfra.subGroups[selectedVmIndex];
+    
+    // 기존 targetVmInfra를 그대로 사용 (가공 없이)
+    const modifiedTargetVmInfra = {
+      ...selectedModel.targetVmInfra
+      // subGroups는 원본 그대로 유지
+    };
+
+    // API 스펙에 맞는 cloudInfraModel 구조 생성
+    const cloudInfraModel = {
+      description: selectedModel.description || '',
+      status: selectedModel.status || '',
+      targetSecurityGroupList: selectedModel.targetSecurityGroupList || [],
+      targetSshKey: selectedModel.targetSshKey || {},
+      targetVNet: selectedModel.targetVNet || {},
+      targetVmInfra: modifiedTargetVmInfra, // 가공되지 않은 targetVmInfra 사용
+      targetVmOsImageList: selectedModel.targetVmOsImageList || [],
+      targetVmSpecList: selectedModel.targetVmSpecList || []
+    };
+
+    console.log('=== Save Target Model ===');
+    console.log('Selected VM index:', selectedVmIndex);
+    console.log('Selected VM:', selectedVm);
+    console.log('Original targetVmInfra (no modification):', modifiedTargetVmInfra);
+    console.log('CloudInfraModel:', cloudInfraModel);
+
+    // specId가 빈 문자열이거나 +가 없는 경우 기본값 사용
+    let csp = 'default-csp';
+    let region = 'default-region';
+    
+    if (selectedVm.specId && selectedVm.specId.includes('+')) {
+      const commonSpecSplitData = selectedVm.specId.split('+');
+      csp = commonSpecSplitData[0];
+      region = commonSpecSplitData[1];
+    }
 
     resCreateTargetModel
       .execute({
         request: {
-          cloudInfraModel: selectedModel.targetInfra,
-          csp: commonSpecSplitData[0],
+          cloudInfraModel: cloudInfraModel as any, // 가공되지 않은 데이터 전달
+          csp: csp,
           description: description.value,
           isInitUserModel: true,
           isTargetModel: true,
-          region: commonSpecSplitData[1],
+          region: region,
           userModelName: modelName.value,
           userModelVersion: '1',
           zone: '',
-          userId: recommendModel_Model.userStore.id,
+          userId: auth.getUser().id,
         },
       })
       .then(res => {
@@ -208,8 +328,8 @@ function handleSave(e: { name: string; description: string }) {
         modalState.checkModal = true;
       })
       .catch();
-  } catch (e) {
-    showErrorMessage('error', e);
+  } catch (e: any) {
+    showErrorMessage('error', e?.message || 'An error occurred');
   }
 }
 </script>
@@ -248,28 +368,34 @@ function handleSave(e: { name: string; description: string }) {
               @select="
                 e => {
                   region.selected = e;
-                  getRecommendModelList();
                 }
               "
             ></p-select-dropdown>
+            <p-button
+              class="ml-2"
+              :disabled="!provider.selected || !region.selected"
+              @click="getRecommendModelList"
+            >
+              조회
+            </p-button>
           </section>
           <p-toolbox-table
             ref="toolboxTable"
-            :items="recommendModel_Model.tableModel.tableState.displayItems"
-            :fields="recommendModel_Model.tableModel.tableState.fields"
-            :total-count="recommendModel_Model.tableModel.tableState.tableCount"
+            :items="recommendInfraModel.tableModel.tableState.displayItems"
+            :fields="recommendInfraModel.tableModel.tableState.fields"
+            :total-count="recommendInfraModel.tableModel.tableState.tableCount"
             :style="{ height: '500px' }"
-            :sortable="recommendModel_Model.tableModel.tableOptions.sortable"
-            :sort-by="recommendModel_Model.tableModel.tableOptions.sortBy"
+            :sortable="recommendInfraModel.tableModel.tableOptions.sortable"
+            :sort-by="recommendInfraModel.tableModel.tableOptions.sortBy"
             :selectable="
-              recommendModel_Model.tableModel.tableOptions.selectable
+              recommendInfraModel.tableModel.tableOptions.selectable
             "
             :loading="
               getRecommendModel.isLoading.value ||
               resGetRecommendCost.isLoading.value
             "
             :select-index.sync="
-              recommendModel_Model.tableModel.tableState.selectIndex
+              recommendInfraModel.tableModel.tableState.selectIndex
             "
             :multi-select="false"
           >
