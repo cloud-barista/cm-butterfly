@@ -20,6 +20,7 @@ import { useGetMciInfo } from '@/entities/mci/api';
 interface IProps {
   nsId: string;
   mciId: string;
+  selectedVmId?: string;
 }
 
 const props = defineProps<IProps>();
@@ -71,6 +72,30 @@ watch(
   () => props.mciId,
   async () => {
     await handleMciIdChange();
+  },
+  { immediate: true },
+);
+
+watch(
+  () => props.selectedVmId,
+  (newVmId) => {
+    if (newVmId && mciStore.getMciById(props.mciId)) {
+      const vm = mciStore.getMciById(props.mciId)?.vm.find(vm => vm.id === newVmId);
+      if (vm) {
+        selectedVm.value = vm;
+        // Update selectIndex to match the selected VM
+        const vmIndex = vmListTableModel.tableState.displayItems.findIndex(
+          item => item.originalData.id === newVmId
+        );
+        if (vmIndex !== -1) {
+          vmListTableModel.tableState.selectIndex = [vmIndex];
+        }
+        setVmLoadTestResult();
+      }
+    } else {
+      selectedVm.value = null;
+      vmListTableModel.tableState.selectIndex = [];
+    }
   },
   { immediate: true },
 );
@@ -203,7 +228,7 @@ function handleLoadConfigSuccessClose() {
           :key="value.name"
           v-model="vmListTableModel.tableState.selectIndex"
           :value="value.name"
-          :multi-selectable="true"
+          :multi-selectable="false"
           @click="() => handleCardClick(value)"
           style="
             width: 205.5px;
@@ -228,7 +253,7 @@ function handleLoadConfigSuccessClose() {
         <template #information>
           <VmInformation
             :mciId="props.mciId"
-            :nsId="nsId"
+            :nsId="props.nsId"
             :vmId="selectedVm.id"
             :loading="resLoadStatus.isLoading"
             :lastloadtest-state-response="
@@ -247,8 +272,8 @@ function handleLoadConfigSuccessClose() {
         <template #evaluatePref>
           <VmEvaluatePerf
             :loading="resLoadStatus.isLoading"
-            :mciId="mciId"
-            :nsId="nsId"
+            :mciId="props.mciId"
+            :nsId="props.nsId"
             :vmId="selectedVm.id"
             @openLoadconfig="handleLoadStatus"
           ></VmEvaluatePerf>
@@ -262,8 +287,8 @@ function handleLoadConfigSuccessClose() {
     <LoadConfig
       v-if="selectedVm"
       :isOpen="modalState.loadConfigRequest.open"
-      :mciId="mciId"
-      :nsId="nsId"
+      :mciId="props.mciId"
+      :nsId="props.nsId"
       :vmId="selectedVm?.id ?? ''"
       :ip="selectedVm?.publicIP ?? ''"
       @success="handleLoadConfigRequestSuccess"

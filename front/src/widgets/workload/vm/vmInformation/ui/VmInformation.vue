@@ -29,15 +29,23 @@ onBeforeMount(() => {
 });
 
 watch(
-  props,
-  nv => {
+  () => props.vmId,
+  (newVmId) => {
+    setMci(props.mciId); // Refresh MCI data when VM changes
+    setVmId(newVmId);
     remappingData();
+  },
+  { immediate: true },
+);
 
-    if (nv.lastloadtestStateResponse?.executionStatus) {
-      mappdingLoadConfigStatus(nv.lastloadtestStateResponse.executionStatus);
+watch(
+  () => props.lastloadtestStateResponse?.executionStatus,
+  (executionStatus) => {
+    if (executionStatus) {
+      mappdingLoadConfigStatus(executionStatus);
     }
   },
-  { deep: true },
+  { immediate: true },
 );
 </script>
 

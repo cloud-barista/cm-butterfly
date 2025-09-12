@@ -79,6 +79,7 @@ function handleSelectVmListTableRow(id: string) {
             <VmList
               :nsId="DEFAULT_NAMESPACE"
               :mciId="selectedMciId"
+              :selectedVmId="selectedVmId"
               @selectCard="handleSelectVmListTableRow"
             >
             </VmList>

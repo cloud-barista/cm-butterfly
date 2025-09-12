@@ -50,12 +50,10 @@ export function useVmInformationModel() {
   }
 
   function setVmId(_vmId: string | null) {
-    console.log(`setVmId : ${_vmId}`);
     targetVmId.value = _vmId;
   }
 
   function organizeVmDefineTableData(vm: IVm) {
-    console.log(vm);
     const data: Record<vmDetailTableType, any> = {
       serverId: vm.id,
       description: vm.description,
@@ -72,11 +70,9 @@ export function useVmInformationModel() {
   }
 
   function setDefineTableData(vmId: string) {
-    console.log(vmId);
     let data: Partial<Record<vmDetailTableType, any>> = {};
 
     targetVm.value = targetMci.value?.vm.find(vm => vm.id === vmId);
-    console.log(targetVm);
     try {
       if (targetVm.value) {
         data = organizeVmDefineTableData(targetVm.value);
@@ -84,7 +80,6 @@ export function useVmInformationModel() {
     } catch (e) {
       return data;
     }
-    console.log(data);
     return data;
   }
 
