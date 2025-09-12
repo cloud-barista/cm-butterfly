@@ -64,20 +64,27 @@ export function useRecommendedInfraModel() {
   ) {
     let estimateCost: string;
     try {
-      estimateCost = `${
-        recommendedModel?.estimateResponse?.result?.esimateCostSpecResults?.reduce(
-          (acc, cur) => {
-            return (
-              acc +
-              cur.estimateForecastCostSpecDetailResults[0].calculatedMonthlyPrice
-            );
-          },
-          0,
-        )
-      }${
-        recommendedModel?.estimateResponse?.result?.esimateCostSpecResults[0]
-          .estimateForecastCostSpecDetailResults[0].currency || ''
-      }`;
+      const monthlyPrice = recommendedModel?.estimateResponse?.result?.esimateCostSpecResults?.reduce(
+        (acc, cur) => {
+          return (
+            acc +
+            cur.estimateForecastCostSpecDetailResults[0].calculatedMonthlyPrice
+          );
+        },
+        0,
+      );
+      
+      const hourlyPrice = recommendedModel?.estimateResponse?.result?.esimateCostSpecResults?.[0]
+        ?.estimateForecastCostSpecDetailResults[0]?.calculatedHourlyPrice;
+      
+      const currency = recommendedModel?.estimateResponse?.result?.esimateCostSpecResults[0]
+        ?.estimateForecastCostSpecDetailResults[0]?.currency || '';
+      
+      if (monthlyPrice !== undefined && hourlyPrice !== undefined) {
+        estimateCost = `${monthlyPrice.toFixed(4)}/mon (${hourlyPrice.toFixed(5)}/hour)${currency}`;
+      } else {
+        estimateCost = 'n/a';
+      }
     } catch (error) {
       console.error('Error calculating estimateCost:', error);
       estimateCost = 'n/a';
