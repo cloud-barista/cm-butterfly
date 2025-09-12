@@ -42,10 +42,16 @@ export interface IRecommendModelResponse {
   description: string;
   status: string;
   targetVmInfra: TargetVmInfra;
+  targetSecurityGroupList?: any[];
+  targetSshKey?: any;
+  targetVNet?: any;
+  targetVmOsImageList?: any[];
+  targetVmSpecList?: any[];
 }
 
 interface EstimateCostSpecDetail {
   calculatedMonthlyPrice: number;
+  calculatedHourlyPrice?: number;
   currency: string;
   id: number;
   lastUpdatedAt: string;

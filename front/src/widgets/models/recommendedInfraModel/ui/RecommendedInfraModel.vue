@@ -136,12 +136,12 @@ async function getRecommendModelList() {
       if (recommendModel.targetVmInfra) {
         console.log('targetVmInfra keys:', Object.keys(recommendModel.targetVmInfra));
         
-        if ('vm' in recommendModel.targetVmInfra && recommendModel.targetVmInfra.vm) {
-          console.log('targetVmInfra.vm:', recommendModel.targetVmInfra.vm);
-          console.log('VM count:', recommendModel.targetVmInfra.vm.length);
+        if ('subGroups' in recommendModel.targetVmInfra && recommendModel.targetVmInfra.subGroups) {
+          console.log('targetVmInfra.subGroups:', recommendModel.targetVmInfra.subGroups);
+          console.log('VM count:', recommendModel.targetVmInfra.subGroups.length);
           
           // VM 객체의 상세 구조 확인
-          recommendModel.targetVmInfra.vm.forEach((vm, index) => {
+          recommendModel.targetVmInfra.subGroups.forEach((vm, index) => {
             console.log(`VM[${index}]:`, vm);
             console.log(`VM[${index}].specId:`, vm.specId);
             console.log(`VM[${index}].specId type:`, typeof vm.specId);
@@ -160,6 +160,7 @@ async function getRecommendModelList() {
     if (recommendModel) {
       console.log('=== Validation Data ===');
       console.log('VM array for validation:', recommendModel.targetVmInfra.subGroups);
+      console.log('targetVmSpecList:', recommendModel.targetVmSpecList);
       
       const validationRes = recommendModel.targetVmInfra.subGroups?.some(vm => {
         console.log('Checking VM:', vm);
@@ -183,24 +184,55 @@ async function getRecommendModelList() {
         throw new Error('Validation failed: specId is undefined or null');
       }
 
-      const specsWithFormat = recommendModel.targetVmInfra.subGroups?.map(vm => {
-        return {
-          specId: vm.specId,
-          imageId: vm.imageId,
-        };
-      }) || [];
-
+      // GET_RECOMMEND_COST API 호출 대신 targetVmSpecList에서 비용 계산
       try {
-        const estimateCostList = await resGetRecommendCost.execute({
-          request: { specsWithFormat },
+        let totalCostPerHour = 0;
+        let currency = '';
+        
+        // targetVmSpecList에서 각 VM의 비용을 계산
+        recommendModel.targetVmInfra.subGroups?.forEach(vm => {
+          const matchingSpec = recommendModel.targetVmSpecList?.find(spec => spec.id === vm.specId);
+          if (matchingSpec && matchingSpec.costPerHour) {
+            totalCostPerHour += matchingSpec.costPerHour;
+            currency = matchingSpec.currency || 'USD'; // 통화 정보가 있다면 사용
+          }
         });
 
+        const totalCostPerMonth = totalCostPerHour * 24 * 30; // 시간당 비용을 월 비용으로 변환
+
+        // estimateResponse 구조에 맞게 설정 (시간당과 월 비용 모두 포함)
+        const estimateResponse = {
+          result: {
+            esimateCostSpecResults: [{
+              estimateForecastCostSpecDetailResults: [{
+                calculatedMonthlyPrice: totalCostPerMonth,
+                calculatedHourlyPrice: totalCostPerHour, // 시간당 비용 추가
+                currency: currency
+              }]
+            }]
+          }
+        };
+
         Object.assign(recommendModel, {
-          estimateResponse: estimateCostList.data.responseData,
+          estimateResponse: estimateResponse,
         });
 
       } catch (e) {
-        /* empty */
+        console.error('Error calculating cost from targetVmSpecList:', e);
+        // 에러가 발생해도 기본값으로 설정
+        Object.assign(recommendModel, {
+          estimateResponse: {
+            result: {
+              esimateCostSpecResults: [{
+                estimateForecastCostSpecDetailResults: [{
+                  calculatedMonthlyPrice: 0,
+                  calculatedHourlyPrice: 0,
+                  currency: 'USD'
+                }]
+              }]
+            }
+          }
+        });
       } finally {
         recommendInfraModel.setTargetRecommendInfraModel(recommendModel);
       }
@@ -236,14 +268,16 @@ function handleSave(e: { name: string; description: string }) {
         (recommendInfraModel.tableModel.tableState.selectIndex as unknown) as number
       ].originalData;
 
-    // 선택된 VM만 포함하는 새로운 targetVmInfra 객체 생성
-    const selectedVmIndex = recommendInfraModel.tableModel.tableState.selectIndex as number;
+    // 선택된 Row의 데이터를 가공 없이 그대로 사용
+    const selectedVmIndex = Array.isArray(recommendInfraModel.tableModel.tableState.selectIndex) 
+      ? recommendInfraModel.tableModel.tableState.selectIndex[0] 
+      : recommendInfraModel.tableModel.tableState.selectIndex as number;
     const selectedVm = selectedModel.targetVmInfra.subGroups[selectedVmIndex];
     
-    // 기존 targetVmInfra를 복사하고 subGroups 배열을 선택된 VM만 포함하도록 수정
+    // 기존 targetVmInfra를 그대로 사용 (가공 없이)
     const modifiedTargetVmInfra = {
-      ...selectedModel.targetVmInfra,
-      subGroups: [selectedVm] // 선택된 VM만 포함
+      ...selectedModel.targetVmInfra
+      // subGroups는 원본 그대로 유지
     };
 
     // API 스펙에 맞는 cloudInfraModel 구조 생성
@@ -253,7 +287,7 @@ function handleSave(e: { name: string; description: string }) {
       targetSecurityGroupList: selectedModel.targetSecurityGroupList || [],
       targetSshKey: selectedModel.targetSshKey || {},
       targetVNet: selectedModel.targetVNet || {},
-      targetVmInfra: modifiedTargetVmInfra, // 수정된 targetVmInfra 사용
+      targetVmInfra: modifiedTargetVmInfra, // 가공되지 않은 targetVmInfra 사용
       targetVmOsImageList: selectedModel.targetVmOsImageList || [],
       targetVmSpecList: selectedModel.targetVmSpecList || []
     };
@@ -261,7 +295,7 @@ function handleSave(e: { name: string; description: string }) {
     console.log('=== Save Target Model ===');
     console.log('Selected VM index:', selectedVmIndex);
     console.log('Selected VM:', selectedVm);
-    console.log('Modified targetVmInfra:', modifiedTargetVmInfra);
+    console.log('Original targetVmInfra (no modification):', modifiedTargetVmInfra);
     console.log('CloudInfraModel:', cloudInfraModel);
 
     // specId가 빈 문자열이거나 +가 없는 경우 기본값 사용
@@ -277,7 +311,7 @@ function handleSave(e: { name: string; description: string }) {
     resCreateTargetModel
       .execute({
         request: {
-          cloudInfraModel: cloudInfraModel, // 올바른 구조 전달
+          cloudInfraModel: cloudInfraModel as any, // 가공되지 않은 데이터 전달
           csp: csp,
           description: description.value,
           isInitUserModel: true,
