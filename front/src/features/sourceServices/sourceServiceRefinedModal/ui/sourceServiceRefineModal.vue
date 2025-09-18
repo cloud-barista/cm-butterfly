@@ -8,7 +8,7 @@ import { AxiosResponse } from 'axios';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { useCreateOnpremmodel, useCreateSourceSoftwareModel } from '@/entities';
 import JsonViewer from '@/features/sourceServices/jsonViewer/ui/JsonViewer.vue';
-import { useGetSoftwareInfoRefined } from '@/entities/sourceConnection/api';
+import { useGetSoftwareInfoRefined, useGetSoftwareInfoSourceGroupRefined, useGetInfraInfoSourceGroupRefined } from '@/entities/sourceConnection/api';
 import { useGetInfraSourceGroupInfraRefine } from '@/entities/sourceService/api';
 import { useAuth } from '@/features/auth/model/useAuth.ts';
 
@@ -16,6 +16,7 @@ interface iProps {
   collectData: any;
   sgId: string;
   dataType?: 'infra' | 'software';
+  dataSource?: 'sourceGroup' | 'connection'; // Software 데이터의 출처 구분
 }
 
 const props = defineProps<iProps>();
@@ -26,18 +27,6 @@ const isConverted = ref<boolean>(false);
 const isSaveModal = ref<boolean>(false);
 
 const convertedData = ref<any>(null);
-
-// 데이터 타입에 따라 적절한 변환 함수 선택
-const getConvertFunction = computed(() => {
-  if (props.collectData && typeof props.collectData === 'object') {
-    // Software 데이터인지 확인 (예: software 관련 키가 있는지)
-    if (props.collectData.software || props.collectData.installedPackages) {
-      return handleConvertSoftware();
-    }
-  }
-  // 기본적으로 Infra 변환 함수 사용
-  return handleConvertInfra();
-});
 
 // dataType prop을 우선적으로 사용하고, 없을 때만 collectData의 내용을 기반으로 판단
 const isSoftwareData = computed(() => {
@@ -98,6 +87,25 @@ const isSoftwareData = computed(() => {
   return false;
 });
 
+// 데이터 타입에 따라 적절한 변환 함수 선택
+const getConvertFunction = computed(() => {
+  if (isSoftwareData.value) {
+    // Software 데이터의 출처에 따라 다른 API 호출
+    if (props.dataSource === 'sourceGroup') {
+      return handleConvertSoftwareSourceGroup();
+    } else {
+      // connection 또는 기본값 (dataSource가 없을 때는 connection으로 간주)
+      return handleConvertSoftware();
+    }
+  }
+  // Infra 데이터의 출처에 따라 다른 API 호출
+  if (props.dataSource === 'sourceGroup') {
+    return handleConvertInfraSourceGroup();
+  }
+  // connection 또는 기본값 (dataSource가 없을 때는 connection으로 간주)
+  return handleConvertInfra();
+});
+
 // 데이터 타입에 따라 동적으로 title 생성
 const modalTitle = computed(() => {
   const baseTitle = 'Source Group Connection Viewer';
@@ -112,7 +120,9 @@ const auth = useAuth();
 const createOnpremmodel = useCreateOnpremmodel(null);
 const createSourceSoftwareModel = useCreateSourceSoftwareModel(null);
 const getInfraInfoRefined = useGetInfraSourceGroupInfraRefine(props.sgId);
+const getInfraInfoSourceGroupRefined = useGetInfraInfoSourceGroupRefined(props.sgId);
 const getSoftwareInfoRefined = useGetSoftwareInfoRefined(props.sgId, null);
+const getSoftwareInfoSourceGroupRefined = useGetSoftwareInfoSourceGroupRefined(props.sgId);
 const handleSave = () => {
   isSaveModal.value = true;
 };
@@ -122,12 +132,18 @@ const handleMetaViewer = e => {
   console.log('isSoftwareData', isSoftwareData.value);
   if (isSoftwareData.value) {
     // Software 타입인 경우 CreateSourceSoftwareModel 호출
+    console.log('Creating Source Software Model with data:', convertedData.value);
+    
+    // API 응답에서 sourceSoftwareModel 속성 추출
+    const sourceSoftwareModelData = convertedData.value?.sourceSoftwareModel || convertedData.value;
+    console.log('Extracted sourceSoftwareModel data:', sourceSoftwareModelData);
+    
     createSourceSoftwareModel
       .execute({
         request: {
           description: e.description,
           isInitUserModel: true,
-          sourceSoftwareModel: convertedData.value,
+          sourceSoftwareModel: sourceSoftwareModelData,
           userId: auth.getUser().id,
           userModelName: e.name,
           userModelVersion: 'v0.1',
@@ -174,6 +190,19 @@ function handleConvertInfra(): (
     });
 }
 
+function handleConvertInfraSourceGroup(): (
+  payload?: any,
+  config?: any,
+) => Promise<AxiosResponse<any> | void> {
+  return () =>
+    getInfraInfoSourceGroupRefined.execute().then(res => {
+      isConverted.value = true;
+      console.log('Infra Source Group API Response:', res.data.responseData);
+      convertedData.value = res.data.responseData;
+      return res;
+    });
+}
+
 function handleConvertSoftware(): (
   payload?: any,
   config?: any,
@@ -181,6 +210,20 @@ function handleConvertSoftware(): (
   return () =>
     getSoftwareInfoRefined.execute().then(res => {
       isConverted.value = true;
+      console.log('Software API Response:', res.data.responseData);
+      convertedData.value = res.data.responseData;
+      return res;
+    });
+}
+
+function handleConvertSoftwareSourceGroup(): (
+  payload?: any,
+  config?: any,
+) => Promise<AxiosResponse<any> | void> {
+  return () =>
+    getSoftwareInfoSourceGroupRefined.execute().then(res => {
+      isConverted.value = true;
+      console.log('Software Source Group API Response:', res.data.responseData);
       convertedData.value = res.data.responseData;
       return res;
     });
@@ -199,7 +242,7 @@ function handleConvertSoftware(): (
           :form-data="collectData"
           :convertedJSON="convertedData"
           :promiseFunc="getConvertFunction"
-          :loading="getInfraInfoRefined.isLoading.value || getSoftwareInfoRefined.isLoading.value"
+          :loading="getInfraInfoRefined.isLoading.value || getInfraInfoSourceGroupRefined.isLoading.value || getSoftwareInfoRefined.isLoading.value || getSoftwareInfoSourceGroupRefined.isLoading.value"
         />
       </template>
       <template #buttons>

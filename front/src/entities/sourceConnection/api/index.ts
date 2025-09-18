@@ -21,7 +21,9 @@ const DELETE_SOURCE_CONNECTION = 'delete-connection-info';
 const REFRESH_SOURCE_GROUP_CONNECTION_INFO_STATUS =
   'Refresh-Source-Group-Connection-Info-Status';
 const GET_INFRA_INFO_REFINED = 'get-infra-info-refined';
+const GET_INFRA_INFO_SOURCE_GROUP_REFINED = 'get-infra-info-source-group-refined';
 const GET_SOFTWARE_INFO_REFINED = 'get-software-info-refined';
+const GET_SOFTWARE_INFO_SOURCE_GROUP_REFINED = 'get-software-info-source-group-refined';
 
 export function useCreateConnectionInfo(
   sgId: string | null,
@@ -228,4 +230,30 @@ export function useGetSoftwareInfoRefined(
       >
     >
   >(GET_SOFTWARE_INFO_REFINED, requestWrapper);
+}
+
+export function useGetInfraInfoSourceGroupRefined(sgId: string | null) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>
+  > = {
+    pathParams: { sgId: sgId || null },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<any>,
+    Required<Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>>
+  >(GET_INFRA_INFO_SOURCE_GROUP_REFINED, requestWrapper);
+}
+
+export function useGetSoftwareInfoSourceGroupRefined(sgId: string | null) {
+  const requestWrapper: Required<
+    Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>
+  > = {
+    pathParams: { sgId: sgId || null },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<any>,
+    Required<Pick<RequestBodyWrapper<{ sgId: string | null }>, 'pathParams'>>
+  >(GET_SOFTWARE_INFO_SOURCE_GROUP_REFINED, requestWrapper);
 }

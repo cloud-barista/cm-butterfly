@@ -66,15 +66,18 @@ const handleMetaViewer = e => {
   
   // Software 타입인 경우 CreateSourceSoftwareModel 호출
   if (props.dataType === 'software') {
+    console.log('MetaViewer Creating Source Software Model with data:', convertedData.value);
+    
+    // API 응답에서 sourceSoftwareModel 속성 추출
+    const sourceSoftwareModelData = convertedData.value?.sourceSoftwareModel || convertedData.value;
+    console.log('MetaViewer Extracted sourceSoftwareModel data:', sourceSoftwareModelData);
+    
     createSourceSoftwareModel
       .execute({
         request: {
           description: e.description,
           isInitUserModel: true,
-          sourceSoftwareModel: {
-            connection_info_list: [convertedData.value],
-            source_group_id: props.sgId,
-          },
+          sourceSoftwareModel: sourceSoftwareModelData,
           userId: auth.getUser().id,
           userModelName: e.name,
           userModelVersion: 'v0.1',
@@ -128,6 +131,7 @@ function handleConvertSoftware(): (
   return () =>
     getSoftwareInfoRefined.execute().then(res => {
       isConverted.value = true;
+      console.log('MetaViewer Software API Response:', res.data.responseData);
       convertedData.value = res.data.responseData;
       return res;
     });
