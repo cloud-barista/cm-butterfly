@@ -71,7 +71,7 @@ type NestedObjectContext = {
   type: 'nestedObject';
   context: {
     subject: string;
-    values: Array<InputContext | NestedObjectContext | ArrayContext>;
+    values: Array<InputContext | NestedObjectContext | ArrayContext | ObjectArrayContext>;
   };
 };
 
@@ -79,7 +79,16 @@ type ArrayContext = {
   type: 'array';
   context: {
     subject: string;
-    values: Array<InputContext | NestedObjectContext | ArrayContext>;
+    values: Array<InputContext | NestedObjectContext | ArrayContext | ObjectArrayContext>;
+  };
+  originalData: Array<any>;
+};
+
+type ObjectArrayContext = {
+  type: 'objectArray';
+  context: {
+    subject: string;
+    values: Array<AccordionSlotContext>;
   };
   originalData: Array<any>;
 };
@@ -92,7 +101,7 @@ type SoftwareModelContext = {
   };
 };
 
-type ConvertedData = EntityContext | AccordionContext | NestedObjectContext | ArrayContext | SoftwareModelContext;
+type ConvertedData = EntityContext | AccordionContext | NestedObjectContext | ArrayContext | ObjectArrayContext | SoftwareModelContext;
 
 export function useGrasshopperTaskEditorModel() {
   const formContext = ref<ConvertedData[]>([]);
@@ -108,11 +117,14 @@ export function useGrasshopperTaskEditorModel() {
   function loadInputContext(
     key: string,
     value: string | '' | null,
+    depth: number = 0,
+    valueType: string = 'string',
   ): InputContext {
+    const depthPrefix = '';
     return {
       type: 'input',
       context: {
-        title: key,
+        title: `${depthPrefix}${key}`,
         model: useInputModel(value ?? ''),
       },
     };
@@ -131,6 +143,7 @@ export function useGrasshopperTaskEditorModel() {
   function loadAccordionContext(
     object: object,
     index: number,
+    depth: number = 0,
   ): AccordionSlotContext {
     return {
       header: {
@@ -144,12 +157,12 @@ export function useGrasshopperTaskEditorModel() {
         })
         .map(([key, value]: [key: string, value: any]) => {
           if (typeof value === 'string') {
-            return loadInputContext(key, value);
+            return loadInputContext(key, value, depth + 1, 'string');
           } else if (typeof value === 'object' && value !== null) {
             // 객체인 경우 JSON.stringify로 변환하여 표시
-            return loadInputContext(key, JSON.stringify(value, null, 2));
+            return loadInputContext(key, JSON.stringify(value, null, 2), depth + 1, 'object');
           }
-          return loadInputContext(key, '');
+          return loadInputContext(key, '', depth + 1, 'string');
         }),
     };
   }
@@ -158,23 +171,27 @@ export function useGrasshopperTaskEditorModel() {
   function loadNestedObjectContext(
     key: string,
     object: any,
+    depth: number = 0,
   ): NestedObjectContext {
     const values: Array<InputContext | NestedObjectContext | ArrayContext> = [];
+    const objectType = object?.type || 'object';
+    const depthPrefix = `[d-sub-${depth}-${objectType}] `;
     
     Object.entries(object).forEach(([subKey, subValue]) => {
       if (typeof subValue === 'string' || typeof subValue === 'number' || typeof subValue === 'boolean') {
-        values.push(loadInputContext(subKey, String(subValue)));
+        values.push(loadInputContext(subKey, String(subValue), depth + 1, typeof subValue));
       } else if (Array.isArray(subValue)) {
-        values.push(loadArrayContext(subKey, subValue));
+        // @ts-ignore
+        values.push(loadArrayContext(subKey, subValue, depth + 1));
       } else if (typeof subValue === 'object' && subValue !== null) {
-        values.push(loadNestedObjectContext(subKey, subValue));
+        values.push(loadNestedObjectContext(subKey, subValue, depth + 1));
       }
     });
 
     return {
       type: 'nestedObject',
       context: {
-        subject: key,
+        subject: `${depthPrefix}${key}`,
         values,
       },
     };
@@ -183,20 +200,32 @@ export function useGrasshopperTaskEditorModel() {
   function loadArrayContext(
     key: string,
     array: any[],
-  ): ArrayContext {
-    const values: Array<InputContext | NestedObjectContext | ArrayContext> = [];
+    depth: number = 0,
+  ): ArrayContext | ObjectArrayContext | AccordionContext {
+    console.log(`=== loadArrayContext 시작 ===`);
+    console.log(`key: ${key}, depth: ${depth}, array:`, array);
+    
+    // depth 5인 경우 AccordionContext 사용 (객체 배열이든 문자열 배열이든)
+    if (depth === 5 && array.length > 0) {
+      console.log(`depth ${depth}에서 AccordionContext 사용`);
+      return loadArrayAccordionContext(key, array, depth);
+    }
+    
+    const values: Array<InputContext | NestedObjectContext | ArrayContext | ObjectArrayContext> = [];
+    const depthPrefix = `[d-sub-${depth}-array] `;
     
     array.forEach((item, index) => {
       if (typeof item === 'string' || typeof item === 'number' || typeof item === 'boolean') {
-        values.push(loadInputContext(`${key}[${index}]`, String(item)));
+        values.push(loadInputContext(`${key}[${index}]`, String(item), depth + 1, typeof item));
       } else if (Array.isArray(item)) {
-        values.push(loadArrayContext(`${key}[${index}]`, item));
+        // @ts-ignore
+        values.push(loadArrayContext(`${key}[${index}]`, item, depth + 1));
       } else if (typeof item === 'object' && item !== null) {
         // servers 배열의 경우 특별 처리
         if (key === 'servers') {
-          values.push(loadServerContext(`${key}[${index}]`, item, index));
+          values.push(loadServerContext(`${key}[${index}]`, item, index, depth + 1));
         } else {
-          values.push(loadNestedObjectContext(`${key}[${index}]`, item));
+          values.push(loadNestedObjectContext(`${key}[${index}]`, item, depth + 1));
         }
       }
     });
@@ -204,8 +233,93 @@ export function useGrasshopperTaskEditorModel() {
     return {
       type: 'array',
       context: {
-        subject: key,
+        subject: `${depthPrefix}${key}`,
         values,
+      },
+      originalData: array,
+    };
+  }
+
+  function loadArrayAccordionContext(
+    key: string,
+    array: any[],
+    depth: number = 0,
+  ): AccordionContext {
+    console.log(`=== loadArrayAccordionContext 시작 ===`);
+    console.log(`key: ${key}, depth: ${depth}, array:`, array);
+    
+    const depthPrefix = `[d-sub-${depth}-array] `;
+    
+    return {
+      type: 'accordion',
+      context: {
+        subject: `${depthPrefix}${key}`,
+        values: array.map((item, index) => {
+          console.log(`ArrayAccordionContext 처리 중 - index: ${index}, item:`, item);
+          
+          const content: Array<InputContext> = [];
+          
+          if (typeof item === 'object' && item !== null) {
+            // 객체의 각 속성을 InputContext로 변환
+            Object.entries(item).forEach(([subKey, subValue]) => {
+              console.log(`  - ${subKey}: ${subValue} (${typeof subValue})`);
+              content.push(loadInputContext(subKey, String(subValue), depth + 1, typeof subValue));
+            });
+          } else {
+            // 문자열, 숫자, 불린 등의 기본 타입을 InputContext로 변환
+            console.log(`  - 기본 타입: ${item} (${typeof item})`);
+            content.push(loadInputContext('value', String(item), depth + 1, typeof item));
+          }
+          
+          return {
+            header: {
+              icon: 'ic_chevron-down',
+              title: index.toString(),
+            },
+            content,
+          };
+        }),
+      },
+      index: 0,
+      originalData: array,
+    };
+  }
+
+  function loadObjectArrayContext(
+    key: string,
+    array: any[],
+    depth: number = 0,
+  ): ObjectArrayContext {
+    console.log(`=== loadObjectArrayContext 시작 ===`);
+    console.log(`key: ${key}, depth: ${depth}, array:`, array);
+    
+    const depthPrefix = `[d-sub-${depth}-objectArray] `;
+    
+    return {
+      type: 'objectArray',
+      context: {
+        subject: `${depthPrefix}${key}`,
+        values: array.map((item, index) => {
+          console.log(`ObjectArrayContext 처리 중 - index: ${index}, item:`, item);
+          
+          const content: Array<InputContext> = [];
+          
+          if (typeof item === 'object' && item !== null) {
+            // 객체의 각 속성을 InputContext로 변환
+            Object.entries(item).forEach(([subKey, subValue]) => {
+              console.log(`  - ${subKey}: ${subValue} (${typeof subValue})`);
+              content.push(loadInputContext(subKey, String(subValue), depth + 1, typeof subValue));
+            });
+          }
+          
+          return {
+            header: {
+              icon: 'ic_chevron-down',
+              title: index.toString(),
+            },
+            content,
+          };
+        }),
       },
       originalData: array,
     };
@@ -231,27 +345,30 @@ export function useGrasshopperTaskEditorModel() {
     key: string,
     server: any,
     index: number,
+    depth: number = 0,
   ): NestedObjectContext {
     const values: Array<InputContext | NestedObjectContext | ArrayContext> = [];
+    const depthPrefix = `[d-sub-${depth}-server] `;
     
     Object.entries(server).forEach(([subKey, subValue]) => {
       console.log(`서버[${index}] 처리 중: ${subKey}`, subValue);
       
       if (typeof subValue === 'string' || typeof subValue === 'number' || typeof subValue === 'boolean') {
-        values.push(loadInputContext(subKey, String(subValue)));
+        values.push(loadInputContext(subKey, String(subValue), depth + 1, typeof subValue));
       } else if (Array.isArray(subValue)) {
         // errors 배열이나 다른 배열들 처리
-        values.push(loadArrayContext(subKey, subValue));
+        // @ts-ignore
+        values.push(loadArrayContext(subKey, subValue, depth + 1));
       } else if (typeof subValue === 'object' && subValue !== null) {
         // migration_list 같은 중첩 객체 처리
-        values.push(loadNestedObjectContext(subKey, subValue));
+        values.push(loadNestedObjectContext(subKey, subValue, depth + 1));
       }
     });
 
     return {
       type: 'nestedObject',
       context: {
-        subject: `Server ${index + 1}`,
+        subject: `${depthPrefix}Server ${index + 1}`,
         values,
       },
     };
@@ -343,7 +460,7 @@ export function useGrasshopperTaskEditorModel() {
           // servers부터 매핑 시작
           if (key === 'servers' && Array.isArray(value)) {
             console.log('servers 배열 처리:', key, value);
-            context.push(loadArrayContext(key, value));
+            context.push(loadArrayContext(key, value, 0));
           } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
             console.log('기본 타입 처리:', key, value);
             // 기본 타입은 Entity에 추가
@@ -357,14 +474,14 @@ export function useGrasshopperTaskEditorModel() {
               });
             }
             if (context[0].type === 'entity') {
-              context[0].context.values.push(loadInputContext(key, String(value)));
+              context[0].context.values.push(loadInputContext(key, String(value), 0, typeof value));
             }
           } else if (Array.isArray(value)) {
             console.log('배열 처리:', key, value);
-            context.push(loadArrayContext(key, value));
+            context.push(loadArrayContext(key, value, 0));
           } else if (typeof value === 'object' && value !== null) {
             console.log('중첩 객체 처리:', key, value);
-            context.push(loadNestedObjectContext(key, value));
+            context.push(loadNestedObjectContext(key, value, 0));
           }
         },
       );
@@ -412,6 +529,12 @@ export function useGrasshopperTaskEditorModel() {
         // 배열 처리
         // @ts-ignore
         updatedTargetSoftwareModel[data.context.subject] = convertArrayContextToData(data);
+      } else if (data.type === 'objectArray') {
+        // 객체 배열 처리
+        console.log(`ObjectArrayContext 처리 중:`, data);
+        const subjectKey = data.context.subject.replace(/^\[d-sub-\d+-objectArray\] /, '');
+        // @ts-ignore
+        updatedTargetSoftwareModel[subjectKey] = convertObjectArrayContextToData(data);
       } else if (data.type === 'nestedObject') {
         // 중첩 객체 처리
         // @ts-ignore
@@ -419,6 +542,14 @@ export function useGrasshopperTaskEditorModel() {
       } else if (data.type === 'accordion') {
         if (data.context.subject === 'servers') {
           updatedTargetSoftwareModel.servers = data.context.values.map(value =>
+            // @ts-ignore
+            getAccordionSlotData(value),
+          );
+        } else {
+          // depth 5 배열 처리 (문자열 배열 등)
+          const subjectKey = data.context.subject.replace(/^\[d-sub-\d+-array\] /, '');
+          console.log(`AccordionContext 배열 처리 중 - subjectKey: ${subjectKey}`, data);
+          updatedTargetSoftwareModel[subjectKey] = data.context.values.map(value =>
             // @ts-ignore
             getAccordionSlotData(value),
           );
@@ -459,6 +590,14 @@ export function useGrasshopperTaskEditorModel() {
   }
 
   function getAccordionSlotData(accordionSlotContext: AccordionSlotContext) {
+    // 문자열 배열의 경우 (value 필드만 있는 경우)
+    if (accordionSlotContext.content.length === 1 && 
+        accordionSlotContext.content[0].context.title === 'value') {
+      const inputData = getInputData(accordionSlotContext.content[0].context);
+      return inputData.value || '';
+    }
+    
+    // 객체의 경우
     const object = {};
     accordionSlotContext.content.forEach(data => {
       const inputData = getInputData(data.context);
@@ -507,6 +646,19 @@ export function useGrasshopperTaskEditorModel() {
     });
   }
 
+  function convertObjectArrayContextToData(objectArrayContext: ObjectArrayContext): any[] {
+    console.log(`=== convertObjectArrayContextToData 시작 ===`);
+    console.log(`objectArrayContext:`, objectArrayContext);
+    
+    const result = objectArrayContext.context.values.map(slot => {
+      console.log(`슬롯 처리 중:`, slot);
+      return getAccordionSlotData(slot);
+    });
+    
+    console.log(`변환 결과:`, result);
+    return result;
+  }
+
   function convertNestedObjectContextToData(nestedObjectContext: NestedObjectContext): any {
     const result: any = {};
     
@@ -534,7 +686,7 @@ export function useGrasshopperTaskEditorModel() {
     if (formContext.value[parentIndex].type === 'accordion') {
       formContext.value[parentIndex].context.values.push(
         // @ts-ignore
-        loadAccordionContext(formContext.value[parentIndex].originalData[0], 0),
+        loadAccordionContext(formContext.value[parentIndex].originalData[0], 0, 0),
       );
     }
   }

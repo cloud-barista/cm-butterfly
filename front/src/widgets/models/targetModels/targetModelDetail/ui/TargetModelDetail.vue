@@ -23,12 +23,17 @@ const { targetModelStore, setTargetModelId, initTable, tableModel } =
 const isSoftwareModel = computed(() => {
   const targetModel = targetModelStore.getTargetModelById(props.selectedTargetModelId);
   
-  // targetSoftwareModel이 있으면 Software 모델로 간주
+  // modelType이 'SoftwareModel'이면 Software 모델로 간주
+  if (targetModel?.modelType === 'SoftwareModel') {
+    return true;
+  }
+  
+  // targetSoftwareModel이 있으면 Software 모델로 간주 (기존 호환성)
   if (targetModel?.targetSoftwareModel) {
     return true;
   }
   
-  // migrationType이 'software'이면 Software 모델로 간주
+  // migrationType이 'software'이면 Software 모델로 간주 (기존 호환성)
   if (targetModel?.migrationType === 'software') {
     return true;
   }

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { PButton, PIconButton, PTextInput } from '@cloudforet-test/mirinae';
-import Vue, {
+import {
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
@@ -12,10 +11,11 @@ import Vue, {
   UnwrapRef,
   watch,
 } from 'vue';
-import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
+import { PTextInput } from '@cloudforet-test/mirinae';
 import { useGrasshopperTaskEditorModel } from '@/features/sequential/designer/editor/model/grasshopperTaskEditorModel';
-import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
+import DepthField from '@/features/sequential/designer/editor/components/DepthField.vue';
 import SequentialShortCut from '@/features/sequential/designer/shortcut/ui/SequentialShortCut.vue';
+import ObjectArray from '@/shared/ui/Input/ObjectArray/ObjectArray.vue';
 import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
 
 interface IProps {
@@ -159,6 +159,665 @@ function handleClickOutside(event: MouseEvent) {
   }
 }
 
+// depth 0에서 array 타입인지 확인하는 함수
+function isDepthZeroArray(formData: any): boolean {
+  console.log('=== isDepthZeroArray 확인 ===');
+  console.log('formData.type:', formData.type);
+  console.log('formData.context.subject:', formData.context.subject);
+  
+  // subject에서 depth 정보를 확인 (예: "[d-sub-0-array] key" 형태)
+  const isArray = formData.type === 'array';
+  const hasDepthZero = formData.context.subject.includes('[d-sub-0-array]');
+  
+  console.log('isArray:', isArray);
+  console.log('hasDepthZero:', hasDepthZero);
+  console.log('최종 결과:', isArray && hasDepthZero);
+  
+  return isArray && hasDepthZero;
+}
+
+// ArrayContext를 ObjectArrayContext로 변환하는 함수 (depth 4까지 처리)
+function convertToObjectArrayContext(formData: any) {
+  console.log('=== convertToObjectArrayContext 시작 ===');
+  console.log('formData:', formData);
+  console.log('formData.context.values:', formData.context.values);
+  
+  const subject = formData.context.subject.replace(/^\[d-sub-\d+-array\] /, '');
+  
+  // depth 4까지만 표시하기 위해 values를 ObjectContext로 변환
+  const items = formData.context.values.map((item: any, index: number) => {
+    console.log(`=== 아이템 ${index} 처리 시작 ===`);
+    console.log('item:', item);
+    console.log('item.type:', item.type);
+    console.log('item.context:', item.context);
+    
+    if (item.type === 'nestedObject') {
+      // nestedObject를 ObjectContext로 변환 (depth 3까지 처리)
+      const fields = item.context.values.map((field: any) => {
+        if (field.type === 'input') {
+          return {
+            type: 'keyValue',
+            key: field.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+            value: field.context.model
+          };
+        } else if (field.type === 'keyValueInput') {
+          // KeyValueInputContext 처리
+          return {
+            type: 'keyValue',
+            key: (field.context.title.value || 'key'),
+            value: field.context.model
+          };
+        } else if (field.type === 'nestedObject') {
+          // depth 2의 nestedObject 처리
+          console.log('=== depth 2 nestedObject 처리 시작 ===');
+          console.log('field:', field);
+          console.log('field.context.values:', field.context.values);
+          
+          const nestedFields = field.context.values.map((nestedField: any) => {
+            console.log('nestedField 처리:', nestedField.type, nestedField);
+            
+            if (nestedField.type === 'input') {
+              return {
+                type: 'keyValue',
+                key: nestedField.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                value: nestedField.context.model
+              };
+            } else if (nestedField.type === 'keyValueInput') {
+              // KeyValueInputContext 처리 (depth 2)
+              return {
+                type: 'keyValue',
+                key: (nestedField.context.title.value || 'key'),
+                value: nestedField.context.model
+              };
+            } else if (nestedField.type === 'array') {
+              console.log('=== depth 2 nestedObject 내부 array 처리 시작 ===');
+              console.log('nestedField (array):', nestedField);
+              console.log('nestedField.context.values:', nestedField.context.values);
+              
+              // depth 2의 array 처리 - ObjectArray로 변환
+              const arrayItems = nestedField.context.values.map((arrayItem: any, arrayIndex: number) => {
+                console.log(`depth 2 arrayItem ${arrayIndex}:`, arrayItem);
+                
+                if (arrayItem.type === 'input') {
+                  return {
+                    type: 'object',
+                    subject: `Item ${arrayIndex + 1}`,
+                    fields: [{
+                      type: 'keyValue',
+                      key: arrayItem.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                      value: arrayItem.context.model
+                    }]
+                  };
+                } else if (arrayItem.type === 'keyValueInput') {
+                  return {
+                    type: 'object',
+                    subject: `Item ${arrayIndex + 1}`,
+                    fields: [{
+                      type: 'keyValue',
+                      key: (arrayItem.context.title.value || 'key'),
+                      value: arrayItem.context.model
+                    }]
+                  };
+                } else if (arrayItem.type === 'nestedObject') {
+                  const arrayItemFields = arrayItem.context.values.map((arrayField: any) => {
+                    if (arrayField.type === 'input') {
+                      return {
+                        type: 'keyValue',
+                        key: arrayField.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                        value: arrayField.context.model
+                      };
+                    }
+                    return arrayField;
+                  });
+                  
+                  return {
+                    type: 'object',
+                    subject: `Item ${arrayIndex + 1}`,
+                    fields: arrayItemFields
+                  };
+                }
+                console.log(`처리되지 않은 depth 2 arrayItem 타입: ${arrayItem.type}`, arrayItem);
+                return arrayItem;
+              });
+              
+              console.log('depth 2 arrayItems 결과:', arrayItems);
+              
+              return {
+                type: 'objectArray',
+                subject: nestedField.context.subject.replace(/^\[d-sub-\d+-array\] /, ''),
+                items: arrayItems
+              };
+            } else if (nestedField.type === 'nestedObject') {
+              // depth 3의 nestedObject 처리
+              const depth3Fields = nestedField.context.values.map((depth3Field: any) => {
+                if (depth3Field.type === 'input') {
+                  return {
+                    type: 'keyValue',
+                    key: depth3Field.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                    value: depth3Field.context.model
+                  };
+                } else if (depth3Field.type === 'keyValueInput') {
+                  // KeyValueInputContext 처리 (depth 3)
+                  return {
+                    type: 'keyValue',
+                    key: (depth3Field.context.title.value || 'key'),
+                    value: depth3Field.context.model
+                  };
+                } else if (depth3Field.type === 'nestedObject') {
+                  // depth 4의 nestedObject 처리
+                  const depth4Fields = depth3Field.context.values.map((depth4Field: any) => {
+                    if (depth4Field.type === 'input') {
+                      return {
+                        type: 'keyValue',
+                        key: depth4Field.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                        value: depth4Field.context.model
+                      };
+                    } else if (depth4Field.type === 'keyValueInput') {
+                      // KeyValueInputContext 처리 (depth 4)
+                      return {
+                        type: 'keyValue',
+                        key: (depth4Field.context.title.value || 'key'),
+                        value: depth4Field.context.model
+                      };
+                    }
+                    // depth 4에서는 더 깊은 중첩은 표시하지 않음
+                    return depth4Field;
+                  });
+                  
+                  return {
+                    type: 'object',
+                    subject: depth3Field.context.subject.replace(/^\[d-sub-\d+-\w+\] /, ''),
+                    fields: depth4Fields
+                  };
+                } else if (depth3Field.type === 'array') {
+                  // depth 3의 array 처리
+                  const depth3ArrayItems = depth3Field.context.values.map((depth3ArrayItem: any, depth3ArrayIndex: number) => {
+                    if (depth3ArrayItem.type === 'input') {
+                      return {
+                        type: 'object',
+                        subject: `Item ${depth3ArrayIndex + 1}`,
+                        fields: [{
+                          type: 'keyValue',
+                          key: depth3ArrayItem.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                          value: depth3ArrayItem.context.model
+                        }]
+                      };
+                    } else if (depth3ArrayItem.type === 'keyValueInput') {
+                      return {
+                        type: 'object',
+                        subject: `Item ${depth3ArrayIndex + 1}`,
+                        fields: [{
+                          type: 'keyValue',
+                          key: depth3ArrayItem.context.title.value || 'key',
+                          value: depth3ArrayItem.context.model
+                        }]
+                      };
+                    } else if (depth3ArrayItem.type === 'nestedObject') {
+                      const depth3ArrayItemFields = depth3ArrayItem.context.values.map((depth3ArrayField: any) => {
+                        if (depth3ArrayField.type === 'input') {
+                          return {
+                            type: 'keyValue',
+                            key: depth3ArrayField.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                            value: depth3ArrayField.context.model
+                          };
+                        }
+                        return depth3ArrayField;
+                      });
+                      
+                      return {
+                        type: 'object',
+                        subject: `Item ${depth3ArrayIndex + 1}`,
+                        fields: depth3ArrayItemFields
+                      };
+                    }
+                    return depth3ArrayItem;
+                  });
+                  
+                  return {
+                    type: 'objectArray',
+                    subject: depth3Field.context.subject.replace(/^\[d-sub-\d+-array\] /, ''),
+                    items: depth3ArrayItems
+                  };
+                }
+                return depth3Field;
+              });
+              
+              return {
+                type: 'object',
+                subject: nestedField.context.subject.replace(/^\[d-sub-\d+-\w+\] /, ''),
+                fields: depth3Fields
+              };
+            } else if (nestedField.type === 'array') {
+              // depth 2의 array 처리 - ObjectArray로 변환
+              console.log('=== depth 2 array 처리 시작 ===');
+              console.log('nestedField:', nestedField);
+              console.log('nestedField.context.values:', nestedField.context.values);
+              
+              const arrayItems = nestedField.context.values.map((arrayItem: any, arrayIndex: number) => {
+                console.log(`depth 2 arrayItem ${arrayIndex}:`, arrayItem);
+                
+                if (arrayItem.type === 'input') {
+                  return {
+                    type: 'object',
+                    subject: `Item ${arrayIndex + 1}`,
+                    fields: [{
+                      type: 'keyValue',
+                      key: arrayItem.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                      value: arrayItem.context.model
+                    }]
+                  };
+                } else if (arrayItem.type === 'keyValueInput') {
+                  return {
+                    type: 'object',
+                    subject: `Item ${arrayIndex + 1}`,
+                    fields: [{
+                      type: 'keyValue',
+                      key: (arrayItem.context.title.value || 'key'),
+                      value: arrayItem.context.model
+                    }]
+                  };
+                } else if (arrayItem.type === 'nestedObject') {
+                  const arrayItemFields = arrayItem.context.values.map((arrayField: any) => {
+                    if (arrayField.type === 'input') {
+                      return {
+                        type: 'keyValue',
+                        key: arrayField.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                        value: arrayField.context.model
+                      };
+                    } else if (arrayField.type === 'array') {
+                      // depth 2의 array 처리 - ObjectArray로 변환
+                      const nestedArrayItems = arrayField.context.values.map((nestedArrayItem: any, nestedArrayIndex: number) => {
+                        if (nestedArrayItem.type === 'input') {
+                          return {
+                            type: 'object',
+                            subject: `Item ${nestedArrayIndex + 1} [depth-2-array-input]`,
+                            fields: [{
+                              type: 'keyValue',
+                              key: nestedArrayItem.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                              value: nestedArrayItem.context.model
+                            }]
+                          };
+                        }
+                        return nestedArrayItem;
+                      });
+                      
+                      return {
+                        type: 'objectArray',
+                        subject: arrayField.context.subject.replace(/^\[d-sub-\d+-array\] /, ''),
+                        items: nestedArrayItems
+                      };
+                    }
+                    return arrayField;
+                  });
+                  
+                  return {
+                    type: 'object',
+                    subject: `Item ${arrayIndex + 1}`,
+                    fields: arrayItemFields
+                  };
+                }
+                console.log(`처리되지 않은 arrayItem 타입: ${arrayItem.type}`, arrayItem);
+                return arrayItem;
+              });
+              
+              console.log('arrayItems 결과:', arrayItems);
+              
+              return {
+                type: 'objectArray',
+                    subject: field.context.subject.replace(/^\[d-sub-\d+-array\] /, ''),
+                items: arrayItems
+              };
+            }
+            return nestedField;
+          });
+          
+          return {
+            type: 'object',
+            subject: field.context.subject.replace(/^\[d-sub-\d+-\w+\] /, ''),
+            fields: nestedFields
+          };
+        } else if (field.type === 'array') {
+          // depth 1의 array 처리 - ObjectArray로 변환
+          console.log('=== depth 1 array 처리 시작 ===');
+          console.log('field:', field);
+          console.log('field.context.values:', field.context.values);
+          
+          const arrayItems = field.context.values.map((arrayItem: any, arrayIndex: number) => {
+            console.log(`arrayItem ${arrayIndex}:`, arrayItem);
+            
+            if (arrayItem.type === 'input') {
+              return {
+                type: 'object',
+                subject: `Item ${arrayIndex + 1}`,
+                fields: [{
+                  type: 'keyValue',
+                  key: arrayItem.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                  value: arrayItem.context.model
+                }]
+              };
+            } else if (arrayItem.type === 'keyValueInput') {
+              return {
+                type: 'object',
+                subject: `Item ${arrayIndex + 1}`,
+                fields: [{
+                  type: 'keyValue',
+                  key: (arrayItem.context.title.value || 'key'),
+                  value: arrayItem.context.model
+                }]
+              };
+            } else if (arrayItem.type === 'nestedObject') {
+              const arrayItemFields = arrayItem.context.values.map((arrayField: any) => {
+                if (arrayField.type === 'input') {
+                  return {
+                    type: 'keyValue',
+                    key: arrayField.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                    value: arrayField.context.model
+                  };
+                } else if (arrayField.type === 'array') {
+                  // depth 2의 array 처리 - ObjectArray로 변환
+                  const nestedArrayItems = arrayField.context.values.map((nestedArrayItem: any, nestedArrayIndex: number) => {
+                    if (nestedArrayItem.type === 'input') {
+                      return {
+                        type: 'object',
+                        subject: `Item ${nestedArrayIndex + 1} [depth-2-array-input]`,
+                        fields: [{
+                          type: 'keyValue',
+                          key: nestedArrayItem.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                          value: nestedArrayItem.context.model
+                        }]
+                      };
+                    }
+                    return nestedArrayItem;
+                  });
+                  
+                  return {
+                    type: 'objectArray',
+                    subject: arrayField.context.subject.replace(/^\[d-sub-\d+-array\] /, '') + ' [depth-2-array]',
+                    items: nestedArrayItems
+                  };
+                }
+                return arrayField;
+              });
+              
+              return {
+                type: 'object',
+                subject: `Item ${arrayIndex + 1}`,
+                fields: arrayItemFields
+              };
+            }
+            console.log(`처리되지 않은 arrayItem 타입: ${arrayItem.type}`, arrayItem);
+            return arrayItem;
+          });
+          
+          console.log('arrayItems 결과:', arrayItems);
+          
+          return {
+            type: 'objectArray',
+                subject: field.context.subject.replace(/^\[d-sub-\d+-array\] /, ''),
+            items: arrayItems
+          };
+        }
+        return field;
+      });
+      
+      return {
+        type: 'object',
+        subject: `Object ${index + 1}`,
+        fields: fields
+      };
+    } else if (item.type === 'input') {
+      // 단순 input을 keyValue로 변환
+      return {
+        type: 'object',
+        subject: `Object ${index + 1}`,
+        fields: [{
+          type: 'keyValue',
+          key: item.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+          value: item.context.model
+        }]
+      };
+    } else if (item.type === 'keyValueInput') {
+      // KeyValueInputContext 처리 (depth 0)
+      return {
+        type: 'object',
+        subject: `Object ${index + 1}`,
+        fields: [{
+          type: 'keyValue',
+          key: item.context.title.value || 'key',
+          value: item.context.model
+        }]
+      };
+    } else if (item.type === 'accordion') {
+      // AccordionContext 처리 - AccordionSlotContext들을 ObjectContext로 변환
+      const accordionItems = item.context.values.map((slot: any, slotIndex: number) => {
+        const slotFields = slot.content.map((contentItem: any) => {
+          if (contentItem.type === 'input') {
+            return {
+              type: 'keyValue',
+              key: contentItem.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+              value: contentItem.context.model
+            };
+          }
+          return contentItem;
+        });
+        
+        return {
+          type: 'object',
+          subject: slot.header.title,
+          fields: slotFields
+        };
+      });
+      
+      return {
+        type: 'objectArray',
+        subject: item.context.subject,
+        items: accordionItems
+      };
+    } else if (item.type === 'softwareModel') {
+      // SoftwareModelContext 처리
+      const softwareFields = item.context.values.map((softwareField: any) => {
+        if (softwareField.type === 'input') {
+          return {
+            type: 'keyValue',
+            key: softwareField.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+            value: softwareField.context.model
+          };
+        }
+        return softwareField;
+      });
+      
+      return {
+        type: 'object',
+        subject: item.context.subject,
+        fields: softwareFields
+      };
+    }
+    
+    return item;
+  });
+  
+  const result = {
+    type: 'objectArray' as const,
+    subject: subject,
+    items: items
+  };
+  
+  console.log('변환 결과:', result);
+  return result;
+}
+
+// ObjectArrayContext 업데이트 함수 (depth 4까지 처리)
+function updateObjectArrayContext(index: number, updatedContext: any) {
+  console.log('=== updateObjectArrayContext 시작 ===');
+  console.log('index:', index);
+  console.log('updatedContext:', updatedContext);
+  
+  // ObjectArrayContext를 다시 ArrayContext로 변환하여 formContext 업데이트
+  const originalFormData = taskEditorModel.formContext.value[index];
+  if (originalFormData.type === 'array') {
+    // ObjectArrayContext의 items를 다시 ArrayContext의 values로 변환 (depth 4까지 처리)
+    const updatedValues = updatedContext.items.map((item: any) => {
+      // ObjectContext를 nestedObject로 변환 (depth 3까지 처리)
+      const nestedValues = item.fields.map((field: any) => {
+        if (field.type === 'keyValue') {
+          return {
+            type: 'input',
+            context: {
+              title: `[d-tit-1-string] ${field.key}`,
+              model: field.value
+            }
+          };
+        } else if (field.type === 'object') {
+          // depth 2의 object 처리
+          const nestedObjectValues = field.fields.map((nestedField: any) => {
+            if (nestedField.type === 'keyValue') {
+              return {
+                type: 'input',
+                context: {
+                  title: `[d-tit-2-string] ${nestedField.key}`,
+                  model: nestedField.value
+                }
+              };
+            } else if (nestedField.type === 'object') {
+              // depth 3의 object 처리
+              const depth3ObjectValues = nestedField.fields.map((depth3Field: any) => {
+                if (depth3Field.type === 'keyValue') {
+                  return {
+                    type: 'input',
+                    context: {
+                      title: `[d-tit-3-string] ${depth3Field.key}`,
+                      model: depth3Field.value
+                    }
+                  };
+                } else if (depth3Field.type === 'object') {
+                  // depth 4의 object 처리
+                  const depth4ObjectValues = depth3Field.fields.map((depth4Field: any) => {
+                    if (depth4Field.type === 'keyValue') {
+                      return {
+                        type: 'input',
+                        context: {
+                          title: `[d-tit-4-string] ${depth4Field.key}`,
+                          model: depth4Field.value
+                        }
+                      };
+                    }
+                    return depth4Field;
+                  });
+                  
+                  return {
+                    type: 'nestedObject',
+                    context: {
+                      subject: `[d-sub-4-object] ${depth3Field.subject}`,
+                      values: depth4ObjectValues
+                    }
+                  };
+                }
+                return depth3Field;
+              });
+              
+              return {
+                type: 'nestedObject',
+                context: {
+                  subject: `[d-sub-3-object] ${nestedField.subject}`,
+                  values: depth3ObjectValues
+                }
+              };
+            } else if (nestedField.type === 'objectArray') {
+              // depth 3의 objectArray 처리
+              const depth3ArrayValues = nestedField.items.map((depth3ArrayItem: any) => {
+                const depth3ArrayItemValues = depth3ArrayItem.fields.map((depth3ArrayField: any) => {
+                  if (depth3ArrayField.type === 'keyValue') {
+                    return {
+                      type: 'input',
+                      context: {
+                        title: `[d-tit-3-string] ${depth3ArrayField.key}`,
+                        model: depth3ArrayField.value
+                      }
+                    };
+                  }
+                  return depth3ArrayField;
+                });
+                
+                return {
+                  type: 'nestedObject',
+                  context: {
+                    subject: `[d-sub-3-object] ${depth3ArrayItem.subject}`,
+                    values: depth3ArrayItemValues
+                  }
+                };
+              });
+              
+              return {
+                type: 'array',
+                context: {
+                  subject: `[d-sub-3-array] ${nestedField.subject}`,
+                  values: depth3ArrayValues
+                },
+                originalData: []
+              };
+            }
+            return nestedField;
+          });
+          
+          return {
+            type: 'nestedObject',
+            context: {
+              subject: `[d-sub-2-object] ${field.subject}`,
+              values: nestedObjectValues
+            }
+          };
+        } else if (field.type === 'objectArray') {
+          // depth 1의 objectArray 처리
+          const arrayValues = field.items.map((arrayItem: any) => {
+            const arrayItemValues = arrayItem.fields.map((arrayField: any) => {
+              if (arrayField.type === 'keyValue') {
+                return {
+                  type: 'input',
+                  context: {
+                    title: `[d-tit-2-string] ${arrayField.key}`,
+                    model: arrayField.value
+                  }
+                };
+              }
+              return arrayField;
+            });
+            
+            return {
+              type: 'nestedObject',
+              context: {
+                subject: `[d-sub-2-object] ${arrayItem.subject}`,
+                values: arrayItemValues
+              }
+            };
+          });
+          
+          return {
+            type: 'array',
+            context: {
+              subject: `[d-sub-1-array] ${field.subject}`,
+              values: arrayValues
+            },
+            originalData: []
+          };
+        }
+        return field;
+      });
+      
+      return {
+        type: 'nestedObject',
+        context: {
+          subject: `[d-sub-1-object] ${item.subject}`,
+          values: nestedValues
+        }
+      };
+    });
+    
+    // formContext 업데이트
+    originalFormData.context.values = updatedValues;
+    console.log('업데이트된 formData:', originalFormData);
+  }
+}
+
 </script>
 
 <template>
@@ -178,12 +837,12 @@ function handleClickOutside(event: MouseEvent) {
           {{ taskEditorModel.componentNameModel.value.context.title }}
         </div>
         <div class="field-content-box">
-          <p-text-input
+          <PTextInput
             v-model="taskEditorModel.componentNameModel.value.context.model.value"
             :size="'md'"
             block
             readonly
-          ></p-text-input>
+          ></PTextInput>
         </div>
       </div>
     </div>
@@ -192,7 +851,7 @@ function handleClickOutside(event: MouseEvent) {
         <!-- Path Params -->
         <div v-if="taskEditorModel.paramsContext.value?.path_params && taskEditorModel.paramsContext.value.path_params.context.values.length > 0">
           <div class="subject-title border-bottom">
-            {{ taskEditorModel.paramsContext.value.path_params.context.subject }}
+            {{ taskEditorModel.paramsContext.value.path_params.context.subject.replace(/^\[d-sub-\d+-\w+\] /, '') }}
           </div>
           <div
             v-for="(param, paramIndex) of taskEditorModel.paramsContext.value.path_params.context.values"
@@ -203,14 +862,14 @@ function handleClickOutside(event: MouseEvent) {
               {{ param.context.title }}
             </div>
             <div class="field-content-box">
-              <p-text-input
+              <PTextInput
                 v-model="param.context.model.value"
                 :size="'md'"
                 block
                 :invalid="!param.context.model.isValid"
                 :readonly="param.context.title === 'nsId'"
                 @blur="param.context.model.onBlur"
-              ></p-text-input>
+              ></PTextInput>
             </div>
           </div>
         </div>
@@ -218,7 +877,7 @@ function handleClickOutside(event: MouseEvent) {
         <!-- Query Params -->
         <div v-if="taskEditorModel.paramsContext.value?.query_params && taskEditorModel.paramsContext.value.query_params.context.values.length > 0">
           <div class="subject-title border-bottom">
-            {{ taskEditorModel.paramsContext.value.query_params.context.subject }}
+            {{ taskEditorModel.paramsContext.value.query_params.context.subject.replace(/^\[d-sub-\d+-\w+\] /, '') }}
           </div>
           <div
             v-for="(param, paramIndex) of taskEditorModel.paramsContext.value.query_params.context.values"
@@ -229,14 +888,14 @@ function handleClickOutside(event: MouseEvent) {
               {{ param.context.title }}
             </div>
             <div class="field-content-box">
-              <p-text-input
+              <PTextInput
                 v-model="param.context.model.value"
                 :size="'md'"
                 block
                 :invalid="!param.context.model.isValid"
                 :readonly="param.context.title === 'nsId'"
                 @blur="param.context.model.onBlur"
-              ></p-text-input>
+              ></PTextInput>
             </div>
           </div>
         </div>
@@ -247,7 +906,7 @@ function handleClickOutside(event: MouseEvent) {
       <!-- Entity Context -->
       <div v-if="formData.type === 'entity'" class="entity-box w-full h-full">
         <div class="subject-title border-bottom">
-          {{ formData.context.subject }}
+          {{ formData.context.subject.replace(/^\[d-sub-\d+-\w+\] /, '') }}
         </div>
         <div
           v-for="(field, fieldIndex) of formData.context.values" 
@@ -259,219 +918,33 @@ function handleClickOutside(event: MouseEvent) {
               {{ field.context.title }}
           </div>
           <div class="field-content-box">
-              <p-text-input v-if="field.context.model && field.context.model.value !== undefined" v-model="field.context.model.value"></p-text-input>
-              <p-text-input v-else></p-text-input>
+              <PTextInput v-if="field.context.model && field.context.model.value !== undefined" v-model="field.context.model.value"></PTextInput>
+              <PTextInput v-else></PTextInput>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Array Context (servers) -->
+      <!-- Array Context - depth 0에서 array 타입인 경우 ObjectArray.vue 사용 -->
       <div v-else-if="formData.type === 'array'" class="array-box w-full h-full">
         <div class="subject-title border-bottom">
-          {{ formData.context.subject }}
+          {{ formData.context.subject.replace(/^\[d-sub-\d+-\w+\] /, '') }}
         </div>
-        <div 
-          v-for="(item, itemIndex) of formData.context.values" 
-          :key="itemIndex"
-          class="array-item"
-        >
-          <!-- Nested Object (Server) -->
-          <div v-if="item.type === 'nestedObject'" class="nested-object-box">
-            <div class="subject-title border-bottom">
-              {{ item.context.subject }}
-            </div>
-            <div 
-              v-for="(field, fieldIndex) of item.context.values.filter(f => f.context.title !== 'errors' && f.context.subject !== 'errors')" 
-              :key="fieldIndex"
-              class="field-group-vertical border-bottom"
-            >
-              <!-- InputContext인 경우 -->
-              <div v-if="field.type === 'input'" class="field-group flex">
-                <div class="field-row">
-              <div class="field-title-box">
-                    {{ field.context.title }}
-                  </div>
-                  <div class="field-content-box">
-                    <p-text-input v-if="field.context.model && field.context.model.value !== undefined" v-model="field.context.model.value"></p-text-input>
-                    <p-text-input v-else></p-text-input>
-                  </div>
-                </div>
-              </div>
-              <!-- ArrayContext인 경우 (migration_list) -->
-              <div v-else-if="field.type === 'array'" class="field-group-vertical">
-                <div class="field-title-box">
-                  {{ field.context.subject }}
-                </div>
-                <div class="field-content-box">
-                  <div 
-                    v-for="(arrayItem, arrayIndex) of field.context.values" 
-                    :key="arrayIndex"
-                    class="array-item"
-                  >
-                    <!-- InputContext인 경우 -->
-                    <div v-if="arrayItem.type === 'input'" class="field-group flex">
-                      <div class="field-row">
-                        <div class="field-title-box">
-                          {{ arrayItem.context.title }}
-                        </div>
-                        <div class="field-content-box">
-                          <p-text-input v-if="arrayItem.context.model && arrayItem.context.model.value !== undefined" v-model="arrayItem.context.model.value"></p-text-input>
-                          <p-text-input v-else></p-text-input>
-                        </div>
-                      </div>
-                    </div>
-                    <!-- NestedObjectContext인 경우 (migration_list의 각 항목) -->
-                    <div v-else-if="arrayItem.type === 'nestedObject'">
-                      <div class="subject-title border-bottom">
-                        {{ arrayItem.context.subject }}
-            </div>
-                      <div 
-                        v-for="(nestedField, nestedIndex) of arrayItem.context.values" 
-                        :key="nestedIndex"
-                        class="field-group-vertical border-bottom"
-                      >
-                        <div v-if="nestedField.type === 'input'" class="field-group flex">
-                          <div class="field-row">
-                            <div class="field-title-box">
-                              {{ nestedField.context.title }}
-                            </div>
-                            <div class="field-content-box">
-                              <p-text-input v-if="nestedField.context.model && nestedField.context.model.value !== undefined" v-model="nestedField.context.model.value"></p-text-input>
-                              <p-text-input v-else></p-text-input>
-                            </div>
-                          </div>
-                        </div>
-                        <!-- ArrayContext인 경우 (binaries, containers, kubernetes) -->
-                        <div v-else-if="nestedField.type === 'array'" class="field-group-vertical">
-                          <div class="field-title-box">
-                            {{ nestedField.context.subject }}
-                          </div>
-                          <div class="field-content-box">
-                            <div 
-                              v-for="(subArrayItem, subArrayIndex) of nestedField.context.values" 
-                              :key="subArrayIndex"
-                              class="array-item"
-                            >
-                              <div v-if="subArrayItem.type === 'input'">
-                  <div class="field-title-box">
-                                  {{ subArrayItem.context.title }}
-                                </div>
-                                <div class="field-content-box">
-                                  <p-text-input v-if="subArrayItem.context.model && subArrayItem.context.model.value !== undefined" v-model="subArrayItem.context.model.value"></p-text-input>
-                                  <p-text-input v-else></p-text-input>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- NestedObjectContext인 경우 -->
-              <div v-else-if="field.type === 'nestedObject'" class="field-group-vertical">
-                <div class="field-title-box">
-                  {{ field.context.subject }}
-                </div>
-                <div class="field-content-box">
-                  <div 
-                    v-for="(nestedField, nestedIndex) of field.context.values" 
-                    :key="nestedIndex"
-                    class="field-group-vertical border-bottom"
-                  >
-                    <!-- InputContext인 경우 -->
-                    <div v-if="nestedField.type === 'input'" class="field-group flex">
-                      <div class="field-row">
-                        <div class="field-title-box">
-                          {{ nestedField.context.title }}
-                        </div>
-                        <div class="field-content-box">
-                          <p-text-input v-if="nestedField.context.model && nestedField.context.model.value !== undefined" v-model="nestedField.context.model.value"></p-text-input>
-                          <p-text-input v-else></p-text-input>
-                        </div>
-                      </div>
-                    </div>
-                    <!-- ArrayContext인 경우 (migration_list 내부의 binaries, containers, kubernetes) -->
-                    <div v-else-if="nestedField.type === 'array'" class="field-group-vertical">
-                      <div class="field-title-box">
-                        {{ nestedField.context.subject }}
-                      </div>
-                      <div class="field-content-box migration-list-box">
-                        <!-- migration_list 내부의 모든 배열들을 순차적으로 표시 -->
-                        <div 
-                          v-for="(arrayItem, arrayIndex) of nestedField.context.values" 
-                          :key="arrayIndex"
-                          class="migration-array-item"
-                        >
-                          <!-- InputContext인 경우 -->
-                          <div v-if="arrayItem.type === 'input'" class="field-group flex">
-                            <div class="field-row">
-                              <div class="field-title-box">
-                                {{ arrayItem.context.title }}
-                              </div>
-                              <div class="field-content-box">
-                                <p-text-input v-if="arrayItem.context.model && arrayItem.context.model.value !== undefined" v-model="arrayItem.context.model.value"></p-text-input>
-                                <p-text-input v-else></p-text-input>
-                              </div>
-                            </div>
-                          </div>
-                          <!-- NestedObjectContext인 경우 (binaries, containers, kubernetes의 각 항목) -->
-                          <div v-else-if="arrayItem.type === 'nestedObject'">
-                            <div class="subject-title border-bottom">
-                              {{ arrayItem.context.subject }}
-                            </div>
-                            <div 
-                              v-for="(subNestedField, subNestedIndex) of arrayItem.context.values" 
-                              :key="subNestedIndex"
-                              class="field-group-vertical border-bottom"
-                            >
-                              <div v-if="subNestedField.type === 'input'" class="field-group flex">
-                                <div class="field-row">
-                                  <div class="field-title-box">
-                                    {{ subNestedField.context.title }}
-                                  </div>
-                                  <div class="field-content-box">
-                                    <p-text-input v-if="subNestedField.context.model && subNestedField.context.model.value !== undefined" v-model="subNestedField.context.model.value"></p-text-input>
-                                    <p-text-input v-else></p-text-input>
-                                  </div>
-                                </div>
-                              </div>
-                              <!-- ArrayContext인 경우 (custom_configs, custom_data_paths, needed_libraries) -->
-                              <div v-else-if="subNestedField.type === 'array'" class="field-group-vertical">
-                                <div class="field-title-box">
-                                  {{ subNestedField.context.subject }}
-                                </div>
-                                <div class="field-content-box">
-                                  <div 
-                                    v-for="(subArrayItem, subArrayIndex) of subNestedField.context.values" 
-                                    :key="subArrayIndex"
-                                    class="array-item"
-                                  >
-                                    <div v-if="subArrayItem.type === 'input'" class="field-group flex">
-                                      <div class="field-row">
-                                        <div class="field-title-box">
-                                          {{ subArrayItem.context.title }}
-                                        </div>
-                                        <div class="field-content-box">
-                                          <p-text-input v-if="subArrayItem.context.model && subArrayItem.context.model.value !== undefined" v-model="subArrayItem.context.model.value"></p-text-input>
-                                          <p-text-input v-else></p-text-input>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                </div>
-              </div>
-            </div>
-          </div>
-            </div>
+        <!-- depth 0에서 array인 경우 ObjectArray.vue 사용 (depth 1까지만 표시) -->
+        <ObjectArray
+          v-if="isDepthZeroArray(formData)"
+          :context="convertToObjectArrayContext(formData)"
+          :readonly="false"
+          @update:context="updateObjectArrayContext(index, $event)"
+        />
+        <!-- 기존 방식 (DepthField 사용) -->
+        <div v-else>
+          <div 
+            v-for="(item, itemIndex) of formData.context.values" 
+            :key="itemIndex"
+            class="array-item"
+          >
+            <DepthField :field="item" :current-depth="0" :max-depth="5" />
           </div>
         </div>
       </div>
@@ -604,6 +1077,7 @@ function handleClickOutside(event: MouseEvent) {
   
   .field-group {
     margin-left: 20px;
+    margin-right: 0;
     display: flex;
     flex-direction: column;
     

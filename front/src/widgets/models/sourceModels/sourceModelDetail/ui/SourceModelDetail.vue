@@ -84,12 +84,17 @@ function handleJsonModal() {
 function handleRecommendedList() {
   const sourceModel = sourceModelStore.getSourceModelById(props.selectedSourceModelId);
   
-  // MigrationType에 따라 다른 recommended model list 설정
-  if (sourceModel?.migrationType === 'Software' || sourceModel?.isSoftwareModel) {
+  // modelType을 기반으로 recommended model list 설정
+  if (sourceModel?.modelType === 'SoftwareModel') {
     recommendedModelList.value = 'software';
   } else {
-    // Infra 또는 기본값
+    // CloudModel, OnPremiseModel 또는 기본값
     recommendedModelList.value = 'infra';
+  }
+  
+  // 기존 호환성을 위한 fallback 로직
+  if (sourceModel?.migrationType === 'Software' || sourceModel?.isSoftwareModel) {
+    recommendedModelList.value = 'software';
   }
   
   // 테스트를 위한 임시 로직: 이름에 'sw'가 포함되어 있으면 software로 설정
