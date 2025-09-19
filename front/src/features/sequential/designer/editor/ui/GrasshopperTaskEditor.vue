@@ -182,7 +182,7 @@ function convertToObjectArrayContext(formData: any) {
   console.log('formData:', formData);
   console.log('formData.context.values:', formData.context.values);
   
-  const subject = formData.context.subject.replace(/^\[d-sub-\d+-array\] /, '') + ' [depth-0-array]';
+  const subject = formData.context.subject.replace(/^\[d-sub-\d+-array\] /, '');
   
   // depth 4까지만 표시하기 위해 values를 ObjectContext로 변환
   const items = formData.context.values.map((item: any, index: number) => {
@@ -241,7 +241,7 @@ function convertToObjectArrayContext(formData: any) {
                 if (arrayItem.type === 'input') {
                   return {
                     type: 'object',
-                    subject: `Item ${arrayIndex + 1} [depth-2-array-nestedObject]`,
+                    subject: `Item ${arrayIndex + 1}`,
                     fields: [{
                       type: 'keyValue',
                       key: arrayItem.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
@@ -251,7 +251,7 @@ function convertToObjectArrayContext(formData: any) {
                 } else if (arrayItem.type === 'keyValueInput') {
                   return {
                     type: 'object',
-                    subject: `Item ${arrayIndex + 1} [depth-2-array-nestedObject]`,
+                    subject: `Item ${arrayIndex + 1}`,
                     fields: [{
                       type: 'keyValue',
                       key: (arrayItem.context.title.value || 'key'),
@@ -272,7 +272,7 @@ function convertToObjectArrayContext(formData: any) {
                   
                   return {
                     type: 'object',
-                    subject: `Item ${arrayIndex + 1} [depth-2-array-nestedObject]`,
+                    subject: `Item ${arrayIndex + 1}`,
                     fields: arrayItemFields
                   };
                 }
@@ -284,7 +284,7 @@ function convertToObjectArrayContext(formData: any) {
               
               return {
                 type: 'objectArray',
-                subject: nestedField.context.subject.replace(/^\[d-sub-\d+-array\] /, '') + ' [depth-2-array]',
+                subject: nestedField.context.subject.replace(/^\[d-sub-\d+-array\] /, ''),
                 items: arrayItems
               };
             } else if (nestedField.type === 'nestedObject') {
@@ -293,14 +293,14 @@ function convertToObjectArrayContext(formData: any) {
                 if (depth3Field.type === 'input') {
                   return {
                     type: 'keyValue',
-                    key: depth3Field.context.title.replace(/^\[d-tit-\d+-\w+\] /, '') + ' [depth-3-input]',
+                    key: depth3Field.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
                     value: depth3Field.context.model
                   };
                 } else if (depth3Field.type === 'keyValueInput') {
                   // KeyValueInputContext 처리 (depth 3)
                   return {
                     type: 'keyValue',
-                    key: (depth3Field.context.title.value || 'key') + ' [depth-3-keyValueInput]',
+                    key: (depth3Field.context.title.value || 'key'),
                     value: depth3Field.context.model
                   };
                 } else if (depth3Field.type === 'nestedObject') {
@@ -309,14 +309,14 @@ function convertToObjectArrayContext(formData: any) {
                     if (depth4Field.type === 'input') {
                       return {
                         type: 'keyValue',
-                        key: depth4Field.context.title.replace(/^\[d-tit-\d+-\w+\] /, '') + ' [depth-4-input]',
+                        key: depth4Field.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
                         value: depth4Field.context.model
                       };
                     } else if (depth4Field.type === 'keyValueInput') {
                       // KeyValueInputContext 처리 (depth 4)
                       return {
                         type: 'keyValue',
-                        key: (depth4Field.context.title.value || 'key') + ' [depth-4-keyValueInput]',
+                        key: (depth4Field.context.title.value || 'key'),
                         value: depth4Field.context.model
                       };
                     }
@@ -399,7 +399,7 @@ function convertToObjectArrayContext(formData: any) {
                 if (arrayItem.type === 'input') {
                   return {
                     type: 'object',
-                    subject: `Item ${arrayIndex + 1} [depth-2-array-nestedObject]`,
+                    subject: `Item ${arrayIndex + 1}`,
                     fields: [{
                       type: 'keyValue',
                       key: arrayItem.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
@@ -409,7 +409,7 @@ function convertToObjectArrayContext(formData: any) {
                 } else if (arrayItem.type === 'keyValueInput') {
                   return {
                     type: 'object',
-                    subject: `Item ${arrayIndex + 1} [depth-2-array-nestedObject]`,
+                    subject: `Item ${arrayIndex + 1}`,
                     fields: [{
                       type: 'keyValue',
                       key: (arrayItem.context.title.value || 'key'),
@@ -443,7 +443,7 @@ function convertToObjectArrayContext(formData: any) {
                       
                       return {
                         type: 'objectArray',
-                        subject: arrayField.context.subject.replace(/^\[d-sub-\d+-array\] /, '') + ' [depth-2-array]',
+                        subject: arrayField.context.subject.replace(/^\[d-sub-\d+-array\] /, ''),
                         items: nestedArrayItems
                       };
                     }
@@ -452,7 +452,7 @@ function convertToObjectArrayContext(formData: any) {
                   
                   return {
                     type: 'object',
-                    subject: `Item ${arrayIndex + 1} [depth-1-array-nestedObject]`,
+                    subject: `Item ${arrayIndex + 1}`,
                     fields: arrayItemFields
                   };
                 }
@@ -464,7 +464,7 @@ function convertToObjectArrayContext(formData: any) {
               
               return {
                 type: 'objectArray',
-                    subject: field.context.subject.replace(/^\[d-sub-\d+-array\] /, '') + ' [depth-1-array]',
+                    subject: field.context.subject.replace(/^\[d-sub-\d+-array\] /, ''),
                 items: arrayItems
               };
             }
@@ -488,7 +488,7 @@ function convertToObjectArrayContext(formData: any) {
             if (arrayItem.type === 'input') {
               return {
                 type: 'object',
-                subject: `Item ${arrayIndex + 1} [depth-1-array-input]`,
+                subject: `Item ${arrayIndex + 1}`,
                 fields: [{
                   type: 'keyValue',
                   key: arrayItem.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
@@ -498,7 +498,7 @@ function convertToObjectArrayContext(formData: any) {
             } else if (arrayItem.type === 'keyValueInput') {
               return {
                 type: 'object',
-                subject: `Item ${arrayIndex + 1} [depth-1-array-keyValueInput]`,
+                subject: `Item ${arrayIndex + 1}`,
                 fields: [{
                   type: 'keyValue',
                   key: (arrayItem.context.title.value || 'key'),
@@ -541,7 +541,7 @@ function convertToObjectArrayContext(formData: any) {
               
               return {
                 type: 'object',
-                subject: `Item ${arrayIndex + 1} [depth-1-array-nestedObject]`,
+                subject: `Item ${arrayIndex + 1}`,
                 fields: arrayItemFields
               };
             }
@@ -553,7 +553,7 @@ function convertToObjectArrayContext(formData: any) {
           
           return {
             type: 'objectArray',
-                subject: field.context.subject.replace(/^\[d-sub-\d+-array\] /, '') + ' [depth-1-array]',
+                subject: field.context.subject.replace(/^\[d-sub-\d+-array\] /, ''),
             items: arrayItems
           };
         }
@@ -562,14 +562,14 @@ function convertToObjectArrayContext(formData: any) {
       
       return {
         type: 'object',
-        subject: `Object ${index + 1} [depth-1-${item.type}]`,
+        subject: `Object ${index + 1}`,
         fields: fields
       };
     } else if (item.type === 'input') {
       // 단순 input을 keyValue로 변환
       return {
         type: 'object',
-        subject: `Object ${index + 1} [depth-1-${item.type}]`,
+        subject: `Object ${index + 1}`,
         fields: [{
           type: 'keyValue',
           key: item.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
@@ -580,7 +580,7 @@ function convertToObjectArrayContext(formData: any) {
       // KeyValueInputContext 처리 (depth 0)
       return {
         type: 'object',
-        subject: `Object ${index + 1} [depth-1-${item.type}]`,
+        subject: `Object ${index + 1}`,
         fields: [{
           type: 'keyValue',
           key: item.context.title.value || 'key',
@@ -851,7 +851,7 @@ function updateObjectArrayContext(index: number, updatedContext: any) {
         <!-- Path Params -->
         <div v-if="taskEditorModel.paramsContext.value?.path_params && taskEditorModel.paramsContext.value.path_params.context.values.length > 0">
           <div class="subject-title border-bottom">
-            {{ taskEditorModel.paramsContext.value.path_params.context.subject }}
+            {{ taskEditorModel.paramsContext.value.path_params.context.subject.replace(/^\[d-sub-\d+-\w+\] /, '') }}
           </div>
           <div
             v-for="(param, paramIndex) of taskEditorModel.paramsContext.value.path_params.context.values"
@@ -877,7 +877,7 @@ function updateObjectArrayContext(index: number, updatedContext: any) {
         <!-- Query Params -->
         <div v-if="taskEditorModel.paramsContext.value?.query_params && taskEditorModel.paramsContext.value.query_params.context.values.length > 0">
           <div class="subject-title border-bottom">
-            {{ taskEditorModel.paramsContext.value.query_params.context.subject }}
+            {{ taskEditorModel.paramsContext.value.query_params.context.subject.replace(/^\[d-sub-\d+-\w+\] /, '') }}
           </div>
           <div
             v-for="(param, paramIndex) of taskEditorModel.paramsContext.value.query_params.context.values"
@@ -906,7 +906,7 @@ function updateObjectArrayContext(index: number, updatedContext: any) {
       <!-- Entity Context -->
       <div v-if="formData.type === 'entity'" class="entity-box w-full h-full">
         <div class="subject-title border-bottom">
-          {{ formData.context.subject }}
+          {{ formData.context.subject.replace(/^\[d-sub-\d+-\w+\] /, '') }}
         </div>
         <div
           v-for="(field, fieldIndex) of formData.context.values" 
@@ -928,7 +928,7 @@ function updateObjectArrayContext(index: number, updatedContext: any) {
       <!-- Array Context - depth 0에서 array 타입인 경우 ObjectArray.vue 사용 -->
       <div v-else-if="formData.type === 'array'" class="array-box w-full h-full">
         <div class="subject-title border-bottom">
-          {{ formData.context.subject }}
+          {{ formData.context.subject.replace(/^\[d-sub-\d+-\w+\] /, '') }}
         </div>
         <!-- depth 0에서 array인 경우 ObjectArray.vue 사용 (depth 1까지만 표시) -->
         <ObjectArray

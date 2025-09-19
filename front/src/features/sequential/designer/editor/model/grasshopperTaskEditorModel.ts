@@ -120,7 +120,7 @@ export function useGrasshopperTaskEditorModel() {
     depth: number = 0,
     valueType: string = 'string',
   ): InputContext {
-    const depthPrefix = `[d-tit-${depth}-${valueType}] `;
+    const depthPrefix = '';
     return {
       type: 'input',
       context: {
