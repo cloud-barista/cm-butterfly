@@ -1,18 +1,15 @@
 <script lang="ts">
 import { ref } from 'vue';
-import { PTextInput } from '@cloudforet-test/mirinae';
 
 export default {
   name: 'ObjectArrayAccordion',
-  components: {
-    PTextInput,
-  },
   props: {
     items: {
       type: Array,
       required: true,
     },
   },
+  emits: ['delete-item'],
   setup() {
     const openIndex = ref<number | null>(null);
 
@@ -50,8 +47,14 @@ export default {
       <div class="accordion-header" @click="toggleAccordion(index)">
         <div class="flex items-center justify-between w-full">
           <div class="flex items-center">
-            <i :class="item.header.icon" class="mr-2"></i>
-            <span class="font-medium">{{ item.header.title }}</span>
+            <span class="item-title">{{ item.header.title }}</span>
+            <button 
+              class="remove-button"
+              @click.stop="$emit('delete-item', index)"
+              title="Remove item"
+            >
+              Remove
+            </button>
           </div>
           <i 
             :class="isOpen(index) ? 'ic_chevron-up' : 'ic_chevron-down'" 
@@ -79,15 +82,14 @@ export default {
                   {{ field.context.title }}
                 </div>
                 <div class="field-content-box">
-                  <p-text-input 
+                  <input 
                     v-if="field.context.model && field.context.model.value !== undefined" 
                     v-model="field.context.model.value"
-                    :size="'md'"
-                    block
-                    :invalid="!field.context.model.isValid"
+                    class="text-input"
+                    :readonly="field.context.title === 'nsId'"
                     @blur="field.context.model.onBlur"
-                  ></p-text-input>
-                  <p-text-input v-else></p-text-input>
+                  />
+                  <input v-else class="text-input" />
                 </div>
               </div>
             </div>
@@ -111,6 +113,28 @@ export default {
 
 .accordion-header:hover {
   background-color: #f3f4f6;
+}
+
+.item-title {
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+  margin-right: 12px;
+}
+
+.remove-button {
+  padding: 4px 8px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.remove-button:hover {
+  background-color: #dc2626;
 }
 
 .accordion-content {
@@ -146,6 +170,20 @@ export default {
 
 .field-content-box {
   flex: 1;
+}
+
+.text-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
 }
 
 .border-bottom {

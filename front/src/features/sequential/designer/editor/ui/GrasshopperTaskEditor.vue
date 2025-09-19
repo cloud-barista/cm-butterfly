@@ -11,6 +11,7 @@ import {
   UnwrapRef,
   watch,
 } from 'vue';
+import { PTextInput } from '@cloudforet-test/mirinae';
 import { useGrasshopperTaskEditorModel } from '@/features/sequential/designer/editor/model/grasshopperTaskEditorModel';
 import DepthField from '@/features/sequential/designer/editor/components/DepthField.vue';
 import SequentialShortCut from '@/features/sequential/designer/shortcut/ui/SequentialShortCut.vue';
@@ -423,30 +424,49 @@ function convertToObjectArrayContext(formData: any) {
                         key: arrayField.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
                         value: arrayField.context.model
                       };
+                    } else if (arrayField.type === 'array') {
+                      // depth 2의 array 처리 - ObjectArray로 변환
+                      const nestedArrayItems = arrayField.context.values.map((nestedArrayItem: any, nestedArrayIndex: number) => {
+                        if (nestedArrayItem.type === 'input') {
+                          return {
+                            type: 'object',
+                            subject: `Item ${nestedArrayIndex + 1} [depth-2-array-input]`,
+                            fields: [{
+                              type: 'keyValue',
+                              key: nestedArrayItem.context.title.replace(/^\[d-tit-\d+-\w+\] /, ''),
+                              value: nestedArrayItem.context.model
+                            }]
+                          };
+                        }
+                        return nestedArrayItem;
+                      });
+                      
+                      return {
+                        type: 'objectArray',
+                        subject: arrayField.context.subject.replace(/^\[d-sub-\d+-array\] /, '') + ' [depth-2-array]',
+                        items: nestedArrayItems
+                      };
                     }
                     return arrayField;
                   });
                   
                   return {
                     type: 'object',
-                    subject: `Item ${arrayIndex + 1} [depth-2-array-nestedObject]`,
+                    subject: `Item ${arrayIndex + 1} [depth-1-array-nestedObject]`,
                     fields: arrayItemFields
                   };
                 }
-                console.log(`처리되지 않은 depth 2 arrayItem 타입: ${arrayItem.type}`, arrayItem);
+                console.log(`처리되지 않은 arrayItem 타입: ${arrayItem.type}`, arrayItem);
                 return arrayItem;
               });
               
-              console.log('depth 2 arrayItems 결과:', arrayItems);
+              console.log('arrayItems 결과:', arrayItems);
               
-              const result = {
+              return {
                 type: 'objectArray',
-                subject: nestedField.context.subject.replace(/^\[d-sub-\d+-array\] /, '') + ' [depth-2-array]',
+                    subject: field.context.subject.replace(/^\[d-sub-\d+-array\] /, '') + ' [depth-1-array]',
                 items: arrayItems
               };
-              
-              console.log('depth 2 ObjectArray 결과:', result);
-              return result;
             }
             return nestedField;
           });
@@ -817,12 +837,12 @@ function updateObjectArrayContext(index: number, updatedContext: any) {
           {{ taskEditorModel.componentNameModel.value.context.title }}
         </div>
         <div class="field-content-box">
-          <p-text-input
+          <PTextInput
             v-model="taskEditorModel.componentNameModel.value.context.model.value"
             :size="'md'"
             block
             readonly
-          ></p-text-input>
+          ></PTextInput>
         </div>
       </div>
     </div>
@@ -842,14 +862,14 @@ function updateObjectArrayContext(index: number, updatedContext: any) {
               {{ param.context.title }}
             </div>
             <div class="field-content-box">
-              <p-text-input
+              <PTextInput
                 v-model="param.context.model.value"
                 :size="'md'"
                 block
                 :invalid="!param.context.model.isValid"
                 :readonly="param.context.title === 'nsId'"
                 @blur="param.context.model.onBlur"
-              ></p-text-input>
+              ></PTextInput>
             </div>
           </div>
         </div>
@@ -868,14 +888,14 @@ function updateObjectArrayContext(index: number, updatedContext: any) {
               {{ param.context.title }}
             </div>
             <div class="field-content-box">
-              <p-text-input
+              <PTextInput
                 v-model="param.context.model.value"
                 :size="'md'"
                 block
                 :invalid="!param.context.model.isValid"
                 :readonly="param.context.title === 'nsId'"
                 @blur="param.context.model.onBlur"
-              ></p-text-input>
+              ></PTextInput>
             </div>
           </div>
         </div>
@@ -898,8 +918,8 @@ function updateObjectArrayContext(index: number, updatedContext: any) {
               {{ field.context.title }}
           </div>
           <div class="field-content-box">
-              <p-text-input v-if="field.context.model && field.context.model.value !== undefined" v-model="field.context.model.value"></p-text-input>
-              <p-text-input v-else></p-text-input>
+              <PTextInput v-if="field.context.model && field.context.model.value !== undefined" v-model="field.context.model.value"></PTextInput>
+              <PTextInput v-else></PTextInput>
             </div>
           </div>
         </div>
