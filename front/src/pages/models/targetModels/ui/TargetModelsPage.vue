@@ -22,19 +22,27 @@ const targetModelStore = useTargetModelStore();
 const targetModelForWorkflow = computed(() => {
   const model = targetModelStore.getTargetModelById(selectedTargetModelId.value);
   if (model) {
-    // Add migrationType to the model if it doesn't exist
+    // modelType을 기반으로 migrationType 설정
+    let migrationType = 'infra'; // 기본값
+    
+    if (model.modelType === 'SoftwareModel') {
+      migrationType = 'software';
+    } else if (model.modelType === 'CloudModel' || model.modelType === 'OnPremiseModel') {
+      migrationType = 'infra';
+    }
+    
     const modelWithMigrationType = {
       ...model,
-      migrationType: model.cloudInfraModel ? 'infra' : 'software'
+      migrationType: migrationType
     };
     
     console.log('Passing targetModel to WorkflowEditor:', {
       selectedTargetModelId: selectedTargetModelId.value,
       model: modelWithMigrationType,
-      modelType: model?.cloudInfraModel ? 'infra' : 'software',
+      modelType: model?.modelType,
+      migrationType: migrationType,
       hasCloudInfraModel: !!model?.cloudInfraModel,
-      isCloudModel: model?.isCloudModel,
-      migrationType: modelWithMigrationType.migrationType
+      isCloudModel: model?.isCloudModel
     });
     
     return modelWithMigrationType;
@@ -44,8 +52,8 @@ const targetModelForWorkflow = computed(() => {
 
 const migrationTypeForWorkflow = computed(() => {
   const model = targetModelForWorkflow.value;
-  if (model?.migrationType) {
-    return model.migrationType === 'infra' ? 'infra' : 'software';
+  if (model?.modelType) {
+    return model.modelType === 'SoftwareModel' ? 'software' : 'infra';
   }
   return 'infra'; // default
 });
