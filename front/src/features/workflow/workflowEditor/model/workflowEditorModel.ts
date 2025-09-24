@@ -150,6 +150,20 @@ export function useWorkflowToolModel() {
     requestBody: string,
   ): Step {
     const parsedString: object = parseRequestBody(requestBody);
+    
+    // Task component를 캔버스에 추가할 때 모델 정보를 콘솔에 출력
+    console.log('=== Task Component Added to Canvas ===');
+    console.log(`Task Name: ${task.name}`);
+    console.log(`Task Component: ${task.task_component}`);
+    console.log('Model Information:', {
+      requestBody: requestBody,
+      parsedModel: parsedString,
+      pathParams: task.path_params,
+      queryParams: task.query_params,
+      dependencies: task.dependencies
+    });
+    console.log('=====================================');
+    
     return defineBettleTaskStep(getRandomId(), task.name, task.task_component, {
       model: parsedString,
       originalData: task,

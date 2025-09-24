@@ -2,6 +2,7 @@ import { insertDynamicComponent } from '@/shared/utils';
 import { getSequencePath } from '@/features/sequential/designer/editor/model/utils';
 import BeetleTaskEditor from '@/features/sequential/designer/editor/ui/BeetleTaskEditor.vue';
 import GrasshopperTaskEditor from '@/features/sequential/designer/editor/ui/GrasshopperTaskEditor.vue';
+import CommonTaskEditor from '@/features/sequential/designer/editor/ui/CommonTaskEditor.vue';
 
 export function editorProviders() {
   const editor = document.createElement('div');
@@ -32,11 +33,14 @@ export function editorProviders() {
       }
       if (step.componentType === 'task') {
         // taskComponent에 따라 다른 editor 사용
-        let TaskEditorComponent = BeetleTaskEditor; // 기본값
+        let TaskEditorComponent = CommonTaskEditor; // 기본값: CommonTaskEditor 사용
         
-        // step의 name이나 task_component를 확인하여 적절한 editor 선택
-        if (step.name === 'grasshopper_task_software_migration' || 
-            step.properties?.fixedModel?.task_component === 'grasshopper_task_software_migration') {
+        // 특정 task들만 전용 editor 사용
+        if (step.name === 'beetle_task_infra_migration' || 
+            step.properties?.fixedModel?.task_component === 'beetle_task_infra_migration') {
+          TaskEditorComponent = BeetleTaskEditor;
+        } else if (step.name === 'grasshopper_task_software_migration' || 
+                   step.properties?.fixedModel?.task_component === 'grasshopper_task_software_migration') {
           TaskEditorComponent = GrasshopperTaskEditor;
         }
         
