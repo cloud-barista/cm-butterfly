@@ -60,6 +60,23 @@ export const useWorkflowStore = defineStore(NAMESPACE, () => {
       description: '',
       updated_at: taskComponent.updated_at,
     }));
+    
+    // 각 task component의 model 정보를 콘솔에 출력
+    console.log('=== Task Components Model Information ===');
+    _taskComponents.forEach(taskComponent => {
+      console.log(`Task: ${taskComponent.name}`, {
+        id: taskComponent.id,
+        model: taskComponent.data,
+        created_at: taskComponent.created_at,
+        updated_at: taskComponent.updated_at
+      });
+      
+      // Task component의 body_params 모델 정보 상세 출력
+      if (taskComponent.data && (taskComponent.data as any).body_params) {
+        console.log(`📋 ${taskComponent.name} Body Params Model:`, (taskComponent.data as any).body_params);
+      }
+    });
+    console.log('==========================================');
   }
 
   function setWorkFlow(

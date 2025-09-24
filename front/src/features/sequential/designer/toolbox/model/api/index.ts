@@ -12,6 +12,10 @@ export interface ITaskComponentInfoResponse {
       request_body: string;
       path_params: object;
     };
+    body_params?: {
+      properties: Record<string, any>;
+      required?: string[];
+    };
     path_params: {
       properties: Record<
         string,
