@@ -14,6 +14,7 @@ import { showErrorMessage } from '@/shared/utils';
 import { IVm } from '@/entities/mci/model';
 import VmInformation from '@/widgets/workload/vm/vmInformation/ui/VmInformation.vue';
 import VmEvaluatePerf from '@/widgets/workload/vm/vmEvaluatePerf/ui/VmEvaluatePerf.vue';
+import ScenarioTemplateManagerModal from '@/widgets/workload/vm/scenarioTemplate/ui/ScenarioTemplateManagerModal.vue';
 import { useGetLastLoadTestState } from '@/entities/vm/api/api';
 import { useGetMciInfo } from '@/entities/mci/api';
 
@@ -28,6 +29,7 @@ const emit = defineEmits(['selectCard']);
 const resLoadStatus = useGetLastLoadTestState(null);
 const resGetMci = useGetMciInfo(null);
 const selectedVm = ref<IVm | null>(null);
+const loadConfigRef = ref();
 const { mciStore, initToolBoxTableModel, vmListTableModel, setMci } =
   useVmListModel();
 
@@ -39,6 +41,9 @@ const modalState = reactive({
     },
   },
   loadConfigSuccess: {
+    open: false,
+  },
+  templateManagerRequest: {
     open: false,
   },
 });
@@ -58,8 +63,8 @@ const vmDetailTabState = reactive({
       label: 'Monitoring',
     },
     {
-      name: 'evaluatePref',
-      label: 'Evaluate Pref',
+      name: 'evaluatePerf',
+      label: 'Evaluate Perf',
     },
     {
       name: 'estimateCost',
@@ -78,14 +83,16 @@ watch(
 
 watch(
   () => props.selectedVmId,
-  (newVmId) => {
+  newVmId => {
     if (newVmId && mciStore.getMciById(props.mciId)) {
-      const vm = mciStore.getMciById(props.mciId)?.vm.find(vm => vm.id === newVmId);
+      const vm = mciStore
+        .getMciById(props.mciId)
+        ?.vm.find(vm => vm.id === newVmId);
       if (vm) {
         selectedVm.value = vm;
         // Update selectIndex to match the selected VM
         const vmIndex = vmListTableModel.tableState.displayItems.findIndex(
-          item => item.originalData.id === newVmId
+          item => (item as any).originalData.id === newVmId,
         );
         if (vmIndex !== -1) {
           vmListTableModel.tableState.selectIndex = [vmIndex];
@@ -149,7 +156,6 @@ function setVmLoadTestResult() {
           selectedVm.value!.id,
           res.data.responseData.result,
         );
-        console.log(mciStore.getMciById(props.mciId));
       }
     })
     .catch(e => {
@@ -167,11 +173,14 @@ function handleCardClick(value: any) {
   }
 }
 
-function handleLoadStatus(e) {
+function handleLoadStatus() {
   modalState.loadConfigRequest.open = true;
   modalState.loadConfigSuccess.open = false;
 }
 
+function handleTemplateManager() {
+  modalState.templateManagerRequest.open = true;
+}
 function handleLoadConfigRequestClose() {
   modalState.loadConfigRequest.open = false;
 }
@@ -186,13 +195,21 @@ function handleLoadConfigSuccessClose() {
   modalState.loadConfigSuccess.open = false;
   setVmLoadTestResult();
 }
+
+function handleTemplateManagerOpen() {
+  modalState.templateManagerRequest.open = true;
+}
+
+function handleTemplateManagerClose() {
+  modalState.templateManagerRequest.open = false;
+}
 </script>
 
 <template>
   <div class="p-4">
     <section class="vmList-container">
       <p-toolbox
-        :pageSizeChangeable="false"
+        :page-size-changeable="false"
         :key-item-sets="vmListTableModel.querySearchState.keyItemSet"
         :value-handler-map="vmListTableModel.querySearchState.valueHandlerMap"
         :query-tag="vmListTableModel.querySearchState.queryTag"
@@ -220,48 +237,40 @@ function handleLoadConfigSuccessClose() {
           v-if="vmListTableModel.tableState.displayItems.length === 0"
           :data="false"
           :loading="false"
-        >
-        </p-data-loader>
-        <p-select-card
-          v-else
-          v-for="(value, index) in vmListTableModel.tableState.displayItems"
-          :key="value.name"
-          v-model="vmListTableModel.tableState.selectIndex"
-          :value="value.name"
-          :multi-selectable="false"
-          @click="() => handleCardClick(value)"
-          style="
-            width: 205.5px;
-            height: 56px;
-            margin: 0.2rem;
-            padding: 10px 16px 10px 16px;
-            border-radius: 12px;
-          "
-        >
-          <template #default="scope">
+        />
+        <template v-else>
+          <p-select-card
+            v-for="value in vmListTableModel.tableState.displayItems"
+            :key="value.name"
+            :value="value.name"
+            :selected="selectedVm?.name"
+            :multi-selectable="false"
+            class="vmList-card"
+            @click="() => handleCardClick(value)"
+          >
             {{ value.name }}
-          </template>
-        </p-select-card>
+          </p-select-card>
+        </template>
       </div>
     </section>
     <section>
       <p-button-tab
+        v-if="selectedVm?.id"
         v-model="vmDetailTabState.activeTab"
         :tabs="vmDetailTabState.tabs"
-        v-if="selectedVm?.id"
       >
         <template #information>
           <VmInformation
-            :mciId="props.mciId"
-            :nsId="props.nsId"
-            :vmId="selectedVm.id"
+            :mci-id="props.mciId"
+            :ns-id="props.nsId"
+            :vm-id="selectedVm.id"
             :loading="resLoadStatus.isLoading"
             :lastloadtest-state-response="
               resLoadStatus.data.value?.responseData?.result
             "
             @openLoadconfig="handleLoadStatus"
-          >
-          </VmInformation>
+            @openTemplateManager="handleTemplateManager"
+          />
         </template>
         <template #connection>
           <p>to be..</p>
@@ -269,14 +278,16 @@ function handleLoadConfigSuccessClose() {
         <template #monitoring>
           <p>to be..</p>
         </template>
-        <template #evaluatePref>
+        <template #evaluatePerf>
           <VmEvaluatePerf
             :loading="resLoadStatus.isLoading"
-            :mciId="props.mciId"
-            :nsId="props.nsId"
-            :vmId="selectedVm.id"
+            :mci-id="props.mciId"
+            :ns-id="props.nsId"
+            :vm-id="selectedVm.id"
+            :ip="selectedVm.publicIP"
             @openLoadconfig="handleLoadStatus"
-          ></VmEvaluatePerf>
+            @openTemplateManager="handleTemplateManagerOpen"
+          />
         </template>
         <template #estimateCost>
           <p>to be..</p>
@@ -286,19 +297,28 @@ function handleLoadConfigSuccessClose() {
 
     <LoadConfig
       v-if="selectedVm"
-      :isOpen="modalState.loadConfigRequest.open"
-      :mciId="props.mciId"
-      :nsId="props.nsId"
-      :vmId="selectedVm?.id ?? ''"
+      ref="loadConfigRef"
+      :is-open="modalState.loadConfigRequest.open"
+      :mci-id="props.mciId"
+      :ns-id="props.nsId"
+      :vm-id="selectedVm?.id ?? ''"
       :ip="selectedVm?.publicIP ?? ''"
       @success="handleLoadConfigRequestSuccess"
       @close="handleLoadConfigRequestClose"
-    ></LoadConfig>
+    />
     <SuccessfullyLoadConfigModal
-      :isOpen="modalState.loadConfigSuccess.open"
-      :scenarioName="modalState.loadConfigRequest.context.scenarioName"
+      :is-open="modalState.loadConfigSuccess.open"
+      :scenario-name="modalState.loadConfigRequest.context.scenarioName"
       @close="handleLoadConfigSuccessClose"
-    ></SuccessfullyLoadConfigModal>
+    />
+    <ScenarioTemplateManagerModal
+      :is-open="modalState.templateManagerRequest.open"
+      :ns-id="props.nsId"
+      :mci-id="props.mciId"
+      :vm-id="selectedVm?.id ?? ''"
+      :ip="selectedVm?.publicIP ?? ''"
+      @close="handleTemplateManagerClose"
+    />
   </div>
 </template>
 
@@ -312,5 +332,16 @@ function handleLoadConfigSuccessClose() {
   padding-top: 10px;
   padding-bottom: 10px;
   overflow-y: auto;
+}
+
+.vmList-card {
+  width: 18.75rem;
+  margin: 0.25rem;
+  padding: 0.5rem;
+}
+
+/* custom design-system component - p-select-card */
+:deep(.p-select-card .marker) {
+  display: none;
 }
 </style>

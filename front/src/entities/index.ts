@@ -9,3 +9,4 @@ export * from '@/entities/cloudResources/api';
 export * from '@/entities/sourceModels';
 export * from '@/entities/targetModels';
 export * from '@/entities/workflow';
+export * from '@/entities/vm';
