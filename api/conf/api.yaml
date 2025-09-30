@@ -57,15 +57,6 @@ services:
       password: default
 
 serviceActions:
-  # sample: #for sample
-  #   #cb-spider CCIM v0.6.0
-  #   NormalGetAction:
-  #     method: get
-  #     resourcePath: /sample
-  #     description: #Use when necessary for user understanding
-  #   PathParamGetAction:
-  #     method: get
-  #     resourcePath: /sample/{param_name}
   cb-spider:
     Add-Nlb-Vm:
       method: post
@@ -2334,6 +2325,15 @@ serviceActions:
       description: This endpoint checks if the CB-Ant API server is ready by verifying
         the status of both the load service and the cost service. If either service
         is unavailable, it returns a 503 status indicating the server is not ready.
+    CreateLoadTestScenarioCatalog:
+      method: post
+      resourcePath: /api/v1/load/templates/test-scenario-catalogs
+      description: Create a new load test scenario catalog template with the provided
+        configuration.
+    DeleteLoadTestScenarioCatalog:
+      method: delete
+      resourcePath: /api/v1/load/templates/test-scenario-catalogs/{id}
+      description: Delete a load test scenario catalog by ID.
     GetAllLoadGeneratorInstallInfo:
       method: get
       resourcePath: /api/v1/load/generators
@@ -2348,6 +2348,11 @@ serviceActions:
       method: get
       resourcePath: /api/v1/load/tests/state
       description: Retrieve a list of all load test execution states with pagination
+        support.
+    GetAllLoadTestScenarioCatalogs:
+      method: get
+      resourcePath: /api/v1/load/templates/test-scenario-catalogs
+      description: Retrieve a list of all load test scenario catalogs with pagination
         support.
     GetAllMonitoringAgentInfos:
       method: get
@@ -2394,6 +2399,10 @@ serviceActions:
       method: get
       resourcePath: /api/v1/load/tests/result
       description: Retrieve load test result based on provided parameters.
+    GetLoadTestScenarioCatalog:
+      method: get
+      resourcePath: /api/v1/load/templates/test-scenario-catalogs/{id}
+      description: Retrieve a specific load test scenario catalog by ID.
     InstallLoadGenerator:
       method: post
       resourcePath: /api/v1/load/generators
@@ -2436,6 +2445,11 @@ serviceActions:
       resourcePath: /api/v1/cost/estimate/forecast/raw
       description: Update and retrieve raw forecasted cost estimates for specified
         cost resources and additional AWS information over the past 14 days.
+    UpdateLoadTestScenarioCatalog:
+      method: put
+      resourcePath: /api/v1/load/templates/test-scenario-catalogs/{id}
+      description: Update an existing load test scenario catalog with the provided
+        configuration.
   cm-beetle:
     CheckHTTPVersion:
       method: get
