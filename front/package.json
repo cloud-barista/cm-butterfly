@@ -18,7 +18,7 @@
     "@cloudforet-test/mirinae": "2.0.0-dev171",
     "@vueuse/core": "^10.7.2",
     "@vueuse/integrations": "^11.0.1",
-    "axios": "^1.7.2",
+    "axios": "^1.12.2",
     "echarts": "^5.5.1",
     "jwt-decode": "^4.0.0",
     "pinia": "^2.1.7",
