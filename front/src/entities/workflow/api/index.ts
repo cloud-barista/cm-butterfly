@@ -6,6 +6,7 @@ import {
 import {
   ITaskComponentResponse,
   IWorkflowResponse,
+  IWorkflowRun,
 } from '@/entities/workflow/model/types';
 import { axiosInstance } from '@/shared/libs/api/instance';
 
@@ -15,6 +16,7 @@ const CREATE_WORKFLOW = 'create-workflow';
 const UPDATE_WORKFLOW = 'update-workflow';
 const RUN_WORKFLOW = 'run-workflow';
 const DELETE_WORKFLOW = 'delete-workflow';
+const GET_WORKFLOW_RUNS = 'get-workflow-runs';
 
 // const GET_DISK_TYPE = 'GET_DISK_TYPE';
 const GET_WORKFLOW_TEMPLATE_LIST = 'list-workflow-template';
@@ -255,4 +257,12 @@ export function useCreateWorkflow(data: IWorkflowResponse['data'] | null) {
       >
     >
   >(CREATE_WORKFLOW, requestBodyWrapper);
+}
+
+export function useGetWorkflowRuns(wfId: string | null) {
+  return useAxiosPost<IAxiosResponse<IWorkflowRun[]>, any>(GET_WORKFLOW_RUNS, {
+    pathParams: {
+      wfId,
+    },
+  });
 }
