@@ -199,9 +199,9 @@ function handleUpdateTargetModel(e) {
           :target-model-name="targetModelName"
           tool-type="add"
           wft-id=""
-          :targetModel="targetModelForWorkflow"
-          :migrationType="migrationTypeForWorkflow"
-          :recommendedModel="targetModelForWorkflow"
+          :target-model="targetModelForWorkflow"
+          :migration-type="migrationTypeForWorkflow"
+          :recommended-model="targetModelForWorkflow"
           @update:close-modal="modalStates.workflowEditorModal.open = false"
         />
     </div>

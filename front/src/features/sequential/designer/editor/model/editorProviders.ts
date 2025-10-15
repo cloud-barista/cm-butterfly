@@ -1,8 +1,6 @@
 import { insertDynamicComponent } from '@/shared/utils';
 import { getSequencePath } from '@/features/sequential/designer/editor/model/utils';
-import BeetleTaskEditor from '@/features/sequential/designer/editor/ui/BeetleTaskEditor.vue';
-import GrasshopperTaskEditor from '@/features/sequential/designer/editor/ui/GrasshopperTaskEditor.vue';
-import CommonTaskEditor from '@/features/sequential/designer/editor/ui/CommonTaskEditor.vue';
+import TaskComponentEditor from '@/features/sequential/designer/editor/ui/TaskComponentEditor.vue';
 
 export function editorProviders() {
   const editor = document.createElement('div');
@@ -32,17 +30,19 @@ export function editorProviders() {
       if (step.componentType === 'container') {
       }
       if (step.componentType === 'task') {
-        // taskComponent에 따라 다른 editor 사용
-        let TaskEditorComponent = CommonTaskEditor; // 기본값: CommonTaskEditor 사용
+        // 🎯 모든 task에 대해 범용 TaskComponentEditor 사용
+        const TaskEditorComponent: any = TaskComponentEditor;
         
-        // 특정 task들만 전용 editor 사용
-        if (step.name === 'beetle_task_infra_migration' || 
-            step.properties?.fixedModel?.task_component === 'beetle_task_infra_migration') {
-          TaskEditorComponent = BeetleTaskEditor;
-        } else if (step.name === 'grasshopper_task_software_migration' || 
-                   step.properties?.fixedModel?.task_component === 'grasshopper_task_software_migration') {
-          TaskEditorComponent = GrasshopperTaskEditor;
-        }
+        // 디버깅을 위한 로그 추가
+        console.log('=== Task Editor Selection Debug ===');
+        console.log('Step name:', step.name);
+        console.log('Step type:', step.type);
+        console.log('Step properties:', step.properties);
+        console.log('Step fixedModel:', step.properties?.fixedModel);
+        console.log('Task component from fixedModel:', step.properties?.fixedModel?.task_component);
+        console.log('Selected TaskComponentEditor for', step.name || step.type);
+        console.log('Final TaskEditorComponent:', TaskEditorComponent.name || TaskEditorComponent);
+        console.log('=====================================');
         
         //toolboxModel에서 가공하는곳 참고
         insertDynamicComponent(
@@ -54,8 +54,34 @@ export function editorProviders() {
               stepContext.notifyNameChanged();
             },
             saveContext: e => {
+              console.log('\n');
+              console.log('💾💾💾 editorProviders.saveContext CALLED 💾💾💾');
+              console.log('   Step name:', step.name);
+              console.log('   Received model type:', typeof e);
+              console.log('   Received model keys:', Object.keys(e || {}));
+              
+              // Deep inspection
+              if (e && typeof e === 'object') {
+                if (e.targetSoftwareModel && e.targetSoftwareModel.servers) {
+                  console.log(`   Received model.targetSoftwareModel.servers: array[${e.targetSoftwareModel.servers.length}]`);
+                  if (e.targetSoftwareModel.servers.length > 0) {
+                    console.log('   First server.source_connection_info_id:', e.targetSoftwareModel.servers[0].source_connection_info_id);
+                  }
+                }
+              }
+              
+              console.log('   Received model JSON (first 500 chars):', JSON.stringify(e).substring(0, 500));
+              console.log('   BEFORE: step.properties.model JSON (first 500 chars):', JSON.stringify(step.properties.model).substring(0, 500));
+              
               step.properties.model = e;
+              
+              console.log('   AFTER: step.properties.model JSON (first 500 chars):', JSON.stringify(step.properties.model).substring(0, 500));
+              console.log('   ✅ step.properties.model updated');
+              
               stepContext.notifyPropertiesChanged();
+              console.log('   ✅ stepContext.notifyPropertiesChanged() called');
+              console.log('💾💾💾 editorProviders.saveContext COMPLETE 💾💾💾');
+              console.log('\n');
             },
             saveFixedModel: e => {
               step.properties.fixedModel = e;

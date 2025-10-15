@@ -62,6 +62,17 @@ export function useRecommendedInfraModel() {
   function organizeRecommendedModelTableItem(
     recommendedModel: IExtendRecommendModelResponse,
   ) {
+    // 입력 데이터 유효성 검사
+    if (!recommendedModel || !recommendedModel.targetVmInfra || !recommendedModel.targetVmInfra.subGroups) {
+      console.warn('Invalid recommendedModel data:', recommendedModel);
+      return {
+        name: 'Invalid Data',
+        spec: 'n/a',
+        image: 'n/a',
+        estimateCost: 'n/a',
+        originalData: recommendedModel,
+      };
+    }
     let estimateCost: string;
     try {
       const monthlyPrice = recommendedModel?.estimateResponse?.result?.esimateCostSpecResults?.reduce(
@@ -99,6 +110,14 @@ export function useRecommendedInfraModel() {
       spec:
         recommendedModel.targetVmInfra.subGroups
           ?.reduce((acc, cur) => {
+            // specId가 "empty"인 경우도 포함
+            if (!cur.specId || cur.specId.trim() === '') {
+              return acc;
+            }
+            // specId가 "empty"면 그대로 사용
+            if (cur.specId === 'empty') {
+              return `${acc}empty / `;
+            }
             // specId에 +가 있으면 마지막 부분을, 없으면 전체를 사용
             const specValue = cur.specId.includes('+') ? cur.specId.split('+').at(-1) : cur.specId;
             return `${acc}${specValue} / `;
@@ -107,6 +126,14 @@ export function useRecommendedInfraModel() {
       image:
         recommendedModel.targetVmInfra.subGroups
           ?.reduce((acc, cur) => {
+            // imageId가 "empty"인 경우도 포함
+            if (!cur.imageId || cur.imageId.trim() === '') {
+              return acc;
+            }
+            // imageId가 "empty"면 그대로 사용
+            if (cur.imageId === 'empty') {
+              return `${acc}empty / `;
+            }
             // imageId에 +가 있으면 마지막 부분을, 없으면 전체를 사용
             const imageValue = cur.imageId.includes('+') ? cur.imageId.split('+').at(-1) : cur.imageId;
             return `${acc}${imageValue} / `;

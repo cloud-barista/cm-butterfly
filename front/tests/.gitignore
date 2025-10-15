@@ -1,0 +1,20 @@
+# Playwright Test Results
+test-results/
+playwright-report/
+test-results.json
+
+# Playwright browsers
+.playwright/
+
+# Screenshots and Videos
+screenshots/
+videos/
+
+# Node modules (if tests have separate dependencies)
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+

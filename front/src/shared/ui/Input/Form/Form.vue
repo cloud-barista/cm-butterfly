@@ -5,6 +5,7 @@ import Object from '@/shared/ui/Input/Object/Object.vue';
 import Array from '@/shared/ui/Input/Array/Array.vue';
 import ObjectArray from '@/shared/ui/Input/ObjectArray/ObjectArray.vue';
 import Complex from '@/shared/ui/Input/Complex/Complex.vue';
+import NestedObject from '@/shared/ui/Input/NestedObject/NestedObject.vue';
 
 interface IProps {
   context: FormContext;
@@ -86,6 +87,24 @@ function removeField(fieldIndex: number) {
           :context="field"
           :readonly="readonly"
           @update:context="updateField(fieldIndex, $event)"
+        />
+        
+        <!-- NestedObjectContext인 경우 -->
+        <NestedObject
+          v-else-if="field.type === 'nestedObject'"
+          :subject="field.context.subject || field.context.title"
+          :fields="field.context.values || []"
+          :rawData="field.context.rawData"
+          :readonly="readonly"
+        />
+        
+        <!-- NestedObjectArrayContext인 경우 -->
+        <NestedObject
+          v-else-if="field.type === 'nestedObjectArray'"
+          :subject="field.context.subject || field.context.title"
+          :fields="field.context.values || []"
+          :rawData="field.context.rawData"
+          :readonly="readonly"
         />
         
         <!-- ComplexContext인 경우 -->
