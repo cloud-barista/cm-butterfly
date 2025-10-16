@@ -5,6 +5,7 @@ import {
   WorkflowList,
   WorkflowDetail,
   WorkflowJsonViewer,
+  WorkflowHistory,
 } from '@/widgets/workflow';
 import { SimpleEditForm } from '@/widgets/layout';
 import { useGetWorkflow, useUpdateWorkflow } from '@/entities';
@@ -41,6 +42,10 @@ const mainTabState = reactive({
     {
       name: 'details',
       label: 'Details',
+    },
+    {
+      name: 'history',
+      label: 'History',
     },
   ],
 });
@@ -187,6 +192,12 @@ async function handleUpdateWorkflow(updatedData: object) {
               @update:workflow-json="e => (workflowJson = e)"
             />
           </template>
+          <template #history>
+            <div class="tab-section-header">
+              <p>Workflow History</p>
+            </div>
+            <workflow-history :selected-workflow-id="selectedWorkflowId" />
+          </template>
         </p-tab>
       </div>
     </section>
@@ -221,10 +232,10 @@ async function handleUpdateWorkflow(updatedData: object) {
       />
       <WorkflowEditor
         v-if="modalState.workflowToolModal.open"
-        @update:close-modal="e => (modalState.workflowToolModal.open = e)"
-        @update:trigger="modalState.addWorkflow.trigger = true"
         :tool-type="'edit'"
         :wft-id="selectedWorkflowId"
+        @update:close-modal="e => (modalState.workflowToolModal.open = e)"
+        @update:trigger="modalState.addWorkflow.trigger = true"
       />
     </div>
   </div>

@@ -42,9 +42,17 @@ export function useWorkflowToolModel() {
   function setTaskComponent(
     _taskComponentList: Array<ITaskComponentInfoResponse>,
   ) {
+    console.log('=== setTaskComponent called ===');
+    console.log('Task components to add:', _taskComponentList.length);
+    
     _taskComponentList.forEach(component => {
       taskComponentList.push(component);
     });
+    
+    // Workflow Store에도 저장
+    workflowStore.setTaskComponents(_taskComponentList);
+    console.log('✅ Task components saved to workflow store');
+    console.log('Current store task components count:', workflowStore.taskComponents.length);
   }
 
   function setDropDownData(workspaceResponse: IWorkflowResponse[]) {
@@ -150,11 +158,42 @@ export function useWorkflowToolModel() {
     requestBody: string,
   ): Step {
     const parsedString: object = parseRequestBody(requestBody);
-    return defineBettleTaskStep(getRandomId(), task.name, task.task_component, {
+    
+    // Task component 정보 찾기
+    const taskComponent = taskComponentList.find(
+      tc => tc.name === task.task_component
+    );
+    
+    // Task component를 캔버스에 추가할 때 모델 정보를 콘솔에 출력
+    console.log('=== Task Component Added to Canvas ===');
+    console.log(`Task Name: ${task.name}`);
+    console.log(`Task Component: ${task.task_component}`);
+    console.log('Task Component Found:', !!taskComponent);
+    if (taskComponent) {
+      console.log('Task Component Schema (body_params):', taskComponent.data.body_params);
+    }
+    console.log('Model Information:', {
+      requestBody: requestBody,
+      parsedModel: parsedString,
+      pathParams: task.path_params,
+      queryParams: task.query_params,
+      dependencies: task.dependencies
+    });
+    console.log('=====================================');
+    
+    // Step properties에 taskComponentData 추가
+    const stepProperties: any = {
       model: parsedString,
       originalData: task,
       fixedModel: createFixedModel(task),
-    });
+    };
+    
+    // Task component data 추가 (schema 정보)
+    if (taskComponent) {
+      stepProperties.taskComponentData = taskComponent.data;
+    }
+    
+    return defineBettleTaskStep(getRandomId(), task.name, task.task_component, stepProperties);
   }
 
   function convertToDesignerTaskGroup(taskGroup: ITaskGroupResponse): Step {
@@ -215,11 +254,89 @@ export function useWorkflowToolModel() {
 
   function convertToCicadaTask(step: Step, dependenciesStep: Step) {
     if (step.componentType === 'task') {
+      console.log('\n');
+      console.log('═══════════════════════════════════════════════════════════════');
+      console.log('🔄 convertToCicadaTask - Converting Step to Task');
+      console.log('═══════════════════════════════════════════════════════════════');
+      console.log('Step name:', step.name);
+      console.log('Step type:', step.type);
+      
+      // Current data (what will be sent)
+      const currentRequestBody = JSON.stringify(step.properties.model);
+      const currentPathParams = step.properties.fixedModel?.path_params;
+      const currentQueryParams = step.properties.fixedModel?.query_params;
+      
+      console.log('\n📦 Current Data (will be sent to API):');
+      console.log('  request_body:', currentRequestBody);
+      console.log('  path_params:', currentPathParams);
+      console.log('  query_params:', currentQueryParams);
+      console.log('  task_component:', step.properties.originalData?.task_component);
+      
+      // Original data comparison
+      const originalData = step.properties.originalData;
+      if (originalData) {
+        console.log('\n🔍 Comparing with originalData:');
+        
+        // Name comparison
+        const nameMatch = step.name === originalData.name;
+        console.log('\n  Task Name:');
+        console.log('    Original:', originalData.name);
+        console.log('    Current:', step.name);
+        console.log('    Match:', nameMatch ? '✅ YES' : '❌ NO');
+        
+        // Request body comparison
+        const originalRequestBody = originalData.request_body || '{}';
+        const requestBodyMatch = currentRequestBody === originalRequestBody;
+        console.log('\n  Request Body:');
+        console.log('    Original:', originalRequestBody.substring(0, 200) + (originalRequestBody.length > 200 ? '...' : ''));
+        console.log('    Current:', currentRequestBody.substring(0, 200) + (currentRequestBody.length > 200 ? '...' : ''));
+        console.log('    Match:', requestBodyMatch ? '✅ YES' : '❌ NO');
+        
+        // Path params comparison
+        const originalPathParams = JSON.stringify(originalData.path_params || {});
+        const currentPathParamsStr = JSON.stringify(currentPathParams || {});
+        const pathParamsMatch = originalPathParams === currentPathParamsStr;
+        console.log('\n  Path Params:');
+        console.log('    Original:', originalPathParams);
+        console.log('    Current:', currentPathParamsStr);
+        console.log('    Match:', pathParamsMatch ? '✅ YES' : '❌ NO');
+        
+        // Query params comparison
+        const originalQueryParams = JSON.stringify(originalData.query_params || {});
+        const currentQueryParamsStr = JSON.stringify(currentQueryParams || {});
+        const queryParamsMatch = originalQueryParams === currentQueryParamsStr;
+        console.log('\n  Query Params:');
+        console.log('    Original:', originalQueryParams);
+        console.log('    Current:', currentQueryParamsStr);
+        console.log('    Match:', queryParamsMatch ? '✅ YES' : '❌ NO');
+        
+        // Overall comparison
+        const allMatch = nameMatch && requestBodyMatch && pathParamsMatch && queryParamsMatch;
+        console.log('\n📊 Overall Comparison:');
+        if (allMatch) {
+          console.log('  ✅ ALL DATA MATCHES: No modifications detected');
+          console.log('  ✅ Data integrity preserved - originalData === currentData');
+        } else {
+          console.log('  ⚠️ DATA WAS MODIFIED: Some fields differ from originalData');
+          console.log('  Changed fields:', [
+            !nameMatch && 'name',
+            !requestBodyMatch && 'request_body',
+            !pathParamsMatch && 'path_params',
+            !queryParamsMatch && 'query_params'
+          ].filter(Boolean).join(', '));
+        }
+      } else {
+        console.log('\n⚠️ No originalData found for comparison');
+      }
+      
+      console.log('═══════════════════════════════════════════════════════════════');
+      console.log('\n');
+      
       return {
         name: step.name,
-        request_body: JSON.stringify(step.properties.model),
-        path_params: step.properties.fixedModel?.path_params,
-        query_params: step.properties.fixedModel?.query_params,
+        request_body: currentRequestBody,
+        path_params: currentPathParams,
+        query_params: currentQueryParams,
         task_component: step.properties.originalData?.task_component,
         dependencies:
           dependenciesStep && dependenciesStep.name

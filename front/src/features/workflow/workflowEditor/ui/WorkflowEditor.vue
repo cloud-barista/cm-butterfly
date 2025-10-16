@@ -8,7 +8,7 @@ import {
 } from '@cloudforet-test/mirinae';
 import { useWorkflowToolModel } from '@/features/workflow/workflowEditor/model/workflowEditorModel';
 import { useInputModel } from '@/shared/hooks/input/useInputModel';
-import { onBeforeMount, onMounted, reactive, ref, Ref } from 'vue';
+import { onBeforeMount, onMounted, reactive, ref, Ref, watch } from 'vue';
 import { Step } from '@/features/workflow/workflowEditor/model/types';
 import {
   ITargetModelResponse,
@@ -28,6 +28,7 @@ import getRandomId from '@/shared/utils/uuid';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import SequentialDesigner from '@/features/sequential/designer/ui/SequentialDesigner.vue';
 import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';
+import { useTaskSchemaLoader } from '@/features/sequential/designer/editor/composables/useTaskSchemaLoader';
 
 interface IProps {
   wftId: string;
@@ -45,6 +46,9 @@ const workflowName = useInputModel<string>('');
 const workflowDescription = useInputModel<string>('');
 const workflowData = ref<IWorkflow>();
 const sequentialSequence: Ref<Step[]> = ref<Step[]>([]);
+
+// Task schema loader
+const { loadTaskSchemasFromResponse, loadAllTaskSchemas, isSchemaLoaded } = useTaskSchemaLoader();
 
 
 const resWorkflowTemplateData = useGetWorkflowTemplateList();
@@ -196,7 +200,44 @@ onBeforeMount(function () {
     }
   });
 });
-onMounted(() => {});
+// resTaskComponentList가 로드된 후 task schema 로드
+watch(() => resTaskComponentList.data, async (newData) => {
+  if (!isSchemaLoaded.value && newData) {
+    try {
+      console.log('Loading task schemas from resTaskComponentList data...');
+      console.log('resTaskComponentList.data:', newData);
+      
+      // API 응답 구조 확인
+      if ((newData as any).responseData) {
+        console.log('Using resTaskComponentList.data.responseData');
+        loadTaskSchemasFromResponse(newData as any);
+      } else if ((newData as any).value?.responseData) {
+        console.log('Using resTaskComponentList.data.value.responseData');
+        loadTaskSchemasFromResponse((newData as any).value);
+      } else {
+        console.log('Unexpected data structure, calling API...');
+        await loadAllTaskSchemas();
+      }
+      
+      console.log('Task schemas loaded successfully in WorkflowEditor');
+    } catch (error) {
+      console.error('Failed to load task schemas in WorkflowEditor:', error);
+    }
+  }
+}, { immediate: true });
+
+onMounted(async () => {
+  // Task schema가 아직 로드되지 않았다면 API 호출
+  if (!isSchemaLoaded.value) {
+    try {
+      console.log('No existing data, calling API...');
+      await loadAllTaskSchemas();
+      console.log('Task schemas loaded successfully in WorkflowEditor');
+    } catch (error) {
+      console.error('Failed to load task schemas in WorkflowEditor:', error);
+    }
+  }
+});
 
 function load() {
   loading.value = true;
@@ -393,6 +434,21 @@ function mapTargetModelToTaskComponent(
   };
 
   const step = workflowToolModel.convertToDesignerTask(task, task.request_body);
+  
+  // ❌ CRITICAL FIX: Do NOT overwrite step.properties.model with schema!
+  // step.properties.model should contain actual DATA (from parseString), not SCHEMA
+  // TaskComponentEditor will get schema from step.properties.taskComponentData (set in editorProviders)
+  // 
+  // Previously this was causing schema to be saved in request_body instead of actual data:
+  // if (taskComponent.data.body_params && Object.keys(taskComponent.data.body_params).length > 0) {
+  //   step.properties.model = taskComponent.data.body_params;  // ❌ This overwrites DATA with SCHEMA!
+  // }
+  
+  console.log('✅ step.properties.model contains actual data (not schema):', {
+    modelKeys: Object.keys(step.properties.model || {}),
+    modelSample: JSON.stringify(step.properties.model).substring(0, 200)
+  });
+  
   taskGroup.sequence?.push(step);
   sequentialSequence.value = [taskGroup];
   
@@ -585,6 +641,21 @@ function createTaskForModel(
   };
 
   const step = workflowToolModel.convertToDesignerTask(task, task.request_body);
+  
+  // ❌ CRITICAL FIX: Do NOT overwrite step.properties.model with schema!
+  // step.properties.model should contain actual DATA (from parseString), not SCHEMA
+  // TaskComponentEditor will get schema from step.properties.taskComponentData (set in editorProviders)
+  // 
+  // Previously this was causing schema to be saved in request_body instead of actual data:
+  // if (taskComponent.data.body_params && Object.keys(taskComponent.data.body_params).length > 0) {
+  //   step.properties.model = taskComponent.data.body_params;  // ❌ This overwrites DATA with SCHEMA!
+  // }
+  
+  console.log('✅ step.properties.model contains actual data (not schema):', {
+    modelKeys: Object.keys(step.properties.model || {}),
+    modelSample: JSON.stringify(step.properties.model).substring(0, 200)
+  });
+  
   taskGroup.sequence?.push(step);
   sequentialSequence.value = [taskGroup];
   
@@ -653,6 +724,50 @@ function getCicadaData(designer: Designer | null): IWorkflow {
   if (designer) {
     try {
       const definition = designer.getDefinition();
+      console.log('=== getCicadaData Debug ===');
+      console.log('Definition sequence:', definition.sequence);
+      console.log('Sequence length:', definition.sequence.length);
+      
+      // Detailed step analysis
+      definition.sequence.forEach((step: any, index: number) => {
+        console.log(`Step ${index}:`, {
+          name: step.name,
+          type: step.type,
+          properties: step.properties,
+          'properties.model': step.properties?.model,
+          'properties.fixedModel': step.properties?.fixedModel,
+          'properties.originalData': step.properties?.originalData
+        });
+        
+        // Check nested sequences (like TaskGroup)
+        if (step.sequence && step.sequence.length > 0) {
+          console.log(`  Nested sequence (${step.sequence.length} items):`);
+          step.sequence.forEach((nestedStep: any, nestedIndex: number) => {
+            console.log(`    Nested step ${nestedIndex}:`, {
+              name: nestedStep.name,
+              type: nestedStep.type,
+              'properties.model': nestedStep.properties?.model,
+              'properties.fixedModel': nestedStep.properties?.fixedModel,
+              'properties.originalData': nestedStep.properties?.originalData,
+              'fixedModel.request_body': nestedStep.properties?.fixedModel?.request_body
+            });
+            
+            // Log request_body if exists
+            if (nestedStep.properties?.fixedModel?.request_body) {
+              try {
+                const requestBody = typeof nestedStep.properties.fixedModel.request_body === 'string'
+                  ? JSON.parse(nestedStep.properties.fixedModel.request_body)
+                  : nestedStep.properties.fixedModel.request_body;
+                console.log('    Request body parsed:', requestBody);
+                console.log('    Request body keys:', Object.keys(requestBody));
+              } catch (e) {
+                console.log('    Request body (raw):', nestedStep.properties.fixedModel.request_body);
+              }
+            }
+          });
+        }
+      });
+      
       Object.assign(workflow, {
         data: {
           description: '',
@@ -664,6 +779,10 @@ function getCicadaData(designer: Designer | null): IWorkflow {
         id: '',
         name: workflowName.value.value,
       });
+      
+      console.log('Converted workflow data:', workflow.data);
+      console.log('Task groups:', workflow.data.task_groups);
+      console.log('===========================');
     } catch (e: any) {
       showErrorMessage('Error', e);
     }

@@ -74,3 +74,17 @@ export type TaskComponentTableType =
   | 'taskComponentJSON'
   | 'created_at'
   | 'updated_at';
+
+export interface IWorkflowRun {
+  data_interval_end: string;
+  data_interval_start: string;
+  duration_date: number;
+  end_date: string;
+  execution_date: string;
+  last_scheduling_decision: string;
+  run_type: string;
+  start_date: string;
+  state: string;
+  workflow_id: string;
+  workflow_run_id: string;
+}

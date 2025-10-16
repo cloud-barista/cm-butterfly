@@ -30,6 +30,23 @@ const props = defineProps<IProps>();
 const emit = defineEmits(['update:close-modal']);
 
 const auth = useAuth();
+
+// VM 데이터 유효성 검사 헬퍼 함수
+function isValidVmData(vm: any): boolean {
+  return vm && 
+         vm.specId && 
+         vm.specId.trim() !== '' && 
+         vm.imageId && 
+         vm.imageId.trim() !== '';
+}
+
+// "empty" 문구를 빨간색으로 표시하는 헬퍼 함수
+function formatEmptyValue(value: string): string {
+  if (!value) return '';
+  
+  // "empty" 문자열을 빨간색으로 변환 (단어 단위로 대체)
+  return value.replace(/\bempty\b/g, '<span style="color: red; font-weight: bold;">empty</span>');
+}
 const recommendInfraModel = useRecommendedInfraModel();
 
 const modelName = ref<string>('');
@@ -158,45 +175,77 @@ async function getRecommendModelList() {
     console.log('=== End Response Log ===');
 
     if (recommendModel) {
-      console.log('=== Validation Data ===');
-      console.log('VM array for validation:', recommendModel.targetVmInfra.subGroups);
-      console.log('targetVmSpecList:', recommendModel.targetVmSpecList);
-      
-      const validationRes = recommendModel.targetVmInfra.subGroups?.some(vm => {
-        console.log('Checking VM:', vm);
-        console.log('VM keys:', Object.keys(vm));
-        console.log('VM.specId:', vm.specId);
-        console.log('VM.imageId:', vm.imageId);
-        console.log('VM.specId === undefined:', vm.specId === undefined);
-        console.log('VM.specId === null:', vm.specId === null);
-        console.log('VM.specId === empty string:', vm.specId === '');
+      // API 응답 데이터 검증 및 정리
+      if (recommendModel.targetVmInfra?.subGroups) {
+        const originalLength = recommendModel.targetVmInfra.subGroups.length;
         
-        const isInvalid = vm.specId === undefined || vm.specId === null || vm.specId === '';
-        console.log('Is invalid:', isInvalid);
+        // 오류가 있는 항목들을 먼저 로깅
+        const invalidVms = recommendModel.targetVmInfra.subGroups.filter(vm => !isValidVmData(vm));
+        if (invalidVms.length > 0) {
+          console.warn('=== Invalid VMs Found ===');
+          console.warn(`Total invalid VMs: ${invalidVms.length}`);
+          invalidVms.forEach((vm, index) => {
+            console.warn(`Invalid VM [${index}]:`, {
+              name: vm.name,
+              specId: vm.specId,
+              imageId: vm.imageId,
+              description: vm.description,
+              sourceMachineId: (vm.label as any)?.sourceMachineId,
+              reason: !vm.specId || vm.specId.trim() === '' ? 'specId is empty' : 'imageId is empty'
+            });
+          });
+          console.warn('=== End Invalid VMs ===');
+        }
         
-        return isInvalid;
-      });
-
-      console.log('Validation result:', validationRes);
-
-      if (validationRes) {
-        console.log('Validation failed - throwing error');
-        throw new Error('Validation failed: specId is undefined or null');
+        // 무효한 데이터의 빈 필드를 "empty"로 대체
+        recommendModel.targetVmInfra.subGroups = recommendModel.targetVmInfra.subGroups.map(vm => {
+          const updatedVm = { ...vm };
+          if (!vm.specId || vm.specId.trim() === '') {
+            updatedVm.specId = 'empty';
+          }
+          if (!vm.imageId || vm.imageId.trim() === '') {
+            updatedVm.imageId = 'empty';
+          }
+          return updatedVm;
+        });
+        
+        console.log('Processed VMs after validation:', recommendModel.targetVmInfra.subGroups);
+        console.log(`Found ${invalidVms.length} invalid VMs (replaced empty values with "empty")`)
       }
 
       // GET_RECOMMEND_COST API 호출 대신 targetVmSpecList에서 비용 계산
       try {
         let totalCostPerHour = 0;
         let currency = '';
+        let skippedVms: Array<{ vmName: string; specId: string; costPerHour: number }> = [];
         
         // targetVmSpecList에서 각 VM의 비용을 계산
         recommendModel.targetVmInfra.subGroups?.forEach(vm => {
           const matchingSpec = recommendModel.targetVmSpecList?.find(spec => spec.id === vm.specId);
-          if (matchingSpec && matchingSpec.costPerHour) {
-            totalCostPerHour += matchingSpec.costPerHour;
-            currency = matchingSpec.currency || 'USD'; // 통화 정보가 있다면 사용
+          if (matchingSpec && matchingSpec.costPerHour !== undefined && matchingSpec.costPerHour !== null) {
+            // 0보다 작은 값은 skip
+            if (matchingSpec.costPerHour < 0) {
+              skippedVms.push({
+                vmName: vm.name,
+                specId: vm.specId,
+                costPerHour: matchingSpec.costPerHour
+              });
+              console.warn(`Skipping VM with negative cost: ${vm.name} (${vm.specId}), costPerHour: ${matchingSpec.costPerHour}`);
+            } else {
+              totalCostPerHour += matchingSpec.costPerHour;
+              currency = matchingSpec.currency || 'USD'; // 통화 정보가 있다면 사용
+            }
+          } else {
+            console.warn(`No cost information found for VM: ${vm.name} (${vm.specId})`);
           }
         });
+        
+        if (skippedVms.length > 0) {
+          console.warn(`=== Cost Calculation Summary ===`);
+          console.warn(`Total VMs skipped due to invalid cost: ${skippedVms.length}`);
+          console.warn(`Skipped VMs:`, skippedVms);
+          console.warn(`=== End Cost Calculation Summary ===`);
+        }
 
         const totalCostPerMonth = totalCostPerHour * 24 * 30; // 시간당 비용을 월 비용으로 변환
 
@@ -302,10 +351,12 @@ function handleSave(e: { name: string; description: string }) {
     let csp = 'default-csp';
     let region = 'default-region';
     
-    if (selectedVm.specId && selectedVm.specId.includes('+')) {
+    if (selectedVm.specId && selectedVm.specId !== 'empty' && selectedVm.specId.includes('+')) {
       const commonSpecSplitData = selectedVm.specId.split('+');
       csp = commonSpecSplitData[0];
       region = commonSpecSplitData[1];
+    } else if (selectedVm.specId === 'empty') {
+      console.warn('Selected VM has empty specId, using default values');
     }
 
     resCreateTargetModel
@@ -399,6 +450,12 @@ function handleSave(e: { name: string; description: string }) {
             "
             :multi-select="false"
           >
+            <template #col-spec-format="{ item }">
+              <span v-html="formatEmptyValue(item.spec)"></span>
+            </template>
+            <template #col-image-format="{ item }">
+              <span v-html="formatEmptyValue(item.image)"></span>
+            </template>
           </p-toolbox-table>
         </div>
       </template>

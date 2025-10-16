@@ -11,9 +11,12 @@ import {
   PDivider,
 } from '@cloudforet-test/mirinae';
 import { useLoadConfigModel } from '@/features/workload/actionLoadConfig/model';
-import { watch } from 'vue';
+import { watch, ref, onMounted } from 'vue';
 import { showErrorMessage } from '@/shared/utils';
-import { useRunLoadTest } from '@/entities/vm/api/api';
+import {
+  useRunLoadTest,
+  useGetAllLoadTestScenarioCatalogs,
+} from '@/entities/vm/api/api';
 
 interface IProps {
   isOpen: boolean;
@@ -28,6 +31,56 @@ const emit = defineEmits(['close', 'success']);
 
 const loadConfigModel = useLoadConfigModel();
 const resRunLoadTest = useRunLoadTest(null);
+
+// API 훅
+const { data: catalogsData, execute: fetchCatalogs } =
+  useGetAllLoadTestScenarioCatalogs();
+
+// 템플릿 관련 상태
+const savedTemplates = ref<any[]>([]);
+const selectedTemplate = ref<string>('');
+
+// 템플릿 로드
+async function loadTemplates() {
+  try {
+    await fetchCatalogs();
+    if (catalogsData.value?.responseData?.result?.loadTestScenarioCatalogs) {
+      savedTemplates.value =
+        catalogsData.value.responseData.result.loadTestScenarioCatalogs;
+    } else {
+      savedTemplates.value = [];
+    }
+  } catch (error) {
+    console.error('Failed to load templates:', error);
+    showErrorMessage('failed', 'Failed to load templates. Please try again.');
+  }
+}
+
+// 템플릿 선택 시 필드 자동 채우기
+function applyTemplate(templateName: string) {
+  if (!templateName) return;
+
+  // 선택된 템플릿 찾기
+  const template = savedTemplates.value.find(t => t.name === templateName);
+  if (!template) return;
+
+  // 템플릿 데이터를 폼에 적용
+  loadConfigModel.inputModels.virtualUsers.value = template.virtualUsers;
+  loadConfigModel.inputModels.testDuration.value = template.duration;
+  loadConfigModel.inputModels.rampUpTime.value = template.rampUpTime;
+  loadConfigModel.inputModels.rampUpSteps.value = template.rampUpSteps;
+}
+
+// 템플릿 적용을 위한 expose
+defineExpose({
+  applyTemplate,
+});
+
+// 컴포넌트 마운트 시 템플릿 로드
+onMounted(() => {
+  loadTemplates();
+});
+
 watch(
   () => props.ip,
   () => {
@@ -35,6 +88,16 @@ watch(
     loadConfigModel.inputModels.targetHostName.value = props.ip;
   },
   { immediate: true },
+);
+
+watch(
+  () => props.isOpen,
+  isOpen => {
+    if (isOpen) {
+      loadTemplates();
+      selectedTemplate.value = '';
+    }
+  },
 );
 
 async function validate() {
@@ -91,6 +154,23 @@ async function handleConfirm() {
 }
 
 function handelClose() {
+  // 폼 리셋
+  loadConfigModel.inputModels.scenarioName.value = '';
+  loadConfigModel.inputModels.targetHostName.value = '';
+  loadConfigModel.inputModels.port.value = '';
+  loadConfigModel.protocol.selected = 'HTTP';
+  loadConfigModel.inputModels.path.value = '';
+  loadConfigModel.methods.selected = 'GET';
+  loadConfigModel.inputModels.bodyData.value = '';
+  loadConfigModel.inputModels.virtualUsers.value = '';
+  loadConfigModel.inputModels.testDuration.value = '';
+  loadConfigModel.inputModels.rampUpTime.value = '';
+  loadConfigModel.inputModels.rampUpSteps.value = '';
+  loadConfigModel.location.selected = 'remote';
+  loadConfigModel.isMetrics.value = true;
+  loadConfigModel.inputModels.agentHostName.value = '';
+  loadConfigModel.installed.selected = 'True';
+  selectedTemplate.value = '';
   emit('close');
 }
 </script>
@@ -101,7 +181,7 @@ function handelClose() {
     :v-model="isOpen"
     size="sm"
     :loading="false"
-    headerTitle="Load Config"
+    header-title="Load Config"
     @confirm="handleConfirm"
     @cancel="handelClose"
     @close="handelClose"
@@ -116,8 +196,8 @@ function handelClose() {
           >
             <template #default="{ invalid }">
               <p-text-input
-                :invalid="invalid"
                 v-model="loadConfigModel.inputModels.scenarioName.value"
+                :invalid="invalid"
                 :placeholder="'Test Scenario Name'"
                 block
               />
@@ -133,8 +213,8 @@ function handelClose() {
           >
             <template #default="{ invalid }">
               <p-text-input
-                :invalid="invalid"
                 v-model="loadConfigModel.inputModels.targetHostName.value"
+                :invalid="invalid"
                 :placeholder="'Host Name'"
                 block
               />
@@ -147,8 +227,8 @@ function handelClose() {
           >
             <template #default="{ invalid }">
               <p-text-input
-                :invalid="invalid"
                 v-model="loadConfigModel.inputModels.port.value"
+                :invalid="invalid"
                 :type="'number'"
                 :placeholder="'1~65535'"
                 block
@@ -168,11 +248,11 @@ function handelClose() {
                   :selected="loadConfigModel.protocol.selected"
                   :placeholder="'Protocol'"
                   @select="e => (loadConfigModel.protocol.selected = e)"
-                ></p-select-dropdown>
+                />
                 <p-text-input
+                  v-model="loadConfigModel.inputModels.path.value"
                   :invalid="invalid"
                   class="flex-2"
-                  v-model="loadConfigModel.inputModels.path.value"
                   :placeholder="'Path'"
                   block
                 />
@@ -187,20 +267,36 @@ function handelClose() {
                 :selected="loadConfigModel.methods.selected"
                 :placeholder="'Method'"
                 @select="e => (loadConfigModel.methods.selected = e)"
-              ></p-select-dropdown>
+              />
             </template>
           </p-field-group>
           <p-field-group class="!m-0" :label="'Body Data'">
             <template #default="{ invalid }">
               <p-textarea
-                class="min-h-12"
                 v-model="loadConfigModel.inputModels.bodyData.value"
+                class="min-h-12"
                 :placeholder="'Copy and Paste the data.'"
               />
             </template>
           </p-field-group>
         </section>
         <section class="section">
+          <p-field-group label="Load Template">
+            <template #default="{ invalid }">
+              <p-select-dropdown
+                v-model="selectedTemplate"
+                :menu="
+                  savedTemplates.map(template => ({
+                    name: template.name,
+                    label: template.name,
+                  }))
+                "
+                placeholder="Choose a saved template"
+                block
+                @select="applyTemplate"
+              />
+            </template>
+          </p-field-group>
           <p-field-group
             :invalid="!loadConfigModel.inputModels.virtualUsers.isValid"
             :label="'Virtual Users'"
@@ -208,8 +304,8 @@ function handelClose() {
           >
             <template #default="{ invalid }">
               <p-text-input
-                :invalid="invalid"
                 v-model="loadConfigModel.inputModels.virtualUsers.value"
+                :invalid="invalid"
                 :type="'number'"
                 :placeholder="'Number of virtual users'"
                 block
@@ -223,8 +319,8 @@ function handelClose() {
           >
             <template #default="{ invalid }">
               <p-text-input
-                :invalid="invalid"
                 v-model="loadConfigModel.inputModels.testDuration.value"
+                :invalid="invalid"
                 :type="'number'"
                 :placeholder="'Test Run Time'"
                 block
@@ -242,13 +338,12 @@ function handelClose() {
             >
               <template #default="{ invalid }">
                 <p-text-input
-                  :invalid="invalid"
                   v-model="loadConfigModel.inputModels.rampUpTime.value"
+                  :invalid="invalid"
                   :placeholder="'Time'"
                   :type="'number'"
                   block
-                >
-                </p-text-input>
+                />
               </template>
             </p-field-group>
             <p-field-group
@@ -259,20 +354,19 @@ function handelClose() {
             >
               <template #default="{ invalid }">
                 <p-text-input
-                  :invalid="invalid"
                   v-model="loadConfigModel.inputModels.rampUpSteps.value"
+                  :invalid="invalid"
                   :placeholder="'Number of steps'"
                   :type="'number'"
                   block
-                >
-                </p-text-input>
+                />
               </template>
             </p-field-group>
           </div>
         </section>
         <section class="section">
           <p-field-group class="!m-0" :label="'Install Location'" required>
-            <template #default="{ invalid }">
+            <template #default>
               <p-radio-group>
                 <p-radio
                   v-for="value in loadConfigModel.location.values"
@@ -291,11 +385,10 @@ function handelClose() {
             <p-toggle-button
               :value="loadConfigModel.isMetrics.value"
               @update:value="e => (loadConfigModel.isMetrics.value = e)"
-            >
-            </p-toggle-button>
+            />
             <p>Collect Additional System Metrics</p>
           </div>
-          <p-divider class="mt-2 mb-2"></p-divider>
+          <p-divider class="mt-2 mb-2" />
           <div class="flex w-full gap-1">
             <p-field-group
               :invalid="!loadConfigModel.inputModels.agentHostName.isValid"
@@ -304,8 +397,8 @@ function handelClose() {
             >
               <template #default="{ invalid }">
                 <p-text-input
-                  :invalid="invalid"
                   v-model="loadConfigModel.inputModels.agentHostName.value"
+                  :invalid="invalid"
                   :placeholder="'Agent Host Name'"
                   block
                 />
@@ -323,7 +416,7 @@ function handelClose() {
                   :selected="loadConfigModel.installed.selected"
                   :placeholder="'select'"
                   @select="e => (loadConfigModel.installed.selected = e)"
-                ></p-select-dropdown>
+                />
               </template>
             </p-field-group>
           </div>

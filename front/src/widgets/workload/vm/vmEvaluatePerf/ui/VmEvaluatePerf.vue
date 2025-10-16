@@ -13,13 +13,26 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['openLoadconfig']);
+const emit = defineEmits(['openLoadconfig', 'openTemplateManager']);
 </script>
 
 <template>
   <div class="vm-evaluate-perf-widget">
     <div class="widget-tab-section-header">
       <p>Evaluate Performance Result</p>
+      <h5>
+        You can save and manage scenario templates in advance. Save frequently
+        used configurations as templates for reuse.
+      </h5>
+      <div class="flex gap-1.5">
+        <p-button
+          style-type="tertiary"
+          icon-left="ic_service_bookmark"
+          @click="emit('openTemplateManager')"
+        >
+          Scenario Templates
+        </p-button>
+      </div>
       <h5>
         when you complete the load configuration, you will see the result data.
         Please configure the load.
@@ -38,29 +51,29 @@ const emit = defineEmits(['openLoadconfig']);
       <div class="font-bold text-2xl">
         Aggregation Table
         <LoadTestAggregationTable
-          :mciId="props.mciId"
-          :nsId="props.nsId"
-          :vmId="props.vmId"
-        ></LoadTestAggregationTable>
+          :mci-id="props.mciId"
+          :ns-id="props.nsId"
+          :vm-id="props.vmId"
+        />
       </div>
       <div class="chart w-full">
         <div class="font-bold text-2xl">Result metric</div>
         <div class="h-[calc(100%-2rem)]">
           <LoadTestEvaluationMetric
-            :mciId="props.mciId"
-            :nsId="props.nsId"
-            :vmId="props.vmId"
-          ></LoadTestEvaluationMetric>
+            :mci-id="props.mciId"
+            :ns-id="props.nsId"
+            :vm-id="props.vmId"
+          />
         </div>
       </div>
       <div class="chart w-full font-bold text-2xl">
         <div class="font-bold text-2xl">Resource Metric</div>
         <div class="h-[calc(100%-2rem)]">
           <LoadTestResourceMetric
-            :mciId="props.mciId"
-            :nsId="props.nsId"
-            :vmId="props.vmId"
-          ></LoadTestResourceMetric>
+            :mci-id="props.mciId"
+            :ns-id="props.nsId"
+            :vm-id="props.vmId"
+          />
         </div>
       </div>
     </div>
