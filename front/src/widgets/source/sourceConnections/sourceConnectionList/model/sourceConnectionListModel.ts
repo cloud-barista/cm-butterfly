@@ -1,9 +1,9 @@
-import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel.ts';
+import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import {
   ISourceConnection,
   SourceConnectionTableTypes,
-} from '@/entities/sourceConnection/model/types.ts';
-import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores.ts';
+} from '@/entities/sourceConnection/model/types';
+import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 import { useGetSourceConnectionList } from '@/entities/sourceConnection/api';
 import { ref, watch } from 'vue';
 

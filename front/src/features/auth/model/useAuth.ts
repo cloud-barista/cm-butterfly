@@ -1,7 +1,7 @@
-import { IUserLoginResponse } from '../../../entities';
-import { useAuthStore } from '../../../shared/libs/store/auth';
-import JwtTokenProvider from '../../../shared/libs/token';
-import LocalStorageConnector from '../../../shared/libs/access-localstorage/localStorageConnector.ts';
+import { IUserLoginResponse } from '@/entities/user/model/types';
+import { useAuthStore } from '@/shared/libs/store/auth';
+import JwtTokenProvider from '@/shared/libs/token';
+import LocalStorageConnector from '@/shared/libs/access-localstorage/localStorageConnector';
 
 const LOGIN_AUTH = 'LOGIN_AUTH';
 

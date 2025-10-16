@@ -1,24 +1,17 @@
 <script setup lang="ts">
 import { PDefinitionTable, PButton, PStatus } from '@cloudforet-test/mirinae';
-import {
-  onBeforeMount,
-  onMounted,
-  reactive,
-  ref,
-  watch,
-  watchEffect,
-} from 'vue';
-import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel.ts';
+import { onBeforeMount, reactive, ref, watch, watchEffect } from 'vue';
+import { useSourceServiceDetailModel } from '@/widgets/source/sourceServices/sourceServiceDetail/model/sourceServiceDetailModel';
 import {
   useGetInfraSourceGroup,
-  useGetSourceGroupStatus,
   useGetSourceService,
 } from '@/entities/sourceService/api';
-import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
-import { storeToRefs } from 'pinia';
-import { useRefreshSourceGroupConnectionInfoStatus, useCollectSWSourceGroup } from '@/entities/sourceConnection/api';
-import { CustomViewSourceModel } from '@/widgets/models/sourceModels';
-import SourceServiceInfraRefineModal from '@/features/sourceServices/sourceServiceInfraRefinedModal/ui/sourceServiceInfraRefineModal.vue';
+import { showErrorMessage } from '@/shared/utils';
+import {
+  useRefreshSourceGroupConnectionInfoStatus,
+  useCollectSWSourceGroup,
+} from '@/entities/sourceConnection/api';
+import SourceServiceRefineModal from '@/features/sourceServices/sourceServiceRefinedModal/ui/sourceServiceRefineModal.vue';
 
 interface IProps {
   selectedServiceId: string;
@@ -227,18 +220,20 @@ function handleSoftwareModal() {
         </div>
       </template>
     </p-definition-table>
-    <SourceServiceInfraRefineModal
+    <SourceServiceRefineModal
       v-if="modalState.open"
       :sgId="props.selectedServiceId"
       :collect-data="infraModel"
       data-type="infra"
+      data-source="sourceGroup"
       @update:is-meta-viewer-opened="modalState.open = false"
     />
-    <SourceServiceInfraRefineModal
+    <SourceServiceRefineModal
       v-if="softwareModalState.open"
       :sgId="props.selectedServiceId"
       :collect-data="softwareModel"
       data-type="software"
+      data-source="sourceGroup"
       @update:is-meta-viewer-opened="softwareModalState.open = false"
     />
   </div>

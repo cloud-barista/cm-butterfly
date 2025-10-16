@@ -1,3 +1,3 @@
-import TopBarToolset from './ui/TopBarToolset.vue';
+import TopBarToolset from '@/features/topbar/topbarToolset/ui/TopBarToolset.vue';
 
 export { TopBarToolset };

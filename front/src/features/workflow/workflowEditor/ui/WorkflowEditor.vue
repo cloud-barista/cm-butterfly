@@ -6,10 +6,10 @@ import {
   PSelectDropdown,
   PTextInput,
 } from '@cloudforet-test/mirinae';
-import { useWorkflowToolModel } from '@/features/workflow/workflowEditor/model/workflowEditorModel.ts';
-import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
+import { useWorkflowToolModel } from '@/features/workflow/workflowEditor/model/workflowEditorModel';
+import { useInputModel } from '@/shared/hooks/input/useInputModel';
 import { onBeforeMount, onMounted, reactive, ref, Ref } from 'vue';
-import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
+import { Step } from '@/features/workflow/workflowEditor/model/types';
 import {
   ITargetModelResponse,
   ITaskResponse,
@@ -27,11 +27,14 @@ import {
 import getRandomId from '@/shared/utils/uuid';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import SequentialDesigner from '@/features/sequential/designer/ui/SequentialDesigner.vue';
+import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';
 
 interface IProps {
   wftId: string;
   toolType: 'edit' | 'viewer' | 'add';
   targetModel?: ITargetModelResponse;
+  migrationType?: 'infra' | 'software';
+  recommendedModel?: any;
 }
 
 const props = defineProps<IProps>();
@@ -42,6 +45,7 @@ const workflowName = useInputModel<string>('');
 const workflowDescription = useInputModel<string>('');
 const workflowData = ref<IWorkflow>();
 const sequentialSequence: Ref<Step[]> = ref<Step[]>([]);
+
 
 const resWorkflowTemplateData = useGetWorkflowTemplateList();
 const resTaskComponentList = getTaskComponentList();
@@ -65,12 +69,130 @@ onBeforeMount(function () {
     workflowToolModel.setDropDownData(
       workflowToolModel.workflowStore.workflowTemplates,
     );
-    load();
+    
     if (props.targetModel) {
+      console.log('TargetModel received:', props.targetModel);
+      console.log('TargetModel type check:', {
+        hasCloudInfraModel: !!props.targetModel.cloudInfraModel,
+        cloudInfraModel: props.targetModel.cloudInfraModel,
+        isCloudModel: props.targetModel.isCloudModel,
+        csp: props.targetModel.csp,
+        region: props.targetModel.region,
+        zone: props.targetModel.zone
+      });
+      
+      // Determine if this is infra or software model based on migrationType
+      // Note: migrationType should be passed from the parent component
+      // For now, fallback to the existing logic if migrationType is not available
+      let isInfraModel = false;
+      let isSoftwareModel = false;
+      
+      // Check if migrationType is available (this should be passed from parent)
+      if (props.targetModel.migrationType) {
+        isInfraModel = props.targetModel.migrationType === 'infra';
+        isSoftwareModel = props.targetModel.migrationType === 'software';
+        console.log('Using migrationType for classification:', {
+          migrationType: props.targetModel.migrationType,
+          isInfraModel,
+          isSoftwareModel
+        });
+      } else {
+        // Fallback to existing logic based on cloudInfraModel
+        isInfraModel = !!props.targetModel.cloudInfraModel && props.targetModel.isCloudModel;
+        isSoftwareModel = !props.targetModel.cloudInfraModel && props.targetModel.isCloudModel;
+        console.log('Using fallback logic (cloudInfraModel) for classification:', {
+          isInfraModel,
+          isSoftwareModel
+        });
+      }
+      
+      console.log('Final model classification:', {
+        isInfraModel,
+        isSoftwareModel
+      });
+      
+      if (isInfraModel) {
+        // Select migrate_infra_workflow template
+        const infraTemplate = workflowToolModel.workflowStore.workflowTemplates.find(
+          template => template.name === 'migrate_infra_workflow'
+        );
+        if (infraTemplate) {
+          workflowToolModel.dropDownModel.selectedItemId = infraTemplate.id;
+          console.log('Selected infra workflow template:', infraTemplate);
+        } else {
+          console.warn('migrate_infra_workflow template not found');
+        }
+      } else if (isSoftwareModel) {
+        // Select migrate_software_workflow template
+        const softwareTemplate = workflowToolModel.workflowStore.workflowTemplates.find(
+          template => template.name === 'migrate_software_workflow'
+        );
+        if (softwareTemplate) {
+          workflowToolModel.dropDownModel.selectedItemId = softwareTemplate.id;
+          console.log('Selected software workflow template:', softwareTemplate);
+        } else {
+          console.warn('migrate_software_workflow template not found');
+        }
+      }
+      
+      // Load workflow after template selection
+      load();
+      
       mapTargetModelToTaskComponent(
         props.targetModel,
         workflowToolModel.taskComponentList,
       );
+    } else if (props.toolType === 'add') {
+      // For add mode, use recommendedModel from props
+      console.log('Add mode detected, using recommendedModel from props...');
+      
+      // Determine migrationType from props or default to 'infra'
+      const migrationType = props.migrationType || 'infra';
+      
+      // Select appropriate workflow template based on migrationType
+      if (migrationType === 'infra') {
+        const infraTemplate = workflowToolModel.workflowStore.workflowTemplates.find(
+          template => template.name === 'migrate_infra_workflow'
+        );
+        if (infraTemplate) {
+          workflowToolModel.dropDownModel.selectedItemId = infraTemplate.id;
+          console.log('Selected infra workflow template:', infraTemplate);
+        }
+      } else if (migrationType === 'software') {
+        const softwareTemplate = workflowToolModel.workflowStore.workflowTemplates.find(
+          template => template.name === 'migrate_software_workflow'
+        );
+        if (softwareTemplate) {
+          workflowToolModel.dropDownModel.selectedItemId = softwareTemplate.id;
+          console.log('Selected software workflow template:', softwareTemplate);
+        }
+      }
+      
+      if (props.recommendedModel) {
+        console.log('RecommendedModel received:', props.recommendedModel);
+        
+        // Add migrationType to the recommended model
+        const modelWithMigrationType = {
+          ...props.recommendedModel,
+          migrationType: migrationType
+        };
+        
+        console.log('Using recommended model with migrationType:', {
+          recommendedModel: modelWithMigrationType,
+          migrationType
+        });
+        
+        // Create task based on migrationType
+        createTaskForModel(modelWithMigrationType, workflowToolModel.taskComponentList);
+      } else {
+        console.warn('No recommendedModel provided for add mode');
+      }
+      
+      // Load workflow after template selection
+      load();
+    } else {
+      // No targetModel, load default
+      load();
     }
   });
 });
@@ -78,9 +200,14 @@ onMounted(() => {});
 
 function load() {
   loading.value = true;
-  loadWorkflow();
-  loadSequence();
-  reorderingSequence();
+  
+  // Only load workflow if no targetModel or if targetModel template selection is already done
+  if (!props.targetModel || workflowToolModel.dropDownModel.selectedItemId) {
+    loadWorkflow();
+    loadSequence();
+    reorderingSequence();
+  }
+  
   loading.value = false;
 }
 
@@ -89,12 +216,63 @@ function mapTargetModelToTaskComponent(
   targetModel: ITargetModelResponse,
   taskComponentList: Array<ITaskComponentInfoResponse>,
 ) {
-  const taskComponent = taskComponentList.find(
-    taskComponent => taskComponent.name === 'beetle_task_infra_migration',
-  );
+  // Determine if this is infra or software model based on migrationType
+  let isInfraModel = false;
+  let isSoftwareModel = false;
+  
+  // Check if migrationType is available
+  if (targetModel.migrationType) {
+    isInfraModel = targetModel.migrationType === 'infra';
+    isSoftwareModel = targetModel.migrationType === 'software';
+    console.log('mapTargetModelToTaskComponent - Using migrationType:', {
+      migrationType: targetModel.migrationType,
+      isInfraModel,
+      isSoftwareModel
+    });
+  } else {
+    // Fallback to existing logic based on cloudInfraModel
+    isInfraModel = !!targetModel.cloudInfraModel && targetModel.isCloudModel;
+    isSoftwareModel = !targetModel.cloudInfraModel && targetModel.isCloudModel;
+    console.log('mapTargetModelToTaskComponent - Using fallback logic:', {
+      isInfraModel,
+      isSoftwareModel
+    });
+  }
+  
+  console.log('mapTargetModelToTaskComponent - Final model type:', {
+    isInfraModel,
+    isSoftwareModel,
+    targetModel
+  });
+  
+  let taskComponentName = '';
+  let taskComponent: ITaskComponentInfoResponse | undefined = undefined;
+  
+  if (isInfraModel) {
+    // Use infra migration task for infra models
+    taskComponentName = 'beetle_task_infra_migration';
+    taskComponent = taskComponentList.find(
+      taskComponent => taskComponent.name === taskComponentName,
+    );
+    console.log('Using infra migration task component:', taskComponent);
+  } else if (isSoftwareModel) {
+    // Use software migration task for software models
+    taskComponentName = 'grasshopper_task_software_migration';
+    taskComponent = taskComponentList.find(
+      taskComponent => taskComponent.name === taskComponentName,
+    );
+    console.log('Using software migration task component:', taskComponent);
+  } else {
+    console.warn('Unknown model type, using default infra migration task');
+    taskComponentName = 'beetle_task_infra_migration';
+    taskComponent = taskComponentList.find(
+      taskComponent => taskComponent.name === taskComponentName,
+    );
+  }
 
   if (!taskComponent) {
-    throw new Error('Task component not found');
+    console.error(`Task component '${taskComponentName}' not found`);
+    throw new Error(`Task component '${taskComponentName}' not found`);
   }
 
   const taskGroup = workflowToolModel
@@ -102,32 +280,319 @@ function mapTargetModelToTaskComponent(
     .defineTaskGroupStep(getRandomId(), 'TaskGroup', 'MCI', { model: {} });
 
   const parseString = parseRequestBody(taskComponent.data.options.request_body);
-  if (parseString && parseString['vm']) {
-    parseString['vm'] = Array(targetModel.cloudInfraModel.vm?.length)
-      .fill(undefined)
-      .map(_ => JSON.parse(JSON.stringify(parseString['vm'][0])));
+  
+  if (isInfraModel && targetModel?.cloudInfraModel?.targetVmInfra) {
+    // Handle infra model data - use targetVmInfra from cloudInfraModel
+    console.log('Processing infra model with targetVmInfra:', targetModel.cloudInfraModel.targetVmInfra);
+    
+    if (parseString) {
+      // Set the targetVmInfra data directly
+      parseString['targetVmInfra'] = targetModel.cloudInfraModel.targetVmInfra;
+      
+      // Also set other related infra data if available
+      if (targetModel.cloudInfraModel.targetSecurityGroupList) {
+        parseString['targetSecurityGroupList'] = targetModel.cloudInfraModel.targetSecurityGroupList;
+      }
+      if (targetModel.cloudInfraModel.targetSshKey) {
+        parseString['targetSshKey'] = targetModel.cloudInfraModel.targetSshKey;
+      }
+      if (targetModel.cloudInfraModel.targetVNet) {
+        parseString['targetVNet'] = targetModel.cloudInfraModel.targetVNet;
+      }
+      if (targetModel.cloudInfraModel.targetVmOsImageList) {
+        parseString['targetVmOsImageList'] = targetModel.cloudInfraModel.targetVmOsImageList;
+      }
+      if (targetModel.cloudInfraModel.targetVmSpecList) {
+        parseString['targetVmSpecList'] = targetModel.cloudInfraModel.targetVmSpecList;
+      }
+    }
+    console.log('Processed infra model data:', parseString);
+  } else if (isSoftwareModel && (targetModel as any)?.targetSoftwareModel) {
+    // Handle software model data - use targetSoftwareModel
+    const targetSoftwareModel = (targetModel as any).targetSoftwareModel;
+    console.log('Processing software model with targetSoftwareModel:', targetSoftwareModel);
+    
+    if (parseString) {
+      // Set the targetSoftwareModel data directly
+      parseString['targetSoftwareModel'] = targetSoftwareModel;
+      
+      // Also set other related software data if available
+      if (targetSoftwareModel.softwareList) {
+        parseString['softwareList'] = targetSoftwareModel.softwareList;
+      }
+      if (targetSoftwareModel.targetVmSpecList) {
+        parseString['targetVmSpecList'] = targetSoftwareModel.targetVmSpecList;
+      }
+      if (targetSoftwareModel.targetVmOsImageList) {
+        parseString['targetVmOsImageList'] = targetSoftwareModel.targetVmOsImageList;
+      }
+      if (targetSoftwareModel.targetSecurityGroupList) {
+        parseString['targetSecurityGroupList'] = targetSoftwareModel.targetSecurityGroupList;
+      }
+      if (targetSoftwareModel.targetSshKey) {
+        parseString['targetSshKey'] = targetSoftwareModel.targetSshKey;
+      }
+      if (targetSoftwareModel.targetVNet) {
+        parseString['targetVNet'] = targetSoftwareModel.targetVNet;
+      }
+      
+      // Set basic model information
+      parseString['softwareModel'] = {
+        id: targetModel.id,
+        name: targetModel.userModelName,
+        description: targetModel.description,
+        csp: targetModel.csp,
+        region: targetModel.region,
+        zone: targetModel.zone
+      };
+    }
+    console.log('Processed software model data:', parseString);
   }
 
-  if (targetModel.cloudInfraModel.vm) {
-    targetModel.cloudInfraModel.vm.forEach((targetVm, index) => {
-      parseString['vm'][index]['commonSpec'] = targetVm.commonSpec;
-      parseString['vm'][index]['commonImage'] = targetVm.commonImage;
-    });
-  }
+  // Set path_params and query_params from task component with nsId default value
+  // Extract actual values from task component properties (similar to getFixedModel in toolboxModel.ts)
+  const pathParamsKeyValue = taskComponent?.data.path_params?.properties
+    ? Object.entries(taskComponent.data.path_params.properties).reduce(
+        (acc, [key, value]) => {
+          acc[key] = value.description;
+          return acc;
+        },
+        {} as Record<string, string>,
+      )
+    : {};
 
+  const queryParamsKeyValue = taskComponent?.data.query_params?.properties
+    ? Object.entries(taskComponent.data.query_params.properties).reduce(
+        (acc, [key, value]) => {
+          acc[key] = value.description;
+          return acc;
+        },
+        {} as Record<string, string>,
+      )
+    : {};
+
+  // Set nsId to DEFAULT_NAMESPACE if it exists in path_params or query_params
+  let pathParams = Object.keys(pathParamsKeyValue).length > 0 ? pathParamsKeyValue : null;
+  let queryParams = Object.keys(queryParamsKeyValue).length > 0 ? queryParamsKeyValue : null;
+  
+  if (pathParams && 'nsId' in pathParams) {
+    pathParams = { ...pathParams, nsId: DEFAULT_NAMESPACE };
+  }
+  if (queryParams && 'nsId' in queryParams) {
+    queryParams = { ...queryParams, nsId: DEFAULT_NAMESPACE };
+  }
+  
   const task: ITaskResponse = {
     dependencies: [],
-    name: 'beetle_task_infra_migration',
-    path_params: null,
-    query_params: null,
+    name: taskComponentName,
+    path_params: pathParams,
+    query_params: queryParams,
     request_body: JSON.stringify(parseString),
     id: '',
-    task_component: 'beetle_task_infra_migration',
+    task_component: taskComponentName,
   };
 
   const step = workflowToolModel.convertToDesignerTask(task, task.request_body);
   taskGroup.sequence?.push(step);
   sequentialSequence.value = [taskGroup];
+  
+  console.log('Created workflow sequence with task:', {
+    taskGroup,
+    step,
+    sequence: sequentialSequence.value
+  });
+}
+
+/** Add 모드에서 GetModels API 결과를 사용하여 task를 생성하는 함수 */
+function createTaskForModel(
+  targetModel: ITargetModelResponse,
+  taskComponentList: Array<ITaskComponentInfoResponse>,
+) {
+  // Determine if this is infra or software model based on migrationType
+  let isInfraModel = false;
+  let isSoftwareModel = false;
+  
+  // Check if migrationType is available
+  if (targetModel.migrationType) {
+    isInfraModel = targetModel.migrationType === 'infra';
+    isSoftwareModel = targetModel.migrationType === 'software';
+    console.log('createTaskForModel - Using migrationType:', {
+      migrationType: targetModel.migrationType,
+      isInfraModel,
+      isSoftwareModel
+    });
+  } else {
+    // Fallback to existing logic based on cloudInfraModel
+    isInfraModel = !!targetModel.cloudInfraModel && targetModel.isCloudModel;
+    isSoftwareModel = !targetModel.cloudInfraModel && targetModel.isCloudModel;
+    console.log('createTaskForModel - Using fallback logic:', {
+      isInfraModel,
+      isSoftwareModel
+    });
+  }
+  
+  console.log('createTaskForModel - Final model type:', {
+    isInfraModel,
+    isSoftwareModel,
+    targetModel
+  });
+  
+  let taskComponentName = '';
+  let taskComponent: ITaskComponentInfoResponse | undefined = undefined;
+  
+  if (isInfraModel) {
+    // Use infra migration task for infra models
+    taskComponentName = 'beetle_task_infra_migration';
+    taskComponent = taskComponentList.find(
+      taskComponent => taskComponent.name === taskComponentName,
+    );
+    console.log('Using infra migration task component:', taskComponent);
+  } else if (isSoftwareModel) {
+    // Use software migration task for software models
+    taskComponentName = 'grasshopper_task_software_migration';
+    taskComponent = taskComponentList.find(
+      taskComponent => taskComponent.name === taskComponentName,
+    );
+    console.log('Using software migration task component:', taskComponent);
+  } else {
+    console.warn('Unknown model type, using default infra migration task');
+    taskComponentName = 'beetle_task_infra_migration';
+    taskComponent = taskComponentList.find(
+      taskComponent => taskComponent.name === taskComponentName,
+    );
+  }
+
+  if (!taskComponent) {
+    console.error(`Task component '${taskComponentName}' not found`);
+    throw new Error(`Task component '${taskComponentName}' not found`);
+  }
+
+  const taskGroup = workflowToolModel
+    .toolboxSteps()
+    .defineTaskGroupStep(getRandomId(), 'TaskGroup', 'MCI', { model: {} });
+
+  const parseString = parseRequestBody(taskComponent.data.options.request_body);
+  
+  if (isInfraModel && targetModel?.cloudInfraModel?.targetVmInfra) {
+    // Handle infra model data - use targetVmInfra from cloudInfraModel
+    console.log('Processing infra model with targetVmInfra:', targetModel.cloudInfraModel.targetVmInfra);
+    
+    if (parseString) {
+      // Set the targetVmInfra data directly
+      parseString['targetVmInfra'] = targetModel.cloudInfraModel.targetVmInfra;
+      
+      // Also set other related infra data if available
+      if (targetModel.cloudInfraModel.targetSecurityGroupList) {
+        parseString['targetSecurityGroupList'] = targetModel.cloudInfraModel.targetSecurityGroupList;
+      }
+      if (targetModel.cloudInfraModel.targetSshKey) {
+        parseString['targetSshKey'] = targetModel.cloudInfraModel.targetSshKey;
+      }
+      if (targetModel.cloudInfraModel.targetVNet) {
+        parseString['targetVNet'] = targetModel.cloudInfraModel.targetVNet;
+      }
+      if (targetModel.cloudInfraModel.targetVmOsImageList) {
+        parseString['targetVmOsImageList'] = targetModel.cloudInfraModel.targetVmOsImageList;
+      }
+      if (targetModel.cloudInfraModel.targetVmSpecList) {
+        parseString['targetVmSpecList'] = targetModel.cloudInfraModel.targetVmSpecList;
+      }
+    }
+    console.log('Processed infra model data:', parseString);
+  } else if (isSoftwareModel && (targetModel as any)?.targetSoftwareModel) {
+    // Handle software model data - use targetSoftwareModel
+    const targetSoftwareModel = (targetModel as any).targetSoftwareModel;
+    console.log('Processing software model with targetSoftwareModel:', targetSoftwareModel);
+    
+    if (parseString) {
+      // Set the targetSoftwareModel data directly
+      parseString['targetSoftwareModel'] = targetSoftwareModel;
+      
+      // Also set other related software data if available
+      if (targetSoftwareModel.softwareList) {
+        parseString['softwareList'] = targetSoftwareModel.softwareList;
+      }
+      if (targetSoftwareModel.targetVmSpecList) {
+        parseString['targetVmSpecList'] = targetSoftwareModel.targetVmSpecList;
+      }
+      if (targetSoftwareModel.targetVmOsImageList) {
+        parseString['targetVmOsImageList'] = targetSoftwareModel.targetVmOsImageList;
+      }
+      if (targetSoftwareModel.targetSecurityGroupList) {
+        parseString['targetSecurityGroupList'] = targetSoftwareModel.targetSecurityGroupList;
+      }
+      if (targetSoftwareModel.targetSshKey) {
+        parseString['targetSshKey'] = targetSoftwareModel.targetSshKey;
+      }
+      if (targetSoftwareModel.targetVNet) {
+        parseString['targetVNet'] = targetSoftwareModel.targetVNet;
+      }
+      
+      // Set basic model information
+      parseString['softwareModel'] = {
+        id: targetModel.id,
+        name: targetModel.userModelName,
+        description: targetModel.description,
+        csp: targetModel.csp,
+        region: targetModel.region,
+        zone: targetModel.zone
+      };
+    }
+    console.log('Processed software model data:', parseString);
+  }
+
+  // Set path_params and query_params from task component with nsId default value
+  // Extract actual values from task component properties (similar to getFixedModel in toolboxModel.ts)
+  const pathParamsKeyValue = taskComponent?.data.path_params?.properties
+    ? Object.entries(taskComponent.data.path_params.properties).reduce(
+        (acc, [key, value]) => {
+          acc[key] = value.description;
+          return acc;
+        },
+        {} as Record<string, string>,
+      )
+    : {};
+
+  const queryParamsKeyValue = taskComponent?.data.query_params?.properties
+    ? Object.entries(taskComponent.data.query_params.properties).reduce(
+        (acc, [key, value]) => {
+          acc[key] = value.description;
+          return acc;
+        },
+        {} as Record<string, string>,
+      )
+    : {};
+
+  // Set nsId to DEFAULT_NAMESPACE if it exists in path_params or query_params
+  let pathParams = Object.keys(pathParamsKeyValue).length > 0 ? pathParamsKeyValue : null;
+  let queryParams = Object.keys(queryParamsKeyValue).length > 0 ? queryParamsKeyValue : null;
+  
+  if (pathParams && 'nsId' in pathParams) {
+    pathParams = { ...pathParams, nsId: DEFAULT_NAMESPACE };
+  }
+  if (queryParams && 'nsId' in queryParams) {
+    queryParams = { ...queryParams, nsId: DEFAULT_NAMESPACE };
+  }
+  
+  const task: ITaskResponse = {
+    dependencies: [],
+    name: taskComponentName,
+    path_params: pathParams,
+    query_params: queryParams,
+    request_body: JSON.stringify(parseString),
+    id: '',
+    task_component: taskComponentName,
+  };
+
+  const step = workflowToolModel.convertToDesignerTask(task, task.request_body);
+  taskGroup.sequence?.push(step);
+  sequentialSequence.value = [taskGroup];
+  
+  console.log('Created workflow sequence with task:', {
+    taskGroup,
+    step,
+    sequence: sequentialSequence.value
+  });
 }
 
 function loadWorkflow() {
@@ -139,8 +604,25 @@ function loadWorkflow() {
     );
   }
 
-  workflowName.value.value = workflowData.value?.name || '';
+  // Set workflow name and description
+  if (props.toolType === 'add') {
+    // For add mode, set default name based on migrationType
+    const defaultName = props.migrationType === 'infra' 
+      ? 'Infra Migration Workflow' 
+      : 'Software Migration Workflow';
+    workflowName.value.value = workflowData.value?.name || defaultName;
+  } else {
+    workflowName.value.value = workflowData.value?.name || '';
+  }
+  
   workflowDescription.value.value = workflowData.value?.description || '';
+  
+  console.log('loadWorkflow - Set workflow name:', {
+    toolType: props.toolType,
+    migrationType: props.migrationType,
+    workflowName: workflowName.value.value,
+    workflowDataName: workflowData.value?.name
+  });
 }
 
 function loadSequence() {
@@ -182,7 +664,7 @@ function getCicadaData(designer: Designer | null): IWorkflow {
         id: '',
         name: workflowName.value.value,
       });
-    } catch (e: string) {
+    } catch (e: any) {
       showErrorMessage('Error', e);
     }
   }
@@ -190,6 +672,13 @@ function getCicadaData(designer: Designer | null): IWorkflow {
 }
 
 function postWorkflow(workflow: IWorkflow) {
+  console.log('postWorkflow - workflow data:', {
+    toolType: props.toolType,
+    workflowName: workflow.name,
+    workflowData: workflow.data,
+    workflowDescription: workflow.description
+  });
+  
   if (props.toolType === 'edit') {
     resUpdateWorkflow
       .execute({
@@ -199,7 +688,9 @@ function postWorkflow(workflow: IWorkflow) {
         request: {
           data: workflow.data,
           name: workflow.name,
-        },
+          spec_version: '1.0', // Add spec_version
+          nsId: DEFAULT_NAMESPACE, // Add namespace ID
+        } as any, // Type assertion for additional parameters
       })
       .then(res => {
         showSuccessMessage('Success', 'Success');
@@ -214,7 +705,9 @@ function postWorkflow(workflow: IWorkflow) {
         request: {
           data: workflow.data,
           name: workflow.name,
-        },
+          spec_version: '1.0', // Add spec_version
+          nsId: DEFAULT_NAMESPACE, // Add namespace ID
+        } as any, // Type assertion for additional parameters
       })
       .then(res => {
         showSuccessMessage('Success', 'Success');

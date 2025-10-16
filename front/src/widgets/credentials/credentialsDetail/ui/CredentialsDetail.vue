@@ -1,6 +1,6 @@
 <!-- src/widgets/credentials/credentialsDetail/ui/CredentialsDetail.vue -->
 <script setup lang="ts">
-import { defineProps, onBeforeMount, watch } from 'vue';
+import { onBeforeMount, watch } from 'vue';
 import { useCredentialsDetailModel } from '@/widgets/credentials/credentialsDetail/model/credentialsDetailModel';
 import { PDefinitionTable } from '@cloudforet-test/mirinae'; // PDefinitionTable 임포트
 

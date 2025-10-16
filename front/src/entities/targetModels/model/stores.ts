@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia';
-import { formatDate } from '@/shared/utils';
-import { ITargetModel, ITargetModelResponse } from './types';
+import { ITargetModelResponse } from '@/entities/targetModels/model/types';
 import { ref } from 'vue';
-import { ISourceModelResponse } from '@/entities';
 
 export const useTargetModelStore = defineStore('TARGETMODEL', () => {
   const models = ref<ITargetModelResponse[]>([]);

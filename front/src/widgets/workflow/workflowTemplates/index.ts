@@ -1,2 +1,2 @@
-export * from './workflowTemplatesList';
-export * from './workflowTemplatesDetail';
+export * from '@/widgets/workflow/workflowTemplates/workflowTemplatesList';
+export * from '@/widgets/workflow/workflowTemplates/workflowTemplatesDetail';

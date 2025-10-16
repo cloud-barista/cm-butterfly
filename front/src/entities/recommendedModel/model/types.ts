@@ -6,32 +6,52 @@ export type RecommendedModelTableType =
   | 'image'
   | 'estimateCost';
 
+export interface IRecommendedModel {
+  name: string;
+  id: string;
+  description: string;
+  label: string;
+  spec: string;
+  image: string;
+  rootDiskType: string;
+  rootDiskSize: string;
+  userPassword: string;
+  connection: string;
+  estimateCost: string;
+}
+
 interface Vm {
-  commonImage: string;
-  commonSpec: string;
+  imageId: string;
+  specId: string;
   description: string;
   label: string | null;
   name: string;
   subGroupSize: string;
 }
 
-interface TargetInfra {
+interface TargetVmInfra {
   description: string;
   installMonAgent: string;
   label: string | null;
   name: string;
   systemLabel: string;
-  vm: Vm[];
+  subGroups: Vm[];
 }
 
 export interface IRecommendModelResponse {
   description: string;
   status: string;
-  targetInfra: TargetInfra;
+  targetVmInfra: TargetVmInfra;
+  targetSecurityGroupList?: any[];
+  targetSshKey?: any;
+  targetVNet?: any;
+  targetVmOsImageList?: any[];
+  targetVmSpecList?: any[];
 }
 
 interface EstimateCostSpecDetail {
   calculatedMonthlyPrice: number;
+  calculatedHourlyPrice?: number;
   currency: string;
   id: number;
   lastUpdatedAt: string;

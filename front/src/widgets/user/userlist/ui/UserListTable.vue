@@ -6,25 +6,19 @@ import {
   PStatus,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, onUnmounted, ref } from 'vue';
+import { onBeforeMount, onMounted, ref } from 'vue';
 import {
-  useDeleteUser,
   getUserList,
   IUserInfoResponse,
   UserInformationTableType,
   UserWorkspaceTableType,
 } from '@/entities';
-import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel.ts';
+import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import { insertDynamicComponent } from '@/shared/utils/insertDynamicComponent';
 import DeleteUsers from '@/features/user/deleteUser/ui/DeleteUsers.vue';
 import AddUser from '@/features/user/addUser/ui/AddUser.vue';
 
 const resUserList = getUserList();
-const resDeleteUser = useDeleteUser(null);
-
-const userList: Partial<
-  Record<UserInformationTableType | UserWorkspaceTableType, any>
->[] = [];
 
 const emit = defineEmits(['selectRow']);
 

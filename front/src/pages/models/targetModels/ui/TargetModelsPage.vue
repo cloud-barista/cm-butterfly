@@ -4,13 +4,9 @@ import { TargetModelList } from '@/widgets/models/targetModels';
 import { TargetModelDetail } from '@/widgets/models/targetModels';
 import { SimpleEditForm } from '@/widgets/layout';
 import { CustomViewTargetModel } from '@/widgets/models/targetModels';
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import WorkflowEditor from '@/features/workflow/workflowEditor/ui/WorkflowEditor.vue';
-import {
-  ITargetModelResponse,
-  useTargetModelStore,
-  useUpdateTargetModel,
-} from '@/entities';
+import { useTargetModelStore, useUpdateTargetModel } from '@/entities';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 
 const pageName = 'Target Models';
@@ -21,6 +17,46 @@ const targetModelName = ref<string>('');
 const targetModelDescription = ref<string>('');
 const resUpdateTargetModel = useUpdateTargetModel(null, null);
 const targetModelStore = useTargetModelStore();
+
+// Add computed property for targetModel
+const targetModelForWorkflow = computed(() => {
+  const model = targetModelStore.getTargetModelById(selectedTargetModelId.value);
+  if (model) {
+    // modelType을 기반으로 migrationType 설정
+    let migrationType = 'infra'; // 기본값
+    
+    if (model.modelType === 'SoftwareModel') {
+      migrationType = 'software';
+    } else if (model.modelType === 'CloudModel' || model.modelType === 'OnPremiseModel') {
+      migrationType = 'infra';
+    }
+    
+    const modelWithMigrationType = {
+      ...model,
+      migrationType: migrationType
+    };
+    
+    console.log('Passing targetModel to WorkflowEditor:', {
+      selectedTargetModelId: selectedTargetModelId.value,
+      model: modelWithMigrationType,
+      modelType: model?.modelType,
+      migrationType: migrationType,
+      hasCloudInfraModel: !!model?.cloudInfraModel,
+      isCloudModel: model?.isCloudModel
+    });
+    
+    return modelWithMigrationType;
+  }
+  return model;
+});
+
+const migrationTypeForWorkflow = computed(() => {
+  const model = targetModelForWorkflow.value;
+  if (model?.modelType) {
+    return model.modelType === 'SoftwareModel' ? 'software' : 'infra';
+  }
+  return 'infra'; // default
+});
 
 const mainTabState = reactive({
   activeTab: 'details',
@@ -158,16 +194,16 @@ function handleUpdateTargetModel(e) {
       />
     </div>
     <div class="relative z-70">
-      <workflow-editor
-        v-if="modalStates.workflowEditorModal.open"
-        :target-model-name="targetModelName"
-        tool-type="add"
-        wft-id=""
-        :targetModel="
-          targetModelStore.getTargetModelById(selectedTargetModelId)
-        "
-        @update:close-modal="modalStates.workflowEditorModal.open = false"
-      />
+              <workflow-editor
+          v-if="modalStates.workflowEditorModal.open"
+          :target-model-name="targetModelName"
+          tool-type="add"
+          wft-id=""
+          :targetModel="targetModelForWorkflow"
+          :migrationType="migrationTypeForWorkflow"
+          :recommendedModel="targetModelForWorkflow"
+          @update:close-modal="modalStates.workflowEditorModal.open = false"
+        />
     </div>
   </div>
 </template>

@@ -1,5 +1,8 @@
-import { i18n } from '../../../app/i18n';
-import { IPasswordConfirm, IValidationResult } from '../../index';
+import { i18n } from '@/app/i18n';
+import {
+  IPasswordConfirm,
+  IValidationResult,
+} from '@/entities/user/model/types';
 
 export function validateEmail(email: string): IValidationResult {
   const result: IValidationResult = {

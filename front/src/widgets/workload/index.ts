@@ -1,1 +1,1 @@
-export * from './lsb';
+export * from '@/widgets/workload/lsb';

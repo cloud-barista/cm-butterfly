@@ -1,6 +1,10 @@
 import { computed, reactive, watch } from 'vue';
-import { ChangeEvent, ITableField, ITableItems } from './types.ts';
-import { isNullOrUndefined } from '../../../utils';
+import {
+  ChangeEvent,
+  ITableField,
+  ITableItems,
+} from '@/shared/hooks/table/toolboxTable/types';
+import { isNullOrUndefined } from '@/shared/utils';
 
 type ITableState<T> = {
   loading: boolean;

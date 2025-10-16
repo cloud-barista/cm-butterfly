@@ -1,4 +1,4 @@
-import TargetModelDetail from './ui/TargetModelDetail.vue';
-import { useTargetModelDetailModel } from './model/targetModelDetailModel';
+import TargetModelDetail from '@/widgets/models/targetModels/targetModelDetail/ui/TargetModelDetail.vue';
+import { useTargetModelDetailModel } from '@/widgets/models/targetModels/targetModelDetail/model/targetModelDetailModel';
 
 export { TargetModelDetail, useTargetModelDetailModel };

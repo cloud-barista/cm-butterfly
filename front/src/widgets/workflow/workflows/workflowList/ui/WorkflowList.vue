@@ -5,7 +5,7 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { useWorkflowListModel } from '../model/workflowListModel';
+import { useWorkflowListModel } from '@/widgets/workflow/workflows/workflowList/model/workflowListModel';
 import {
   insertDynamicComponent,
   showSuccessMessage,
@@ -103,15 +103,22 @@ function handleSelectedIndex(selectedIndex: number) {
 
 async function fetchWorkflowList() {
   try {
+    tableModel.tableState.loading = true;
     const { data } = await getWorkflowList.execute();
-    if (
-      data.status?.code === 200 &&
-      data.responseData &&
-      data.responseData.length > 0
-    )
+    if (data.status?.code === 200 && Array.isArray(data.responseData)) {
       workflowStore.setWorkFlows(data.responseData);
+      if (data.responseData.length === 0) {
+        showErrorMessage('info', '조회된 Workflow가 없습니다.');
+      }
+    } else {
+      workflowStore.setWorkFlows([]);
+      showErrorMessage('error', 'Workflow 목록을 불러오지 못했습니다.');
+    }
   } catch (e) {
-    console.log(e);
+    workflowStore.setWorkFlows([]);
+    showErrorMessage('error', 'Workflow 목록 조회 중 오류가 발생했습니다.');
+  } finally {
+    tableModel.tableState.loading = false;
   }
 }
 

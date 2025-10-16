@@ -1,16 +1,14 @@
 import Vue from 'vue';
 import MirinaeDesignSystem from '@cloudforet-test/mirinae';
 import '@cloudforet-test/mirinae/dist/style.css';
-// import '@cloudforet-test/mirinae/css/light-style.css';
-import { App } from './app';
+import { App } from '@/app';
 import { createPinia, PiniaVuePlugin } from 'pinia';
 import VueRouter from 'vue-router';
-import { McmpRouter } from './app/providers/router';
-import { i18n } from './app/i18n';
-import './app/style/style.pcss';
+import { McmpRouter } from '@/app/providers/router';
+import { i18n } from '@/app/i18n';
+import '@/app/style/style.pcss';
 import JwtTokenProvider from '@/shared/libs/token';
-import { AUTH_ROUTE } from '@/pages/auth/auth.route.ts';
-import { axiosPost } from '@/shared/libs';
+import { AUTH_ROUTE } from '@/pages/auth/auth.route';
 
 const pinia = createPinia();
 Vue.use(PiniaVuePlugin);

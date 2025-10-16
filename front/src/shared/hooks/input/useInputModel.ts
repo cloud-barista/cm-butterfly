@@ -1,7 +1,6 @@
-// src/shared/hooks/useInputModel.ts
 import { Ref, ref, UnwrapRef, watch } from 'vue';
 import { debounce } from 'lodash';
-import { IValidationResult } from '../../../entities';
+import { IValidationResult } from '@/entities';
 
 export function useInputModel<T = string>(
   initialValue: T,

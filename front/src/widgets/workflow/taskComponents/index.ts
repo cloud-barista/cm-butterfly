@@ -1,2 +1,2 @@
-export * from './taskComponentsList';
-export * from './taskComponentsDetail';
+export * from '@/widgets/workflow/taskComponents/taskComponentsList';
+export * from '@/widgets/workflow/taskComponents/taskComponentsDetail';

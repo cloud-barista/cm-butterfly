@@ -6,10 +6,7 @@ import {
   PToolboxTable,
   PBadge,
 } from '@cloudforet-test/mirinae';
-import { useGetMciInfo, useGetMciList } from '@/entities/mci/api';
-import { computed, onBeforeMount, onMounted, reactive } from 'vue';
-import { useMCIStore } from '@/entities/mci/model';
-import { showErrorMessage } from '@/shared/utils';
+import { onBeforeMount, onMounted, reactive } from 'vue';
 
 interface IProps {
   nsId: string;
@@ -18,14 +15,8 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['selectRow']);
 
-const {
-  mciTableModel,
-  initToolBoxTableModel,
-  mciStore,
-  resMciList,
-  fetchMciList,
-  loading,
-} = useMciListModel(props);
+const { mciTableModel, initToolBoxTableModel, fetchMciList, loading } =
+  useMciListModel(props);
 
 const mciCreateModalState = reactive({
   open: false,

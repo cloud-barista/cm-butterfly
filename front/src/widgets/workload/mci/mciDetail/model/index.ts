@@ -1,7 +1,7 @@
-import { McisTableType, useMCIStore } from '../../../../../entities/mci/model';
+import { McisTableType, useMCIStore } from '@/entities/mci/model';
 import { ref, watch } from 'vue';
-import { useDefinitionTableModel } from '../../../../../shared/hooks/table/definitionTable/useDefinitionTableModel.ts';
-import { getCloudProvidersInVms } from '../../../../../shared/hooks/vm';
+import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
+import { getCloudProvidersInVms } from '@/shared/hooks/vm';
 
 export function useMciDetailModel() {
   const mciStore = useMCIStore();

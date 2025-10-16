@@ -1,6 +1,7 @@
 import { insertDynamicComponent } from '@/shared/utils';
-import { getSequencePath } from '@/features/sequential/designer/editor/model/utils.ts';
+import { getSequencePath } from '@/features/sequential/designer/editor/model/utils';
 import BeetleTaskEditor from '@/features/sequential/designer/editor/ui/BeetleTaskEditor.vue';
+import GrasshopperTaskEditor from '@/features/sequential/designer/editor/ui/GrasshopperTaskEditor.vue';
 
 export function editorProviders() {
   const editor = document.createElement('div');
@@ -30,9 +31,18 @@ export function editorProviders() {
       if (step.componentType === 'container') {
       }
       if (step.componentType === 'task') {
+        // taskComponent에 따라 다른 editor 사용
+        let TaskEditorComponent = BeetleTaskEditor; // 기본값
+        
+        // step의 name이나 task_component를 확인하여 적절한 editor 선택
+        if (step.name === 'grasshopper_task_software_migration' || 
+            step.properties?.fixedModel?.task_component === 'grasshopper_task_software_migration') {
+          TaskEditorComponent = GrasshopperTaskEditor;
+        }
+        
         //toolboxModel에서 가공하는곳 참고
         insertDynamicComponent(
-          BeetleTaskEditor,
+          TaskEditorComponent,
           { step },
           {
             saveComponentName: e => {

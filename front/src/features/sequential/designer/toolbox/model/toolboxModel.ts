@@ -1,14 +1,11 @@
-import {
-  getTaskComponentList,
-  ITaskComponentInfoResponse,
-} from '@/features/sequential/designer/toolbox/model/api';
+import { ITaskComponentInfoResponse } from '@/features/sequential/designer/toolbox/model/api';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import getRandomId from '@/shared/utils/uuid';
 import {
   fixedModel,
   Step,
-} from '@/features/workflow/workflowEditor/model/types.ts';
-import { toolboxSteps } from '@/features/sequential/designer/toolbox/model/toolboxSteps.ts';
+} from '@/features/workflow/workflowEditor/model/types';
+import { toolboxSteps } from '@/features/sequential/designer/toolbox/model/toolboxSteps';
 import { ITaskResponse } from '@/entities';
 
 export function useSequentialToolboxModel() {

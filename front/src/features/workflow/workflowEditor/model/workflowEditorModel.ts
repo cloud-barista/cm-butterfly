@@ -1,23 +1,22 @@
-import { useWorkflowStore } from '@/entities/workflow/model/stores.ts';
+import { useWorkflowStore } from '@/entities/workflow/model/stores';
 import {
   fixedModel,
   IWorkFlowDesignerFormData,
   Step,
-} from '@/features/workflow/workflowEditor/model/types.ts';
+} from '@/features/workflow/workflowEditor/model/types';
 import {
-  ITaskComponentResponse,
   ITaskGroupResponse,
   ITaskResponse,
   IWorkflow,
   IWorkflowResponse,
-} from '@/entities/workflow/model/types.ts';
+} from '@/entities/workflow/model/types';
 import getRandomId from '@/shared/utils/uuid';
-import { toolboxSteps } from '@/features/sequential/designer/toolbox/model/toolboxSteps.ts';
+import { toolboxSteps } from '@/features/sequential/designer/toolbox/model/toolboxSteps';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import { ITaskComponentInfoResponse } from '@/features/sequential/designer/toolbox/model/api';
-import { isNullOrUndefined, showErrorMessage } from '@/shared/utils';
+import { isNullOrUndefined } from '@/shared/utils';
 import { reactive } from 'vue';
-import { useSequentialToolboxModel } from '@/features/sequential/designer/toolbox/model/toolboxModel.ts';
+import { useSequentialToolboxModel } from '@/features/sequential/designer/toolbox/model/toolboxModel';
 
 type dropDownType = {
   name: string;

@@ -1,3 +1,3 @@
-import PmkPage from './ui/PmkPage.vue';
+import PmkPage from '@/pages/workloadOperations/pmk/ui/PmkPage.vue';
 
 export { PmkPage };

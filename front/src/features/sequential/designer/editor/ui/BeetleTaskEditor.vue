@@ -1,22 +1,10 @@
 <script setup lang="ts">
 import { PButton, PIconButton, PTextInput } from '@cloudforet-test/mirinae';
-import Vue, {
-  onBeforeMount,
-  onBeforeUnmount,
-  onMounted,
-  onUnmounted,
-  onUpdated,
-  reactive,
-  ref,
-  toRef,
-  UnwrapRef,
-  watch,
-} from 'vue';
-import { useInputModel } from '@/shared/hooks/input/useInputModel.ts';
-import { useTaskEditorModel } from '@/features/sequential/designer/editor/model/beetleTaskEditorModel.ts';
+import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue';
+import { useTaskEditorModel } from '@/features/sequential/designer/editor/model/beetleTaskEditorModel';
 import BAccordion from '@/shared/ui/Input/Accordian/BAccordion.vue';
 import SequentialShortCut from '@/features/sequential/designer/shortcut/ui/SequentialShortCut.vue';
-import { Step } from '@/features/workflow/workflowEditor/model/types.ts';
+import { Step } from '@/features/workflow/workflowEditor/model/types';
 
 interface IProps {
   step: Step;
@@ -29,7 +17,6 @@ const emit = defineEmits([
   'saveFixedModel',
 ]);
 const taskEditorModel = useTaskEditorModel();
-console.log(JSON.parse(JSON.stringify(props)));
 const shortCutModel = ref({
   open: false,
   xPos: 0,
@@ -40,7 +27,6 @@ const shortCutModel = ref({
   },
 });
 const editorFormElement = ref(null);
-let shortCut;
 
 onBeforeMount(() => {
   taskEditorModel.setFormContext(props.step.properties.model ?? '');
@@ -129,8 +115,8 @@ function handleClickOutside(event: MouseEvent) {
 
 <template>
   <div
-    class="task-editor-form"
     ref="editorFormElement"
+    class="task-editor-form"
     @click.right="
       e => {
         e.preventDefault();
@@ -150,6 +136,7 @@ function handleClickOutside(event: MouseEvent) {
             "
             :size="'md'"
             block
+            readonly
           ></p-text-input>
         </div>
       </div>
@@ -169,7 +156,7 @@ function handleClickOutside(event: MouseEvent) {
               :key="j"
               class="field-group flex border-bottom"
             >
-              <div class="field-title-box" v-if="entity.type === 'input'">
+              <div v-if="entity.type === 'input'" class="field-title-box">
                 {{ entity.context.title }}
               </div>
               <div class="field-content-box">
@@ -178,8 +165,9 @@ function handleClickOutside(event: MouseEvent) {
                   :size="'md'"
                   block
                   :invalid="!entity.context.model.isValid"
+                  :readonly="entity.context.title === 'nsId'"
                   @blur="entity.context.model.onBlur"
-                ></p-text-input>
+                />
               </div>
             </div>
           </div>
@@ -207,17 +195,17 @@ function handleClickOutside(event: MouseEvent) {
           </p-button>
         </div>
         <div
-          class="field-group flex border-bottom"
           v-for="(entity, j) of currentContext.context.values"
           :key="j"
+          class="field-group flex border-bottom"
           @click.right="e => deleteEntity(e, j)"
         >
-          <div class="field-title-box" v-if="entity.type === 'input'">
+          <div v-if="entity.type === 'input'" class="field-title-box">
             {{ entity.context.title }}
           </div>
           <div
-            class="field-title-box"
             v-else-if="entity.type === 'keyValueInput'"
+            class="field-title-box"
           >
             <p-text-input
               v-model="entity.context.title.value"
@@ -225,7 +213,7 @@ function handleClickOutside(event: MouseEvent) {
               block
               :invalid="!entity.context.title.isValid"
               @blur="taskEditorModel.entityKeyValidation(entity.context.title)"
-            ></p-text-input>
+            />
           </div>
           <div class="field-content-box">
             <p-text-input
@@ -234,7 +222,7 @@ function handleClickOutside(event: MouseEvent) {
               block
               :invalid="!entity.context.model.isValid"
               @blur="entity.context.model.onBlur"
-            ></p-text-input>
+            />
           </div>
         </div>
       </div>
@@ -271,7 +259,7 @@ function handleClickOutside(event: MouseEvent) {
                   :name="item.header.icon"
                   :size="'sm'"
                   @click="click"
-                ></PIconButton>
+                />
                 {{ j ?? '' }}
               </div>
             </div>
@@ -284,8 +272,8 @@ function handleClickOutside(event: MouseEvent) {
                 class="flex justify-between align-items-center item-content"
               >
                 <div
-                  class="field-group flex w-full h-full"
                   v-if="element['type'] === 'input'"
+                  class="field-group flex w-full h-full"
                 >
                   <div class="field-title-box">
                     {{ element['context'].title }}
@@ -297,7 +285,7 @@ function handleClickOutside(event: MouseEvent) {
                       block
                       :invalid="!element['context'].model.isValid"
                       @blur="element['context'].model.onBlur"
-                    ></p-text-input>
+                    />
                   </div>
                 </div>
               </div>
@@ -317,7 +305,7 @@ function handleClickOutside(event: MouseEvent) {
         },
       ]"
       @close="closeShortCut"
-    ></SequentialShortCut>
+    />
   </div>
 </template>
 

@@ -1,6 +1,5 @@
 import { RouteConfig } from 'vue-router';
-import { SOURCE_COMPUTING_ROUTE } from './constants';
-import SourceTemplate from '@/pages/sourceTemplate/ui/SourceTemplate.vue';
+import { SOURCE_COMPUTING_ROUTE } from '@/app/providers/router/routes/constants';
 import SourceServicePage from '@/pages/sourceServices/ui/SourceServicePage.vue';
 
 export const sourceComputingRoutes: RouteConfig[] = [

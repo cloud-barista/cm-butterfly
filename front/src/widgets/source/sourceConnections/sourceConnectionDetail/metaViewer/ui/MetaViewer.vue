@@ -3,13 +3,14 @@ import CreateForm from '@/widgets/layout/createForm/ui/CreateForm.vue';
 import { PButton } from '@cloudforet-test/mirinae';
 import { i18n } from '@/app/i18n';
 import { SimpleEditForm } from '@/widgets/layout';
-import { ref, computed, watchEffect } from 'vue';
+import { ref, computed } from 'vue';
 import { AxiosResponse } from 'axios';
-import { IUseAxiosWrapperReturnType } from '@/shared/libs';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import { useCreateOnpremmodel, useCreateSourceSoftwareModel } from '@/entities';
 import JsonViewer from '@/features/sourceServices/jsonViewer/ui/JsonViewer.vue';
 import { useGetInfraInfoRefined, useGetSoftwareInfoRefined } from '@/entities/sourceConnection/api';
+import { useAuth } from '@/features/auth/model/useAuth.ts';
+
 
 interface iProps {
   collectData: string | undefined;
@@ -28,6 +29,7 @@ const isSaveModal = ref<boolean>(false);
 
 const convertedData = ref();
 
+const auth = useAuth();
 const createOnpremmodel = useCreateOnpremmodel(null);
 const createSourceSoftwareModel = useCreateSourceSoftwareModel(null);
 const getInfraInfoRefined = useGetInfraInfoRefined(props.sgId, props.connId);
@@ -64,16 +66,19 @@ const handleMetaViewer = e => {
   
   // Software 타입인 경우 CreateSourceSoftwareModel 호출
   if (props.dataType === 'software') {
+    console.log('MetaViewer Creating Source Software Model with data:', convertedData.value);
+    
+    // API 응답에서 sourceSoftwareModel 속성 추출
+    const sourceSoftwareModelData = convertedData.value?.sourceSoftwareModel || convertedData.value;
+    console.log('MetaViewer Extracted sourceSoftwareModel data:', sourceSoftwareModelData);
+    
     createSourceSoftwareModel
       .execute({
         request: {
           description: e.description,
           isInitUserModel: true,
-          sourceSoftwareModel: {
-            connection_info_list: [convertedData.value],
-            source_group_id: props.sgId,
-          },
-          userId: 'string', // TODO: 실제 userId로 변경 필요
+          sourceSoftwareModel: sourceSoftwareModelData,
+          userId: auth.getUser().id,
           userModelName: e.name,
           userModelVersion: 'v0.1',
         },
@@ -126,6 +131,7 @@ function handleConvertSoftware(): (
   return () =>
     getSoftwareInfoRefined.execute().then(res => {
       isConverted.value = true;
+      console.log('MetaViewer Software API Response:', res.data.responseData);
       convertedData.value = res.data.responseData;
       return res;
     });

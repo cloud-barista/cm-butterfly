@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ISourceModelResponse } from './types';
+import { ISourceModelResponse } from '@/entities/sourceModels/model/types';
 import { ref } from 'vue';
 
 export const useSourceModelStore = defineStore('SOURCEMODEL', () => {

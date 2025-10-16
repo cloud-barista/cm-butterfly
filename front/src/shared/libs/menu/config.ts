@@ -1,4 +1,4 @@
-import { i18n } from '../../../app/i18n';
+import { i18n } from '@/app/i18n';
 
 export const MENU_ID = Object.freeze({
   // Setting

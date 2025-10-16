@@ -10,8 +10,8 @@ import {
 } from '@cloudforet-test/mirinae';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { UserInformationTableType, UserWorkspaceTableType } from '@/entities';
-import { IDefineTableField } from '@/shared/hooks/table/toolboxTable/types.ts';
-import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel.ts';
+import { IDefineTableField } from '@/shared/hooks/table/toolboxTable/types';
+import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
 import MIcon from '@/shared/ui/CommonIcon/ui/MIcon.vue';
 import {
   formatDate,
@@ -23,7 +23,7 @@ import {
   useGetWorkspaceListById,
 } from '@/entities/workspace/api';
 import UserEditModal from '@/features/user/userEditModal/ui/UserEditModal.vue';
-import { IWorkspaceDetailData } from '@/entities/workspace/model/types.ts';
+import { IWorkspaceDetailData } from '@/entities/workspace/model/types';
 
 interface IProps {
   tableItems: Partial<

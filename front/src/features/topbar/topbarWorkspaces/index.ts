@@ -1,3 +1,3 @@
-import TopBarWorkspaces from './ui/TopBarWorkspaces.vue';
+import TopBarWorkspaces from '@/features/topbar/topbarWorkspaces/ui/TopBarWorkspaces.vue';
 
 export { TopBarWorkspaces };

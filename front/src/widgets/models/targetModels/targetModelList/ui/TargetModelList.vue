@@ -5,13 +5,13 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { useTargetModelListModel } from '../model/targetModelListModel';
-import { insertDynamicComponent } from '@/shared/utils';
+import { useTargetModelListModel } from '@/widgets/models/targetModels/targetModelList/model/targetModelListModel';
+import { insertDynamicComponent, showErrorMessage, showSuccessMessage } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, watchEffect, reactive, watch } from 'vue';
-import { useGetTargetModelList } from '@/entities';
+import { onBeforeMount, onMounted, reactive, watch } from 'vue';
+import { useGetTargetModelList, useBulkDeleteTargetModel, useBulkDeleteTargetSoftwareModel, useBulkDeleteTargetOnPremModel } from '@/entities';
 
-const { tableModel, initToolBoxTableModel, targetModelStore, targetModels } =
+const { tableModel, initToolBoxTableModel, targetModelStore } =
   useTargetModelListModel();
 
 interface IProps {
@@ -57,8 +57,16 @@ function addDeleteIconAtTable() {
     },
     {
       click: () => {
-        if (tableModel.tableState.selectIndex.length > 0)
+        console.log('🔘 [TargetModelList] 삭제 버튼 클릭');
+        console.log('📊 [TargetModelList] 선택된 항목 수:', tableModel.tableState.selectIndex.length);
+        console.log('📋 [TargetModelList] 선택된 인덱스:', tableModel.tableState.selectIndex);
+        
+        if (tableModel.tableState.selectIndex.length > 0) {
+          console.log('✅ [TargetModelList] 삭제 확인 모달 열기');
           modals.alertModalState.open = true;
+        } else {
+          console.log('⚠️ [TargetModelList] 선택된 항목이 없어서 모달을 열지 않음');
+        }
       },
     },
     targetElement,
@@ -82,6 +90,218 @@ function handleSelectedIndex(selectedIndex: number) {
   } else {
     emit('select-row', '');
   }
+}
+
+/**
+ * Delete selected target models
+ * 선택된 대상 모델들을 삭제합니다.
+ */
+function multiDelete() {
+  console.log('🗑️ [TargetModelList] multiDelete 시작');
+  
+  const selectedData = tableModel.tableState.selectIndex.map(index => {
+    return tableModel.tableState.displayItems[index].id;
+  });
+  console.log('📋 [TargetModelList] 선택된 데이터 ID 목록:', selectedData);
+
+  // Check if any selected models are software models
+  const selectedModels = tableModel.tableState.selectIndex.map(index => {
+    return tableModel.tableState.displayItems[index];
+  });
+  console.log('🔍 [TargetModelList] 선택된 모델 상세 정보:', selectedModels);
+
+  // 각 모델을 하나의 카테고리에만 분류하도록 수정
+  const softwareModelIds: string[] = [];
+  const cloudModelIds: string[] = [];
+  const onPremModelIds: string[] = [];
+
+  selectedModels.forEach(model => {
+    const modelType = model?.modelType;
+    
+    // modelType 기반으로 분류
+    if (modelType === 'SoftwareModel') {
+      softwareModelIds.push(model.id);
+      console.log(`🔧 [TargetModelList] 모델 ${model?.id} (${model?.name}) - Software 분류 (modelType)`);
+    } else if (modelType === 'CloudModel') {
+      cloudModelIds.push(model.id);
+      console.log(`☁️ [TargetModelList] 모델 ${model?.id} (${model?.name}) - Cloud 분류 (modelType)`);
+    } else if (modelType === 'OnPremiseModel') {
+      onPremModelIds.push(model.id);
+      console.log(`🏢 [TargetModelList] 모델 ${model?.id} (${model?.name}) - OnPrem 분류 (modelType)`);
+    } else {
+      // modelType이 없는 경우 기존 속성으로 fallback
+      const isSoftwareByTargetSoftwareModel = model?.targetSoftwareModel;
+      const isSoftwareByMigrationType = model?.migrationType === 'software';
+      const isSoftwareByName = model?.name?.toLowerCase().includes('sw') || false;
+      
+      const isSoftware = isSoftwareByTargetSoftwareModel || isSoftwareByMigrationType || isSoftwareByName;
+      
+      if (isSoftware) {
+        softwareModelIds.push(model.id);
+        console.log(`🔧 [TargetModelList] 모델 ${model?.id} (${model?.name}) - Software 분류 (fallback)`, {
+          targetSoftwareModel: model?.targetSoftwareModel,
+          migrationType: model?.migrationType,
+          nameContainsSw: isSoftwareByName
+        });
+      } else {
+        // Software가 아닌 경우 Cloud로 분류 (기본값)
+        cloudModelIds.push(model.id);
+        console.log(`☁️ [TargetModelList] 모델 ${model?.id} (${model?.name}) - Cloud 분류 (fallback)`, {
+          targetSoftwareModel: model?.targetSoftwareModel,
+          migrationType: model?.migrationType,
+          nameContainsSw: isSoftwareByName
+        });
+      }
+    }
+  });
+
+  console.log('📊 [TargetModelList] 분류 결과:', {
+    softwareModelIds,
+    cloudModelIds,
+    onPremModelIds,
+    softwareCount: softwareModelIds.length,
+    cloudCount: cloudModelIds.length,
+    onPremCount: onPremModelIds.length
+  });
+
+  const deletePromises = [];
+
+  if (softwareModelIds.length > 0) {
+    console.log('🚀 [TargetModelList] Software 모델 삭제 API 호출:', softwareModelIds);
+    const softwareDeletePromise = useBulkDeleteTargetSoftwareModel(softwareModelIds);
+    console.log('📡 [TargetModelList] Software 삭제 Promise 객체:', softwareDeletePromise);
+    
+    // Promise 실행 전에 네트워크 요청 정보 로깅
+    softwareDeletePromise.then(responses => {
+      console.log('🌐 [TargetModelList] Software 삭제 네트워크 응답:', responses);
+      responses.forEach((response, index) => {
+        console.log(`📊 [TargetModelList] Software 삭제 응답 ${index + 1}:`, {
+          status: response.status,
+          statusText: response.statusText,
+          method: response.config?.method?.toUpperCase(),
+          url: response.config?.url,
+          baseURL: response.config?.baseURL,
+          fullURL: `${response.config?.baseURL}${response.config?.url}`,
+          data: response.data
+        });
+      });
+    }).catch(error => {
+      console.error('❌ [TargetModelList] Software 삭제 네트워크 오류:', error);
+      if (error.config) {
+        console.log('🔍 [TargetModelList] Software 삭제 요청 정보:', {
+          method: error.config.method?.toUpperCase(),
+          url: error.config.url,
+          baseURL: error.config.baseURL,
+          fullURL: `${error.config.baseURL}${error.config.url}`,
+          data: error.config.data
+        });
+      }
+    });
+    
+    deletePromises.push(softwareDeletePromise);
+  }
+
+  if (cloudModelIds.length > 0) {
+    console.log('🚀 [TargetModelList] Cloud 모델 삭제 API 호출 (DeleteCloudModel):', cloudModelIds);
+    const cloudDeletePromise = useBulkDeleteTargetModel(cloudModelIds);
+    console.log('📡 [TargetModelList] Cloud 삭제 Promise 객체:', cloudDeletePromise);
+    
+    // Promise 실행 전에 네트워크 요청 정보 로깅
+    cloudDeletePromise.then(responses => {
+      console.log('🌐 [TargetModelList] Cloud 삭제 네트워크 응답:', responses);
+      responses.forEach((response, index) => {
+        console.log(`📊 [TargetModelList] Cloud 삭제 응답 ${index + 1}:`, {
+          status: response.status,
+          statusText: response.statusText,
+          method: response.config?.method?.toUpperCase(),
+          url: response.config?.url,
+          baseURL: response.config?.baseURL,
+          fullURL: `${response.config?.baseURL}${response.config?.url}`,
+          data: response.data
+        });
+      });
+    }).catch(error => {
+      console.error('❌ [TargetModelList] Cloud 삭제 네트워크 오류:', error);
+      if (error.config) {
+        console.log('🔍 [TargetModelList] Cloud 삭제 요청 정보:', {
+          method: error.config.method?.toUpperCase(),
+          url: error.config.url,
+          baseURL: error.config.baseURL,
+          fullURL: `${error.config.baseURL}${error.config.url}`,
+          data: error.config.data
+        });
+      }
+    });
+    
+    deletePromises.push(cloudDeletePromise);
+  }
+
+  if (onPremModelIds.length > 0) {
+    console.log('🚀 [TargetModelList] OnPrem 모델 삭제 API 호출 (DeleteOnPremModel):', onPremModelIds);
+    const onPremDeletePromise = useBulkDeleteTargetOnPremModel(onPremModelIds);
+    console.log('📡 [TargetModelList] OnPrem 삭제 Promise 객체:', onPremDeletePromise);
+    
+    // Promise 실행 전에 네트워크 요청 정보 로깅
+    onPremDeletePromise.then(responses => {
+      console.log('🌐 [TargetModelList] OnPrem 삭제 네트워크 응답:', responses);
+      responses.forEach((response, index) => {
+        console.log(`📊 [TargetModelList] OnPrem 삭제 응답 ${index + 1}:`, {
+          status: response.status,
+          statusText: response.statusText,
+          method: response.config?.method?.toUpperCase(),
+          url: response.config?.url,
+          baseURL: response.config?.baseURL,
+          fullURL: `${response.config?.baseURL}${response.config?.url}`,
+          data: response.data
+        });
+      });
+    }).catch(error => {
+      console.error('❌ [TargetModelList] OnPrem 삭제 네트워크 오류:', error);
+      if (error.config) {
+        console.log('🔍 [TargetModelList] OnPrem 삭제 요청 정보:', {
+          method: error.config.method?.toUpperCase(),
+          url: error.config.url,
+          baseURL: error.config.baseURL,
+          fullURL: `${error.config.baseURL}${error.config.url}`,
+          data: error.config.data
+        });
+      }
+    });
+    
+    deletePromises.push(onPremDeletePromise);
+  }
+
+  console.log('⏳ [TargetModelList] 삭제 API Promise 실행 중...');
+  Promise.all(deletePromises)
+    .then(res => {
+      console.log('✅ [TargetModelList] 삭제 성공:', res);
+      handleRefreshTable();
+      tableModel.tableState.selectIndex = [];
+      showSuccessMessage('success', 'Delete Success');
+    })
+    .catch(err => {
+      console.error('❌ [TargetModelList] 삭제 실패:', err);
+      showErrorMessage('Error', err);
+    });
+}
+
+/**
+ * Refresh table data
+ * 테이블 데이터를 새로고침합니다.
+ */
+function handleRefreshTable() {
+  getTableList();
+}
+
+/**
+ * Handle delete confirmation
+ * 삭제 확인을 처리합니다.
+ */
+function handleDeleteConfirm() {
+  console.log('✅ [TargetModelList] 삭제 확인 버튼 클릭 - 삭제 실행');
+  multiDelete();
+  modals.alertModalState.open = false;
+  console.log('🔒 [TargetModelList] 삭제 확인 모달 닫기');
 }
 </script>
 
@@ -127,11 +347,7 @@ function handleSelectedIndex(selectedIndex: number) {
       header-title="Are you sure you want to delete it?"
       :hide-body="true"
       :hide-header-close-button="true"
-      @confirm="
-        () => {
-          modals.alertModalState.open = false;
-        }
-      "
+      @confirm="handleDeleteConfirm"
     />
   </div>
 </template>

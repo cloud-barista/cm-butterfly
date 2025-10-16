@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { IRecommendedModel } from './types';
+import type { IRecommendedModel } from '@/entities/recommendedModel/model/types';
 
 export const useRecommendedModelStore = defineStore('RECOMMENDED_MODEL', {
   state: () => ({

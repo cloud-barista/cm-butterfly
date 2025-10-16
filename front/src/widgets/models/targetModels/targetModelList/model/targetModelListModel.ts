@@ -1,11 +1,6 @@
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
-import {
-  ISourceModelResponse,
-  ITargetModel,
-  ITargetModelResponse,
-} from '@/entities';
+import { ITargetModelResponse } from '@/entities';
 import { useTargetModelStore, TargetModelTableType } from '@/entities';
-import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 import { formatDate } from '@/shared/utils';
 
@@ -49,8 +44,9 @@ export function useTargetModelListModel() {
       name: targetModel.userModelName,
       id: targetModel.id,
       description: targetModel.description,
-      migrationType: targetModel['migrationType'] ?? '',
+      migrationType: targetModel['migrationType'] || targetModel.modelType || '',
       custom: targetModel.isInitUserModel ? 'Basic' : 'Custom',
+      modelType: targetModel.modelType || 'Unknown',
       createdDateTime: formatDate(targetModel.createTime),
       updatedDateTime: formatDate(targetModel.updateTime),
       originalData: targetModel,

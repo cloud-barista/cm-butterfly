@@ -1,6 +1,6 @@
-import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores.ts';
-import { SourceConnectionTableTypes } from '@/entities/sourceConnection/model/types.ts';
-import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel.ts';
+import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
+import { SourceConnectionTableTypes } from '@/entities/sourceConnection/model/types';
+import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
 
 export function useSourceSoftwareCollectModel() {

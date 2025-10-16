@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { i18n } from '@/app/i18n';
 import {
-  PButton,
   PButtonModal,
   PFieldGroup,
   PSelectDropdown,
@@ -15,7 +14,7 @@ import {
   useWorkspaceRoleList,
 } from '@/entities/workspace/api';
 import { onMounted, reactive, watch } from 'vue';
-import { IWorkspaceData } from '@/entities/workspace/model/types.ts';
+import { IWorkspaceData } from '@/entities/workspace/model/types';
 import { UserInformationTableType, UserWorkspaceTableType } from '@/entities';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
 
