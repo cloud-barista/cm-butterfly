@@ -43,6 +43,12 @@ services:
     auth:
       type: none 
 
+  cm-cicada:
+    version: 0.3.0
+    baseurl: http://cm-cicada:8083/cicada
+    auth:
+      type: none 
+
   cm-grasshopper:
     version: 0.3.3
     baseurl: http://cm-grasshopper:8084/grasshopper
