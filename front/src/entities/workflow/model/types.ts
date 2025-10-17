@@ -88,3 +88,23 @@ export interface IWorkflowRun {
   workflow_id: string;
   workflow_run_id: string;
 }
+
+export interface IWorkflowRunsResponse {
+  runs: IWorkflowRun[];
+}
+
+export interface ITaskInstance {
+  task_instance_id: string;
+  task_name: string;
+  state: string;
+  start_date: string;
+  end_date: string;
+  duration_date: string;
+  execution_date: string;
+  retry_count: number;
+  error_message?: string;
+}
+
+export interface ITaskInstancesResponse {
+  taskInstances: ITaskInstance[];
+}

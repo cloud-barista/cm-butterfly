@@ -5,6 +5,7 @@ import {
 } from '@/shared/libs';
 import {
   ITaskComponentResponse,
+  ITaskInstance,
   IWorkflowResponse,
   IWorkflowRun,
 } from '@/entities/workflow/model/types';
@@ -17,6 +18,7 @@ const UPDATE_WORKFLOW = 'update-workflow';
 const RUN_WORKFLOW = 'run-workflow';
 const DELETE_WORKFLOW = 'delete-workflow';
 const GET_WORKFLOW_RUNS = 'get-workflow-runs';
+const GET_TASK_INSTANCES = 'get-task-instances';
 
 // const GET_DISK_TYPE = 'GET_DISK_TYPE';
 const GET_WORKFLOW_TEMPLATE_LIST = 'list-workflow-template';
@@ -265,4 +267,19 @@ export function useGetWorkflowRuns(wfId: string | null) {
       wfId,
     },
   });
+}
+
+export function useGetTaskInstances(
+  wfId: string | null,
+  wfRunId: string | null,
+) {
+  return useAxiosPost<IAxiosResponse<ITaskInstance[]>, any>(
+    GET_TASK_INSTANCES,
+    {
+      pathParams: {
+        wfId,
+        wfRunId,
+      },
+    },
+  );
 }

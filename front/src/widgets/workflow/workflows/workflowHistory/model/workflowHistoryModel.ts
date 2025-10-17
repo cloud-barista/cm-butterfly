@@ -19,6 +19,12 @@ export function useWorkflowHistoryModel() {
   function initTable() {
     tableModel.value.tableState.fields = [
       { label: 'Run ID', name: 'workflow_run_id' },
+      {
+        label: 'Tasks',
+        name: 'tasks',
+        sortable: false,
+        width: '150px',
+      },
       { label: 'State', name: 'state' },
       { label: 'Run Type', name: 'run_type' },
       { label: 'Start Date', name: 'start_date' },
