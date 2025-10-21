@@ -34,13 +34,13 @@ const loading = ref(false);
 
 // 테이블 필드 정의
 const tableFields = ref([
-  { label: 'Task Instance ID', name: 'task_instance_id' },
+  { label: 'Task ID', name: 'task_id' },
   { label: 'Task Name', name: 'task_name' },
   { label: 'State', name: 'state' },
   { label: 'Start Date', name: 'start_date' },
   { label: 'End Date', name: 'end_date' },
   { label: 'Duration (s)', name: 'duration_date' },
-  { label: 'Retry Count', name: 'retry_count' },
+  { label: 'Try Number', name: 'try_number' },
 ]);
 
 // Run Information definition table 모델
@@ -62,14 +62,12 @@ const loadTaskInstances = async () => {
     );
     await execute();
 
-    console.log('data', data.value);
     if (data.value?.responseData) {
       taskInstances.value = data.value.responseData;
     } else {
       taskInstances.value = [];
     }
   } catch (error) {
-    console.error('Failed to load task instances:', error);
     taskInstances.value = [];
   } finally {
     loading.value = false;

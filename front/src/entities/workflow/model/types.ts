@@ -94,14 +94,16 @@ export interface IWorkflowRunsResponse {
 }
 
 export interface ITaskInstance {
-  task_instance_id: string;
+  task_id: string;
   task_name: string;
   state: string;
   start_date: string;
   end_date: string;
-  duration_date: string;
+  duration_date: number;
   execution_date: string;
-  retry_count: number;
+  try_number: number;
+  workflow_id: string;
+  workflow_run_id: string;
   error_message?: string;
 }
 

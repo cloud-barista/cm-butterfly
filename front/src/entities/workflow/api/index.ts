@@ -278,7 +278,7 @@ export function useGetTaskInstances(
     {
       pathParams: {
         wfId,
-        wfRunId,
+        wfRunId: wfRunId ? encodeURIComponent(wfRunId) : wfRunId,
       },
     },
   );
