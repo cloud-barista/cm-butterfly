@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { PIconButton } from '@cloudforet-test/mirinae';
+import { PIconButton, PTextEditor, PSpinner } from '@cloudforet-test/mirinae';
 import { ITaskInstance } from '@/entities/workflow/model/types';
 import { useGetTaskLogs } from '@/entities/workflow/api/index';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 interface Props {
   isVisible: boolean;
@@ -17,6 +17,27 @@ const emit = defineEmits(['close']);
 // 로그 데이터 관리
 const taskLogs = ref<any>(null);
 const logsLoading = ref(false);
+
+// 로그를 문자열로 변환
+const processedLogs = computed(() => {
+  if (!taskLogs.value) return '';
+
+  // 이미 문자열인 경우
+  if (typeof taskLogs.value === 'string') {
+    return taskLogs.value;
+  }
+
+  // 객체인 경우 JSON으로 변환
+  if (typeof taskLogs.value === 'object') {
+    try {
+      return JSON.stringify(taskLogs.value, null, 2);
+    } catch (e) {
+      return String(taskLogs.value);
+    }
+  }
+
+  return String(taskLogs.value);
+});
 
 // 모달 닫기
 const handleClose = () => {
@@ -49,25 +70,15 @@ const loadTaskLogs = async () => {
   }
 };
 
-// taskInstance가 변경될 때마다 로그 로드
+// taskInstance 또는 모달이 열릴 때 로그 로드
 watch(
-  () => props.taskInstance,
-  () => {
-    if (props.taskInstance && props.isVisible) {
+  () => [props.taskInstance, props.isVisible] as const,
+  ([taskInstance, isVisible]) => {
+    if (taskInstance && isVisible) {
       loadTaskLogs();
     }
   },
   { immediate: true },
-);
-
-// 모달이 열릴 때 로그 로드
-watch(
-  () => props.isVisible,
-  () => {
-    if (props.isVisible && props.taskInstance) {
-      loadTaskLogs();
-    }
-  },
 );
 </script>
 
@@ -88,9 +99,17 @@ watch(
           <p><strong>Task ID:</strong> {{ taskInstance.task_id }}</p>
           <p><strong>Try Number:</strong> {{ taskInstance.try_number }}</p>
         </div>
-        <div v-if="logsLoading" class="loading">Loading logs...</div>
+        <div v-if="logsLoading" class="loading">
+          <p-spinner size="xl" />
+          <p>Loading logs...</p>
+        </div>
         <div v-else-if="taskLogs" class="logs-content">
-          <pre>{{ taskLogs }}</pre>
+          <p-text-editor
+            :code="processedLogs"
+            :read-only="true"
+            folded
+            class="log-text-editor"
+          />
         </div>
         <div v-else class="no-logs">No logs available</div>
       </div>
@@ -161,27 +180,30 @@ watch(
       }
 
       .loading {
-        padding: 2rem;
+        padding: 3rem;
         text-align: center;
         color: #6b7280;
         background: #f9fafb;
         border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+
+        p {
+          margin: 0;
+          font-size: 0.875rem;
+        }
       }
 
       .logs-content {
-        background: #1f2937;
-        color: #f9fafb;
+        background: #f8f9fa;
         border-radius: 8px;
-        padding: 1rem;
-        overflow-x: auto;
+        overflow: hidden;
 
-        pre {
-          margin: 0;
-          white-space: pre-wrap;
-          word-wrap: break-word;
-          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-          font-size: 0.875rem;
-          line-height: 1.5;
+        .log-text-editor {
+          min-height: 400px;
+          max-height: 600px;
         }
       }
 
