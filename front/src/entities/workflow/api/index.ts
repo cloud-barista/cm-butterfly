@@ -19,6 +19,7 @@ const RUN_WORKFLOW = 'run-workflow';
 const DELETE_WORKFLOW = 'delete-workflow';
 const GET_WORKFLOW_RUNS = 'get-workflow-runs';
 const GET_TASK_INSTANCES = 'get-task-instances';
+const GET_TASK_LOGS = 'get-task-logs';
 
 // const GET_DISK_TYPE = 'GET_DISK_TYPE';
 const GET_WORKFLOW_TEMPLATE_LIST = 'list-workflow-template';
@@ -282,4 +283,20 @@ export function useGetTaskInstances(
       },
     },
   );
+}
+
+export function useGetTaskLogs(
+  wfId: string | null,
+  wfRunId: string | null,
+  taskId: string | null,
+  taskTryNum: string | null,
+) {
+  return useAxiosPost<IAxiosResponse<any>, any>(GET_TASK_LOGS, {
+    pathParams: {
+      wfId,
+      wfRunId: wfRunId ? encodeURIComponent(wfRunId) : wfRunId,
+      taskId,
+      taskTryNum,
+    },
+  });
 }
