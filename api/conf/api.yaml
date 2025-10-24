@@ -2672,11 +2672,11 @@ serviceActions:
       description: Get the task Logs.
     Get-Task-Logs:
       method: get
-      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/taskTryNum/{taskTyNum}/logs
+      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/taskTryNum/{taskTryNum}/logs
       description: Get the task Logs.
     Get-Task-Logs-Download:
       method: get
-      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/taskTryNum/{taskTyNum}/logs/download
+      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/taskTryNum/{taskTryNum}/logs/download
       description: Download the task logs as a file.
     Get-Workflow:
       method: get
