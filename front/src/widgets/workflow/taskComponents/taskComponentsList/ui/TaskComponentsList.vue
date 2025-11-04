@@ -105,8 +105,47 @@ async function fetchTaskComponentsList() {
       data.status?.code === 200 &&
       data.responseData &&
       data.responseData.length > 0
-    )
-      workflowStore.setTaskComponents(data.responseData);
+    ) {
+      // Add hardcoded cicada_task_script task component
+      // cicada_task_script 태스크 컴포넌트를 하드코드로 추가
+      const hardcodedScriptTask = {
+        created_at: '2025-09-30T07:54:08.132299806Z',
+        updated_at: '2025-10-24T05:10:54.384852798Z',
+        id: 'e024b410-fb78-4ded-9237-1234',
+        name: 'cicada_task_script',
+        description: 'Script task',
+        is_example: true,
+        data: {
+          body_params: {
+            properties: {
+              ns_id: {
+                type: 'string',
+              },
+              mci_id: {
+                type: 'string',
+              },
+              vm_id: {
+                type: 'string',
+              },
+              content: {
+                type: 'string',
+              },
+            },
+            required: ['ns_id', 'mci_id', 'vm_id', 'content'],
+          },
+          options: {
+            request_body: '{"ns_id":"","mci_id":"","vm_id":"","content":""}',
+          },
+          path_params: {},
+          query_params: {},
+        },
+      };
+
+      // Combine API response with hardcoded task
+      // API 응답과 하드코드된 태스크 결합
+      const allTaskComponents = [...data.responseData, hardcodedScriptTask];
+      workflowStore.setTaskComponents(allTaskComponents);
+    }
   } catch (e) {
     console.log(e);
   }
