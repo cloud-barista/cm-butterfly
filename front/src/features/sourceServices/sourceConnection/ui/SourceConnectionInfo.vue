@@ -93,7 +93,7 @@ watchEffect(() => {
           />
         </p-field-group>
         <p-field-group class="private-key" label="Private Key">
-          <p-text-input v-model="sourceConnection.private_key" />
+          <p-textarea v-model="sourceConnection.private_key" :rows="5" />
         </p-field-group>
       </div>
     </p-pane-layout>
@@ -121,7 +121,7 @@ watchEffect(() => {
     @apply grid grid-cols-2 gap-x-[1.5rem] ml-[1.5rem];
     .private-key {
       @apply col-span-2;
-      .p-text-input {
+      .p-textarea {
         @apply w-full;
       }
     }
