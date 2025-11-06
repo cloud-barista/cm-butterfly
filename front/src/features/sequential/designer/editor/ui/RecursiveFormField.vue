@@ -121,7 +121,7 @@
     <div v-else-if="fieldSchema.type === 'object'" class="object-field">
       <div class="object-header">
         <div class="header-left">
-          <button v-if="depth > 0" @click="toggleObjectCollapse" class="btn-collapse">
+          <button @click="toggleObjectCollapse" class="btn-collapse">
             {{ isObjectCollapsed ? '▶' : '▼' }}
           </button>
           <label 
@@ -134,7 +134,7 @@
           </label>
         </div>
       </div>
-      <div v-if="depth === 0 || !isObjectCollapsed" class="object-properties" :class="{ 'depth-0-object': depth === 0 }">
+      <div v-if="!isObjectCollapsed" class="object-properties" :class="{ 'depth-0-object': depth === 0 }">
         <recursive-form-field
           v-for="(propSchema, propName) in fieldSchema.properties"
           :key="propName"
