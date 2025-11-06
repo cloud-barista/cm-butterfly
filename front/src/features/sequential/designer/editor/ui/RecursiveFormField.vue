@@ -87,14 +87,16 @@
             </div>
             <div v-if="!isItemCollapsed(index)" class="item-properties">
               <recursive-form-field
-                v-for="(propSchema, propName) in fieldSchema.items.properties"
+                v-for="propName in sortedArrayItemPropertyNames"
                 :key="`${index}-${propName}`"
                 :field-name="String(propName)"
-                :field-schema="propSchema"
+                :field-schema="fieldSchema.items.properties[propName]"
                 :field-value="item[propName]"
                 :step-properties="stepProperties"
                 :max-auto-expand-depth="maxAutoExpandDepth"
                 :parent-required="fieldSchema.items?.required || []"
+                :task-name="taskName"
+                :current-path="`${currentPath}[]`"
                 @update="updateObjectArrayItemProperty(index, String(propName), $event)"
                 :depth="depth + 1"
               />
@@ -136,14 +138,16 @@
       </div>
       <div v-if="!isObjectCollapsed" class="object-properties" :class="{ 'depth-0-object': depth === 0 }">
         <recursive-form-field
-          v-for="(propSchema, propName) in fieldSchema.properties"
+          v-for="propName in sortedPropertyNames"
           :key="propName"
           :field-name="String(propName)"
-          :field-schema="propSchema"
+          :field-schema="fieldSchema.properties[propName]"
           :field-value="objectValue[propName]"
           :step-properties="stepProperties"
           :max-auto-expand-depth="maxAutoExpandDepth"
           :parent-required="fieldSchema.required || []"
+          :task-name="taskName"
+          :current-path="computedChildPath(propName)"
           @update="updateObjectProperty(String(propName), $event)"
           :depth="depth + 1"
         />
@@ -157,6 +161,7 @@
 
 <script lang="ts">
 import { defineComponent, computed, ref } from 'vue';
+import { getPropertyOrder, sortPropertiesByOrder } from '../config/taskPropertyOrderConfig';
 
 export default defineComponent({
   name: 'RecursiveFormField',
@@ -188,6 +193,14 @@ export default defineComponent({
     parentRequired: {
       type: Array,
       default: () => []
+    },
+    taskName: {
+      type: String,
+      default: ''
+    },
+    currentPath: {
+      type: String,
+      default: ''
     }
   },
   emits: ['update'],
@@ -227,6 +240,35 @@ export default defineComponent({
       }
       return {};
     });
+
+    // Property 순서 정렬 - Object properties
+    const sortedPropertyNames = computed(() => {
+      if (!props.fieldSchema.properties) return [];
+      const keys = Object.keys(props.fieldSchema.properties);
+      
+      if (!props.taskName || !props.currentPath) return keys;
+      
+      const order = getPropertyOrder(props.taskName, props.currentPath);
+      return order ? sortPropertiesByOrder(keys, order) : keys;
+    });
+
+    // Property 순서 정렬 - Array item properties
+    const sortedArrayItemPropertyNames = computed(() => {
+      if (!props.fieldSchema.items?.properties) return [];
+      const keys = Object.keys(props.fieldSchema.items.properties);
+      
+      if (!props.taskName || !props.currentPath) return keys;
+      
+      const arrayItemPath = `${props.currentPath}[]`;
+      const order = getPropertyOrder(props.taskName, arrayItemPath);
+      return order ? sortPropertiesByOrder(keys, order) : keys;
+    });
+
+    // 자식 경로 계산
+    const computedChildPath = (propName: string): string => {
+      if (!props.currentPath) return propName;
+      return `${props.currentPath}.${propName}`;
+    };
 
     const handleInput = (event: Event) => {
       const target = event.target as HTMLInputElement;
@@ -477,6 +519,9 @@ export default defineComponent({
       itemCollapsedStates,
       shouldAutoCollapse,
       isRequired,
+      sortedPropertyNames,
+      sortedArrayItemPropertyNames,
+      computedChildPath,
       handleInput,
       addArrayItem,
       duplicateLastArrayItem,

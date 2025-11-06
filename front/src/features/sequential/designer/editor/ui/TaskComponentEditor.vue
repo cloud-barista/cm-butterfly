@@ -62,7 +62,7 @@
       </div>
 
       <!-- Body Parameters - JSON Editor -->
-      <div v-if="hasBodyParams()" class="params-section body-params-section">
+      <div v-if="hasBodyParams" class="params-section body-params-section">
         <h5 class="params-title">Body Parameters</h5>
       
       <div class="json-editor-container">
@@ -70,14 +70,16 @@
           <div class="recursive-form-container">
             <div v-if="bodyParamsSchema && bodyParamsSchema.properties">
               <recursive-form-field
-                v-for="(propSchema, propName) in bodyParamsSchema.properties"
+                v-for="propName in sortedBodyParamPropertyNames"
                 :key="String(propName)"
                 :field-name="String(propName)"
-                :field-schema="propSchema"
+                :field-schema="bodyParamsSchema.properties[propName]"
                 :field-value="bodyParamsModel[propName]"
                 :step-properties="getStepProperties()"
                 :max-auto-expand-depth="2"
                 :parent-required="bodyParamsSchema.required || []"
+                :task-name="getCurrentTaskComponentName()"
+                :current-path="`body_params.${propName}`"
                 @update="updateBodyParamField(String(propName), $event)"
                 :depth="0"
               />
@@ -112,6 +114,7 @@ import RecursiveFormField from './RecursiveFormField.vue';
 import { useWorkflowStore } from '@/entities/workflow/model/stores';
 import { storeToRefs } from 'pinia';
 import { decodeBase64, encodeBase64 } from '@/shared/utils/base64';
+import { getPropertyOrder, sortPropertiesByOrder } from '../config/taskPropertyOrderConfig';
 
 export default defineComponent({
   name: 'TaskComponentEditor',
@@ -370,6 +373,11 @@ export default defineComponent({
       return (step.value.properties?.model as any)?.properties;
     };
 
+    // Task Component Name Getter (Property Order Config용)
+    const getCurrentTaskComponentName = (): string => {
+      return step.value.name || step.value.type || '';
+    };
+
     // Path/Query Parameters Getter
     const getPathParams = () => {
       return pathParams.value;
@@ -388,11 +396,57 @@ export default defineComponent({
       return Object.keys(queryParams.value).length > 0;
     };
 
-    const hasBodyParams = () => {
-      return bodyParamsSchema.value && 
+    // Body Parameters 존재 여부 확인 (computed property로 변경하여 reactive하게)
+    const hasBodyParams = computed(() => {
+      const result = bodyParamsSchema.value && 
              bodyParamsSchema.value.properties && 
              Object.keys(bodyParamsSchema.value.properties).length > 0;
-    };
+      console.log('🔍 hasBodyParams computed:', {
+        hasSchema: !!bodyParamsSchema.value,
+        hasProperties: !!bodyParamsSchema.value?.properties,
+        propertiesKeys: Object.keys(bodyParamsSchema.value?.properties || {}),
+        result
+      });
+      return result;
+    });
+
+    // Body Parameters Property Names (정렬 적용)
+    const sortedBodyParamPropertyNames = computed(() => {
+      console.log('⭐ sortedBodyParamPropertyNames computed called!');
+      console.log('   bodyParamsSchema.value:', bodyParamsSchema.value);
+      console.log('   bodyParamsSchema.value?.properties:', bodyParamsSchema.value?.properties);
+      
+      if (!bodyParamsSchema.value?.properties) {
+        console.log('   ❌ No properties, returning empty array');
+        return [];
+      }
+      
+      const keys = Object.keys(bodyParamsSchema.value.properties);
+      console.log('   📋 Properties keys:', keys);
+      
+      const taskName = getCurrentTaskComponentName();
+      console.log('   📋 Task name:', taskName);
+      
+      if (!taskName) {
+        console.log('   ⚠️ No task name, returning unsorted keys');
+        return keys;
+      }
+      
+      const order = getPropertyOrder(taskName, 'body_params');
+      console.log('   📋 Order from config:', order);
+      
+      const sortedKeys = order ? sortPropertiesByOrder(keys, order) : keys;
+      console.log('   ✅ Final sorted keys:', sortedKeys);
+      
+      console.log('🔍 Body Params Property Sorting:', {
+        taskName,
+        originalKeys: keys,
+        order,
+        sortedKeys
+      });
+      
+      return sortedKeys;
+    });
 
     // Required Checker
     const isPathParamRequired = (key: string) => {
@@ -1369,6 +1423,7 @@ export default defineComponent({
       queryParams,
       bodyParamsSchema,
       bodyParamsModel,
+      sortedBodyParamPropertyNames,
       
       // Component Name Methods
       getComponentNameTitle,
@@ -1380,6 +1435,7 @@ export default defineComponent({
       
       // Step Properties Method
       getStepProperties,
+      getCurrentTaskComponentName,
       
       // Parameters Getter
       getPathParams,
