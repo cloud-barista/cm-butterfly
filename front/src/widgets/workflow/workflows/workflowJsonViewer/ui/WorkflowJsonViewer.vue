@@ -46,7 +46,9 @@ function processTaskGroups(taskGroups: any[]) {
     // Process tasks in the task group
     if (taskGroup.tasks && Array.isArray(taskGroup.tasks)) {
       taskGroup.tasks.forEach((task: any) => {
-        if (task.task_component === 'cicada_task_script' && task.request_body) {
+        // Check task.task_component (fixed identifier, not user-changeable)
+        // task.task_component로 확인 (고정 식별자, 사용자 변경 불가)
+        if (task.task_component === 'cicada_task_run_script' && task.request_body) {
           try {
             const requestBody = JSON.parse(task.request_body);
             if (requestBody.content) {
@@ -104,7 +106,9 @@ function encodeTaskGroups(taskGroups: any[]) {
     // Process tasks in the task group
     if (taskGroup.tasks && Array.isArray(taskGroup.tasks)) {
       taskGroup.tasks.forEach((task: any) => {
-        if (task.task_component === 'cicada_task_script' && task.request_body) {
+        // Check task.task_component (fixed identifier, not user-changeable)
+        // task.task_component로 확인 (고정 식별자, 사용자 변경 불가)
+        if (task.task_component === 'cicada_task_run_script' && task.request_body) {
           try {
             const requestBody = JSON.parse(task.request_body);
             if (requestBody.content) {

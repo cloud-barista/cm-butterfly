@@ -111,6 +111,7 @@ import type { Step } from '@/features/workflow/workflowEditor/model/types';
 import RecursiveFormField from './RecursiveFormField.vue';
 import { useWorkflowStore } from '@/entities/workflow/model/stores';
 import { storeToRefs } from 'pinia';
+import { decodeBase64, encodeBase64 } from '@/shared/utils/base64';
 
 export default defineComponent({
   name: 'TaskComponentEditor',
@@ -743,6 +744,27 @@ export default defineComponent({
         if (hasExistingData) {
           console.log('   existingBodyParamsData keys:', Object.keys(existingBodyParamsData));
           console.log('   existingBodyParamsData:', existingBodyParamsData);
+          
+          // Decode content field for cicada_task_script once here
+          // cicada_task_script의 content 필드를 여기서 한 번만 디코딩
+          // Use task_component (fixed identifier) instead of name (user-changeable)
+          // task_component 사용 (고정 식별자), name은 사용자가 변경 가능
+          const taskComponentName = step.value.properties?.originalData?.task_component || 
+                                   step.value.type;
+          
+          console.log('🔍 Checking for cicada_task_run_script decoding:');
+          console.log('   taskComponentName:', taskComponentName);
+          console.log('   Has content?:', !!existingBodyParamsData.content);
+          console.log('   Content value:', existingBodyParamsData.content);
+          
+          if (taskComponentName === 'cicada_task_run_script' && existingBodyParamsData.content) {
+            console.log('🔓 Decoding content for cicada_task_script');
+            console.log('   Encoded content:', existingBodyParamsData.content);
+            existingBodyParamsData.content = decodeBase64(existingBodyParamsData.content);
+            console.log('   Decoded content:', existingBodyParamsData.content);
+          } else {
+            console.log('❌ NOT decoding - taskComponentName or content check failed');
+          }
         }
         
         // Schema와 Data 분리
@@ -908,6 +930,30 @@ export default defineComponent({
             bodyParamsData = (data as any).body_params || {};
         }
         
+          // Decode content field for cicada_task_script in fallback path
+          // fallback 경로에서도 cicada_task_script의 content 필드 디코딩
+          // Use task_component (fixed identifier) instead of name (user-changeable)
+          // task_component 사용 (고정 식별자), name은 사용자가 변경 가능
+          const taskComponentName = step.value.properties?.originalData?.task_component || 
+                                   step.value.type;
+          
+          console.log('🔍 PATH C - Checking for cicada_task_run_script decoding:');
+          console.log('   taskComponentName:', taskComponentName);
+          console.log('   Has content?:', !!bodyParamsData.content);
+          console.log('   Content type:', typeof bodyParamsData.content);
+          console.log('   Content value:', bodyParamsData.content);
+          
+          if (taskComponentName === 'cicada_task_run_script' && 
+              bodyParamsData.content && 
+              typeof bodyParamsData.content === 'string') {
+            console.log('🔓 Decoding content in PATH C (fallback)');
+            console.log('   Encoded content:', bodyParamsData.content);
+            bodyParamsData.content = decodeBase64(bodyParamsData.content);
+            console.log('   Decoded content:', bodyParamsData.content);
+          } else {
+            console.log('❌ PATH C - NOT decoding - condition check failed');
+          }
+        
           pathParamsData = (model as any).path_params || {};
           queryParamsData = (model as any).query_params || {};
         }
@@ -1020,6 +1066,8 @@ export default defineComponent({
             console.error('   Setting empty object instead.');
             bodyParamsModel.value = {};
           } else {
+            // No need to decode here - already decoded in existingBodyParamsData
+            // existingBodyParamsData에서 이미 디코딩되었으므로 여기서는 불필요
             bodyParamsModel.value = finalBodyParamsData || {};
             console.log('✅ Data set to bodyParamsModel.value');
           }
@@ -1073,6 +1121,9 @@ export default defineComponent({
           console.log('Generated body_params schema:', generatedSchema);
           
           bodyParamsSchema.value = generatedSchema;
+          
+          // No need to decode here - already decoded in existingBodyParamsData
+          // existingBodyParamsData에서 이미 디코딩되었으므로 여기서는 불필요
           bodyParamsModel.value = bodyParamsData;
           
           console.log('Updated bodyParamsSchema with generated schema');
@@ -1260,7 +1311,24 @@ export default defineComponent({
       
       // step.properties.model을 newModel로 직접 업데이트
       // convertToCicadaTask는 JSON.stringify(step.properties.model)을 request_body로 사용
-      const modelToSave = { ...newModel };
+      let modelToSave = { ...newModel };
+      
+      // Encode content field for cicada_task_script before saving
+      // cicada_task_script의 content 필드를 저장 전에 인코딩
+      // Use task_component (fixed identifier) instead of name (user-changeable)
+      // task_component 사용 (고정 식별자), name은 사용자가 변경 가능
+      const taskComponentName = step.value.properties?.originalData?.task_component || 
+                               step.value.type;
+      
+      if (taskComponentName === 'cicada_task_run_script' && modelToSave.content) {
+        console.log('🔐 Encoding content for cicada_task_script before save');
+        console.log('   Original content:', modelToSave.content);
+        modelToSave = {
+          ...modelToSave,
+          content: encodeBase64(modelToSave.content)
+        };
+        console.log('   Encoded content:', modelToSave.content);
+      }
       
       console.log('📤 Model to save:');
       console.log('   Keys:', Object.keys(modelToSave));

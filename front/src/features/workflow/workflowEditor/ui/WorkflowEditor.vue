@@ -70,44 +70,8 @@ onBeforeMount(function () {
       res[0].data.responseData,
     );
     
-    // Add hardcoded cicada_task_script task component to responseData
-    // responseData에 cicada_task_script 태스크 컴포넌트를 하드코드로 추가
-    const hardcodedScriptTask = {
-      created_at: '2025-09-30T07:54:08.132299806Z',
-      updated_at: '2025-10-24T05:10:54.384852798Z',
-      id: 'e024b410-fb78-4ded-9237-1234',
-      name: 'cicada_task_script',
-      description: 'Script task',
-      is_example: true,
-      data: {
-        body_params: {
-          properties: {
-            ns_id: {
-              type: 'string',
-            },
-            mci_id: {
-              type: 'string',
-            },
-            vm_id: {
-              type: 'string',
-            },
-            content: {
-              type: 'string',
-            },
-          },
-          required: ['ns_id', 'mci_id', 'vm_id', 'content'],
-        },
-        options: {
-          request_body: '{"ns_id":"","mci_id":"","vm_id":"","content":""}',
-        },
-        path_params: {},
-        query_params: {},
-      },
-    };
-    
-    // Add to responseData directly
-    res[1].data.responseData.push(hardcodedScriptTask);
-    
+    // cicada_task_script is now included in API response
+    // cicada_task_script는 이제 API 응답에 포함됨
     workflowToolModel.setTaskComponent(res[1].data.responseData);
     workflowToolModel.setDropDownData(
       workflowToolModel.workflowStore.workflowTemplates,
