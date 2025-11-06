@@ -19,15 +19,16 @@ export const TASK_PROPERTY_ORDER_CONFIG: Record<string, PropertyOrderRule[]> = {
   'beetle_task_infra_migration': [
     {
       path: 'body_params',
-      order: [        
-        "description",
-        "targetCloud",
+      order: [  
+        'description',
+        'targetCloud',
         'targetVmInfra',
+        'targetVmSpecList',
+        'targetVmOsImageList',
         'targetVNet',
         'targetSecurityGroupList',
-        'targetSshKey',        
-        'targetVmOsImageList',
-        'targetVmSpecList'
+        'targetSshKey',
+        'status'
       ]
     },
     {
