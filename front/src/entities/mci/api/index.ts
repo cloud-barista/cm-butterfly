@@ -11,8 +11,14 @@ export interface IMciRequestParams {
   option?: string | null;
 }
 
+export interface IDeleteMciParams {
+  nsId: string;
+  mciId: string;
+}
+
 const GET_ALL_MCI = 'GetAllMci';
 const GET_MCI_INFO = 'GetMci';
+const DELETE_INFRA = 'DeleteInfra';
 
 export function useGetMciList(projectId: string | null, option: string | null) {
   const requestBodyWrapper: Required<
@@ -54,4 +60,20 @@ export function useGetMciInfo(params: IMciRequestParams | null) {
     IAxiosResponse<IMci>,
     Required<Pick<RequestBodyWrapper<IMciRequestParams>, 'pathParams'>>
   >(GET_MCI_INFO, requestBodyWrapper);
+}
+
+export function useDeleteMci(params: IDeleteMciParams) {
+  const requestBodyWrapper: Required<
+    Pick<RequestBodyWrapper<IDeleteMciParams>, 'pathParams'>
+  > = {
+    pathParams: {
+      nsId: params.nsId,
+      mciId: params.mciId,
+    },
+  };
+
+  return useAxiosPost<
+    IAxiosResponse<any>,
+    Required<Pick<RequestBodyWrapper<IDeleteMciParams>, 'pathParams'>>
+  >(DELETE_INFRA, requestBodyWrapper);
 }
