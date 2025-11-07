@@ -86,9 +86,11 @@ function handleDeleteWorkflow() {
   }
 }
 
-function handleRefreshTable() {
+function handleRefreshTable(keepSelection = false) {
   tableModel.initState();
-  emit('select-row', '');
+  if (!keepSelection) {
+    emit('select-row', '');
+  }
   fetchWorkflowList();
 }
 
@@ -152,7 +154,10 @@ watch(
   () => props.trigger,
   nv => {
     if (nv) {
-      handleRefreshTable();
+      // WorkflowEditor에서 save 후 trigger가 발생하면 선택을 유지
+      // selectedWfId가 있으면 선택 유지, 없으면 선택 초기화
+      const keepSelection = !!props.selectedWfId;
+      handleRefreshTable(keepSelection);
       emit('update:trigger');
     }
   },

@@ -817,6 +817,7 @@ function postWorkflow(workflow: IWorkflow) {
       .then(res => {
         showSuccessMessage('Success', 'Success');
         emit('update:trigger');
+        emit('update:close-modal', false); // 저장 성공 후 모달 닫기
       })
       .catch(err => {
         showErrorMessage('Error', err.errorMsg.value);
@@ -834,6 +835,7 @@ function postWorkflow(workflow: IWorkflow) {
       .then(res => {
         showSuccessMessage('Success', 'Success');
         emit('update:trigger');
+        emit('update:close-modal', false); // 저장 성공 후 모달 닫기
       })
       .catch(err => {
         showErrorMessage('Error', err.errorMsg.value);
