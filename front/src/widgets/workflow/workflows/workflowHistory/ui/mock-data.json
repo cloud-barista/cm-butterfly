@@ -1,0 +1,658 @@
+{
+    "execution_id": "808ab769-ff18-494a-b735-2e9f7722d207",
+    "target_mappings": [
+      {
+        "source_connection_info_id": "a9723f0a-a3bd-4ed2-9a2d-869d471d0c7a",
+        "target": {
+          "namespace_id": "mig01",
+          "mci_id": "mmci01",
+          "vm_id": "migrated-52a28320-b29c-4fa9-bf7e-dd740b6eb6f8-1"
+        },
+        "status": "finished with error",
+        "software_migration_status_list": [
+          {
+            "order": 1,
+            "software_name": "apport-symptoms",
+            "software_version": "0.24",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:14:15.712465157+09:00",
+            "updated_at": "2025-11-07T14:14:22.761931139+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 2,
+            "software_name": "azure-vm-utils",
+            "software_version": "0.6.0-4~ubuntu0.22.04.1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:14:22.774513607+09:00",
+            "updated_at": "2025-11-07T14:14:42.220246419+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 3,
+            "software_name": "bash-completion",
+            "software_version": "1:2.11-5ubuntu1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:14:42.233841293+09:00",
+            "updated_at": "2025-11-07T14:14:50.947914018+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 4,
+            "software_name": "bzip2",
+            "software_version": "1.0.8-5build1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:14:50.960641579+09:00",
+            "updated_at": "2025-11-07T14:15:01.026234187+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 5,
+            "software_name": "chrony",
+            "software_version": "4.2-2ubuntu2",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:15:01.042990985+09:00",
+            "updated_at": "2025-11-07T14:15:12.920303417+09:00",
+            "error_message": "failed to start service chrony: Process exited with status 1"
+          },
+          {
+            "order": 6,
+            "software_name": "cifs-utils",
+            "software_version": "2:6.14-1ubuntu0.3",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:15:12.936024627+09:00",
+            "updated_at": "2025-11-07T14:15:22.985656043+09:00",
+            "error_message": "failed to copy config files: failed to copy file /etc/cifs-utils/idmap-plugin: failed to copy file: "
+          },
+          {
+            "order": 7,
+            "software_name": "command-not-found",
+            "software_version": "22.04.0",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:15:22.998417606+09:00",
+            "updated_at": "2025-11-07T14:15:30.589626168+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 8,
+            "software_name": "cryptsetup-initramfs",
+            "software_version": "2:2.4.3-1ubuntu1.3",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:15:30.601845355+09:00",
+            "updated_at": "2025-11-07T14:15:40.016119712+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 9,
+            "software_name": "friendly-recovery",
+            "software_version": "0.2.42",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:15:40.028826303+09:00",
+            "updated_at": "2025-11-07T14:15:47.003205734+09:00",
+            "error_message": "service migration completed with verification errors: Service friendly-recovery has issues: [enabled state mismatch (expected: true, got: false)]"
+          },
+          {
+            "order": 10,
+            "software_name": "iputils-tracepath",
+            "software_version": "3:20211215-1ubuntu0.1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:15:47.015864331+09:00",
+            "updated_at": "2025-11-07T14:15:53.949568561+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 11,
+            "software_name": "irqbalance",
+            "software_version": "1.8.0-1ubuntu0.2",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:15:53.964947596+09:00",
+            "updated_at": "2025-11-07T14:16:01.137947622+09:00",
+            "error_message": "service irqbalance failed to start properly"
+          },
+          {
+            "order": 12,
+            "software_name": "libcgi-fast-perl",
+            "software_version": "1:2.15-1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:16:01.151737221+09:00",
+            "updated_at": "2025-11-07T14:16:12.58399154+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 13,
+            "software_name": "libclone-perl",
+            "software_version": "0.45-1build3",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:16:12.601089198+09:00",
+            "updated_at": "2025-11-07T14:16:21.286307352+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 14,
+            "software_name": "libdbd-mysql-perl",
+            "software_version": "4.050-5ubuntu0.22.04.1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:16:21.302292244+09:00",
+            "updated_at": "2025-11-07T14:16:32.496739769+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 15,
+            "software_name": "libfcgi-bin",
+            "software_version": "2.4.2-2ubuntu0.1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:16:32.511488669+09:00",
+            "updated_at": "2025-11-07T14:16:39.639744042+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 16,
+            "software_name": "libhtml-template-perl",
+            "software_version": "2.97-1.1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:16:39.658763666+09:00",
+            "updated_at": "2025-11-07T14:16:49.553053037+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 17,
+            "software_name": "libhttp-message-perl",
+            "software_version": "6.36-1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:16:49.569026113+09:00",
+            "updated_at": "2025-11-07T14:16:56.396168774+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 18,
+            "software_name": "libqmi-proxy",
+            "software_version": "1.32.0-1ubuntu0.22.04.1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:16:56.410509313+09:00",
+            "updated_at": "2025-11-07T14:17:03.419958436+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 19,
+            "software_name": "linux-azure",
+            "software_version": "6.8.0-1041.47~22.04.1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:17:03.435294498+09:00",
+            "updated_at": "2025-11-07T14:19:01.74578677+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 20,
+            "software_name": "lsscsi",
+            "software_version": "0.31-1build2",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:19:01.75995015+09:00",
+            "updated_at": "2025-11-07T14:19:12.456458741+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 21,
+            "software_name": "manpages",
+            "software_version": "5.10-1ubuntu1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:19:12.472906177+09:00",
+            "updated_at": "2025-11-07T14:19:19.098943873+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 22,
+            "software_name": "mariadb-server",
+            "software_version": "1:10.6.22-0ubuntu0.22.04.1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:19:19.113809708+09:00",
+            "updated_at": "2025-11-07T14:19:37.715933259+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 23,
+            "software_name": "mtr-tiny",
+            "software_version": "0.95-1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:19:37.731944487+09:00",
+            "updated_at": "2025-11-07T14:19:44.770873225+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 24,
+            "software_name": "nano",
+            "software_version": "6.2-1ubuntu0.1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:19:44.785650258+09:00",
+            "updated_at": "2025-11-07T14:19:51.980972265+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 25,
+            "software_name": "ncurses-term",
+            "software_version": "6.3-2ubuntu0.1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:19:51.994203404+09:00",
+            "updated_at": "2025-11-07T14:19:58.896220658+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 26,
+            "software_name": "nfs-kernel-server",
+            "software_version": "1:2.6.1-1ubuntu1.2",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:19:58.911285551+09:00",
+            "updated_at": "2025-11-07T14:20:14.54326147+09:00",
+            "error_message": "service nfs-server failed to start properly"
+          },
+          {
+            "order": 27,
+            "software_name": "nginx",
+            "software_version": "1.18.0-6ubuntu14.7",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:20:14.555327468+09:00",
+            "updated_at": "2025-11-07T14:20:54.285195952+09:00",
+            "error_message": "service nginx failed to start properly"
+          },
+          {
+            "order": 28,
+            "software_name": "ntfs-3g",
+            "software_version": "1:2021.8.22-3ubuntu1.2",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:20:54.297654852+09:00",
+            "updated_at": "2025-11-07T14:21:02.476431408+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 29,
+            "software_name": "nvme-cli",
+            "software_version": "1.16-3ubuntu0.3",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:21:02.488410325+09:00",
+            "updated_at": "2025-11-07T14:21:15.192345401+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 30,
+            "software_name": "open-vm-tools",
+            "software_version": "2:12.3.5-3~ubuntu0.22.04.3",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:21:15.205131565+09:00",
+            "updated_at": "2025-11-07T14:21:28.085288141+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 31,
+            "software_name": "packagekit-tools",
+            "software_version": "1.2.5-2ubuntu3",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:21:28.096719244+09:00",
+            "updated_at": "2025-11-07T14:21:36.827815755+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 32,
+            "software_name": "pastebinit",
+            "software_version": "1.5.1-1ubuntu1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:21:36.844021003+09:00",
+            "updated_at": "2025-11-07T14:21:45.385816873+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 33,
+            "software_name": "php8.1-curl",
+            "software_version": "8.1.2-1ubuntu2.22",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:21:45.39792378+09:00",
+            "updated_at": "2025-11-07T14:22:03.468179341+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 34,
+            "software_name": "php8.1-fpm",
+            "software_version": "8.1.2-1ubuntu2.22",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:22:03.482727512+09:00",
+            "updated_at": "2025-11-07T14:22:26.247161758+09:00",
+            "error_message": "failed to copy config files: failed to copy file /etc/xdg/systemd/user: failed to read symlink target: cat: /etc/systemd/user: Is a directory\n"
+          },
+          {
+            "order": 35,
+            "software_name": "php8.1-gd",
+            "software_version": "8.1.2-1ubuntu2.22",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:22:26.25879213+09:00",
+            "updated_at": "2025-11-07T14:22:39.879421751+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 36,
+            "software_name": "php8.1-intl",
+            "software_version": "8.1.2-1ubuntu2.22",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:22:39.89226883+09:00",
+            "updated_at": "2025-11-07T14:22:53.041171593+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 37,
+            "software_name": "php8.1-mbstring",
+            "software_version": "8.1.2-1ubuntu2.22",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:22:53.053640054+09:00",
+            "updated_at": "2025-11-07T14:23:06.406270907+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 38,
+            "software_name": "php8.1-mysql",
+            "software_version": "8.1.2-1ubuntu2.22",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:23:06.420978366+09:00",
+            "updated_at": "2025-11-07T14:23:20.427440464+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 39,
+            "software_name": "php8.1-soap",
+            "software_version": "8.1.2-1ubuntu2.22",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:23:20.440634618+09:00",
+            "updated_at": "2025-11-07T14:23:33.773484627+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 40,
+            "software_name": "php8.1-xml",
+            "software_version": "8.1.2-1ubuntu2.22",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:23:33.786080466+09:00",
+            "updated_at": "2025-11-07T14:23:49.374401521+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 41,
+            "software_name": "php8.1-xmlrpc",
+            "software_version": "3:1.0.0~rc3-2",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:23:49.388699886+09:00",
+            "updated_at": "2025-11-07T14:24:02.42083197+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 42,
+            "software_name": "php8.1-zip",
+            "software_version": "8.1.2-1ubuntu2.22",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:24:02.434502829+09:00",
+            "updated_at": "2025-11-07T14:24:15.728090988+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 43,
+            "software_name": "pigz",
+            "software_version": "2.6-1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:24:15.740093825+09:00",
+            "updated_at": "2025-11-07T14:24:24.68092747+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 44,
+            "software_name": "plymouth-theme-ubuntu-text",
+            "software_version": "0.9.5+git20211018-1ubuntu3",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:24:24.694193791+09:00",
+            "updated_at": "2025-11-07T14:24:30.709650693+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 45,
+            "software_name": "powermgmt-base",
+            "software_version": "1.36ubuntu0.22.04.1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:24:30.729470024+09:00",
+            "updated_at": "2025-11-07T14:24:38.429498582+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 46,
+            "software_name": "publicsuffix",
+            "software_version": "20211207.1025-1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:24:38.445223938+09:00",
+            "updated_at": "2025-11-07T14:24:46.488963906+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 47,
+            "software_name": "python3-click",
+            "software_version": "8.0.3-1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:24:46.502059661+09:00",
+            "updated_at": "2025-11-07T14:24:54.226657657+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 48,
+            "software_name": "python3-parted",
+            "software_version": "3.11.7-1build1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:24:54.239807675+09:00",
+            "updated_at": "2025-11-07T14:25:05.682708415+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 49,
+            "software_name": "rsyslog",
+            "software_version": "8.2112.0-2ubuntu2.2",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:25:05.702817585+09:00",
+            "updated_at": "2025-11-07T14:25:13.043338857+09:00",
+            "error_message": "service rsyslog failed to start properly"
+          },
+          {
+            "order": 50,
+            "software_name": "run-one",
+            "software_version": "1.17-0ubuntu1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:25:13.056280443+09:00",
+            "updated_at": "2025-11-07T14:25:22.738803929+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 51,
+            "software_name": "shared-mime-info",
+            "software_version": "2.1-2",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:25:22.753434784+09:00",
+            "updated_at": "2025-11-07T14:25:30.944999954+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 52,
+            "software_name": "slirp4netns",
+            "software_version": "1.0.1-2",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:25:30.957486286+09:00",
+            "updated_at": "2025-11-07T14:25:38.967102961+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 53,
+            "software_name": "sysstat",
+            "software_version": "12.5.2-2ubuntu0.2",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:25:38.978276414+09:00",
+            "updated_at": "2025-11-07T14:25:53.424954979+09:00",
+            "error_message": "service sysstat failed to start properly"
+          },
+          {
+            "order": 54,
+            "software_name": "tcpdump",
+            "software_version": "4.99.1-3ubuntu0.2",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:25:53.43884624+09:00",
+            "updated_at": "2025-11-07T14:26:01.873642916+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 55,
+            "software_name": "telnet",
+            "software_version": "0.17-44build1",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:26:01.886543496+09:00",
+            "updated_at": "2025-11-07T14:26:10.111942968+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 56,
+            "software_name": "ubuntu-minimal",
+            "software_version": "1.481.4",
+            "software_install_type": "package",
+            "status": "finished",
+            "started_at": "2025-11-07T14:26:10.125562139+09:00",
+            "updated_at": "2025-11-07T14:26:35.484384007+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 57,
+            "software_name": "ubuntu-server",
+            "software_version": "1.481.4",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:26:35.497805056+09:00",
+            "updated_at": "2025-11-07T14:26:50.80792209+09:00",
+            "error_message": "failed to copy config files: failed to copy file /sbin/lvmconfig: failed to copy file: "
+          },
+          {
+            "order": 58,
+            "software_name": "ubuntu-standard",
+            "software_version": "1.481.4",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:26:50.820528533+09:00",
+            "updated_at": "2025-11-07T14:27:05.515591967+09:00",
+            "error_message": "failed to copy config files: failed to copy file /usr/lib/pm-utils/sleep.d/95hdparm-apm: write tcp 172.18.0.11:57846->3.36.57.81:22: write: connection reset by peer"
+          },
+          {
+            "order": 59,
+            "software_name": "ufw",
+            "software_version": "0.36.1-4ubuntu0.1",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:27:05.530536485+09:00",
+            "updated_at": "2025-11-07T14:27:18.879012496+09:00",
+            "error_message": "failed to copy config files: failed to copy file /etc/ufw/after.init: target ssh session creation failed: write tcp 172.18.0.11:57846->3.36.57.81:22: write: connection reset by peer"
+          },
+          {
+            "order": 60,
+            "software_name": "walinuxagent",
+            "software_version": "2.2.46-0ubuntu5.1",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:27:18.892097137+09:00",
+            "updated_at": "2025-11-07T14:30:07.998996483+09:00",
+            "error_message": "failed to copy config files: failed to copy file /etc/apparmor/init/network-interface-security/sbin.dhclient: write tcp 172.18.0.11:57846->3.36.57.81:22: write: connection reset by peer"
+          },
+          {
+            "order": 61,
+            "software_name": "xauth",
+            "software_version": "1:1.1-1build2",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:30:08.012145601+09:00",
+            "updated_at": "2025-11-07T14:30:20.26606892+09:00",
+            "error_message": "failed to create session: write tcp 172.18.0.11:57846->3.36.57.81:22: write: connection reset by peer"
+          },
+          {
+            "order": 62,
+            "software_name": "xdg-user-dirs",
+            "software_version": "0.17-2ubuntu4",
+            "software_install_type": "package",
+            "status": "failed",
+            "started_at": "2025-11-07T14:30:20.280626635+09:00",
+            "updated_at": "2025-11-07T14:30:32.46116288+09:00",
+            "error_message": "failed to create session: write tcp 172.18.0.11:57846->3.36.57.81:22: write: connection reset by peer"
+          },
+          {
+            "order": 63,
+            "software_name": "mariadb_compose",
+            "software_version": "latest",
+            "software_install_type": "container",
+            "status": "ready",
+            "started_at": "0001-01-01T00:00:00Z",
+            "updated_at": "2025-11-07T14:13:19.306967755+09:00",
+            "error_message": ""
+          },
+          {
+            "order": 64,
+            "software_name": "tomcat_compose",
+            "software_version": "10.1-jdk17",
+            "software_install_type": "container",
+            "status": "ready",
+            "started_at": "0001-01-01T00:00:00Z",
+            "updated_at": "2025-11-07T14:13:19.323365264+09:00",
+            "error_message": ""
+          }
+        ]
+      }
+    ],
+    "started_at": "2025-11-07T14:13:19.337093103+09:00",
+    "finished_at": "2025-11-07T14:30:32.475594877+09:00"
+  }

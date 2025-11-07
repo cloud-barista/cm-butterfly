@@ -2,14 +2,15 @@
 import {
   PIconButton,
   PSpinner,
-  PDataTable,
+  PToolboxTable,
   PBadge,
   PDefinitionTable,
 } from '@cloudforet-test/mirinae';
 import { IWorkflowRun } from '@/entities/workflow/model/types';
-import { useGetSoftwareMigrationStatus } from '@/entities/workflow/api/index';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
-import { ref, watch, computed } from 'vue';
+import { ref, watch, onBeforeMount } from 'vue';
+import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
+import mockData from './mock-data.json';
 
 interface Props {
   isVisible: boolean;
@@ -34,8 +35,34 @@ const swLoading = ref(false);
 // Run Information definition table 모델
 const { tableState: runInfoTableState } = useDefinitionTableModel<IRunInfo>();
 
+// Toolbox Table model
+const swTableModel = useToolboxTableModel<any>();
+
+// Initialize table
+function initSwTable() {
+  swTableModel.tableState.fields = [
+    { label: 'Software Name', name: 'software_name' },
+    { label: 'Version', name: 'software_version' },
+    { label: 'Install Type', name: 'software_install_type' },
+    { label: 'Status', name: 'status' },
+    { label: 'Target Namespace', name: 'target_namespace_id' },
+    { label: 'Target MCI', name: 'target_mci_id' },
+    { label: 'Target VM', name: 'target_vm_id' },
+    { label: 'Error', name: 'error_message', width: '450px' },
+  ] as any;
+
+  swTableModel.tableOptions.pageSize = 15;
+}
+
 const handleClose = () => {
   emit('close');
+};
+
+const handlePageSizeChange = (pageSize: number) => {
+  swTableModel.tableState.currentPage = 1;
+  swTableModel.tableState.startPage = 0;
+  swTableModel.tableOptions.pageSize = pageSize;
+  swTableModel.handleChange(null);
 };
 
 // 상태 뱃지 스타일
@@ -56,62 +83,17 @@ const getStatusBadgeType = (status: string) => {
   }
 };
 
-// 테이블 데이터 구성 - 모든 execution ID의 결과를 통합
-const tableData = computed(() => {
-  if (!swMigrationDataList.value || swMigrationDataList.value.length === 0)
-    return [];
-
-  const allRows: any[] = [];
-
-  swMigrationDataList.value.forEach(swMigrationData => {
-    if (!swMigrationData?.target_mappings) return;
-
-    swMigrationData.target_mappings.forEach((mapping: any) => {
-      mapping.software_migration_status_list.forEach((sw: any) => {
-        allRows.push({
-          ...sw,
-          target_vm_id: mapping.target.vm_id,
-          target_mci_id: mapping.target.mci_id,
-          target_namespace_id: mapping.target.namespace_id,
-          overall_status: mapping.status,
-          execution_id: swMigrationData.execution_id,
-        });
-      });
-    });
-  });
-
-  return allRows.sort((a, b) => a.order - b.order);
-});
-
-// 테이블 필드 정의
-const tableFields = [
-  { label: '#', name: 'order', width: '60px' },
-  { label: 'Software Name', name: 'software_name' },
-  { label: 'Version', name: 'software_version' },
-  { label: 'Install Type', name: 'software_install_type', width: '120px' },
-  { label: 'Status', name: 'status', width: '150px' },
-  { label: 'Target VM', name: 'target_vm_id' },
-  { label: 'Error', name: 'error_message' },
-];
-
 // SW 마이그레이션 상태 로드 - 모든 execution ID에 대해 병렬로 조회
 const loadSwMigrationStatus = async () => {
   if (!props.executionIds || props.executionIds.length === 0) return;
 
   swLoading.value = true;
   try {
-    // 모든 execution ID에 대해 병렬로 API 호출
-    const results = await Promise.all(
-      props.executionIds.map(async executionId => {
-        const { data: statusData, execute: fetchStatus } =
-          useGetSoftwareMigrationStatus(executionId);
-        await fetchStatus();
-        return statusData.value?.responseData || null;
-      }),
-    );
-
-    // null이 아닌 결과만 필터링
-    swMigrationDataList.value = results.filter(result => result !== null);
+    // TODO: 목데이터를 execution ID 개수만큼 복제 (각 execution ID에 대한 데이터)
+    swMigrationDataList.value = props.executionIds.map(executionId => ({
+      ...mockData,
+      execution_id: executionId,
+    }));
 
     if (swMigrationDataList.value.length > 0) {
       updateRunInfoData(props.executionIds.join(', '));
@@ -142,6 +124,41 @@ const updateRunInfoData = (executionId: string) => {
   };
 };
 
+watch(
+  swMigrationDataList,
+  () => {
+    if (!swMigrationDataList.value || swMigrationDataList.value.length === 0) {
+      swTableModel.tableState.items = [];
+      return;
+    }
+
+    const allRows: any[] = [];
+
+    swMigrationDataList.value.forEach(swMigrationData => {
+      if (!swMigrationData?.target_mappings) return;
+
+      swMigrationData.target_mappings.forEach((mapping: any) => {
+        mapping.software_migration_status_list.forEach((sw: any) => {
+          allRows.push({
+            ...sw,
+            target_vm_id: mapping.target.vm_id,
+            target_mci_id: mapping.target.mci_id,
+            target_namespace_id: mapping.target.namespace_id,
+            overall_status: mapping.status,
+            execution_id: swMigrationData.execution_id,
+          });
+        });
+      });
+    });
+
+    swTableModel.tableState.items = allRows.sort(
+      (a, b) => (a.order || 0) - (b.order || 0),
+    );
+    swTableModel.handleChange(null);
+  },
+  { deep: true },
+);
+
 // executionIds가 변경될 때마다 SW 상태 로드
 watch(
   () => props.executionIds,
@@ -152,6 +169,10 @@ watch(
   },
   { immediate: true },
 );
+
+onBeforeMount(() => {
+  initSwTable();
+});
 </script>
 
 <template>
@@ -186,7 +207,10 @@ watch(
 
         <!-- SW Migration Status -->
         <div
-          v-else-if="swMigrationDataList.length > 0 && tableData.length > 0"
+          v-else-if="
+            swMigrationDataList.length > 0 &&
+            swTableModel.tableState.items.length > 0
+          "
           class="sw-migration-status"
         >
           <div class="summary-section">
@@ -198,24 +222,40 @@ watch(
               </div>
               <div class="summary-card">
                 <span class="label">Total Software</span>
-                <span class="value">{{ tableData.length }}</span>
+                <span class="value">{{
+                  swTableModel.tableState.items.length
+                }}</span>
               </div>
             </div>
           </div>
 
           <div class="table-section">
             <h3>Software Migration Details</h3>
-            <p-data-table :fields="tableFields" :items="tableData" :loading="false">
+            <p-toolbox-table
+              :fields="swTableModel.tableState.fields"
+              :items="swTableModel.tableState.displayItems"
+              :loading="swLoading"
+              :total-count="swTableModel.tableState.tableCount"
+              :page-size.sync="swTableModel.tableOptions.pageSize"
+              :this-page.sync="swTableModel.tableState.currentPage"
+              :sortable="swTableModel.tableOptions.sortable"
+              :sort-by="swTableModel.tableOptions.sortBy"
+              @change="swTableModel.handleChange"
+              @update:page-size="handlePageSizeChange"
+            >
               <template #col-status-format="{ value }">
-                <p-badge :badge-type="getStatusBadgeType(value)" style-type="subtle">
+                <p-badge
+                  :badge-type="getStatusBadgeType(value)"
+                  style-type="subtle"
+                >
                   {{ value }}
                 </p-badge>
               </template>
               <template #col-error_message-format="{ value }">
-                <span v-if="value" class="error-text">{{ value }}</span>
+                <div v-if="value" class="error-preview">{{ value }}</div>
                 <span v-else class="no-error">-</span>
               </template>
-            </p-data-table>
+            </p-toolbox-table>
           </div>
         </div>
 
