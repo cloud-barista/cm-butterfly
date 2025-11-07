@@ -111,12 +111,12 @@ func init() {
 		log.Printf("DEBUG: - Service: %s -> %+v", serviceName, service)
 	}
 
-	for serviceName, actions := range ApiYamlSet.ServiceActions {
-		log.Printf("DEBUG: - ServiceActions: %s -> %d actions", serviceName, len(actions))
-		for actionName, spec := range actions {
-			log.Printf("DEBUG:   - Action: %s -> %+v", actionName, spec)
-		}
-	}
+	// for serviceName, actions := range ApiYamlSet.ServiceActions {
+	// 	log.Printf("DEBUG: - ServiceActions: %s -> %d actions", serviceName, len(actions))
+	// 	for actionName, spec := range actions {
+	// 		log.Printf("DEBUG:   - Action: %s -> %+v", actionName, spec)
+	// 	}
+	// }
 }
 
 // AnyCaller는 buffalo.Context, operationId, commonRequest, auth유무 를 받아 conf/api.yaml 정보를 바탕으로 commonCaller를 호출합니다.
