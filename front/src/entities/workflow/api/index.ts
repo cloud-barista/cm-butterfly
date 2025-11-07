@@ -8,6 +8,7 @@ import {
   ITaskInstance,
   IWorkflowResponse,
   IWorkflowRun,
+  ISoftwareMigrationStatusResponse,
 } from '@/entities/workflow/model/types';
 import { axiosInstance } from '@/shared/libs/api/instance';
 
@@ -20,6 +21,7 @@ const DELETE_WORKFLOW = 'delete-workflow';
 const GET_WORKFLOW_RUNS = 'get-workflow-runs';
 const GET_TASK_INSTANCES = 'get-task-instances';
 const GET_TASK_LOGS = 'get-task-logs';
+const GET_SOFTWARE_MIGRATION_STATUS = 'get-software-migration-status';
 
 // const GET_DISK_TYPE = 'GET_DISK_TYPE';
 const GET_WORKFLOW_TEMPLATE_LIST = 'list-workflow-template';
@@ -299,4 +301,15 @@ export function useGetTaskLogs(
       taskTryNum,
     },
   });
+}
+
+export function useGetSoftwareMigrationStatus(executionId: string | null) {
+  return useAxiosPost<IAxiosResponse<ISoftwareMigrationStatusResponse>, any>(
+    GET_SOFTWARE_MIGRATION_STATUS,
+    {
+      pathParams: {
+        executionId,
+      },
+    },
+  );
 }
