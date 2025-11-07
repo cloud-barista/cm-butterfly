@@ -94,17 +94,50 @@ export interface IWorkflowRunsResponse {
 }
 
 export interface ITaskInstance {
-  task_instance_id: string;
+  task_id: string;
   task_name: string;
   state: string;
   start_date: string;
   end_date: string;
-  duration_date: string;
+  duration_date: number;
   execution_date: string;
-  retry_count: number;
+  try_number: number;
+  workflow_id: string;
+  workflow_run_id: string;
   error_message?: string;
+  is_software_migration_task?: boolean;
+  software_migration_execution_id?: string;
 }
 
 export interface ITaskInstancesResponse {
   taskInstances: ITaskInstance[];
+}
+
+export interface ISoftwareMigrationStatus {
+  order: number;
+  software_name: string;
+  software_version: string;
+  software_install_type: string;
+  status: string;
+  started_at: string;
+  updated_at: string;
+  error_message: string;
+}
+
+export interface ITargetMapping {
+  source_connection_info_id: string;
+  target: {
+    namespace_id: string;
+    mci_id: string;
+    vm_id: string;
+  };
+  status: string;
+  software_migration_status_list: ISoftwareMigrationStatus[];
+}
+
+export interface ISoftwareMigrationStatusResponse {
+  execution_id: string;
+  target_mappings: ITargetMapping[];
+  started_at: string;
+  finished_at: string;
 }

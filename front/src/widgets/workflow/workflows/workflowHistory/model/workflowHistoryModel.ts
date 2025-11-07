@@ -25,6 +25,12 @@ export function useWorkflowHistoryModel() {
         sortable: false,
         width: '150px',
       },
+      {
+        label: 'Type',
+        name: 'sw',
+        sortable: false,
+        width: '150px',
+      },
       { label: 'State', name: 'state' },
       { label: 'Run Type', name: 'run_type' },
       { label: 'Start Date', name: 'start_date' },

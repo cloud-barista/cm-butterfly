@@ -2672,11 +2672,11 @@ serviceActions:
       description: Get the task Logs.
     Get-Task-Logs:
       method: get
-      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/taskTryNum/{taskTyNum}/logs
+      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/taskTryNum/{taskTryNum}/logs
       description: Get the task Logs.
     Get-Task-Logs-Download:
       method: get
-      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/taskTryNum/{taskTyNum}/logs/download
+      resourcePath: /workflow/{wfId}/workflowRun/{wfRunId}/task/{taskId}/taskTryNum/{taskTryNum}/logs/download
       description: Download the task logs as a file.
     Get-Workflow:
       method: get
@@ -2866,6 +2866,14 @@ serviceActions:
       method: post
       resourcePath: /software/migrate
       description: Migrate pieces of software to target.
+    list-software-migration-status:
+      method: get
+      resourcePath: /software/migrate/status
+      description: Get a list of software migration status.
+    get-software-migration-status:
+      method: get
+      resourcePath: /software/migrate/status/{executionId}
+      description: Get the software migration status.
   cm-honeybee-agent:
     Get-Helm-Info:
       method: get

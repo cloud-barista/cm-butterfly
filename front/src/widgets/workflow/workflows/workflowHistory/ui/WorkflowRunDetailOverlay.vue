@@ -3,11 +3,13 @@ import {
   PIconButton,
   PDataTable,
   PDefinitionTable,
+  PButton,
 } from '@cloudforet-test/mirinae';
 import { IWorkflowRun, ITaskInstance } from '@/entities/workflow/model/types';
 import { useGetTaskInstances } from '@/entities/workflow/api/index';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
+import TaskLogModal from './TaskLogModal.vue';
 
 interface Props {
   isVisible: boolean;
@@ -32,15 +34,20 @@ const emit = defineEmits(['close']);
 const taskInstances = ref<ITaskInstance[]>([]);
 const loading = ref(false);
 
+// 로그 모달 상태 관리
+const showLogModal = ref(false);
+const currentLogTask = ref<ITaskInstance>();
+
 // 테이블 필드 정의
 const tableFields = ref([
-  { label: 'Task Instance ID', name: 'task_instance_id' },
+  { label: 'Task ID', name: 'task_id' },
   { label: 'Task Name', name: 'task_name' },
   { label: 'State', name: 'state' },
   { label: 'Start Date', name: 'start_date' },
   { label: 'End Date', name: 'end_date' },
   { label: 'Duration (s)', name: 'duration_date' },
-  { label: 'Retry Count', name: 'retry_count' },
+  { label: 'Try Number', name: 'try_number' },
+  { label: 'Log', name: 'log', sortable: false },
 ]);
 
 // Run Information definition table 모델
@@ -48,6 +55,18 @@ const { tableState: runInfoTableState } = useDefinitionTableModel<IRunInfo>();
 
 const handleClose = () => {
   emit('close');
+};
+
+// View Log 버튼 클릭 핸들러
+const handleViewLog = (taskInstance: ITaskInstance) => {
+  currentLogTask.value = taskInstance;
+  showLogModal.value = true;
+};
+
+// 로그 모달 닫기
+const closeLogModal = () => {
+  showLogModal.value = false;
+  currentLogTask.value = undefined;
 };
 
 // Task instances 로드
@@ -62,14 +81,12 @@ const loadTaskInstances = async () => {
     );
     await execute();
 
-    console.log('data', data.value);
     if (data.value?.responseData) {
       taskInstances.value = data.value.responseData;
     } else {
       taskInstances.value = [];
     }
   } catch (error) {
-    console.error('Failed to load task instances:', error);
     taskInstances.value = [];
   } finally {
     loading.value = false;
@@ -133,7 +150,7 @@ const updateRunInfoData = () => {
       <div class="overlay-content">
         <!-- 워크플로우 실행 정보 -->
         <div class="run-info">
-          <h3>Run Information</h3>
+          <h3>Workflow Run Information</h3>
           <p-definition-table
             :fields="runInfoTableState.fields"
             :data="runInfoTableState.data"
@@ -147,8 +164,27 @@ const updateRunInfoData = () => {
             :fields="tableFields"
             :items="taskInstances"
             :loading="loading"
-          />
+          >
+            <template #col-log-format="{ item }">
+              <p-button
+                style-type="tertiary"
+                size="sm"
+                @click="handleViewLog(item)"
+              >
+                View Log
+              </p-button>
+            </template>
+          </p-data-table>
         </div>
+
+        <!-- 로그 모달 -->
+        <TaskLogModal
+          :is-visible="showLogModal"
+          :task-instance="currentLogTask"
+          :workflow-id="props.selectedRun?.workflow_id"
+          :workflow-run-id="props.selectedRun?.workflow_run_id"
+          @close="closeLogModal"
+        />
       </div>
     </div>
   </transition>
@@ -209,11 +245,67 @@ const updateRunInfoData = () => {
   }
 
   .task-instances {
+    margin-bottom: 2rem;
+
     h3 {
       font-size: 1.25rem;
       font-weight: 600;
       margin-bottom: 1rem;
       color: #374151;
+    }
+  }
+}
+
+.task-details {
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #374151;
+  }
+
+  .task-logs {
+    margin-top: 1.5rem;
+
+    h4 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #374151;
+    }
+
+    .loading {
+      padding: 1rem;
+      text-align: center;
+      color: #6b7280;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    .logs-content {
+      background: #1f2937;
+      color: #f9fafb;
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+    }
+
+    .no-logs {
+      padding: 1rem;
+      text-align: center;
+      color: #6b7280;
+      background: #f9fafb;
+      border-radius: 8px;
+      font-style: italic;
     }
   }
 }

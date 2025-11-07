@@ -5,8 +5,10 @@ import {
   PHorizontalLayout,
   PToolboxTable,
   PBadge,
+  PSelectDropdown,
 } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive } from 'vue';
+import { onBeforeMount, onMounted, reactive, computed } from 'vue';
+import MciDeleteModal from './MciDeleteModal.vue';
 
 interface IProps {
   nsId: string;
@@ -23,10 +25,45 @@ const mciCreateModalState = reactive({
   props: {},
 });
 
+const isActionDisabled = computed(() => {
+  return mciTableModel.tableState.selectIndex.length === 0;
+});
+
+const actionState = reactive({
+  actionMenus: computed(() => [
+    { name: 'delete', label: 'Delete', disabled: isActionDisabled.value },
+  ]),
+  selectedActionItem: '',
+});
+
+const deleteModalState = reactive({
+  visible: false,
+});
+
+const selectedMciList = computed(() => {
+  return mciTableModel.tableState.selectIndex.map(index => {
+    return mciTableModel.tableState.displayItems[index];
+  });
+});
+
+function handleDelete(item: string) {
+  if (item === 'delete') {
+    deleteModalState.visible = true;
+  }
+}
+
+async function handleDeleted() {
+  await fetchMciList();
+}
+
 function handleSelectedIndex(index: number[]) {
-  const selectedData = mciTableModel.tableState.displayItems[index];
-  if (selectedData) {
-    emit('selectRow', selectedData.name);
+  if (index.length === 1) {
+    const selectedData = mciTableModel.tableState.displayItems[index[0]];
+    if (selectedData) {
+      emit('selectRow', selectedData.name);
+    } else {
+      emit('selectRow', '');
+    }
   } else {
     emit('selectRow', '');
   }
@@ -67,6 +104,14 @@ onMounted(() => {
           @select="handleSelectedIndex"
         >
           <template #toolbox-left>
+            <p-select-dropdown
+              placeholder="Action"
+              :menu="actionState.actionMenus"
+              :selected.sync="actionState.selectedActionItem"
+              reset-selected-on-unmounted
+              class="mr-2"
+              @select="handleDelete"
+            />
             <p-button
               style-type="primary"
               icon-left="ic_plus_bold"
@@ -80,7 +125,7 @@ onMounted(() => {
             <p-badge
               v-for="(provider, index) in item.provider"
               :key="index"
-              :backgroundColor="provider.color"
+              :background-color="provider.color"
               class="mr-1"
             >
               {{ provider.name }}
@@ -89,6 +134,12 @@ onMounted(() => {
         </p-toolbox-table>
       </template>
     </p-horizontal-layout>
+    <mci-delete-modal
+      :visible.sync="deleteModalState.visible"
+      :selected-mci-list="selectedMciList"
+      :ns-id="nsId"
+      @deleted="handleDeleted"
+    />
   </div>
 </template>
 

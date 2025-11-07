@@ -69,6 +69,9 @@ onBeforeMount(function () {
     workflowToolModel.workflowStore.setWorkflowTemplates(
       res[0].data.responseData,
     );
+    
+    // cicada_task_script is now included in API response
+    // cicada_task_script는 이제 API 응답에 포함됨
     workflowToolModel.setTaskComponent(res[1].data.responseData);
     workflowToolModel.setDropDownData(
       workflowToolModel.workflowStore.workflowTemplates,
@@ -814,6 +817,7 @@ function postWorkflow(workflow: IWorkflow) {
       .then(res => {
         showSuccessMessage('Success', 'Success');
         emit('update:trigger');
+        emit('update:close-modal', false); // 저장 성공 후 모달 닫기
       })
       .catch(err => {
         showErrorMessage('Error', err.errorMsg.value);
@@ -831,6 +835,7 @@ function postWorkflow(workflow: IWorkflow) {
       .then(res => {
         showSuccessMessage('Success', 'Success');
         emit('update:trigger');
+        emit('update:close-modal', false); // 저장 성공 후 모달 닫기
       })
       .catch(err => {
         showErrorMessage('Error', err.errorMsg.value);

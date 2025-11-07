@@ -162,13 +162,10 @@ watch(
             />
           </p-field-group>
           <p-field-group label="Password">
-            <p-text-input
-              v-model="info.password"
-              placeholder="Password"
-            />
+            <p-text-input v-model="info.password" placeholder="Password" />
           </p-field-group>
           <p-field-group class="private-key" label="Private Key">
-            <p-text-input v-model="info.private_key" />
+            <p-textarea v-model="info.private_key" :rows="5" />
           </p-field-group>
         </div>
       </p-pane-layout>
@@ -203,8 +200,8 @@ watch(
       /* @apply w-[20rem]; */
     }
     .private-key {
-      @apply col-span-2;
-      .p-text-input {
+      @apply col-span-2 w-full;
+      .p-textarea {
         @apply w-full;
       }
     }

@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import MciList from '@/widgets/workload/mci/mciList/ui/MciList.vue';
 import { reactive, ref } from 'vue';
-import { PTab, PButton } from '@cloudforet-test/mirinae';
+import { PButton, PTab } from '@cloudforet-test/mirinae';
 import MciDetail from '@/widgets/workload/mci/mciDetail/ui/MciDetail.vue';
 import VmList from '@/widgets/workload/vm/vmList/ui/VmList.vue';
 import { isNullOrUndefined } from '@/shared/utils';
-import VmEvaluatePerf from '@/widgets/workload/vm/vmEvaluatePerf/ui/VmEvaluatePerf.vue';
 import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';
-
 
 const pageName = 'MCI';
 
@@ -25,7 +23,6 @@ const tabState = reactive({
   ],
 });
 
-
 const selectedMciId = ref<string>('');
 const selectedVmId = ref<string>('');
 
@@ -35,7 +32,6 @@ function handleSelectMciTableRow(id: string) {
 }
 
 function handleSelectVmListTableRow(id: string) {
-  console.log(selectedVmId.value);
   if (!isNullOrUndefined(id)) selectedVmId.value = id;
   else {
     selectedVmId.value = '';
@@ -49,7 +45,10 @@ function handleSelectVmListTableRow(id: string) {
       <p>{{ pageName }}</p>
     </header>
     <section :class="`${pageName}-page-body`">
-      <MciList :ns-id="DEFAULT_NAMESPACE" @selectRow="handleSelectMciTableRow"></MciList>
+      <MciList
+        :ns-id="DEFAULT_NAMESPACE"
+        @selectRow="handleSelectMciTableRow"
+      />
       <p
         v-if="!selectedMciId"
         class="flex justify-center text-gray-300 text-sm font-normal"
@@ -70,19 +69,18 @@ function handleSelectVmListTableRow(id: string) {
                 </p-button>
               </div>
             </div>
-            <MciDetail :selectedMciId="selectedMciId"></MciDetail>
+            <MciDetail :selected-mci-id="selectedMciId" />
           </template>
           <template #server>
             <div class="tab-section-header">
               <p>Server List</p>
             </div>
             <VmList
-              :nsId="DEFAULT_NAMESPACE"
-              :mciId="selectedMciId"
-              :selectedVmId="selectedVmId"
+              :ns-id="DEFAULT_NAMESPACE"
+              :mci-id="selectedMciId"
+              :selected-vm-id="selectedVmId"
               @selectCard="handleSelectVmListTableRow"
-            >
-            </VmList>
+            />
           </template>
         </p-tab>
       </div>

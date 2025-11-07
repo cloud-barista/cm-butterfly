@@ -17,7 +17,7 @@ export function useSequentialToolboxModel() {
     const convertedTackComponentList: Array<Step> = [];
     const taskComponentSteps: Step[] = [];
     taskComponentList.forEach((res: ITaskComponentInfoResponse) => {
-      // body_params가 있으면 JSON Schema로 사용, 없으면 request_body 파싱한 객체 사용
+      // body_params는 스키마로 사용, options.request_body는 초기값으로 파싱
       console.log(`Processing ${res.name} - body_params check:`, {
         hasBodyParams: !!res.data.body_params,
         bodyParams: res.data.body_params,
@@ -25,8 +25,9 @@ export function useSequentialToolboxModel() {
         requestBody: res.data.options.request_body
       });
       
-      const modelData = res.data.body_params || parseRequestBody(
-        res.data.options.request_body,
+      // body_params 존재 여부와 관계없이 항상 options.request_body를 파싱하여 초기값으로 사용
+      const modelData = parseRequestBody(
+        res.data.options.request_body || '{}'
       );
       
       console.log(`Final modelData for ${res.name}:`, modelData);
