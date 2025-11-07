@@ -137,6 +137,7 @@ watch(
               :key="option.key"
               v-model="state.deleteMethod"
               :value="option.key"
+              :disabled="state.isDeleting"
             >
               <span>{{ option.label }}</span>
             </p-radio>
@@ -154,6 +155,7 @@ watch(
           <p-text-input
             v-model="state.confirmKeyword"
             :placeholder="checkKeyword"
+            :disabled="state.isDeleting"
           />
         </p-field-group>
       </div>
