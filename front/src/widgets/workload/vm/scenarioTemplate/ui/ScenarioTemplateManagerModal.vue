@@ -189,11 +189,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <PButtonModal
+  <p-button-modal
     :visible="isOpen"
     :v-model="isOpen"
     :loading="loading"
     header-title="Scenario Template Management"
+    hide-footer
     @close="handleClose"
     @cancel="handleClose"
   >
@@ -386,7 +387,7 @@ onMounted(() => {
         <p-button style-type="secondary" @click="handleClose"> Close </p-button>
       </div>
     </template>
-  </PButtonModal>
+  </p-button-modal>
 </template>
 
 <style scoped lang="postcss">
