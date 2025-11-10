@@ -10,6 +10,7 @@ import { useGetTaskInstances } from '@/entities/workflow/api/index';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch } from 'vue';
 import TaskLogModal from './TaskLogModal.vue';
+import SoftwareMigrationOverlay from './SoftwareMigrationOverlay.vue';
 
 interface Props {
   isVisible: boolean;
@@ -38,6 +39,10 @@ const loading = ref(false);
 const showLogModal = ref(false);
 const currentLogTask = ref<ITaskInstance>();
 
+// SW 마이그레이션 모달 상태 관리
+const showSWModal = ref(false);
+const currentSWTask = ref<ITaskInstance>();
+
 // 테이블 필드 정의
 const tableFields = ref([
   { label: 'Task ID', name: 'task_id' },
@@ -47,6 +52,7 @@ const tableFields = ref([
   { label: 'End Date', name: 'end_date' },
   { label: 'Duration (s)', name: 'duration_date' },
   { label: 'Try Number', name: 'try_number' },
+  { label: 'Type', name: 'type' },
   { label: 'Log', name: 'log', sortable: false },
 ]);
 
@@ -67,6 +73,18 @@ const handleViewLog = (taskInstance: ITaskInstance) => {
 const closeLogModal = () => {
   showLogModal.value = false;
   currentLogTask.value = undefined;
+};
+
+// View SW 버튼 클릭 핸들러
+const handleViewSW = (taskInstance: ITaskInstance) => {
+  currentSWTask.value = taskInstance;
+  showSWModal.value = true;
+};
+
+// SW 모달 닫기
+const closeSWModal = () => {
+  showSWModal.value = false;
+  currentSWTask.value = undefined;
 };
 
 // Task instances 로드
@@ -165,6 +183,17 @@ const updateRunInfoData = () => {
             :items="taskInstances"
             :loading="loading"
           >
+            <template #col-type-format="{ item }">
+              <p-button
+                v-if="item.is_software_migration_task"
+                style-type="tertiary"
+                size="sm"
+                @click="handleViewSW(item)"
+              >
+                View SW
+              </p-button>
+              <span v-else>-</span>
+            </template>
             <template #col-log-format="{ item }">
               <p-button
                 style-type="tertiary"
@@ -184,6 +213,18 @@ const updateRunInfoData = () => {
           :workflow-id="props.selectedRun?.workflow_id"
           :workflow-run-id="props.selectedRun?.workflow_run_id"
           @close="closeLogModal"
+        />
+
+        <!-- SW 마이그레이션 모달 -->
+        <SoftwareMigrationOverlay
+          :is-visible="showSWModal"
+          :selected-run="props.selectedRun"
+          :execution-ids="
+            currentSWTask?.software_migration_execution_id
+              ? [currentSWTask.software_migration_execution_id]
+              : ['0132478a-345a-458a-acce-3be7aa16f481']
+          "
+          @close="closeSWModal"
         />
       </div>
     </div>
