@@ -49,10 +49,13 @@ async function handleConfirm() {
   state.isDeleting = true;
   try {
     const deletePromises = props.selectedMciList.map(mci => {
-      const params = {
+      const params: any = {
         nsId: props.nsId,
         mciId: mci.name,
       };
+      if (state.deleteMethod === 'force') {
+        params.option = 'force';
+      }
       return useDeleteMci(params).execute();
     });
 
