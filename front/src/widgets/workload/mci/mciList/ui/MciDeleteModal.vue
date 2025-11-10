@@ -33,7 +33,7 @@ const state = reactive({
 const checkKeyword = computed(() => {
   return props.selectedMciList.length === 1
     ? props.selectedMciList[0].name
-    : '전체삭제';
+    : 'Delete All';
 });
 
 const isDeleteDisabled = computed(() => {
@@ -41,8 +41,8 @@ const isDeleteDisabled = computed(() => {
 });
 
 const deleteMethodOptions = [
-  { label: '정상 삭제', key: 'normal' },
-  { label: '강제 삭제', key: 'force' },
+  { label: 'Normal Delete', key: 'normal' },
+  { label: 'Force Delete', key: 'force' },
 ];
 
 async function handleConfirm() {
@@ -63,8 +63,8 @@ async function handleConfirm() {
 
     const count = props.selectedMciList.length;
     showSuccessMessage(
-      '삭제 완료',
-      `${count}개의 워크로드가 성공적으로 삭제되었습니다.`,
+      'Delete Complete',
+      `${count} workload(s) have been successfully deleted.`,
     );
 
     emit('update:visible', false);
@@ -102,7 +102,7 @@ watch(
 <template>
   <p-button-modal
     :visible="visible"
-    :header-title="'워크로드 전체 삭제'"
+    header-title="Delete Workloads"
     size="sm"
     :disabled="isDeleteDisabled"
     :loading="state.isDeleting"
@@ -113,26 +113,29 @@ watch(
     <template #body>
       <div class="delete-modal-content">
         <div class="warning-banner">
-          ⚠️ 워크로드를 삭제하면 워크로드에 포함된
-          <span class="keyword-highlight">모든 리소스도 함께 삭제</span>되므로
-          짧게는 몇 분에서
-          <span class="keyword-highlight">길게는 몇 시간</span>이 소요될 수
-          있습니다
+          ⚠️ Deleting workloads will also delete
+          <span class="keyword-highlight"
+            >all resources included in the workloads</span
+          >
+          which may take
+          <span class="keyword-highlight"
+            >from a few minutes to several hours</span
+          >
         </div>
-        <p class="description">아래 워크로드들이 삭제됩니다</p>
+        <p class="description">The following workloads will be deleted</p>
         <div class="mci-list">
           <div v-for="mci in selectedMciList" :key="mci.name" class="mci-item">
             {{ mci.name }}
           </div>
         </div>
 
-        <p-field-group label="삭제 방법" required class="mt-8">
+        <p-field-group label="Delete Method" required class="mt-8">
           <div
             v-if="state.deleteMethod === 'force'"
             class="force-warning-banner"
           >
-            🚨 CSP의 삭제 결과와 무관하게 모든 자원 및 내부 메타데이터를 강제로
-            제거합니다
+            🚨 Force removes all resources and internal metadata regardless of
+            CSP deletion results
           </div>
           <p-radio-group>
             <p-radio
@@ -150,16 +153,15 @@ watch(
         <p-field-group required class="mt-8">
           <template #label>
             <span
-              >계속하려면
-              <span class="keyword-highlight">{{ checkKeyword }}</span
-              >를 입력하세요</span
+              >To continue, please enter
+              <span class="keyword-highlight">{{ checkKeyword }}</span></span
             >
+            <p-text-input
+              v-model="state.confirmKeyword"
+              :placeholder="checkKeyword"
+              :disabled="state.isDeleting"
+            />
           </template>
-          <p-text-input
-            v-model="state.confirmKeyword"
-            :placeholder="checkKeyword"
-            :disabled="state.isDeleting"
-          />
         </p-field-group>
       </div>
     </template>
