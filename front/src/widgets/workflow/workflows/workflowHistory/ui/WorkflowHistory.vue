@@ -44,12 +44,19 @@ watch(
   { immediate: true },
 );
 
-// 테이블 아이템이 로드되면 각 run에 대해 task instances 가져오기 (병렬 처리)
+// 테이블 아이템이 로드되면 각 run에 대해 task instances 가져오기 (순차 처리)
 watch(
   () => tableModel.value.tableState.items,
   async runs => {
     if (runs && runs.length > 0 && props.selectedWorkflowId) {
-      await Promise.all(runs.map(run => fetchTaskInstancesForRun(run)));
+      for (const run of runs) {
+        // 이미 fetch한 데이터가 있으면 스킵
+        if (!runTaskInstances.value.has(run.workflow_run_id)) {
+          await fetchTaskInstancesForRun(run);
+          // 서버 부하를 줄이기 위해 각 요청 사이에 약간의 지연
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
     }
   },
   { immediate: true },
@@ -102,7 +109,11 @@ async function fetchTaskInstancesForRun(run: IWorkflowRun) {
       }
     }
   } catch (error) {
-    // Failed to fetch task instances
+    // 에러가 나도 다음 run 처리를 위해 false로 설정
+    runHasSwTask.value = {
+      ...runHasSwTask.value,
+      [run.workflow_run_id]: false,
+    };
   }
 }
 

@@ -15,6 +15,8 @@ export default ({ mode }: any) => {
       ],
     },
     server: {
+      // host: '0.0.0.0', // Listen on all network interfaces (allow external access)
+      // port: 5173,
       proxy: {
         '/api': {
           target: env['VITE_BACKEND_URL'],

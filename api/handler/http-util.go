@@ -190,7 +190,7 @@ func AnyCaller(c buffalo.Context, operationId string, commonRequest *CommonReque
 // 없을경우 not found error를 반환합니다.
 func GetApiSpec(requestOpertinoId string) (string, Service, Spec, error) {
 	log.Printf("DEBUG: GetApiSpec called with requestOpertinoId: %s", requestOpertinoId)
-	log.Printf("DEBUG: - ApiYamlSet.ServiceActions: %+v", ApiYamlSet.ServiceActions)
+	//log.Printf("DEBUG: - ApiYamlSet.ServiceActions: %+v", ApiYamlSet.ServiceActions)
 
 	for framework, api := range ApiYamlSet.ServiceActions {
 		// log.Printf("DEBUG: - checking framework: %s", framework)
