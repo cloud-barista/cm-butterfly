@@ -139,7 +139,7 @@ menus:
   ###################### step4 : submenu : migrations > workloadoperations > workloads ################
   - id: mciwls
     parentid: workloads
-    displayname: MCI WLs
+    displayname: Infra Workloads
     restype: menu
     isaction: "true"
     priority: 0

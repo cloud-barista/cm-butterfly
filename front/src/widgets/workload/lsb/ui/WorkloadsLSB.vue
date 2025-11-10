@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<iProps>(), {
   <l-s-b
     :class="`${pageName}-l-s-b page-l-s-b`"
     :menu-set="menuSet"
-    :lsb-title="'Workload'"
+    :lsb-title="'Migration Workloads'"
   >
     <template #default>
       <div class="l-s-b-title">

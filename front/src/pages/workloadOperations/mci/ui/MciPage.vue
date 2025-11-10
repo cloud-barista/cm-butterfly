@@ -7,7 +7,7 @@ import VmList from '@/widgets/workload/vm/vmList/ui/VmList.vue';
 import { isNullOrUndefined } from '@/shared/utils';
 import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';
 
-const pageName = 'MCI';
+const pageName = 'Infra Workloads';
 
 const tabState = reactive({
   activeTab: 'detail',
@@ -59,7 +59,7 @@ function handleSelectVmListTableRow(id: string) {
         <p-tab v-model="tabState.activeTab" :tabs="tabState.tabs">
           <template #detail>
             <div class="tab-section-header">
-              <p>MCI Information</p>
+              <p>Workload Information</p>
               <div class="flex gap-1.5">
                 <p-button style-type="tertiary" :disabled="true">
                   Evaluate Perf
