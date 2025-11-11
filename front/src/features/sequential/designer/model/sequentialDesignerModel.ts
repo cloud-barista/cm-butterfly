@@ -75,6 +75,13 @@ export function useSequentialDesignerModel(refs: any) {
       canInsertStep: (step, targetSequence, targetIndex) => {
         if (step.componentType === 'container') {
           step.name = `${step.name}_${getRandomId().substring(0, 4)}`;
+          console.log('🏷️ Container name set to:', step.name);
+        } else if (step.componentType === 'task') {
+          const newName = `${step.type}_${getRandomId().substring(0, 4)}`;
+          step.name = newName;
+          console.log('🏷️ Task name set to:', newName);
+          console.log('   step.type:', step.type);
+          console.log('   step object:', step);
         }
         return true;
       },

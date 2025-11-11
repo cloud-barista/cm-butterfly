@@ -160,10 +160,10 @@ export function useWorkflowToolModel() {
   ): Step {
     const parsedString: any = parseRequestBody(requestBody);
     
-    // Base64 decode content field for cicada_task_script
-    // cicada_task_script 태스크의 content 필드를 base64로 디코딩
-    if (task.task_component === 'cicada_task_script' && parsedString.content) {
-      console.log('🔓 Decoding content field for cicada_task_script');
+    // Base64 decode content field for cicada_task_run_script
+    // cicada_task_run_script 태스크의 content 필드를 base64로 디코딩
+    if (task.task_component === 'cicada_task_run_script' && parsedString.content) {
+      console.log('🔓 Decoding content field for cicada_task_run_script');
       console.log('   Encoded content:', parsedString.content);
       parsedString.content = decodeBase64(parsedString.content);
       console.log('   Decoded content:', parsedString.content);
@@ -271,13 +271,13 @@ export function useWorkflowToolModel() {
       console.log('Step name:', step.name);
       console.log('Step type:', step.type);
       
-      // Base64 encode content field for cicada_task_script
-      // cicada_task_script 태스크의 content 필드를 base64로 인코딩
+      // Base64 encode content field for cicada_task_run_script
+      // cicada_task_run_script 태스크의 content 필드를 base64로 인코딩
       const modelToSend: any = { ...step.properties.model };
       const taskComponent = step.properties.originalData?.task_component;
       
-      if (taskComponent === 'cicada_task_script' && modelToSend.content) {
-        console.log('🔐 Encoding content field for cicada_task_script');
+      if (taskComponent === 'cicada_task_run_script' && modelToSend.content) {
+        console.log('🔐 Encoding content field for cicada_task_run_script');
         console.log('   Original content:', modelToSend.content);
         modelToSend.content = encodeBase64(modelToSend.content);
         console.log('   Encoded content:', modelToSend.content);
