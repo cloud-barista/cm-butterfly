@@ -375,7 +375,9 @@ export default defineComponent({
 
     // Task Component Name Getter (Property Order Config용)
     const getCurrentTaskComponentName = (): string => {
-      return step.value.name || step.value.type || '';
+      // Use step.type instead of step.name because step.name is user-editable
+      // and property sorting should be based on the fixed task component type
+      return step.value.type || '';
     };
 
     // Path/Query Parameters Getter

@@ -10,7 +10,8 @@ export interface PropertyOrderRule {
 
 /**
  * Task별 Property 순서 설정
- * - taskName을 key로 하여 각 task의 순서 규칙을 정의
+ * - step.type (task component type)을 key로 하여 각 task의 순서 규칙을 정의
+ * - step.name이 아닌 step.type을 사용 (step.name은 사용자가 수정 가능하므로)
  * - path 기반으로 특정 경로의 property 순서를 제어
  * - 설정이 없는 task는 기본 순서 유지
  */
@@ -73,7 +74,7 @@ export const TASK_PROPERTY_ORDER_CONFIG: Record<string, PropertyOrderRule[]> = {
 /**
  * 현재 path에 해당하는 순서 규칙 찾기
  * 
- * @param taskName - Task component 이름
+ * @param taskName - Task component type (step.type, not step.name)
  * @param currentPath - 현재 필드의 경로 (예: 'body_params.servers[]')
  * @returns 순서 배열 또는 null (설정이 없는 경우)
  */
