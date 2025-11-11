@@ -115,7 +115,6 @@ import { useWorkflowStore } from '@/entities/workflow/model/stores';
 import { storeToRefs } from 'pinia';
 import { decodeBase64, encodeBase64 } from '@/shared/utils/base64';
 import { getPropertyOrder, sortPropertiesByOrder } from '../config/taskPropertyOrderConfig';
-import getRandomId from '@/shared/utils/uuid';
 
 export default defineComponent({
   name: 'TaskComponentEditor',
@@ -1210,26 +1209,12 @@ export default defineComponent({
         taskEditorModel.setParamsContext(step.value.properties.fixedModel);
       }
 
-      // Task Name 설정: step.name이 type과 같거나 없으면 고유한 이름 자동 생성
+      // Task Name 설정: canInsertStep에서 이미 고유한 이름이 생성되었으므로 그대로 사용
       console.log('🔍 TaskComponentEditor - Reading task name:');
       console.log('   step.value.name:', step.value?.name);
       console.log('   step.value.type:', step.value?.type);
       
-      let taskName = step.value?.name || step.value?.type || '';
-      
-      // Task name이 type과 동일하면 고유한 이름 자동 생성 (type_랜덤ID)
-      if (taskName === step.value?.type) {
-        taskName = `${step.value.type}_${getRandomId().substring(0, 4)}`;
-        console.log('🏷️ Auto-generated unique task name:', taskName);
-        
-        // Step name도 업데이트하여 동기화
-        if (step.value) {
-          (step.value as any).name = taskName;
-        }
-        
-        // emit으로 상위 컴포넌트에도 이름 변경 알림
-        emit('saveComponentName', taskName);
-      }
+      const taskName = step.value?.name || step.value?.type || '';
       
       console.log('   Final taskName:', taskName);
       taskEditorModel.setComponentName(taskName);

@@ -77,11 +77,16 @@ export function useSequentialDesignerModel(refs: any) {
           step.name = `${step.name}_${getRandomId().substring(0, 4)}`;
           console.log('🏷️ Container name set to:', step.name);
         } else if (step.componentType === 'task') {
-          const newName = `${step.type}_${getRandomId().substring(0, 4)}`;
-          step.name = newName;
-          console.log('🏷️ Task name set to:', newName);
-          console.log('   step.type:', step.type);
-          console.log('   step object:', step);
+          // step.name이 step.type과 같을 때만 고유한 이름 생성
+          // 저장된 workflow의 경우 이미 고유한 이름(예: beetle_task_a3f2)을 가지고 있으므로 유지
+          if (step.name === step.type) {
+            const newName = `${step.type}_${getRandomId().substring(0, 4)}`;
+            step.name = newName;
+            console.log('🏷️ Task name auto-generated:', newName);
+            console.log('   step.type:', step.type);
+          } else {
+            console.log('🏷️ Task name preserved (from saved workflow):', step.name);
+          }
         }
         return true;
       },
