@@ -9,8 +9,16 @@
       >
         {{ fieldName }}<span v-if="isRequired" class="required-mark">*</span>
       </label>
+      <textarea
+        v-if="fieldSchema.type === 'string' && shouldUseTextarea"
+        :value="fieldValue || ''"
+        @input="handleInput($event)"
+        class="field-textarea"
+        :placeholder="`Enter ${fieldName}`"
+        rows="6"
+      ></textarea>
       <input
-        v-if="fieldSchema.type === 'string'"
+        v-else-if="fieldSchema.type === 'string'"
         type="text"
         :value="fieldValue || ''"
         @input="handleInput($event)"
@@ -212,6 +220,27 @@ export default defineComponent({
     // 🔥 깊이 기반 자동 접기 로직
     const shouldAutoCollapse = computed(() => {
       return props.depth >= props.maxAutoExpandDepth;
+    });
+
+    // textarea 사용 여부 판단
+    const shouldUseTextarea = computed(() => {
+      const taskComponent = props.stepProperties?.originalData?.task_component;
+      // cicada_task_script 또는 cicada_task_run_script 둘 다 지원
+      const isCicadaScriptTask = taskComponent === 'cicada_task_script' || 
+                                 taskComponent === 'cicada_task_run_script';
+      const result = isCicadaScriptTask && props.fieldName === 'content';
+      
+      // 디버깅 로그
+      if (props.fieldName === 'content') {
+        console.log('🔍 shouldUseTextarea check for content field:');
+        console.log('   taskComponent:', taskComponent);
+        console.log('   fieldName:', props.fieldName);
+        console.log('   isCicadaScriptTask:', isCicadaScriptTask);
+        console.log('   result:', result);
+        console.log('   stepProperties:', props.stepProperties);
+      }
+      
+      return result;
     });
     
     // Collapse states
@@ -518,6 +547,7 @@ export default defineComponent({
       isObjectCollapsed,
       itemCollapsedStates,
       shouldAutoCollapse,
+      shouldUseTextarea,
       isRequired,
       sortedPropertyNames,
       sortedArrayItemPropertyNames,
@@ -667,6 +697,25 @@ export default defineComponent({
 }
 
 .field-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.field-textarea {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  box-sizing: border-box;
+  font-family: monospace;
+  resize: vertical;
+  min-height: 120px;
+}
+
+.field-textarea:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
