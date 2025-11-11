@@ -375,7 +375,9 @@ export default defineComponent({
 
     // Task Component Name Getter (Property Order Config용)
     const getCurrentTaskComponentName = (): string => {
-      return step.value.name || step.value.type || '';
+      // Use step.type instead of step.name because step.name is user-editable
+      // and property sorting should be based on the fixed task component type
+      return step.value.type || '';
     };
 
     // Path/Query Parameters Getter
@@ -1209,8 +1211,14 @@ export default defineComponent({
         taskEditorModel.setParamsContext(step.value.properties.fixedModel);
       }
 
-      // Task Name 설정: step.name이 없으면 step.type을 기본값으로 사용
+      // Task Name 설정: canInsertStep에서 이미 고유한 이름이 생성되었으므로 그대로 사용
+      console.log('🔍 TaskComponentEditor - Reading task name:');
+      console.log('   step.value.name:', step.value?.name);
+      console.log('   step.value.type:', step.value?.type);
+      
       const taskName = step.value?.name || step.value?.type || '';
+      
+      console.log('   Final taskName:', taskName);
       taskEditorModel.setComponentName(taskName);
       
       await nextTick();

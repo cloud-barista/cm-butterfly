@@ -58,8 +58,8 @@ export function useSequentialToolboxModel() {
       taskComponentSteps.push(
         loadStepsFunc.defineBettleTaskStep(
           getRandomId(),
-          res.name ?? 'undefined',
-          res.name,
+          res.name ?? 'undefined',  // name: toolbox에서는 원본 이름 표시, canvas 드롭 시 자동으로 고유 이름 생성
+          res.name,                  // type: task component 식별자
           {
             model: modelData,
             originalData: mappingTaskInfoResponseITaskResponse(res),
