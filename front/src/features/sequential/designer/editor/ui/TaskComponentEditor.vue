@@ -370,7 +370,7 @@ export default defineComponent({
 
     // Step Properties 접근 메서드 (타입 단언을 script로 이동)
     const getStepProperties = () => {
-      return (step.value.properties?.model as any)?.properties;
+      return step.value.properties;
     };
 
     // Task Component Name Getter (Property Order Config용)
