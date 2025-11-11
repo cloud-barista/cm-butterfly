@@ -53,8 +53,12 @@ async function handleConfirm() {
         nsId: props.nsId,
         mciId: mci.name,
       };
+      // Set option based on delete method
       if (state.deleteMethod === 'force') {
         params.option = 'force';
+      } else {
+        // Normal Delete
+        params.option = 'terminate';
       }
       return useDeleteMci(params).execute();
     });
