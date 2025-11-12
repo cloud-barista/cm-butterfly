@@ -24,8 +24,8 @@ const emit = defineEmits([
   'update:trigger',
 ]);
 
-// Decode base64 content for cicada_task_script tasks
-// cicada_task_script 태스크의 content 필드를 base64로 디코딩
+// Decode base64 content for cicada_task_run_script tasks
+// cicada_task_run_script 태스크의 content 필드를 base64로 디코딩
 const decodedJson = computed(() => {
   if (!props.json || typeof props.json !== 'object') {
     return props.json;

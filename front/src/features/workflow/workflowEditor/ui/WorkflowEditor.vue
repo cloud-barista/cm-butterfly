@@ -70,8 +70,8 @@ onBeforeMount(function () {
       res[0].data.responseData,
     );
     
-    // cicada_task_script is now included in API response
-    // cicada_task_script는 이제 API 응답에 포함됨
+    // cicada_task_run_script is now included in API response
+    // cicada_task_run_script는 이제 API 응답에 포함됨
     workflowToolModel.setTaskComponent(res[1].data.responseData);
     workflowToolModel.setDropDownData(
       workflowToolModel.workflowStore.workflowTemplates,
