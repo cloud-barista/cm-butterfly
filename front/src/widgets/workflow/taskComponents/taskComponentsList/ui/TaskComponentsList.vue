@@ -106,8 +106,8 @@ async function fetchTaskComponentsList() {
       data.responseData &&
       data.responseData.length > 0
     ) {
-      // cicada_task_script is now included in API response
-      // cicada_task_script는 이제 API 응답에 포함됨
+      // cicada_task_run_script is now included in API response
+      // cicada_task_run_script는 이제 API 응답에 포함됨
       workflowStore.setTaskComponents(data.responseData);
     }
   } catch (e) {
