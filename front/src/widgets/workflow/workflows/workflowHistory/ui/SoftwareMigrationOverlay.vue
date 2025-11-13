@@ -10,6 +10,7 @@ import { IWorkflowRun } from '@/entities/workflow/model/types';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch, onBeforeMount } from 'vue';
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
+import { useGetSoftwareMigrationStatus } from '@/entities/workflow/api/index';
 import mockData from './mock-data.json';
 
 interface Props {
@@ -89,11 +90,30 @@ const loadSwMigrationStatus = async () => {
 
   swLoading.value = true;
   try {
-    // TODO: 목데이터를 execution ID 개수만큼 복제 (각 execution ID에 대한 데이터)
-    swMigrationDataList.value = props.executionIds.map(executionId => ({
-      ...mockData,
-      execution_id: executionId,
-    }));
+    const results = await Promise.all(
+      props.executionIds.map(async executionId => {
+        try {
+          const { data, execute } = useGetSoftwareMigrationStatus(executionId);
+          await execute();
+
+          if (data.value?.responseData) {
+            return data.value.responseData;
+          }
+
+          return {
+            ...mockData,
+            execution_id: executionId,
+          };
+        } catch (apiError) {
+          return {
+            ...mockData,
+            execution_id: executionId,
+          };
+        }
+      }),
+    );
+
+    swMigrationDataList.value = results;
 
     if (swMigrationDataList.value.length > 0) {
       updateRunInfoData(props.executionIds.join(', '));
