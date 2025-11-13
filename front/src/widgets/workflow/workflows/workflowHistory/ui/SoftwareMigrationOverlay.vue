@@ -5,11 +5,13 @@ import {
   PToolboxTable,
   PBadge,
   PDefinitionTable,
+  PTooltip,
 } from '@cloudforet-test/mirinae';
 import { IWorkflowRun } from '@/entities/workflow/model/types';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
 import { ref, watch, onBeforeMount } from 'vue';
 import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolboxTableModel';
+import { useGetSoftwareMigrationStatus } from '@/entities/workflow/api/index';
 import mockData from './mock-data.json';
 
 interface Props {
@@ -41,6 +43,7 @@ const swTableModel = useToolboxTableModel<any>();
 // Initialize table
 function initSwTable() {
   swTableModel.tableState.fields = [
+    { label: 'No', name: 'row_number' },
     { label: 'Software Name', name: 'software_name' },
     { label: 'Version', name: 'software_version' },
     { label: 'Install Type', name: 'software_install_type' },
@@ -89,11 +92,30 @@ const loadSwMigrationStatus = async () => {
 
   swLoading.value = true;
   try {
-    // TODO: 목데이터를 execution ID 개수만큼 복제 (각 execution ID에 대한 데이터)
-    swMigrationDataList.value = props.executionIds.map(executionId => ({
-      ...mockData,
-      execution_id: executionId,
-    }));
+    const results = await Promise.all(
+      props.executionIds.map(async executionId => {
+        try {
+          const { data, execute } = useGetSoftwareMigrationStatus(executionId);
+          await execute();
+
+          if (data.value?.responseData) {
+            return data.value.responseData;
+          }
+
+          return {
+            ...mockData,
+            execution_id: executionId,
+          };
+        } catch (apiError) {
+          return {
+            ...mockData,
+            execution_id: executionId,
+          };
+        }
+      }),
+    );
+
+    swMigrationDataList.value = results;
 
     if (swMigrationDataList.value.length > 0) {
       updateRunInfoData(props.executionIds.join(', '));
@@ -151,9 +173,12 @@ watch(
       });
     });
 
-    swTableModel.tableState.items = allRows.sort(
-      (a, b) => (a.order || 0) - (b.order || 0),
-    );
+    const sortedRows = allRows.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    swTableModel.tableState.items = sortedRows.map((row, index) => ({
+      ...row,
+      row_number: index + 1,
+    }));
     swTableModel.handleChange(null);
   },
   { deep: true },
@@ -243,6 +268,17 @@ onBeforeMount(() => {
               @change="swTableModel.handleChange"
               @update:page-size="handlePageSizeChange"
             >
+              <template #col-software_version-format="{ value }">
+                <p-tooltip
+                  v-if="value"
+                  :contents="value"
+                  position="bottom-end"
+                  class="version-tooltip"
+                >
+                  <span class="version-text">{{ value }}</span>
+                </p-tooltip>
+                <span v-else>-</span>
+              </template>
               <template #col-status-format="{ value }">
                 <p-badge
                   :badge-type="getStatusBadgeType(value)"
@@ -252,7 +288,14 @@ onBeforeMount(() => {
                 </p-badge>
               </template>
               <template #col-error_message-format="{ value }">
-                <div v-if="value" class="error-preview">{{ value }}</div>
+                <p-tooltip
+                  v-if="value"
+                  :contents="value"
+                  position="bottom-end"
+                  class="error-tooltip"
+                >
+                  <span class="error-text">{{ value }}</span>
+                </p-tooltip>
                 <span v-else class="no-error">-</span>
               </template>
             </p-toolbox-table>
@@ -387,9 +430,32 @@ onBeforeMount(() => {
         color: #374151;
       }
 
-      .error-text {
-        color: #dc2626;
+      .version-tooltip {
+        display: inline-block;
+        max-width: 200px;
+      }
+
+      .version-text {
         font-size: 0.875rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        cursor: pointer;
+      }
+
+      .error-tooltip {
+        display: inline-block;
+        max-width: 400px;
+      }
+
+      .error-text {
+        font-size: 0.875rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        cursor: pointer;
       }
 
       .no-error {
