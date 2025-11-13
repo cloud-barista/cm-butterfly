@@ -42,6 +42,7 @@ const swTableModel = useToolboxTableModel<any>();
 // Initialize table
 function initSwTable() {
   swTableModel.tableState.fields = [
+    { label: 'No', name: 'row_number' },
     { label: 'Software Name', name: 'software_name' },
     { label: 'Version', name: 'software_version' },
     { label: 'Install Type', name: 'software_install_type' },
@@ -171,9 +172,12 @@ watch(
       });
     });
 
-    swTableModel.tableState.items = allRows.sort(
-      (a, b) => (a.order || 0) - (b.order || 0),
-    );
+    const sortedRows = allRows.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    swTableModel.tableState.items = sortedRows.map((row, index) => ({
+      ...row,
+      row_number: index + 1,
+    }));
     swTableModel.handleChange(null);
   },
   { deep: true },
