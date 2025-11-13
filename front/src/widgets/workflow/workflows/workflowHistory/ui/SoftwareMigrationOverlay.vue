@@ -5,6 +5,7 @@ import {
   PToolboxTable,
   PBadge,
   PDefinitionTable,
+  PTooltip,
 } from '@cloudforet-test/mirinae';
 import { IWorkflowRun } from '@/entities/workflow/model/types';
 import { useDefinitionTableModel } from '@/shared/hooks/table/definitionTable/useDefinitionTableModel';
@@ -267,6 +268,17 @@ onBeforeMount(() => {
               @change="swTableModel.handleChange"
               @update:page-size="handlePageSizeChange"
             >
+              <template #col-software_version-format="{ value }">
+                <p-tooltip
+                  v-if="value"
+                  :contents="value"
+                  position="bottom-end"
+                  class="version-tooltip"
+                >
+                  <span class="version-text">{{ value }}</span>
+                </p-tooltip>
+                <span v-else>-</span>
+              </template>
               <template #col-status-format="{ value }">
                 <p-badge
                   :badge-type="getStatusBadgeType(value)"
@@ -276,7 +288,14 @@ onBeforeMount(() => {
                 </p-badge>
               </template>
               <template #col-error_message-format="{ value }">
-                <div v-if="value" class="error-preview">{{ value }}</div>
+                <p-tooltip
+                  v-if="value"
+                  :contents="value"
+                  position="bottom-end"
+                  class="error-tooltip"
+                >
+                  <span class="error-text">{{ value }}</span>
+                </p-tooltip>
                 <span v-else class="no-error">-</span>
               </template>
             </p-toolbox-table>
@@ -411,9 +430,32 @@ onBeforeMount(() => {
         color: #374151;
       }
 
-      .error-text {
-        color: #dc2626;
+      .version-tooltip {
+        display: inline-block;
+        max-width: 200px;
+      }
+
+      .version-text {
         font-size: 0.875rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        cursor: pointer;
+      }
+
+      .error-tooltip {
+        display: inline-block;
+        max-width: 400px;
+      }
+
+      .error-text {
+        font-size: 0.875rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        cursor: pointer;
       }
 
       .no-error {
