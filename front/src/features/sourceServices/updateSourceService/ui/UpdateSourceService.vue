@@ -111,10 +111,11 @@ watch(
 <template>
   <p-pane-layout class="source-service-button-modal">
     <p-pane-layout class="layout">
-      <p-field-group label="Source Service Name" required>
+      <p-field-group label="Source Service Name" invalid required>
         <p-text-input
           v-model="state.sourceServiceName"
           placeholder="Source Service Name"
+          :invalid="!state.sourceServiceName"
           :disabled="false"
         />
       </p-field-group>
