@@ -133,7 +133,7 @@ watchEffect(() => {
       data.name !== '' &&
       data.ip_address !== '' &&
       data.user !== '' &&
-      data.password !== '' &&
+      (data.password !== '' || data.private_key !== '') &&
       data.ssh_port !== 0
     ) {
       isDisabled.value = true;

@@ -22,10 +22,10 @@ export function useSourceInformationModel() {
       { label: 'Type', name: 'type' },
       { label: 'IP Address', name: 'ip' },
       { label: 'Port', name: 'port' },
-      { label: 'User', name: 'user' },
-      { label: 'Password', name: 'password' },
-      { label: 'Private Key', name: 'privateKey' },
-      { label: 'Public Key', name: 'publicKey' },
+      { label: 'User', name: 'user', disableCopy: true },
+      { label: 'Password', name: 'password', disableCopy: true },
+      { label: 'Private Key', name: 'privateKey', disableCopy: true },
+      { label: 'Public Key', name: 'publicKey', disableCopy: true },
     ];
   }
 
