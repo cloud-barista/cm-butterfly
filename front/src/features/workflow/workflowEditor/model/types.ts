@@ -8,11 +8,11 @@ export interface fixedModel {
 export interface Step extends _Step {
   sequence?: Step[];
   branches?: { true: Step[]; false: Step[] };
-  componentType: 'switch' | 'container' | 'task' | 'launchPad';
+  componentType: 'switch' | 'container' | 'task';
   type: string;
   properties: {
     isDeletable: boolean;
-    isEnabled?: boolean;
+    isParallel?: boolean;
     model?: object;
     originalData?: ITaskResponse;
     fixedModel?: fixedModel;

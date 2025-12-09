@@ -18,19 +18,19 @@ export function toolboxSteps() {
       };
     },
 
-    defineLaunchPadStep(
+    defineParallelGroupStep(
       id: string,
       name: string,
       properties: { model: object },
     ): Step {
       return {
-        componentType: 'launchPad',
+        componentType: 'container',
         id,
-        type: 'launchPad',
+        type: 'parallelGroup',
         name,
         properties: {
           isDeletable: true,
-          isEnabled: true,
+          isParallel: true,
           ...properties,
         },
         sequence: [
