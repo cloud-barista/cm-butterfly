@@ -47,6 +47,31 @@ export function editorProviders() {
 
         editor.appendChild(ifEditor);
       }
+      if (step.componentType === 'launchPad') {
+        const launchPadEditor = document.createElement('div');
+        launchPadEditor.className = 'sqd-editor-wrapper';
+        launchPadEditor.innerHTML = `
+          <div class="sqd-editor-header">Launch Pad Settings</div>
+          <div class="sqd-editor-body">
+            <div class="sqd-editor-field">
+              <label>Name:</label>
+              <input type="text" id="launchpad-name" value="${step.name}" style="width: 100%; padding: 8px; margin-top: 4px;" />
+            </div>
+            <div style="margin-top: 16px; padding: 12px; background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 4px;">
+              <strong style="color: #2e7d32;">🚀 수평 병렬 실행</strong>
+              <p style="margin-top: 8px; color: #424242; font-size: 13px;">이 Launch Pad 내의 모든 task가 수평으로 배치되며 동시에 실행됩니다.</p>
+            </div>
+          </div>
+        `;
+
+        const nameInput = launchPadEditor.querySelector('#launchpad-name') as HTMLInputElement;
+        nameInput?.addEventListener('input', (e) => {
+          step.name = (e.target as HTMLInputElement).value;
+          stepContext.notifyNameChanged();
+        });
+
+        editor.appendChild(launchPadEditor);
+      }
       if (step.componentType === 'container' && step.type === 'parallelGroup') {
         const parallelEditor = document.createElement('div');
         parallelEditor.className = 'sqd-editor-wrapper';
@@ -62,8 +87,8 @@ export function editorProviders() {
               <textarea id="parallel-description" style="width: 100%; padding: 8px; margin-top: 4px; min-height: 60px;">${step.properties.model?.['description'] || ''}</textarea>
             </div>
             <div style="margin-top: 16px; padding: 12px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 4px;">
-              <strong style="color: #1976d2;">🔀 병렬 실행</strong>
-              <p style="margin-top: 8px; color: #424242; font-size: 13px;">이 그룹 내의 모든 task가 동시에 실행됩니다. Task들은 서로의 완료를 기다리지 않고 독립적으로 실행됩니다.</p>
+              <strong style="color: #1976d2;">🔀 수직 병렬 실행</strong>
+              <p style="margin-top: 8px; color: #424242; font-size: 13px;">이 그룹 내의 모든 task가 수직으로 배치되며 동시에 실행됩니다.</p>
             </div>
           </div>
         `;

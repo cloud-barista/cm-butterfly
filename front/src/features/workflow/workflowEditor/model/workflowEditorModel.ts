@@ -235,15 +235,17 @@ export function useWorkflowToolModel() {
         tasks: [],
       };
 
-      if (currentNode.componentType === 'container') {
+      if (currentNode.componentType === 'container' || currentNode.componentType === 'launchPad') {
         const tasks: any = [];
-        const isParallel = currentNode.type === 'parallelGroup' || currentNode.properties.isParallel === true;
+        const isParallel = currentNode.componentType === 'launchPad' || 
+                          currentNode.type === 'parallelGroup' || 
+                          currentNode.properties.isParallel === true;
 
         currentNode.sequence?.forEach(step => {
-          if (step.componentType === 'container') {
+          if (step.componentType === 'container' || step.componentType === 'launchPad') {
             stack.push({ parentNode: taskGroup, currentNode: step });
           } else if (step.componentType === 'task') {
-            // parallelGroup 내부의 task는 dependencies를 null로 설정하여 병렬 실행 표시
+            // parallel 컨테이너 내부의 task는 dependencies를 null로 설정하여 병렬 실행 표시
             const previousTask = isParallel ? null : tasks[tasks.length - 1];
             tasks.push(convertToCicadaTask(step, previousTask));
           }
@@ -254,10 +256,11 @@ export function useWorkflowToolModel() {
         taskGroup.name = currentNode.name;
         taskGroup.tasks = tasks;
         
-        // parallelGroup인 경우 병렬 실행 플래그 추가 (향후 백엔드 지원용)
+        // parallel 컨테이너인 경우 병렬 실행 플래그 추가 (향후 백엔드 지원용)
         if (isParallel) {
           (taskGroup as any).is_parallel = true;
-          console.log('🔀 Parallel Group converted with is_parallel flag:', taskGroup.name);
+          const layoutType = currentNode.componentType === 'launchPad' ? 'horizontal' : 'vertical';
+          console.log(`🔀 Parallel execution converted (${layoutType} layout):`, taskGroup.name);
         }
       }
 
@@ -407,7 +410,7 @@ export function useWorkflowToolModel() {
     const taskGroupQueue: Step[] = [];
 
     sequence.forEach(step => {
-      if (step.componentType === 'container') {
+      if (step.componentType === 'container' || step.componentType === 'launchPad') {
         taskGroupQueue.push(step);
       }
     });
@@ -417,9 +420,14 @@ export function useWorkflowToolModel() {
       const newTaskGroupSequence: Step[] = [];
       const queue: Step[] = [];
 
-      // parallelGroup인 경우 정렬하지 않고 그대로 유지 (병렬 실행이므로 순서 무관)
-      if (rootTaskGroup.type === 'parallelGroup' || rootTaskGroup.properties.isParallel === true) {
-        console.log('🔀 Skipping reordering for Parallel Group:', rootTaskGroup.name);
+      // parallel 컨테이너인 경우 정렬하지 않고 그대로 유지 (병렬 실행이므로 순서 무관)
+      const isParallel = rootTaskGroup.componentType === 'launchPad' ||
+                        rootTaskGroup.type === 'parallelGroup' || 
+                        rootTaskGroup.properties.isParallel === true;
+      
+      if (isParallel) {
+        const layoutType = rootTaskGroup.componentType === 'launchPad' ? 'horizontal' : 'vertical';
+        console.log(`🔀 Skipping reordering for parallel container (${layoutType}):`, rootTaskGroup.name);
         newSequence.push(rootTaskGroup);
         continue;
       }
@@ -455,7 +463,7 @@ export function useWorkflowToolModel() {
         }
 
         const taskGroup = rootTaskGroup.sequence?.find(
-          step => step.componentType === 'container',
+          step => step.componentType === 'container' || step.componentType === 'launchPad',
         );
 
         if (taskGroup) {

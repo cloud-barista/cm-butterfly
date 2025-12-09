@@ -28,7 +28,7 @@
     "pinia": "^2.1.7",
     "postcss-loader": "^8.1.1",
     "postcss-simple-vars": "^7.0.1",
-    "sequential-workflow-designer": "^0.24.6",
+    "sequential-workflow-designer": "^0.34.1",
     "sequential-workflow-editor": "^0.14.0",
     "sequential-workflow-editor-model": "^0.14.0",
     "vue": "^2.7.16",
