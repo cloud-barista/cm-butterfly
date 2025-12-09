@@ -67,6 +67,7 @@ export function useMciListModel(props: IProps) {
   }
 
   function fetchMciList() {
+    loading.value = true;
     resMciList
       .execute()
       .then(res => {

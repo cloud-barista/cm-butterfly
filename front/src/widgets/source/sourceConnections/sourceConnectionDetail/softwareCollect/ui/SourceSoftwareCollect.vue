@@ -22,14 +22,14 @@ const {
 } = useSourceSoftwareCollectModel();
 
 const resCollectSW = useCollectSW({
-  sgId: props.sourceGroupId,
-  connId: props.connectionId,
+  sgId: null,
+  connId: null,
 });
 
 watch(
-  props,
-  () => {
-    setConnectionId(props.connectionId);
+  () => props.connectionId,
+  (newValue) => {
+    setConnectionId(newValue);
   },
   { immediate: true },
 );
@@ -40,7 +40,12 @@ onBeforeMount(() => {
 
 function handleClickCollectSW() {
   resCollectSW
-    .execute()
+    .execute({
+      pathParams: {
+        sgId: props.sourceGroupId,
+        connId: props.connectionId,
+      },
+    })
     .then(res => {
       if (res.data.responseData && props.connectionId) {
         sourceConnectionStore.mapSourceConnectionCollectSWResponse(

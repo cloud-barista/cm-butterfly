@@ -6,22 +6,34 @@ import {
   PButtonModal,
 } from '@cloudforet-test/mirinae';
 import { useTaskComponentsListModel } from '@/widgets/workflow/taskComponents/taskComponentsList/model/taskComponenetsListModel';
+import TableLoadingSpinner from '@/shared/ui/LoadingSpinner/TableLoadingSpinner.vue';
 import {
   insertDynamicComponent,
   showErrorMessage,
   showSuccessMessage,
 } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, reactive, watch } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch, computed, ref, nextTick } from 'vue';
 import {
   useBulkDeleteTaskComponent,
   useGetTaskComponentList,
 } from '@/entities';
+import { useDynamicTableHeight } from '@/shared/hooks/table/useDynamicTableHeight';
+import { useToolboxTableHeight } from '@/shared/hooks/table/useToolboxTableHeight';
 
 const getTaskComponentList = useGetTaskComponentList();
 
 const { tableModel, initToolBoxTableModel, workflowStore } =
   useTaskComponentsListModel();
+
+const { dynamicHeight, minHeight, maxHeight } = useDynamicTableHeight(
+  computed(() => tableModel.tableState.items.length),
+  computed(() => tableModel.tableOptions.pageSize),
+);
+
+const { toolboxTableRef, adjustedDynamicHeight } = useToolboxTableHeight(
+  computed(() => dynamicHeight.value),
+);
 
 interface iProps {
   trigger: boolean;
@@ -34,13 +46,22 @@ const modal = reactive({
   alertModalState: { open: false },
 });
 
+const isDataLoaded = ref(false);
+
 onBeforeMount(() => {
   initToolBoxTableModel();
 });
 
 onMounted(function (this: any) {
-  addDeleteIconAtTable.bind(this)();
   fetchTaskComponentsList();
+});
+
+watch(isDataLoaded, (nv) => {
+  if (nv && toolboxTableRef.value) {
+    nextTick(() => {
+      addDeleteIconAtTable.call({ $refs: { toolboxTable: toolboxTableRef.value } });
+    });
+  }
 });
 
 function addDeleteIconAtTable(this: any) {
@@ -99,6 +120,7 @@ function handleSelectedIndex(selectedIndex: number) {
   }
 }
 async function fetchTaskComponentsList() {
+  isDataLoaded.value = false;
   try {
     const { data } = await getTaskComponentList.execute();
     if (
@@ -110,8 +132,12 @@ async function fetchTaskComponentsList() {
       // cicada_task_run_script는 이제 API 응답에 포함됨
       workflowStore.setTaskComponents(data.responseData);
     }
+    nextTick(() => {
+      isDataLoaded.value = true;
+    });
   } catch (e) {
     console.log(e);
+    isDataLoaded.value = true;
   }
 }
 
@@ -129,10 +155,19 @@ watch(
 
 <template>
   <div>
-    <p-horizontal-layout :height="400" :min-height="400" :max-height="1000">
+    <p-horizontal-layout :height="adjustedDynamicHeight">
       <template #container="{ height }">
+        <!-- 로딩 중일 때 스피너 표시 -->
+        <table-loading-spinner
+          :loading="getTaskComponentList.isLoading.value"
+          :height="height"
+          message="Loading task components..."
+        />
+        
+        <!-- 로딩 완료 후 테이블 표시 -->
         <p-toolbox-table
-          ref="toolboxTable"
+          v-if="!getTaskComponentList.isLoading.value"
+          ref="toolboxTableRef"
           :items="tableModel.tableState.displayItems"
           :fields="tableModel.tableState.fields"
           :total-count="tableModel.tableState.tableCount"

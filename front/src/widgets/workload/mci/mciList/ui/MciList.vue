@@ -7,8 +7,11 @@ import {
   PBadge,
   PSelectDropdown,
 } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive, computed } from 'vue';
+import { onBeforeMount, onMounted, reactive, computed, ref } from 'vue';
 import MciDeleteModal from './MciDeleteModal.vue';
+import TableLoadingSpinner from '@/shared/ui/LoadingSpinner/TableLoadingSpinner.vue';
+import { useDynamicTableHeight } from '@/shared/hooks/table/useDynamicTableHeight';
+import { useToolboxTableHeight } from '@/shared/hooks/table/useToolboxTableHeight';
 
 interface IProps {
   nsId: string;
@@ -19,6 +22,15 @@ const emit = defineEmits(['selectRow']);
 
 const { mciTableModel, initToolBoxTableModel, fetchMciList, loading } =
   useMciListModel(props);
+
+const { dynamicHeight, minHeight, maxHeight } = useDynamicTableHeight(
+  computed(() => mciTableModel.tableState.items.length),
+  computed(() => mciTableModel.tableOptions.pageSize),
+);
+
+const { toolboxTableRef, adjustedDynamicHeight } = useToolboxTableHeight(
+  computed(() => dynamicHeight.value),
+);
 
 const mciCreateModalState = reactive({
   open: false,
@@ -80,11 +92,19 @@ onMounted(() => {
 
 <template>
   <div>
-    <p-horizontal-layout :height="400" :min-height="400" :max-height="1000">
+    <p-horizontal-layout :height="adjustedDynamicHeight">
       <template #container="{ height }">
-        <p-toolbox-table
-          ref="toolboxTable"
+        <!-- 로딩 중일 때 스피너 표시 -->
+        <table-loading-spinner
           :loading="loading"
+          :height="height"
+          message="Loading MCI list..."
+        />
+        
+        <!-- 로딩 완료 후 테이블 표시 -->
+        <p-toolbox-table
+          v-if="!loading"
+          ref="toolboxTableRef"
           :items="mciTableModel.tableState.displayItems"
           :fields="mciTableModel.tableState.fields"
           :total-count="mciTableModel.tableState.tableCount"
@@ -143,4 +163,5 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped lang="postcss"></style>
+<style scoped lang="postcss">
+</style>

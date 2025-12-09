@@ -22,7 +22,7 @@ const addSourceConnection = () => {
     ip_address: '',
     user: '',
     private_key: '',
-    ssh_port: 0,
+    ssh_port: '22',
     password: '',
   });
 };
@@ -31,7 +31,13 @@ watchEffect(
   () => {
     if (sourceConnectionStore.editConnections.length > 0) {
       sourceConnectionStore.editConnections.forEach(s => {
-        if (s.ip_address && s.name && s.ssh_port && s.user) {
+        if (
+          s.ip_address &&
+          s.name &&
+          s.ssh_port &&
+          s.user &&
+          (s.password || s.private_key)
+        ) {
           isDisabled.value = true;
         } else {
           isDisabled.value = false;
