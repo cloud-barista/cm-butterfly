@@ -6,7 +6,8 @@ import {
   PStatus,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, ref } from 'vue';
+import { onBeforeMount, onMounted, ref, computed, nextTick } from 'vue';
+import TableLoadingSpinner from '@/shared/ui/LoadingSpinner/TableLoadingSpinner.vue';
 import {
   getUserList,
   IUserInfoResponse,
@@ -17,6 +18,8 @@ import { useToolboxTableModel } from '@/shared/hooks/table/toolboxTable/useToolb
 import { insertDynamicComponent } from '@/shared/utils/insertDynamicComponent';
 import DeleteUsers from '@/features/user/deleteUser/ui/DeleteUsers.vue';
 import AddUser from '@/features/user/addUser/ui/AddUser.vue';
+import { useDynamicTableHeight } from '@/shared/hooks/table/useDynamicTableHeight';
+import { useToolboxTableHeight } from '@/shared/hooks/table/useToolboxTableHeight';
 
 const resUserList = getUserList();
 
@@ -31,6 +34,17 @@ const tableModel =
       >
     >
   >();
+
+const { dynamicHeight, minHeight, maxHeight } = useDynamicTableHeight(
+  computed(() => tableModel.tableState.items.length),
+  computed(() => tableModel.tableOptions.pageSize),
+);
+
+const { toolboxTableRef, adjustedDynamicHeight } = useToolboxTableHeight(
+  computed(() => dynamicHeight.value),
+);
+
+const isDataLoaded = ref(false);
 
 tableModel.tableState.fields = [
   { name: 'userId', label: 'User Id' },
@@ -142,13 +156,19 @@ onMounted(function () {
 
 <template>
   <div>
-    <p-horizontal-layout :height="400" :minHeight="400" :maxHeight="1000">
+    <p-horizontal-layout :height="adjustedDynamicHeight">
       <template #container="{ height }">
+        <!-- 로딩 중일 때 스피너 표시 -->
+        <table-loading-spinner
+          :loading="tableModel.tableState.loading || resUserList.isLoading.value"
+          :height="height"
+          message="Loading users..."
+        />
+        
+        <!-- 로딩 완료 후 테이블 표시 -->
         <p-toolbox-table
-          ref="toolboxTable"
-          :loading="
-            tableModel.tableState.loading || resUserList.isLoading.value
-          "
+          v-if="!tableModel.tableState.loading && !resUserList.isLoading.value"
+          ref="toolboxTableRef"
           :items="tableModel.tableState.displayItems"
           :fields="tableModel.tableState.fields"
           :total-count="tableModel.tableState.tableCount"

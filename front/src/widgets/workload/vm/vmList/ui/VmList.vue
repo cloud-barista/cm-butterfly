@@ -7,6 +7,7 @@ import {
   PButtonTab,
 } from '@cloudforet-test/mirinae';
 import { useVmListModel } from '@/widgets/workload/vm/vmList/model';
+import TableLoadingSpinner from '@/shared/ui/LoadingSpinner/TableLoadingSpinner.vue';
 import { onMounted, reactive, ref, watch } from 'vue';
 import SuccessfullyLoadConfigModal from '@/features/workload/successfullyModal/ui/SuccessfullyLoadConfigModal.vue';
 import LoadConfig from '@/features/workload/actionLoadConfig/ui/LoadConfig.vue';
@@ -232,7 +233,15 @@ function handleTemplateManagerClose() {
           </p-button>
         </template>
       </p-toolbox>
-      <div class="vmList-content">
+      
+      <!-- 로딩 중일 때 스피너 표시 -->
+      <table-loading-spinner
+        :loading="vmListTableModel.tableState.loading"
+        message="Loading servers..."
+      />
+      
+      <!-- 로딩 완료 후 카드 표시 -->
+      <div v-if="!vmListTableModel.tableState.loading" class="vmList-content">
         <p-data-loader
           v-if="vmListTableModel.tableState.displayItems.length === 0"
           :data="false"
@@ -326,6 +335,7 @@ function handleTemplateManagerClose() {
 .vmList-container {
   @apply border-b border-gray-300;
 }
+
 .vmList-content {
   @apply w-full flex flex-wrap;
   max-height: 208px;

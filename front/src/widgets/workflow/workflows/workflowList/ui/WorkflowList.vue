@@ -6,21 +6,33 @@ import {
   PButtonModal,
 } from '@cloudforet-test/mirinae';
 import { useWorkflowListModel } from '@/widgets/workflow/workflows/workflowList/model/workflowListModel';
+import TableLoadingSpinner from '@/shared/ui/LoadingSpinner/TableLoadingSpinner.vue';
 import {
   insertDynamicComponent,
   showSuccessMessage,
   showErrorMessage,
 } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
-import { onBeforeMount, onMounted, reactive, ref, watch } from 'vue';
+import { onBeforeMount, onMounted, reactive, ref, watch, computed, nextTick } from 'vue';
 import { useGetWorkflowList, useBulkDeleteWorkflow } from '@/entities';
 import { useRunWorkflow } from '@/entities';
+import { useDynamicTableHeight } from '@/shared/hooks/table/useDynamicTableHeight';
+import { useToolboxTableHeight } from '@/shared/hooks/table/useToolboxTableHeight';
 
 const runWorkflow = useRunWorkflow('');
 const getWorkflowList = useGetWorkflowList();
 
 const { tableModel, initToolBoxTableModel, workflowStore } =
   useWorkflowListModel();
+
+const { dynamicHeight, minHeight, maxHeight } = useDynamicTableHeight(
+  computed(() => tableModel.tableState.items.length),
+  computed(() => tableModel.tableOptions.pageSize),
+);
+
+const { toolboxTableRef, adjustedDynamicHeight } = useToolboxTableHeight(
+  computed(() => dynamicHeight.value),
+);
 
 interface iProps {
   trigger: boolean;
@@ -35,14 +47,22 @@ const modal = reactive({
   alertModalState: { open: false },
 });
 const isRunLoading = ref<boolean>(false);
+const isDataLoaded = ref(false);
 
 onBeforeMount(() => {
   initToolBoxTableModel();
 });
 
 onMounted(function (this: any) {
-  addDeleteIconAtTable.bind(this)();
   fetchWorkflowList();
+});
+
+watch(isDataLoaded, (nv) => {
+  if (nv && toolboxTableRef.value) {
+    nextTick(() => {
+      addDeleteIconAtTable.call({ $refs: { toolboxTable: toolboxTableRef.value } });
+    });
+  }
 });
 
 function addDeleteIconAtTable(this: any) {
@@ -104,6 +124,7 @@ function handleSelectedIndex(selectedIndex: number) {
 }
 
 async function fetchWorkflowList() {
+  isDataLoaded.value = false;
   try {
     tableModel.tableState.loading = true;
     const { data } = await getWorkflowList.execute();
@@ -116,9 +137,13 @@ async function fetchWorkflowList() {
       workflowStore.setWorkFlows([]);
       showErrorMessage('error', 'Workflow 목록을 불러오지 못했습니다.');
     }
+    nextTick(() => {
+      isDataLoaded.value = true;
+    });
   } catch (e) {
     workflowStore.setWorkFlows([]);
     showErrorMessage('error', 'Workflow 목록 조회 중 오류가 발생했습니다.');
+    isDataLoaded.value = true;
   } finally {
     tableModel.tableState.loading = false;
   }
@@ -166,10 +191,19 @@ watch(
 
 <template>
   <div>
-    <p-horizontal-layout :height="400" :min-height="400" :max-height="1000">
+    <p-horizontal-layout :height="adjustedDynamicHeight">
       <template #container="{ height }">
+        <!-- 로딩 중일 때 스피너 표시 -->
+        <table-loading-spinner
+          :loading="getWorkflowList.isLoading.value || tableModel.tableState.loading"
+          :height="height"
+          message="Loading workflows..."
+        />
+        
+        <!-- 로딩 완료 후 테이블 표시 -->
         <p-toolbox-table
-          ref="toolboxTable"
+          v-if="!getWorkflowList.isLoading.value && !tableModel.tableState.loading"
+          ref="toolboxTableRef"
           :items="tableModel.tableState.displayItems"
           :fields="tableModel.tableState.fields"
           :total-count="tableModel.tableState.tableCount"
@@ -184,11 +218,6 @@ watch(
           :query-tag="tableModel.querySearchState.queryTag"
           :select-index.sync="tableModel.tableState.selectIndex"
           :page-size="tableModel.tableOptions.pageSize"
-          :loading="
-            runWorkflow.isLoading.value ||
-            getWorkflowList.isLoading.value ||
-            tableModel.tableState.loading
-          "
           @change="tableModel.handleChange"
           @refresh="handleRefreshTable"
           @select="handleSelectedIndex"

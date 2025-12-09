@@ -6,7 +6,8 @@ import {
   PButtonModal,
 } from '@cloudforet-test/mirinae';
 import { useSourceModelListModel } from '@/widgets/models/sourceModels/sourceModelList/model/sourceModelListModel';
-import { onBeforeMount, onMounted, reactive, watch } from 'vue';
+import TableLoadingSpinner from '@/shared/ui/LoadingSpinner/TableLoadingSpinner.vue';
+import { onBeforeMount, onMounted, reactive, watch, computed, ref, nextTick } from 'vue';
 import {
   insertDynamicComponent,
   showErrorMessage,
@@ -14,6 +15,8 @@ import {
 } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
 import { useBulkDeleteSourceInfraModel, useBulkDeleteSourceCloudModel, useBulkDeleteSourceSoftwareModel, useGetSourceModelList } from '@/entities';
+import { useDynamicTableHeight } from '@/shared/hooks/table/useDynamicTableHeight';
+import { useToolboxTableHeight } from '@/shared/hooks/table/useToolboxTableHeight';
 
 interface IProps {
   trigger: boolean;
@@ -25,20 +28,37 @@ const emit = defineEmits(['select-row', 'update:trigger']);
 const { tableModel, initToolBoxTableModel, sourceModelStore } =
   useSourceModelListModel();
 
+const { dynamicHeight, minHeight, maxHeight } = useDynamicTableHeight(
+  computed(() => tableModel.tableState.items.length),
+  computed(() => tableModel.tableOptions.pageSize),
+);
+
+const { toolboxTableRef, adjustedDynamicHeight } = useToolboxTableHeight(
+  computed(() => dynamicHeight.value),
+);
+
 const modals = reactive({
   alertModalState: { open: false },
   sourceModelAddModalState: { open: false },
 });
 
 const resSourceList = useGetSourceModelList();
+const isDataLoaded = ref(false);
 
 onBeforeMount(() => {
   initToolBoxTableModel();
 });
 
 onMounted(function () {
-  addDeleteIconAtTable.bind(this)();
   getTableList();
+});
+
+watch(isDataLoaded, (nv) => {
+  if (nv && toolboxTableRef.value) {
+    nextTick(() => {
+      addDeleteIconAtTable.call({ $refs: { toolboxTable: toolboxTableRef.value } });
+    });
+  }
 });
 
 watch(
@@ -50,15 +70,20 @@ watch(
 );
 
 function getTableList() {
+  isDataLoaded.value = false;
   resSourceList
     .execute()
     .then(res => {
       if (res.data.responseData) {
         sourceModelStore.setSourceModel(res.data.responseData);
       }
+      nextTick(() => {
+        isDataLoaded.value = true;
+      });
     })
     .catch(e => {
       showErrorMessage('error', e.errorMsg);
+      isDataLoaded.value = true;
     });
 }
 
@@ -307,10 +332,19 @@ function handleDeleteConfirm() {
 
 <template>
   <div>
-    <p-horizontal-layout :height="400" :min-height="400" :max-height="1000">
+    <p-horizontal-layout :height="adjustedDynamicHeight">
       <template #container="{ height }">
+        <!-- 로딩 중일 때 스피너 표시 -->
+        <table-loading-spinner
+          :loading="resSourceList.isLoading.value"
+          :height="height"
+          message="Loading source models..."
+        />
+        
+        <!-- 로딩 완료 후 테이블 표시 -->
         <p-toolbox-table
-          ref="toolboxTable"
+          v-if="!resSourceList.isLoading.value"
+          ref="toolboxTableRef"
           :items="tableModel.tableState.displayItems"
           :fields="tableModel.tableState.fields"
           :total-count="tableModel.tableState.tableCount"

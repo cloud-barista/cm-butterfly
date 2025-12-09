@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { PToolboxTable, PButton, PButtonModal } from '@cloudforet-test/mirinae';
+import { PToolboxTable, PButton, PButtonModal, PHorizontalLayout } from '@cloudforet-test/mirinae';
 import {
   insertDynamicComponent,
   showErrorMessage,
   showSuccessMessage,
 } from '@/shared/utils';
-import { onBeforeMount, onMounted, reactive, watch } from 'vue';
+import { onBeforeMount, onMounted, reactive, watch, computed, ref, nextTick } from 'vue';
+import TableLoadingSpinner from '@/shared/ui/LoadingSpinner/TableLoadingSpinner.vue';
 import { useSourceConnectionListModel } from '@/widgets/source/sourceConnections/sourceConnectionList/model/sourceConnectionListModel';
 import { useBulkDeleteSourceConnection } from '@/entities/sourceConnection/api';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
+import { useDynamicTableHeight } from '@/shared/hooks/table/useDynamicTableHeight';
+import { useToolboxTableHeight } from '@/shared/hooks/table/useToolboxTableHeight';
 
 interface IProps {
   selectedServiceId: string;
@@ -32,6 +35,17 @@ const {
   setTargetConnections,
 } = useSourceConnectionListModel();
 
+const { dynamicHeight, minHeight, maxHeight } = useDynamicTableHeight(
+  computed(() => tableModel.tableState.items.length),
+  computed(() => tableModel.tableOptions.pageSize),
+);
+
+const { toolboxTableRef, adjustedDynamicHeight } = useToolboxTableHeight(
+  computed(() => dynamicHeight.value),
+);
+
+const isDataLoaded = ref(false);
+
 const modals = reactive({
   alertModalState: { open: false },
 });
@@ -49,10 +63,20 @@ onBeforeMount(() => {
 });
 
 onMounted(function () {
-  addDeleteIconAtTable.bind(this)();
+  // addDeleteIconAtTable will be called after data loaded
+});
+
+watch(isDataLoaded, (nv) => {
+  if (nv && toolboxTableRef.value) {
+    nextTick(() => {
+      addDeleteIconAtTable.call({ $refs: { toolboxTable: toolboxTableRef.value } });
+    });
+  }
 });
 
 function getSourceConnectionList() {
+  isDataLoaded.value = false;
+  
   resSourceConnectionList
     .execute({
       pathParams: { sgId: props.selectedServiceId },
@@ -66,9 +90,14 @@ function getSourceConnectionList() {
         );
         setTargetConnections(connectionIds);
       }
+      
+      nextTick(() => {
+        isDataLoaded.value = true;
+      });
     })
     .catch(e => {
       if (e.errorMsg.value) showErrorMessage('Error', e.errorMsg.value);
+      isDataLoaded.value = true;
     });
 }
 
@@ -155,40 +184,49 @@ function handleSourceConnectionList() {
 <template>
   <div>
     <section>
-      <p-toolbox-table
-        ref="toolboxTable"
-        :loading="
-          tableModel.tableState.loading ||
-          resSourceConnectionList.isLoading.value
-        "
-        :items="tableModel.tableState.displayItems"
-        :fields="tableModel.tableState.fields"
-        :total-count="tableModel.tableState.tableCount"
-        :style="{ height: `500px` }"
-        :sortable="tableModel.tableOptions.sortable"
-        :sort-by="tableModel.tableOptions.sortBy"
-        :selectable="tableModel.tableOptions.selectable"
-        :multi-select="tableModel.tableOptions.multiSelect"
-        :search-type="tableModel.tableOptions.searchType"
-        :key-item-sets="tableModel.querySearchState.keyItemSet"
-        :value-handler-map="tableModel.querySearchState.valueHandlerMap"
-        :query-tag="tableModel.querySearchState.queryTag"
-        :select-index.sync="tableModel.tableState.selectIndex"
-        :page-size="tableModel.tableOptions.pageSize"
-        @change="tableModel.handleChange"
-        @refresh="handleRefresh"
-        @select="handleSelectedIndex"
-      >
-        <template #toolbox-left>
-          <p-button
-            style-type="secondary"
-            icon-left="ic_plus_bold"
-            @click="handleSourceConnectionList"
+      <p-horizontal-layout :height="adjustedDynamicHeight">
+        <template #container="{ height }">
+          <!-- 로딩 중일 때 스피너 표시 -->
+          <table-loading-spinner
+            :loading="resSourceConnectionList.isLoading.value || tableModel.tableState.loading"
+            :height="height"
+            message="Loading source connections..."
+          />
+          
+          <!-- 로딩 완료 후 테이블 표시 -->
+          <p-toolbox-table
+            v-if="!resSourceConnectionList.isLoading.value && !tableModel.tableState.loading"
+            ref="toolboxTableRef"
+            :items="tableModel.tableState.displayItems"
+            :fields="tableModel.tableState.fields"
+            :total-count="tableModel.tableState.tableCount"
+            :style="{ height: `${height}px` }"
+            :sortable="tableModel.tableOptions.sortable"
+            :sort-by="tableModel.tableOptions.sortBy"
+            :selectable="tableModel.tableOptions.selectable"
+            :multi-select="tableModel.tableOptions.multiSelect"
+            :search-type="tableModel.tableOptions.searchType"
+            :key-item-sets="tableModel.querySearchState.keyItemSet"
+            :value-handler-map="tableModel.querySearchState.valueHandlerMap"
+            :query-tag="tableModel.querySearchState.queryTag"
+            :select-index.sync="tableModel.tableState.selectIndex"
+            :page-size="tableModel.tableOptions.pageSize"
+            @change="tableModel.handleChange"
+            @refresh="handleRefresh"
+            @select="handleSelectedIndex"
           >
-            Add / Edit
-          </p-button>
+            <template #toolbox-left>
+              <p-button
+                style-type="secondary"
+                icon-left="ic_plus_bold"
+                @click="handleSourceConnectionList"
+              >
+                Add / Edit
+              </p-button>
+            </template>
+          </p-toolbox-table>
         </template>
-      </p-toolbox-table>
+      </p-horizontal-layout>
     </section>
     <section class="relative">
       <slot :name="'sourceConnectionDetail'" />

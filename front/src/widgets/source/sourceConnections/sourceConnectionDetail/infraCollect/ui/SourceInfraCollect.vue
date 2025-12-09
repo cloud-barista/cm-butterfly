@@ -23,14 +23,14 @@ const {
 } = useSourceInfraCollectModel();
 
 const resCollectInfra = useCollectInfra({
-  sgId: props.sourceGroupId,
-  connId: props.connectionId,
+  sgId: null,
+  connId: null,
 });
 
 watch(
-  props,
-  () => {
-    setConnectionId(props.connectionId);
+  () => props.connectionId,
+  (newValue) => {
+    setConnectionId(newValue);
   },
   { immediate: true },
 );
@@ -40,7 +40,12 @@ onBeforeMount(() => {
 
 function handleCollectInfra() {
   resCollectInfra
-    .execute()
+    .execute({
+      pathParams: {
+        sgId: props.sourceGroupId,
+        connId: props.connectionId,
+      },
+    })
     .then(res => {
       if (res.data.responseData) {
         if (props.connectionId) {
