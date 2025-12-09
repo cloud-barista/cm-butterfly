@@ -76,6 +76,9 @@ export function useSequentialDesignerModel(refs: any) {
         if (step.componentType === 'container') {
           step.name = `${step.name}_${getRandomId().substring(0, 4)}`;
           console.log('🏷️ Container name set to:', step.name);
+        } else if (step.componentType === 'launchPad') {
+          step.name = `${step.name}_${getRandomId().substring(0, 4)}`;
+          console.log('🏷️ Launch Pad name set to:', step.name);
         } else if (step.componentType === 'task') {
           // step.name이 step.type과 같을 때만 고유한 이름 생성
           // 저장된 workflow의 경우 이미 고유한 이름(예: beetle_task_a3f2)을 가지고 있으므로 유지
@@ -131,6 +134,16 @@ export function useSequentialDesignerModel(refs: any) {
             'TaskGroup',
             'taskGroup',
             { model: {} },
+          ),
+          toolboxSteps().defineLaunchPadStep(
+            getRandomId(),
+            'Launch Pad',
+            { model: {} },
+          ),
+          toolboxSteps().defineIfStep(
+            getRandomId(),
+            [],
+            [],
           ),
         ],
       },

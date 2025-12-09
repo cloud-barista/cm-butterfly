@@ -235,14 +235,17 @@ export function useWorkflowToolModel() {
         tasks: [],
       };
 
-      if (currentNode.componentType === 'container') {
+      if (currentNode.componentType === 'container' || currentNode.componentType === 'launchPad') {
         const tasks: any = [];
+        const isParallel = currentNode.componentType === 'launchPad';
 
         currentNode.sequence?.forEach(step => {
-          if (step.componentType === 'container') {
+          if (step.componentType === 'container' || step.componentType === 'launchPad') {
             stack.push({ parentNode: taskGroup, currentNode: step });
           } else if (step.componentType === 'task') {
-            tasks.push(convertToCicadaTask(step, tasks[tasks.length - 1]));
+            // launchPad 내부의 task는 dependencies를 null로 설정하여 병렬 실행 표시
+            const previousTask = isParallel ? null : tasks[tasks.length - 1];
+            tasks.push(convertToCicadaTask(step, previousTask));
           }
         });
 
@@ -250,6 +253,11 @@ export function useWorkflowToolModel() {
           currentNode.properties.model?.['description'] ?? '';
         taskGroup.name = currentNode.name;
         taskGroup.tasks = tasks;
+        
+        // launchPad인 경우 병렬 실행 플래그 추가 (향후 백엔드 지원용)
+        if (isParallel) {
+          (taskGroup as any).is_parallel = true;
+        }
       }
 
       if (parentNode === null) {
@@ -398,7 +406,7 @@ export function useWorkflowToolModel() {
     const taskGroupQueue: Step[] = [];
 
     sequence.forEach(step => {
-      if (step.componentType === 'container') {
+      if (step.componentType === 'container' || step.componentType === 'launchPad') {
         taskGroupQueue.push(step);
       }
     });
@@ -407,6 +415,12 @@ export function useWorkflowToolModel() {
       const rootTaskGroup = taskGroupQueue.pop()!;
       const newTaskGroupSequence: Step[] = [];
       const queue: Step[] = [];
+
+      // launchPad인 경우 정렬하지 않고 그대로 유지 (병렬 실행이므로 순서 무관)
+      if (rootTaskGroup.componentType === 'launchPad') {
+        newSequence.push(rootTaskGroup);
+        continue;
+      }
 
       const rootStep = rootTaskGroup.sequence?.find(step => {
         return (
@@ -439,7 +453,7 @@ export function useWorkflowToolModel() {
         }
 
         const taskGroup = rootTaskGroup.sequence?.find(
-          step => step.componentType === 'container',
+          step => step.componentType === 'container' || step.componentType === 'launchPad',
         );
 
         if (taskGroup) {

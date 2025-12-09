@@ -26,6 +26,48 @@ export function editorProviders() {
     ) {
       //각각에 만들어야할 Vue component 정의
       if (step.componentType === 'switch' && step.type == 'if') {
+        const ifEditor = document.createElement('div');
+        ifEditor.className = 'sqd-editor-wrapper';
+        ifEditor.innerHTML = `
+          <div class="sqd-editor-header">If Step Settings</div>
+          <div class="sqd-editor-body">
+            <div class="sqd-editor-field">
+              <label>Name:</label>
+              <input type="text" id="if-name" value="${step.name}" style="width: 100%; padding: 8px; margin-top: 4px;" />
+            </div>
+            <p style="margin-top: 16px; color: #666;">조건에 따라 true 또는 false 브랜치로 분기합니다.</p>
+          </div>
+        `;
+
+        const nameInput = ifEditor.querySelector('#if-name') as HTMLInputElement;
+        nameInput?.addEventListener('input', (e) => {
+          step.name = (e.target as HTMLInputElement).value;
+          stepContext.notifyNameChanged();
+        });
+
+        editor.appendChild(ifEditor);
+      }
+      if (step.componentType === 'launchPad') {
+        const launchPadEditor = document.createElement('div');
+        launchPadEditor.className = 'sqd-editor-wrapper';
+        launchPadEditor.innerHTML = `
+          <div class="sqd-editor-header">Launch Pad Settings</div>
+          <div class="sqd-editor-body">
+            <div class="sqd-editor-field">
+              <label>Name:</label>
+              <input type="text" id="launchpad-name" value="${step.name}" style="width: 100%; padding: 8px; margin-top: 4px;" />
+            </div>
+            <p style="margin-top: 16px; color: #666;">병렬 실행될 task들을 추가하세요. 모든 task가 동시에 실행됩니다.</p>
+          </div>
+        `;
+
+        const nameInput = launchPadEditor.querySelector('#launchpad-name') as HTMLInputElement;
+        nameInput?.addEventListener('input', (e) => {
+          step.name = (e.target as HTMLInputElement).value;
+          stepContext.notifyNameChanged();
+        });
+
+        editor.appendChild(launchPadEditor);
       }
       if (step.componentType === 'container') {
       }

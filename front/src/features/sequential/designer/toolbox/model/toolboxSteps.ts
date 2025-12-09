@@ -18,6 +18,27 @@ export function toolboxSteps() {
       };
     },
 
+    defineLaunchPadStep(
+      id: string,
+      name: string,
+      properties: { model: object },
+    ): Step {
+      return {
+        componentType: 'launchPad',
+        id,
+        type: 'launchPad',
+        name,
+        properties: {
+          isDeletable: true,
+          isEnabled: true,
+          ...properties,
+        },
+        sequence: [
+          // 병렬 실행될 task들
+        ],
+      };
+    },
+
     defineTaskGroupStep(
       id: string,
       name: string,
