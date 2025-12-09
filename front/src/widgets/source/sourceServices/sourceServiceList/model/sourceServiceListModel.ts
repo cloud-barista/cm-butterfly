@@ -21,7 +21,7 @@ export function useSourceServiceListModel() {
       { name: 'name', label: 'Name' },
       { name: 'id', label: 'id' },
       { name: 'description', label: 'Description' },
-      { name: 'connectionCount', label: 'Connection' },
+      { name: 'connectionCount', label: 'Connection #' },
     ];
 
     tableModel.querySearchState.keyItemSet = [

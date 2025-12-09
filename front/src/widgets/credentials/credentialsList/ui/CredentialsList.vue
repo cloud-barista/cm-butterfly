@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, watch, onBeforeMount } from 'vue';
+import { ref, onMounted, reactive, watch, onBeforeMount, computed, nextTick } from 'vue';
 import {
   PToolboxTable,
   PHorizontalLayout,
@@ -7,6 +7,7 @@ import {
   PButtonModal,
 } from '@cloudforet-test/mirinae';
 import { useCredentialsListModel } from '@/widgets/credentials/credentialsList/model/credentialsListModel';
+import TableLoadingSpinner from '@/shared/ui/LoadingSpinner/TableLoadingSpinner.vue';
 import {
   useGetCredentialList,
   useDeleteCredentials,
@@ -17,6 +18,8 @@ import {
   showSuccessMessage,
 } from '@/shared/utils';
 import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
+import { useDynamicTableHeight } from '@/shared/hooks/table/useDynamicTableHeight';
+import { useToolboxTableHeight } from '@/shared/hooks/table/useToolboxTableHeight';
 
 interface IProps {
   addModalState: boolean;
@@ -36,13 +39,47 @@ const emit = defineEmits([
 const { tableModel, credentials, initToolBoxTableModel, configStore } =
   useCredentialsListModel();
 
+// API 호출 인스턴스 생성 (loading 상태 활용)
+const credentialListApi = useGetCredentialList();
+
+// tableOptions를 먼저 정의 (useDynamicTableHeight에서 참조하므로)
+const tableOptions = ref({
+  sortable: true,
+  sortBy: '',
+  selectable: true,
+  multiSelect: true,
+  pageSize: 10,
+});
+
+// displayItems를 사용 (items보다 반응성이 좋음)
+const itemCount = computed(() => tableModel.tableState.displayItems?.length ?? 0);
+
+const { dynamicHeight, minHeight, maxHeight, config } = useDynamicTableHeight(
+  itemCount,
+  computed(() => tableOptions.value.pageSize),
+);
+
+const { toolboxTableRef, adjustedDynamicHeight } = useToolboxTableHeight(
+  computed(() => dynamicHeight.value),
+);
+
+const isDataLoaded = ref(false);
+
 onBeforeMount(() => {
   initToolBoxTableModel();
 });
 
 onMounted(function () {
-  addDeleteIconAtTable.bind(this)();
   getCredentialList();
+});
+
+
+watch(isDataLoaded, (nv) => {
+  if (nv && toolboxTableRef.value) {
+    nextTick(() => {
+      addDeleteIconAtTable.call({ $refs: { toolboxTable: toolboxTableRef.value } });
+    });
+  }
 });
 
 watch(
@@ -55,45 +92,32 @@ watch(
   },
 );
 
-// async function getCredentialList() {
-//   try {
-//     await useGetCredentialList()
-//       .execute()
-//       .then(res => {
-//         if (res.data.responseData) {
-//           configStore.setConfig(res.data.responseData.credential);
-//         }
-//       });
-//   } catch (e: any) {
-//     showErrorMessage(
-//       'Error',
-//       e.errorMsg || 'Credential 목록을 불러오는 데 실패했습니다.',
-//     );
-//   }
-// }
-
 async function getCredentialList() {
+  isDataLoaded.value = false;
   try {
-    await useGetCredentialList()
-      .execute()
-      .then(res => {
-        if (res.data.responseData) {
-          configStore.setConfig(res.data.responseData.credential);
+    const res = await credentialListApi.execute();
+    
+    if (res.data.responseData) {
+      configStore.setConfig(res.data.responseData.credential);
 
-          // 테이블 데이터 초기화
-          tableModel.tableState.displayItems =
-            res.data.responseData.credential.map((item: any) => ({
-              configName: item.CredentialName, // 추가
-              CredentialName: item.CredentialName,
-              ProviderName: item.ProviderName,
-            }));
-        }
-      });
+      // 테이블 데이터 초기화
+      tableModel.tableState.displayItems =
+        res.data.responseData.credential.map((item: any) => ({
+          configName: item.CredentialName, // 추가
+          CredentialName: item.CredentialName,
+          ProviderName: item.ProviderName,
+        }));
+    }
+    
+    nextTick(() => {
+      isDataLoaded.value = true;
+    });
   } catch (e: any) {
     showErrorMessage(
       'Error',
       e.errorMsg || 'Credential 목록을 불러오는 데 실패했습니다.',
     );
+    isDataLoaded.value = true;
   }
 }
 // function addDeleteIconAtTable() {
@@ -115,16 +139,7 @@ async function getCredentialList() {
 //   );
 //   return instance;
 // }
-const loading = ref<boolean>(false);
 const selectIndex = ref<number[]>([]);
-
-const tableOptions = ref({
-  sortable: true,
-  sortBy: '',
-  selectable: true,
-  multiSelect: true,
-  pageSize: 10,
-});
 
 const querySearchState = ref({
   keyItemSet: tableModel.querySearchState.keyItemSet,
@@ -162,9 +177,7 @@ function handleAddCredential() {
   emit('update:connection-title', 'add');
 }
 
-const toolboxTableRef = ref(null);
-
-function addDeleteIconAtTable() {
+function addDeleteIconAtTable(this: any) {
   const toolboxTable = this.$refs.toolboxTable.$el;
   const targetElement = toolboxTable.querySelector('.right-tool-group');
   const instance = insertDynamicComponent(
@@ -237,14 +250,22 @@ async function handleDeleteCredentials() {
 
 <template>
   <div>
-    <p-horizontal-layout :height="400" :min-height="400" :max-height="1000">
+    <p-horizontal-layout :height="adjustedDynamicHeight">
       <template #container="{ height }">
+        <!-- 로딩 중일 때 스피너 표시 -->
+        <table-loading-spinner
+          :loading="credentialListApi.isLoading.value"
+          :height="height"
+          message="Loading credentials..."
+        />
+        
+        <!-- 로딩 완료 후 테이블 표시 -->
         <p-toolbox-table
-          ref="toolboxTable"
-          :loading="loading"
-          :items="tableModel.tableState.items"
+          v-if="!credentialListApi.isLoading.value"
+          ref="toolboxTableRef"
+          :items="tableModel.tableState.displayItems"
           :fields="tableModel.tableState.fields"
-          :total-count="tableModel.tableState.items.length"
+          :total-count="tableModel.tableState.displayItems.length"
           :style="{ height: `${height}px` }"
           :sortable="tableOptions.sortable"
           :sort-by="tableOptions.sortBy"
@@ -256,6 +277,7 @@ async function handleDeleteCredentials() {
           :select-index.sync="selectIndex"
           :page-size="tableOptions.pageSize"
           @change="handleChange"
+          @refresh="getCredentialList"
           @select="handleSelectedIndex"
         >
           <template #toolbox-left>
@@ -287,10 +309,4 @@ async function handleDeleteCredentials() {
 </template>
 
 <style scoped>
-.loading-spinner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
 </style>
