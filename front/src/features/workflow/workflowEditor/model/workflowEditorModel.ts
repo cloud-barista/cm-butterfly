@@ -80,48 +80,61 @@ export function useWorkflowToolModel() {
   ): IWorkFlowDesignerFormData {
     const sequence: Step[] = [];
 
-    // 스택에 부모 taskGroup과 현재 taskGroup을 함께 저장
-    const stack: {
-      parentTaskGroup: Step | null;
-      currentTaskGroup: ITaskGroupResponse;
-    }[] = workflow.data.task_groups.map(taskGroup => ({
-      parentTaskGroup: null,
-      currentTaskGroup: taskGroup,
-    }));
-
-    while (stack.length) {
-      const { parentTaskGroup, currentTaskGroup } = stack.pop()!;
-
-      const currentDesignerTaskGroup =
-        convertToDesignerTaskGroup(currentTaskGroup);
-
-      if (currentTaskGroup.tasks) {
-        for (const task of currentTaskGroup.tasks) {
+    console.log(`📥 Loading workflow...`);
+    console.log(`   Total TaskGroups: ${workflow.data.task_groups.length}`);
+    
+    if (!workflow.data.task_groups || workflow.data.task_groups.length === 0) {
+      console.warn('⚠️  No task groups found in workflow');
+      return { sequence: [] };
+    }
+    
+    // 각 TaskGroup을 순회
+    for (const taskGroup of workflow.data.task_groups) {
+      console.log(`📦 Processing TaskGroup: ${taskGroup.name}`);
+      
+      // __root_task_group_*__ 패턴인 경우 unwrap (root-level task)
+      if (taskGroup.name.startsWith('__root_task_group_') && taskGroup.name.endsWith('__')) {
+        console.log(`  🔓 Unwrapping virtual group: ${taskGroup.name}`);
+        
+        if (taskGroup.tasks && taskGroup.tasks.length === 1) {
+          const task = taskGroup.tasks[0];
           const requestBody = getMappingWorkflowTaskComponentRequestBody(
             task,
             taskComponentList,
-            currentTaskGroup.tasks,
+            taskGroup.tasks,
           );
           const currentDesignerTask = convertToDesignerTask(task, requestBody);
-          currentDesignerTaskGroup.sequence!.push(currentDesignerTask);
+          sequence.push(currentDesignerTask);
+          console.log(`    └─ Root task restored: ${task.name}`);
         }
-      }
-
-      if (parentTaskGroup) {
-        parentTaskGroup.sequence!.push(currentDesignerTaskGroup);
       } else {
-        sequence.push(currentDesignerTaskGroup);
-      }
-
-      if (currentTaskGroup.task_groups) {
-        for (const subTaskGroups of currentTaskGroup.task_groups) {
-          stack.push({
-            parentTaskGroup: currentDesignerTaskGroup,
-            currentTaskGroup: subTaskGroups,
-          });
+        // 일반 TaskGroup 복원
+        const designerTaskGroup = convertToDesignerTaskGroup(taskGroup);
+        
+        if (taskGroup.tasks) {
+          for (const task of taskGroup.tasks) {
+            const requestBody = getMappingWorkflowTaskComponentRequestBody(
+              task,
+              taskComponentList,
+              taskGroup.tasks,
+            );
+            const currentDesignerTask = convertToDesignerTask(task, requestBody);
+            designerTaskGroup.sequence!.push(currentDesignerTask);
+            console.log(`    ├─ Task: ${task.name}`);
+          }
         }
+        
+        sequence.push(designerTaskGroup);
+        console.log(`  ✅ TaskGroup restored: ${taskGroup.name} (${taskGroup.tasks?.length || 0} tasks)`);
       }
     }
+    
+    console.log(`\n✅ Loaded ${sequence.length} items`);
+    console.log('📋 Sequence:', sequence.map(s => ({
+      name: s.name,
+      type: s.componentType,
+      children: s.sequence?.length || 0
+    })));
 
     return { sequence };
   }
@@ -213,158 +226,121 @@ export function useWorkflowToolModel() {
   }
 
   function convertDesignerSequenceToCicada(sequence: Step[]) {
-    if (!validationSequence(sequence)) {
-      throw new Error('task must have at least one taskGroup as its parent.');
-    }
-    const cicadaObject: ITaskGroupResponse[] = [];
-
-    const stack: {
-      parentNode: ITaskGroupResponse | null;
-      currentNode: Step;
-    }[] = sequence.map((step: Step) => ({
-      parentNode: null,
-      currentNode: step,
-    }));
-
-    while (stack.length) {
-      const { parentNode, currentNode } = stack.shift()!;
-
-      const taskGroup: ITaskGroupResponse = {
-        description: '',
-        name: '',
-        tasks: [],
-      };
-
-      if (currentNode.componentType === 'container' || currentNode.componentType === 'launchPad') {
-        const tasks: any = [];
-        const isParallel = currentNode.componentType === 'launchPad' || 
-                          currentNode.type === 'parallelGroup' || 
-                          currentNode.properties.isParallel === true;
-
-        currentNode.sequence?.forEach(step => {
-          if (step.componentType === 'container' || step.componentType === 'launchPad') {
-            stack.push({ parentNode: taskGroup, currentNode: step });
-          } else if (step.componentType === 'task') {
-            // parallel 컨테이너 내부의 task는 dependencies를 null로 설정하여 병렬 실행 표시
-            const previousTask = isParallel ? null : tasks[tasks.length - 1];
-            tasks.push(convertToCicadaTask(step, previousTask));
-          }
-        });
-
-        taskGroup.description =
-          currentNode.properties.model?.['description'] ?? '';
-        taskGroup.name = currentNode.name;
-        taskGroup.tasks = tasks;
-        
-        // parallel 컨테이너인 경우 병렬 실행 플래그 추가 (향후 백엔드 지원용)
-        if (isParallel) {
-          (taskGroup as any).is_parallel = true;
-          const layoutType = currentNode.componentType === 'launchPad' ? 'horizontal' : 'vertical';
-          console.log(`🔀 Parallel execution converted (${layoutType} layout):`, taskGroup.name);
+    // Option 2: 여러 개의 TaskGroup 지원 테스트
+    // Backend가 실제로 multiple TaskGroups를 처리할 수 있는지 확인
+    
+    const result: ITaskGroupResponse[] = [];
+    const containerLastTasksMap = new Map<string, string[]>();
+    
+    console.log('\n🔄 Converting sequence to Cicada format (Multiple TaskGroups)...');
+    
+    sequence.forEach((step, index) => {
+      // 이전 형제의 마지막 task 가져오기
+      const previousSiblingLastTasks: string[] = [];
+      if (index > 0) {
+        const prevSibling = sequence[index - 1];
+        const lastTasks = containerLastTasksMap.get(prevSibling.id);
+        if (lastTasks && lastTasks.length > 0) {
+          previousSiblingLastTasks.push(...lastTasks);
         }
       }
-
-      if (parentNode === null) {
-        cicadaObject.push(taskGroup);
-      } else {
-        parentNode.task_groups = parentNode.task_groups || [];
-        parentNode.task_groups.push(taskGroup);
+      
+      if (step.componentType === 'container' || step.componentType === 'launchPad') {
+        // TaskGroup 생성
+        const taskGroup: ITaskGroupResponse = {
+          name: step.name,
+          description: step.properties.model?.['description'] ?? '',
+          tasks: [],
+        };
+        
+        const tasks: any[] = [];
+        const lastTasksInContainer: string[] = [];
+        const isParallel = step.componentType === 'launchPad';
+        
+        // Container 내부의 task들 처리
+        if (step.sequence) {
+          step.sequence.forEach((innerStep, innerIndex) => {
+            if (innerStep.componentType === 'task') {
+              let taskDeps: string[] = [];
+              
+              if (isParallel) {
+                // Parrel: 모든 task가 같은 dependency 가짐
+                if (innerIndex === 0) {
+                  taskDeps = previousSiblingLastTasks;
+                } else {
+                  taskDeps = previousSiblingLastTasks;
+                }
+                lastTasksInContainer.push(innerStep.name);
+              } else {
+                // TaskGroup: 순차 실행
+                if (innerIndex === 0) {
+                  taskDeps = previousSiblingLastTasks;
+                } else {
+                  // 이전 task에 의존
+                  taskDeps = [tasks[tasks.length - 1].name];
+                }
+                lastTasksInContainer.length = 0;
+                lastTasksInContainer.push(innerStep.name);
+              }
+              
+              const task = convertToCicadaTaskWithDependencies(innerStep, taskDeps);
+              tasks.push(task);
+              console.log(`  ├─ ${step.name}.${innerStep.name}, deps: [${taskDeps.join(', ')}]`);
+            }
+          });
+        }
+        
+        taskGroup.tasks = tasks;
+        
+        // 마지막 task(들) 기록
+        if (lastTasksInContainer.length > 0) {
+          containerLastTasksMap.set(step.id, lastTasksInContainer);
+        }
+        
+        result.push(taskGroup);
+        console.log(`📦 TaskGroup added: ${step.name} (${tasks.length} tasks)`);
+        
+      } else if (step.componentType === 'task') {
+        // Root-level task를 개별 TaskGroup으로 감싸기
+        const task = convertToCicadaTaskWithDependencies(step, previousSiblingLastTasks);
+        
+        const virtualTaskGroup: ITaskGroupResponse = {
+          name: `__root_task_group_${step.name}__`,
+          description: 'Virtual task group for root-level task',
+          tasks: [task],
+        };
+        
+        result.push(virtualTaskGroup);
+        containerLastTasksMap.set(step.id, [step.name]);
+        
+        console.log(`📝 Root task wrapped: ${step.name} → __root_task_group_${step.name}__, deps: [${previousSiblingLastTasks.join(', ')}]`);
       }
-    }
-    return cicadaObject;
+    });
+    
+    console.log(`\n✅ Total TaskGroups: ${result.length}`);
+    result.forEach((tg, i) => console.log(`   [${i}] ${tg.name} (${tg.tasks.length} tasks)`));
+    
+    return result;
   }
 
-  function convertToCicadaTask(step: Step, dependenciesStep: Step) {
+  function convertToCicadaTaskWithDependencies(step: Step, dependencies: string[]) {
     if (step.componentType === 'task') {
-      console.log('\n');
-      console.log('═══════════════════════════════════════════════════════════════');
-      console.log('🔄 convertToCicadaTask - Converting Step to Task');
-      console.log('═══════════════════════════════════════════════════════════════');
-      console.log('Step name:', step.name);
-      console.log('Step type:', step.type);
-      
       // Base64 encode content field for cicada_task_run_script
-      // cicada_task_run_script 태스크의 content 필드를 base64로 인코딩
       const modelToSend: any = { ...step.properties.model };
       const taskComponent = step.properties.originalData?.task_component;
       
       if (taskComponent === 'cicada_task_run_script' && modelToSend.content) {
-        console.log('🔐 Encoding content field for cicada_task_run_script');
-        console.log('   Original content:', modelToSend.content);
         modelToSend.content = encodeBase64(modelToSend.content);
-        console.log('   Encoded content:', modelToSend.content);
       }
       
-      // Current data (what will be sent)
       const currentRequestBody = JSON.stringify(modelToSend);
       const currentPathParams = step.properties.fixedModel?.path_params;
       const currentQueryParams = step.properties.fixedModel?.query_params;
       
-      console.log('\n📦 Current Data (will be sent to API):');
-      console.log('  request_body:', currentRequestBody);
-      console.log('  path_params:', currentPathParams);
-      console.log('  query_params:', currentQueryParams);
-      console.log('  task_component:', step.properties.originalData?.task_component);
-      
-      // Original data comparison
-      const originalData = step.properties.originalData;
-      if (originalData) {
-        console.log('\n🔍 Comparing with originalData:');
-        
-        // Name comparison
-        const nameMatch = step.name === originalData.name;
-        console.log('\n  Task Name:');
-        console.log('    Original:', originalData.name);
-        console.log('    Current:', step.name);
-        console.log('    Match:', nameMatch ? '✅ YES' : '❌ NO');
-        
-        // Request body comparison
-        const originalRequestBody = originalData.request_body || '{}';
-        const requestBodyMatch = currentRequestBody === originalRequestBody;
-        console.log('\n  Request Body:');
-        console.log('    Original:', originalRequestBody.substring(0, 200) + (originalRequestBody.length > 200 ? '...' : ''));
-        console.log('    Current:', currentRequestBody.substring(0, 200) + (currentRequestBody.length > 200 ? '...' : ''));
-        console.log('    Match:', requestBodyMatch ? '✅ YES' : '❌ NO');
-        
-        // Path params comparison
-        const originalPathParams = JSON.stringify(originalData.path_params || {});
-        const currentPathParamsStr = JSON.stringify(currentPathParams || {});
-        const pathParamsMatch = originalPathParams === currentPathParamsStr;
-        console.log('\n  Path Params:');
-        console.log('    Original:', originalPathParams);
-        console.log('    Current:', currentPathParamsStr);
-        console.log('    Match:', pathParamsMatch ? '✅ YES' : '❌ NO');
-        
-        // Query params comparison
-        const originalQueryParams = JSON.stringify(originalData.query_params || {});
-        const currentQueryParamsStr = JSON.stringify(currentQueryParams || {});
-        const queryParamsMatch = originalQueryParams === currentQueryParamsStr;
-        console.log('\n  Query Params:');
-        console.log('    Original:', originalQueryParams);
-        console.log('    Current:', currentQueryParamsStr);
-        console.log('    Match:', queryParamsMatch ? '✅ YES' : '❌ NO');
-        
-        // Overall comparison
-        const allMatch = nameMatch && requestBodyMatch && pathParamsMatch && queryParamsMatch;
-        console.log('\n📊 Overall Comparison:');
-        if (allMatch) {
-          console.log('  ✅ ALL DATA MATCHES: No modifications detected');
-          console.log('  ✅ Data integrity preserved - originalData === currentData');
-        } else {
-          console.log('  ⚠️ DATA WAS MODIFIED: Some fields differ from originalData');
-          console.log('  Changed fields:', [
-            !nameMatch && 'name',
-            !requestBodyMatch && 'request_body',
-            !pathParamsMatch && 'path_params',
-            !queryParamsMatch && 'query_params'
-          ].filter(Boolean).join(', '));
-        }
-      } else {
-        console.log('\n⚠️ No originalData found for comparison');
-      }
-      
-      console.log('═══════════════════════════════════════════════════════════════');
-      console.log('\n');
+      console.log('\n=== Task Conversion ===');
+      console.log('Task:', step.name);
+      console.log('Dependencies:', dependencies);
+      console.log('Task Component:', taskComponent);
       
       return {
         name: step.name,
@@ -372,10 +348,7 @@ export function useWorkflowToolModel() {
         path_params: currentPathParams,
         query_params: currentQueryParams,
         task_component: step.properties.originalData?.task_component,
-        dependencies:
-          dependenciesStep && dependenciesStep.name
-            ? [dependenciesStep.name]
-            : [],
+        dependencies: dependencies,
       };
     }
   }
@@ -412,6 +385,9 @@ export function useWorkflowToolModel() {
     sequence.forEach(step => {
       if (step.componentType === 'container' || step.componentType === 'launchPad') {
         taskGroupQueue.push(step);
+      } else if (step.componentType === 'task') {
+        // Root-level task는 그대로 유지 (reordering 불필요)
+        newSequence.push(step);
       }
     });
 
@@ -473,6 +449,8 @@ export function useWorkflowToolModel() {
       rootTaskGroup.sequence = newTaskGroupSequence;
       newSequence.push(rootTaskGroup);
     }
+
+    console.log(`🔄 Reordering complete: ${newSequence.length} steps (${newSequence.filter(s => s.componentType === 'task').length} root tasks, ${newSequence.filter(s => s.componentType === 'container' || s.componentType === 'launchPad').length} containers)`);
 
     return newSequence;
   }

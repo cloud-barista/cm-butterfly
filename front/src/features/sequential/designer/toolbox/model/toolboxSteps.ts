@@ -18,7 +18,7 @@ export function toolboxSteps() {
       };
     },
 
-    defineLaunchPadStep(
+    defineParrelStep(
       id: string,
       name: string,
       properties: { model: object },
@@ -35,27 +35,6 @@ export function toolboxSteps() {
         },
         sequence: [
           // 병렬 실행될 task들
-        ],
-      };
-    },
-
-    defineParallelGroupStep(
-      id: string,
-      name: string,
-      properties: { model: object },
-    ): Step {
-      return {
-        componentType: 'container',
-        id,
-        type: 'parallelGroup',
-        name,
-        properties: {
-          isDeletable: true,
-          isParallel: true,
-          ...properties,
-        },
-        sequence: [
-          // 병렬 실행될 task들 (수직 배치)
         ],
       };
     },
