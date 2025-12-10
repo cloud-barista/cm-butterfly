@@ -1,6 +1,7 @@
 import { insertDynamicComponent } from '@/shared/utils';
 import { getSequencePath } from '@/features/sequential/designer/editor/model/utils';
 import TaskComponentEditor from '@/features/sequential/designer/editor/ui/TaskComponentEditor.vue';
+import ContainerNameEditor from '@/features/sequential/designer/editor/ui/ContainerNameEditor.vue';
 
 export function editorProviders() {
   const editor = document.createElement('div');
@@ -47,32 +48,18 @@ export function editorProviders() {
 
         editor.appendChild(ifEditor);
       }
-      if (step.componentType === 'launchPad') {
-        const parrelEditor = document.createElement('div');
-        parrelEditor.className = 'sqd-editor-wrapper';
-        parrelEditor.innerHTML = `
-          <div class="sqd-editor-header">Parrel Settings</div>
-          <div class="sqd-editor-body">
-            <div class="sqd-editor-field">
-              <label>Name:</label>
-              <input type="text" id="parrel-name" value="${step.name}" style="width: 100%; padding: 8px; margin-top: 4px;" />
-            </div>
-            <div style="margin-top: 16px; padding: 12px; background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 4px;">
-              <strong style="color: #2e7d32;">🚀 수평 병렬 실행</strong>
-              <p style="margin-top: 8px; color: #424242; font-size: 13px;">이 Parrel 내의 모든 task가 수평으로 배치되며 동시에 실행됩니다.</p>
-            </div>
-          </div>
-        `;
-
-        const nameInput = parrelEditor.querySelector('#parrel-name') as HTMLInputElement;
-        nameInput?.addEventListener('input', (e) => {
-          step.name = (e.target as HTMLInputElement).value;
-          stepContext.notifyNameChanged();
-        });
-
-        editor.appendChild(parrelEditor);
-      }
-      if (step.componentType === 'container') {
+      if (step.componentType === 'launchPad' || step.componentType === 'container') {
+        insertDynamicComponent(
+          ContainerNameEditor,
+          { step, definition },
+          {
+            saveComponentName: (name) => {
+              step.name = name;
+              stepContext.notifyNameChanged();
+            },
+          },
+          editor,
+        );
       }
       if (step.componentType === 'task') {
         // 🎯 모든 task에 대해 범용 TaskComponentEditor 사용

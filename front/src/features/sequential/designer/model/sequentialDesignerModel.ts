@@ -73,23 +73,59 @@ export function useSequentialDesignerModel(refs: any) {
         return true;
       },
       canInsertStep: (step, targetSequence, targetIndex) => {
+        // 중복 이름 체크 함수 (재귀적으로 전체 workflow 검사)
+        function isNameDuplicate(sequence: any[], name: string, excludeId?: string): boolean {
+          for (const s of sequence) {
+            if (s.id !== excludeId && s.name === name) {
+              return true;
+            }
+            if (s.sequence && s.sequence.length > 0) {
+              if (isNameDuplicate(s.sequence, name, excludeId)) {
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+
+        // 고유한 이름 생성 함수
+        function generateUniqueName(baseName: string): string {
+          let newName = `${baseName}_${getRandomId().substring(0, 4)}`;
+          // definition이 존재하면 중복 체크
+          if (definition && definition.sequence) {
+            while (isNameDuplicate(definition.sequence, newName)) {
+              newName = `${baseName}_${getRandomId().substring(0, 4)}`;
+            }
+          }
+          return newName;
+        }
+
         if (step.componentType === 'container') {
-          step.name = `${step.name}_${getRandomId().substring(0, 4)}`;
+          const baseName = step.name.replace(/_[a-z0-9]{4}$/i, ''); // 기존 suffix 제거
+          step.name = generateUniqueName(baseName);
           console.log('🏷️ Container name set to:', step.name);
         } else if (step.componentType === 'launchPad') {
-          step.name = `${step.name}_${getRandomId().substring(0, 4)}`;
+          const baseName = step.name.replace(/_[a-z0-9]{4}$/i, ''); // 기존 suffix 제거
+          step.name = generateUniqueName(baseName);
           console.log('🏷️ Parrel name set to:', step.name);
           console.log('🚀 Parrel created - tasks will run in parallel (horizontal layout)');
         } else if (step.componentType === 'task') {
-          // step.name이 step.type과 같을 때만 고유한 이름 생성
-          // 저장된 workflow의 경우 이미 고유한 이름(예: beetle_task_a3f2)을 가지고 있으므로 유지
+          // Toolbox에서 추가하는 경우 (step.name === step.type)
           if (step.name === step.type) {
-            const newName = `${step.type}_${getRandomId().substring(0, 4)}`;
-            step.name = newName;
-            console.log('🏷️ Task name auto-generated:', newName);
+            step.name = generateUniqueName(step.type);
+            console.log('🏷️ Task name auto-generated:', step.name);
             console.log('   step.type:', step.type);
-          } else {
-            console.log('🏷️ Task name preserved (from saved workflow):', step.name);
+          } 
+          // Duplicate하는 경우 또는 저장된 workflow 로드하는 경우
+          else {
+            // 중복 체크: definition이 있고 이름이 중복되면 새로운 이름 생성
+            if (definition && definition.sequence && isNameDuplicate(definition.sequence, step.name, step.id)) {
+              const baseName = step.name.replace(/_[a-z0-9]{4}$/i, ''); // 기존 suffix 제거
+              step.name = generateUniqueName(baseName);
+              console.log('🏷️ Task name regenerated (duplicate detected):', step.name);
+            } else {
+              console.log('🏷️ Task name preserved:', step.name);
+            }
           }
         }
         return true;
