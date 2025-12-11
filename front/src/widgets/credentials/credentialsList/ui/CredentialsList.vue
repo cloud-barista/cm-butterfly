@@ -52,11 +52,17 @@ const tableOptions = ref({
 });
 
 // displayItems를 사용 (items보다 반응성이 좋음)
-const itemCount = computed(() => tableModel.tableState.displayItems?.length ?? 0);
+const itemCount = computed(() => {
+  const count = tableModel.tableState.displayItems?.length ?? 0;
+  return count;
+});
 
 const { dynamicHeight, minHeight, maxHeight, config } = useDynamicTableHeight(
   itemCount,
   computed(() => tableOptions.value.pageSize),
+  {
+    minTableHeight: 193,  // 기본 최소 높이 (1개 row 기준)
+  },
 );
 
 const { toolboxTableRef, adjustedDynamicHeight } = useToolboxTableHeight(
@@ -64,6 +70,7 @@ const { toolboxTableRef, adjustedDynamicHeight } = useToolboxTableHeight(
 );
 
 const isDataLoaded = ref(false);
+const tableKey = ref(0); // 컴포넌트 재렌더링을 위한 key
 
 onBeforeMount(() => {
   initToolBoxTableModel();
@@ -111,6 +118,8 @@ async function getCredentialList() {
     
     nextTick(() => {
       isDataLoaded.value = true;
+      // 데이터 로드 후 컴포넌트 재렌더링
+      tableKey.value++;
     });
   } catch (e: any) {
     showErrorMessage(
@@ -250,7 +259,7 @@ async function handleDeleteCredentials() {
 
 <template>
   <div>
-    <p-horizontal-layout :height="adjustedDynamicHeight">
+    <p-horizontal-layout :key="tableKey" :height="adjustedDynamicHeight">
       <template #container="{ height }">
         <!-- 로딩 중일 때 스피너 표시 -->
         <table-loading-spinner

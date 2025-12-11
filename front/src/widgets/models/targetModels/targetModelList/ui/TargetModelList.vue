@@ -18,8 +18,11 @@ const { tableModel, initToolBoxTableModel, targetModelStore } =
   useTargetModelListModel();
 
 const { dynamicHeight, minHeight, maxHeight } = useDynamicTableHeight(
-  computed(() => tableModel.tableState.items.length),
+  computed(() => tableModel.tableState.displayItems?.length ?? 0),
   computed(() => tableModel.tableOptions.pageSize),
+  {
+    minTableHeight: 193,  // 기본 최소 높이 (1개 row 기준)
+  },
 );
 
 const { toolboxTableRef, adjustedDynamicHeight } = useToolboxTableHeight(
@@ -35,6 +38,7 @@ const props = defineProps<IProps>();
 const emit = defineEmits(['select-row', 'update:trigger']);
 
 const isDataLoaded = ref(false);
+const tableKey = ref(0); // 컴포넌트 재렌더링을 위한 key
 
 const modals = reactive({
   alertModalState: { open: false },
@@ -97,6 +101,8 @@ function getTableList() {
     }
     nextTick(() => {
       isDataLoaded.value = true;
+      // 데이터 로드 후 컴포넌트 재렌더링
+      tableKey.value++;
     });
   }).catch(e => {
     isDataLoaded.value = true;
@@ -327,7 +333,7 @@ function handleDeleteConfirm() {
 
 <template>
   <div>
-    <p-horizontal-layout :height="adjustedDynamicHeight">
+    <p-horizontal-layout :key="tableKey" :height="adjustedDynamicHeight">
       <template #container="{ height }">
         <!-- 로딩 중일 때 스피너 표시 -->
         <table-loading-spinner
