@@ -31,14 +31,14 @@ services:
 
   cm-butterfly-api:
     version: 0.4.0
-    #baseurl: http://localhost:4000
     baseurl: http://cm-butterfly-api:4000
+    #baseurl: http://cm-butterfly-api:4000
     auth:
       type: none
       
   cm-cicada:
     version: 0.4.0
-    baseurl: http://cm-cicada:8083/cicada
+    baseurl: http:// cm-cicada:8083/cicada
     auth:
       type: none
 
@@ -2564,6 +2564,14 @@ serviceActions:
         - `desiredCsp` and `desiredRegion` can set on the query parameter or the request body.
 
         - If desiredCsp and desiredRegion are set on request body, the values in the query parameter will be ignored.
+    RecommendVmInfraCandidates:
+      method: post
+      resourcePath: /recommendation/vmInfra
+      description: |-
+        Recommend an appropriate VM infrastructure (i.e., MCI, multi-cloud infrastructure) for cloud migration
+        - If desiredCsp and desiredRegion are set on request body, the values in the query parameter will be ignored.
+
+        
     RecommendVMInfraWithDefaults:
       method: post
       resourcePath: /recommendation/mciWithDefaults

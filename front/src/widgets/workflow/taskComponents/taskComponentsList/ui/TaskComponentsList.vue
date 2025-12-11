@@ -47,6 +47,7 @@ const modal = reactive({
 });
 
 const isDataLoaded = ref(false);
+const tableKey = ref(0); // 컴포넌트 재렌더링을 위한 key
 
 onBeforeMount(() => {
   initToolBoxTableModel();
@@ -134,6 +135,8 @@ async function fetchTaskComponentsList() {
     }
     nextTick(() => {
       isDataLoaded.value = true;
+      // 데이터 로드 후 컴포넌트 재렌더링
+      tableKey.value++;
     });
   } catch (e) {
     console.log(e);
@@ -155,7 +158,7 @@ watch(
 
 <template>
   <div>
-    <p-horizontal-layout :height="adjustedDynamicHeight">
+    <p-horizontal-layout :key="tableKey" :height="adjustedDynamicHeight">
       <template #container="{ height }">
         <!-- 로딩 중일 때 스피너 표시 -->
         <table-loading-spinner

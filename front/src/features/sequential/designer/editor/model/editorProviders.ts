@@ -1,6 +1,7 @@
 import { insertDynamicComponent } from '@/shared/utils';
 import { getSequencePath } from '@/features/sequential/designer/editor/model/utils';
 import TaskComponentEditor from '@/features/sequential/designer/editor/ui/TaskComponentEditor.vue';
+import ContainerNameEditor from '@/features/sequential/designer/editor/ui/ContainerNameEditor.vue';
 
 export function editorProviders() {
   const editor = document.createElement('div');
@@ -26,8 +27,39 @@ export function editorProviders() {
     ) {
       //각각에 만들어야할 Vue component 정의
       if (step.componentType === 'switch' && step.type == 'if') {
+        const ifEditor = document.createElement('div');
+        ifEditor.className = 'sqd-editor-wrapper';
+        ifEditor.innerHTML = `
+          <div class="sqd-editor-header">If Step Settings</div>
+          <div class="sqd-editor-body">
+            <div class="sqd-editor-field">
+              <label>Name:</label>
+              <input type="text" id="if-name" value="${step.name}" style="width: 100%; padding: 8px; margin-top: 4px;" />
+            </div>
+            <p style="margin-top: 16px; color: #666;">조건에 따라 true 또는 false 브랜치로 분기합니다.</p>
+          </div>
+        `;
+
+        const nameInput = ifEditor.querySelector('#if-name') as HTMLInputElement;
+        nameInput?.addEventListener('input', (e) => {
+          step.name = (e.target as HTMLInputElement).value;
+          stepContext.notifyNameChanged();
+        });
+
+        editor.appendChild(ifEditor);
       }
-      if (step.componentType === 'container') {
+      if (step.componentType === 'launchPad' || step.componentType === 'container') {
+        insertDynamicComponent(
+          ContainerNameEditor,
+          { step, definition },
+          {
+            saveComponentName: (name) => {
+              step.name = name;
+              stepContext.notifyNameChanged();
+            },
+          },
+          editor,
+        );
       }
       if (step.componentType === 'task') {
         // 🎯 모든 task에 대해 범용 TaskComponentEditor 사용
