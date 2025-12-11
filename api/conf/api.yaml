@@ -1,7 +1,7 @@
 services:
   cb-spider: #service name
     version: 0.11.13
-    baseurl: http://13.125.131.34:1024/spider # baseurl is Scheme + Host + Base Path
+    baseurl: http://cb-spider:1024/spider # baseurl is Scheme + Host + Base Path
     auth: #If you need an authentication method, describe the type and username and password in the sub
       # type: basic
       # username: default
@@ -9,7 +9,7 @@ services:
 
   cb-tumblebug:
     version: 0.11.13
-    baseurl: http://13.125.131.34:1323/tumblebug
+    baseurl: http://cb-tumblebug:1323/tumblebug
     auth:
       type: basic
       username: default
@@ -17,13 +17,13 @@ services:
       
   cm-ant:
     version: 0.4.0
-    baseurl: http://13.125.131.34:8880/ant
+    baseurl: http://cm-ant:8880/ant
     auth:
       type: none
       
   cm-beetle:
     version: 0.4.0
-    baseurl: http://13.125.131.34:8056/beetle
+    baseurl: http://cm-beetle:8056/beetle
     auth:
       type: basic
       username: default
@@ -31,31 +31,31 @@ services:
 
   cm-butterfly-api:
     version: 0.4.0
-    baseurl: http://localhost:4000
+    baseurl: http://cm-butterfly-api:4000
     #baseurl: http://cm-butterfly-api:4000
     auth:
       type: none
       
   cm-cicada:
     version: 0.4.0
-    baseurl: http://13.125.131.34:8083/cicada
+    baseurl: http:// cm-cicada:8083/cicada
     auth:
       type: none
 
   cm-honeybee:
     version: 0.4.0
-    baseurl: http://13.125.131.34:8081/honeybee
+    baseurl: http://cm-honeybee:8081/honeybee
     auth:
       type: none 
 
   cm-grasshopper:
     version: 0.4.0
-    baseurl: http://13.125.131.34:8084/grasshopper
+    baseurl: http://cm-grasshopper:8084/grasshopper
     auth:
       type: none
 
   cm-damselfly:
-    baseurl: http://13.125.131.34:8088/damselfly
+    baseurl: http://cm-damselfly:8088/damselfly
     auth:
       type: basic
       username: default
