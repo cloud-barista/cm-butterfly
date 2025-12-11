@@ -38,7 +38,7 @@ services:
       
   cm-cicada:
     version: 0.4.0
-    baseurl: http:// cm-cicada:8083/cicada
+    baseurl: http://cm-cicada:8083/cicada
     auth:
       type: none
 
