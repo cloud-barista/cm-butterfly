@@ -249,7 +249,8 @@ function load() {
   if (!props.targetModel || workflowToolModel.dropDownModel.selectedItemId) {
     loadWorkflow();
     loadSequence();
-    reorderingSequence();
+    // reorderingSequence();  // Temporarily disabled - TaskGroups should stay flat
+    console.log('⚠️  Reordering skipped - TaskGroups loaded as flat structure');
   }
   
   loading.value = false;

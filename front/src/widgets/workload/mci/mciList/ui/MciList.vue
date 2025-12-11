@@ -32,6 +32,8 @@ const { toolboxTableRef, adjustedDynamicHeight } = useToolboxTableHeight(
   computed(() => dynamicHeight.value),
 );
 
+const tableKey = ref(0); // 컴포넌트 재렌더링을 위한 key
+
 const mciCreateModalState = reactive({
   open: false,
   props: {},
@@ -66,6 +68,8 @@ function handleDelete(item: string) {
 
 async function handleDeleted() {
   await fetchMciList();
+  // 데이터 로드 후 컴포넌트 재렌더링
+  tableKey.value++;
 }
 
 function handleSelectedIndex(index: number[]) {
@@ -85,14 +89,16 @@ onBeforeMount(() => {
   initToolBoxTableModel();
 });
 
-onMounted(() => {
-  fetchMciList();
+onMounted(async () => {
+  await fetchMciList();
+  // 초기 데이터 로드 후 컴포넌트 재렌더링
+  tableKey.value++;
 });
 </script>
 
 <template>
   <div>
-    <p-horizontal-layout :height="adjustedDynamicHeight">
+    <p-horizontal-layout :key="tableKey" :height="adjustedDynamicHeight">
       <template #container="{ height }">
         <!-- 로딩 중일 때 스피너 표시 -->
         <table-loading-spinner

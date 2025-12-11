@@ -12,7 +12,7 @@ export interface DynamicTableHeightConfig {
   paginationHeight?: number;      // 페이지네이션 높이 (기본: 0px - toolbox에 포함됨)
   minTableHeight?: number;        // 최소 높이 - 1개 row 기준 (기본: 193px)
   maxTableHeight?: number;        // 최대 높이 - 데이터 많을 때 제한 (기본: 1000px)
-  additionalPadding?: number;     // DataTable 내부 padding (기본: 40px)
+  additionalPadding?: number;     // DataTable 내부 padding (기본: 10px)
   enableLogging?: boolean;        // 디버그 로깅 활성화 (기본: false)
 }
 
@@ -66,7 +66,7 @@ export function useDynamicTableHeight(
     paginationHeight: config.paginationHeight ?? 0,      // toolbox에 포함되어 있으므로 0
     minTableHeight: config.minTableHeight ?? 193,        // 81 + 32 + 40 + 40 = 193px (1개 row + DataTable 내부 padding)
     maxTableHeight: config.maxTableHeight ?? 1000,
-    additionalPadding: config.additionalPadding ?? 40,   // DataTable 컴포넌트 내부 padding (실제 측정)
+    additionalPadding: config.additionalPadding ?? 10,   // DataTable 내부 padding
     enableLogging: config.enableLogging ?? false,
   };
 
