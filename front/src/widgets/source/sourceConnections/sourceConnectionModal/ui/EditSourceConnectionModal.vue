@@ -257,7 +257,7 @@ const handleAddSourceConnection = async () => {
       <template #add-info>
         <div v-for="(info, i) in uniqueSourceConnectionsByIds" :key="info._id || info.id || i">
           <source-connection-form
-            v-model="uniqueSourceConnectionsByIds[i]"
+            :source-connection="uniqueSourceConnectionsByIds[i]"
             mode="edit"
             :show-delete-button="uniqueSourceConnectionsByIds.length > 1"
             :readonly="getReadonlyFields(info)"

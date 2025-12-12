@@ -41,10 +41,12 @@ onBeforeMount(() => {
 });
 
 const handleValidChange = (id: number, valid: boolean) => {
+  console.log('[SourceConnectionModal] handleValidChange called:', { id, valid });
   validStates.value.set(id, valid);
   // 모든 connection이 유효한지 확인
   const allValid = Array.from(validStates.value.values()).every(v => v);
   isDisabled.value = allValid && validStates.value.size === sourceConnectionStore.editConnections.length;
+  console.log('[SourceConnectionModal] isDisabled updated:', isDisabled.value, 'editConnections:', sourceConnectionStore.editConnections);
 };
 
 const addSourceConnection = () => {
@@ -81,6 +83,7 @@ const handleCancel = () => {
 };
 
 const handleAddSourceConnection = () => {
+  console.log('[SourceConnectionModal] Apply clicked, editConnections:', JSON.stringify(sourceConnectionStore.editConnections, null, 2));
   emit('update:is-connection-modal-opened', false);
   emit('update:is-service-modal-opened', true);
 };
@@ -109,7 +112,7 @@ const handleAddSourceConnection = () => {
         >
           <source-connection-form
             v-if="sourceConnectionStore.editConnections[i]"
-            v-model="sourceConnectionStore.editConnections[i]"
+            :source-connection="sourceConnectionStore.editConnections[i]"
             mode="create"
             :show-delete-button="sourceConnectionStore.editConnections.length > 1"
             @delete="deleteSourceConnection(value._id)"
