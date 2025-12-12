@@ -2,8 +2,8 @@
 import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
-import { SourceConnectionInfo } from '@/features/sourceServices';
-import { ref, watchEffect } from 'vue';
+import SourceConnectionForm from '@/features/sourceServices/sourceConnection/ui/SourceConnectionForm.vue';
+import { ref, watchEffect, onBeforeMount } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 
 const sourceConnectionStore = useSourceConnectionStore();
@@ -14,9 +14,42 @@ interface iProps {
 const props = defineProps<iProps>();
 
 const isDisabled = ref<boolean>(false);
+const validStates = ref<Map<number, boolean>>(new Map());
+let connectionIdCounter = 0;
+
+// 모달이 열릴 때 초기 connection이 없으면 하나 추가
+onBeforeMount(() => {
+  if (sourceConnectionStore.editConnections.length === 0) {
+    sourceConnectionStore.editConnections.push({
+      _id: connectionIdCounter++,
+      name: '',
+      description: '',
+      ip_address: '',
+      user: '',
+      private_key: '',
+      ssh_port: '22',
+      password: '',
+    });
+  } else {
+    // 기존 connection들에 ID 부여
+    sourceConnectionStore.editConnections.forEach((conn: any) => {
+      if (!conn._id) {
+        conn._id = connectionIdCounter++;
+      }
+    });
+  }
+});
+
+const handleValidChange = (id: number, valid: boolean) => {
+  validStates.value.set(id, valid);
+  // 모든 connection이 유효한지 확인
+  const allValid = Array.from(validStates.value.values()).every(v => v);
+  isDisabled.value = allValid && validStates.value.size === sourceConnectionStore.editConnections.length;
+};
 
 const addSourceConnection = () => {
   sourceConnectionStore.editConnections.push({
+    _id: connectionIdCounter++,
     name: '',
     description: '',
     ip_address: '',
@@ -27,29 +60,15 @@ const addSourceConnection = () => {
   });
 };
 
-watchEffect(
-  () => {
-    if (sourceConnectionStore.editConnections.length > 0) {
-      sourceConnectionStore.editConnections.forEach(s => {
-        if (
-          s.ip_address &&
-          s.name &&
-          s.ssh_port &&
-          s.user &&
-          (s.password || s.private_key)
-        ) {
-          isDisabled.value = true;
-        } else {
-          isDisabled.value = false;
-        }
-      });
-    }
-  },
-  { flush: 'post' },
-);
-
-const deleteSourceConnection = () => {
-  sourceConnectionStore.editConnections.splice(-1, 1);
+const deleteSourceConnection = (id: number) => {
+  const index = sourceConnectionStore.editConnections.findIndex((conn: any) => conn._id === id);
+  if (index !== -1) {
+    sourceConnectionStore.editConnections.splice(index, 1);
+    validStates.value.delete(id);
+    // 삭제 후 validation 상태 재계산
+    const allValid = Array.from(validStates.value.values()).every(v => v);
+    isDisabled.value = allValid && validStates.value.size === sourceConnectionStore.editConnections.length;
+  }
 };
 
 const emit = defineEmits([
@@ -86,11 +105,15 @@ const handleAddSourceConnection = () => {
       <template #add-info>
         <div
           v-for="(value, i) in sourceConnectionStore.editConnections"
-          :key="i"
+          :key="value._id"
         >
-          <source-connection-info
-            :source-connection="value"
-            @delete:source-connection="deleteSourceConnection"
+          <source-connection-form
+            v-if="sourceConnectionStore.editConnections[i]"
+            v-model="sourceConnectionStore.editConnections[i]"
+            mode="create"
+            :show-delete-button="sourceConnectionStore.editConnections.length > 1"
+            @delete="deleteSourceConnection(value._id)"
+            @update:valid="valid => handleValidChange(value._id, valid)"
           />
         </div>
       </template>

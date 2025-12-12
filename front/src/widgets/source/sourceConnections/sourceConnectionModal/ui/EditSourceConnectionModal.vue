@@ -2,8 +2,8 @@
 import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
-import { EditSourceConnectionInfo } from '@/features/sourceServices';
-import { ref, watchEffect } from 'vue';
+import SourceConnectionForm from '@/features/sourceServices/sourceConnection/ui/SourceConnectionForm.vue';
+import { ref, watchEffect, computed } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 import { useCreateConnectionInfo } from '@/entities/sourceConnection/api';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
@@ -26,6 +26,14 @@ const createConnectionInfo = useCreateConnectionInfo(
 );
 
 const isDisabled = ref<boolean>(false);
+const validStates = ref<Map<number | string, boolean>>(new Map());
+
+const handleValidChange = (id: number | string, valid: boolean) => {
+  validStates.value.set(id, valid);
+  // 모든 connection이 유효한지 확인
+  const allValid = Array.from(validStates.value.values()).every(v => v);
+  isDisabled.value = allValid && validStates.value.size === uniqueSourceConnectionsByIds.value.length;
+};
 
 const connectionInfoData = ref<any[]>([]);
 const emit = defineEmits([
@@ -45,117 +53,186 @@ const handleCancel = () => {
 
 const saveLoading = ref<boolean>(false);
 
-const handleAddSourceConnection = async () => {
-  if (props.multiSelectedConnectionIds.length > 0) {
-    saveLoading.value = true;
-    try {
-      connectionInfoData.value.forEach(async info => {
-        const { data } = await updateConnectionInfo.execute({
-          pathParams: {
-            sgId: props.sourceServiceId,
-            connId: info.id,
-          },
-          request: {
-            description: info.description,
-            ip_address: info.ip_address,
-            password: info.password,
-            private_key: info.private_key,
-            ssh_port: info.ssh_port,
-            user: info.user,
-          },
-        });
-        if (data) {
-          saveLoading.value = false;
-          showSuccessMessage('success', 'Connection Modified Successfully');
-          emit('update:trigger');
-          emit('update:is-connection-modal-opened', false);
-          emit('update:is-service-modal-opened', false);
-        }
-      });
-    } catch (error) {
-      saveLoading.value = false;
-      if (
-        (error as any).errorMsg ===
-        'constraint failed: UNIQUE constraint failed: connection_infos.name (2067)'
-      ) {
-        showErrorMessage('failed', 'Connection Info Name Already Exists');
-      }
-      showErrorMessage('failed', 'Connection Modifying Failed');
-    }
-  } else if (
-    props.selectedConnectionId.length === 0 &&
-    props.multiSelectedConnectionIds.length === 0
-  ) {
-    saveLoading.value = true;
-    try {
-      if (props.selectedConnectionId.length === 0) {
-        const { data } = await createConnectionInfo.execute({
-          pathParams: {
-            sgId: props.sourceServiceId,
-          },
-          request: {
-            description: connectionInfoData.value[0].description,
-            ip_address: connectionInfoData.value[0].ip_address,
-            name: connectionInfoData.value[0].name,
-            password: connectionInfoData.value[0].password,
-            private_key: connectionInfoData.value[0].private_key,
-            ssh_port: connectionInfoData.value[0].ssh_port,
-            user: connectionInfoData.value[0].user,
-          },
-        });
+// Add 모드인지 Edit 모드인지 확인
+const isAddMode = computed(() => 
+  props.multiSelectedConnectionIds.length === 0 && 
+  props.selectedConnectionId.length === 0
+);
 
-        if (data) {
-          saveLoading.value = false;
-          showSuccessMessage('success', 'Connection Created Successfully');
+let connectionIdCounter = 0;
 
-          emit('update:trigger');
-          emit('update:is-connection-modal-opened', false);
-          emit('update:is-service-modal-opened', false);
-        }
-      }
-    } catch (error) {
-      saveLoading.value = false;
-      if (
-        (error as any).errorMsg.value ===
-        'constraint failed: UNIQUE constraint failed: connection_infos.name (2067)'
-      ) {
-        showErrorMessage('failed', 'Connection Info Name Already Exists');
-      }
-      showErrorMessage('failed', 'Connection Creation Failed');
-    }
+const addSourceConnection = () => {
+  const newId = connectionIdCounter++;
+  uniqueSourceConnectionsByIds.value.push({
+    _id: newId,
+    name: '',
+    ip_address: '',
+    ssh_port: 22,
+    user: '',
+    password: '',
+    private_key: '',
+  });
+  validStates.value.set(newId, false);
+};
+
+const deleteSourceConnection = (id: number | string) => {
+  const index = uniqueSourceConnectionsByIds.value.findIndex((conn: any) => (conn._id || conn.id) === id);
+  if (index !== -1) {
+    uniqueSourceConnectionsByIds.value.splice(index, 1);
+    validStates.value.delete(id);
+    // 삭제 후 validation 상태 재계산
+    const allValid = Array.from(validStates.value.values()).every(v => v);
+    isDisabled.value = allValid && validStates.value.size === uniqueSourceConnectionsByIds.value.length;
   }
 };
 
-watchEffect(() => {
-  connectionInfoData.value.forEach(data => {
-    if (
-      props.multiSelectedConnectionIds.length === 0 &&
-      data.name !== '' &&
-      data.ip_address !== '' &&
-      data.user !== '' &&
-      (data.password !== '' || data.private_key !== '') &&
-      data.ssh_port !== 0
-    ) {
-      isDisabled.value = true;
-    } else if (
-      props.multiSelectedConnectionIds.length > 0 &&
-      data.name !== '' &&
-      data.ip_address !== ''
-    ) {
-      isDisabled.value = true;
-    } else if (typeof Number(data.ssh_port) !== 'number') {
-      isDisabled.value = false;
-    } else {
-      isDisabled.value = false;
-    }
-  });
-});
+// EditSourceConnectionInfo 로직 통합
+const sourceConnectionsByIds = ref<any[]>([]);
+const uniqueSourceConnectionsByIds = ref<any[]>([]);
+let isInitialized = false;
 
+// 선택된 Connection ID에 따라 데이터 로드
 watchEffect(() => {
-  if (props.selectedConnectionId.length > 0) {
-    isDisabled.value = true;
+  if (props.multiSelectedConnectionIds.length === 1) {
+    sourceConnectionsByIds.value = [
+      {
+        _id: connectionIdCounter++,
+        ...sourceConnectionStore.getConnectionById(
+          props.multiSelectedConnectionIds[0],
+        ),
+        user: '',
+        password: '',
+        private_key: '',
+      },
+    ];
+  } else if (props.multiSelectedConnectionIds.length > 1) {
+    sourceConnectionsByIds.value = props.multiSelectedConnectionIds.map(
+      (connId: string) => ({
+        _id: connectionIdCounter++,
+        ...sourceConnectionStore.getConnectionById(connId),
+        user: '',
+        password: '',
+        private_key: '',
+      }),
+    );
+  } else if (props.multiSelectedConnectionIds.length === 0 && 
+             props.selectedConnectionId.length === 0) {
+    // 새 Connection 추가인 경우
+    sourceConnectionsByIds.value = [
+      {
+        _id: connectionIdCounter++,
+        name: '',
+        ip_address: '',
+        ssh_port: 22,
+        user: '',
+        password: '',
+        private_key: '',
+      },
+    ];
   }
 });
+
+// 중복 제거
+watchEffect(() => {
+  uniqueSourceConnectionsByIds.value = Array.from(
+    new Map(sourceConnectionsByIds.value.map((item, index) => [item.id || `new-${index}`, item])).values(),
+  );
+});
+
+// connectionInfoData 업데이트 및 validStates 초기화 (한 번만)
+watchEffect(() => {
+  if (uniqueSourceConnectionsByIds.value.length > 0) {
+    // connectionInfoData를 uniqueSourceConnectionsByIds와 동일하게 유지
+    connectionInfoData.value = uniqueSourceConnectionsByIds.value;
+    
+    // validStates가 아직 초기화되지 않았거나 크기가 다를 때만 초기화
+    if (!isInitialized || validStates.value.size !== uniqueSourceConnectionsByIds.value.length) {
+      validStates.value.clear();
+      uniqueSourceConnectionsByIds.value.forEach((conn) => {
+        const connId = conn._id || conn.id;
+        if (!validStates.value.has(connId)) {
+          validStates.value.set(connId, false);
+        }
+      });
+      isInitialized = true;
+    }
+  }
+}, { flush: 'sync' });
+
+// readonly 필드 계산 - 기존 connection 중 다중 선택 시에만 user, password, private_key readonly
+const getReadonlyFields = (connection: any) => {
+  // 새로 추가하는 connection (id 없음)은 모든 필드 입력 가능
+  if (!connection.id) {
+    return [];
+  }
+  // 기존 connection이 2개 이상 선택되었을 때만 일부 필드 readonly
+  if (props.multiSelectedConnectionIds.length > 1) {
+    return ['user', 'password', 'private_key'];
+  }
+  return [];
+};
+
+const handleAddSourceConnection = async () => {
+  saveLoading.value = true;
+  
+  try {
+    // connection들을 기존(id 있음)과 신규(id 없음)로 분리
+    const existingConnections = connectionInfoData.value.filter(info => info.id);
+    const newConnections = connectionInfoData.value.filter(info => !info.id);
+    
+    // 기존 connection 업데이트
+    for (const info of existingConnections) {
+      await updateConnectionInfo.execute({
+        pathParams: {
+          sgId: props.sourceServiceId,
+          connId: info.id,
+        },
+        request: {
+          description: info.description,
+          ip_address: info.ip_address,
+          password: info.password,
+          private_key: info.private_key,
+          ssh_port: info.ssh_port,
+          user: info.user,
+        },
+      });
+    }
+    
+    // 새 connection 생성
+    for (const info of newConnections) {
+      await createConnectionInfo.execute({
+        pathParams: {
+          sgId: props.sourceServiceId,
+        },
+        request: {
+          description: info.description,
+          ip_address: info.ip_address,
+          name: info.name,
+          password: info.password,
+          private_key: info.private_key,
+          ssh_port: info.ssh_port,
+          user: info.user,
+        },
+      });
+    }
+    
+    saveLoading.value = false;
+    showSuccessMessage('success', 'Connection(s) Saved Successfully');
+    emit('update:trigger');
+    emit('update:is-connection-modal-opened', false);
+    emit('update:is-service-modal-opened', false);
+  } catch (error) {
+    saveLoading.value = false;
+    if (
+      (error as any).errorMsg?.value ===
+      'constraint failed: UNIQUE constraint failed: connection_infos.name (2067)'
+    ) {
+      showErrorMessage('failed', 'Connection Info Name Already Exists');
+    } else {
+      showErrorMessage('failed', 'Connection Save Failed');
+    }
+  }
+};
 </script>
 
 <template>
@@ -165,9 +242,10 @@ watchEffect(() => {
       class="modal-layer"
       title="Source Connection"
       subtitle="Add or edit a source connection."
-      add-button-text=""
+      add-button-text="Add Source Connection"
       :need-widget-layout="true"
       :loading="saveLoading"
+      @addSourceConnection="addSourceConnection"
       @update:is-connection-modal-opened="handleConnectionModal"
       @update:modal-state="
         () => {
@@ -177,11 +255,16 @@ watchEffect(() => {
       "
     >
       <template #add-info>
-        <edit-source-connection-info
-          :selected-source-connection-ids="multiSelectedConnectionIds"
-          :source-service-id="sourceServiceId"
-          @update:values="e => (connectionInfoData = e)"
-        />
+        <div v-for="(info, i) in uniqueSourceConnectionsByIds" :key="info._id || info.id || i">
+          <source-connection-form
+            v-model="uniqueSourceConnectionsByIds[i]"
+            mode="edit"
+            :show-delete-button="uniqueSourceConnectionsByIds.length > 1"
+            :readonly="getReadonlyFields(info)"
+            @delete="deleteSourceConnection(info._id || info.id)"
+            @update:valid="valid => handleValidChange(info._id || info.id, valid)"
+          />
+        </div>
       </template>
       <template #buttons>
         <p-button
