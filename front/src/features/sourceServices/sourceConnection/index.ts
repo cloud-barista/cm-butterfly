@@ -1,4 +1,3 @@
-import SourceConnectionInfo from '@/features/sourceServices/sourceConnection/ui/SourceConnectionInfo.vue';
-import EditSourceConnectionInfo from '@/features/sourceServices/sourceConnection/ui/EditSourceConnectionInfo.vue';
+import SourceConnectionForm from '@/features/sourceServices/sourceConnection/ui/SourceConnectionForm.vue';
 
-export { SourceConnectionInfo, EditSourceConnectionInfo };
+export { SourceConnectionForm };

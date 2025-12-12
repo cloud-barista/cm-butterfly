@@ -47,6 +47,8 @@ const handleSourceServiceInfo = (value: any) => {
 };
 
 const handleConfirm = async () => {
+  console.log('[AddSourceServiceModal] handleConfirm - BEFORE map, editConnections:', JSON.stringify(sourceConnectionStore.editConnections, null, 2));
+  
   sourceConnectionStore.editConnections.map(sourceConnection => {
     sourceConnection.ssh_port = String(sourceConnection.ssh_port);
   });
@@ -56,6 +58,8 @@ const handleConfirm = async () => {
     description: state.description,
     connection_info: sourceConnectionStore.editConnections,
   };
+  
+  console.log('[AddSourceServiceModal] handleConfirm - requestData:', JSON.stringify(requestData, null, 2));
 
   try {
     const { data } = await registerSourceGroup.execute({
