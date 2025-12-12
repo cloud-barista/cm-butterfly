@@ -34,11 +34,17 @@ export function useRecommendedInfraModel() {
   function initToolBoxTableModel() {
     tableModel.initState();
     tableModel.tableState.fields = [
-      { name: 'name', label: 'Name' },
+      { name: 'index', label: 'No.' },
+      //{ name: 'name', label: 'Name' },
       //{ name: 'id', label: 'ID' },
       //{ name: 'description', label: 'Description' },
       { name: 'spec', label: 'Spec' },
+      { name: 'vCpu', label: 'vCPU' },
+      { name: 'memory', label: 'Memory' },
+      { name: 'disk', label: 'Disk' },
       { name: 'image', label: 'Image' },
+      { name: 'os', label: 'OS' },
+      { name: 'architecture', label: 'Architecture' },
       { name: 'estimateCost', label: 'Total Estimate Cost' },
     ];
 
@@ -47,10 +53,15 @@ export function useRecommendedInfraModel() {
         title: 'columns',
         items: [
           //{ name: 'id', label: 'ID' },
-          { name: 'name', label: 'Name' },
+          //{ name: 'name', label: 'Name' },
           //{ name: 'description', label: 'Description' },
           { name: 'spec', label: 'Spec' },
+          { name: 'vCpu', label: 'vCPU' },
+          { name: 'memory', label: 'Memory' },
+          { name: 'disk', label: 'Disk' },
           { name: 'image', label: 'Image' },
+          { name: 'os', label: 'OS' },
+          { name: 'architecture', label: 'Architecture' },
           { name: 'estimateCost', label: 'Total Estimate Cost' },
         ],
       },
@@ -68,7 +79,12 @@ export function useRecommendedInfraModel() {
       return {
         name: 'Invalid Data',
         spec: 'n/a',
+        vCpu: 'n/a',
+        memory: 'n/a',
+        disk: 'n/a',
         image: 'n/a',
+        os: 'n/a',
+        architecture: 'n/a',
         estimateCost: 'n/a',
         originalData: recommendedModel,
       };
@@ -101,6 +117,77 @@ export function useRecommendedInfraModel() {
       estimateCost = 'n/a';
     }
 
+    // Extract vCPU, memory, and disk from targetVmSpecList
+    const vCpuValues: string[] = [];
+    const memoryValues: string[] = [];
+    const diskValues: string[] = [];
+    
+    recommendedModel.targetVmInfra.subGroups?.forEach(subGroup => {
+      // Find matching spec
+      const matchingSpec = recommendedModel.targetVmSpecList?.find(
+        spec => spec.id === subGroup.specId
+      );
+      
+      if (matchingSpec) {
+        // Extract vCPU
+        if (matchingSpec.vCPU !== undefined && matchingSpec.vCPU !== -1) {
+          vCpuValues.push(String(matchingSpec.vCPU));
+        }
+        
+        // Extract memory
+        if (matchingSpec.memoryGiB !== undefined && matchingSpec.memoryGiB !== -1) {
+          memoryValues.push(`${matchingSpec.memoryGiB} GB`);
+        }
+      }
+      
+      // Extract disk from rootDiskSize
+      if (subGroup.rootDiskSize && subGroup.rootDiskSize !== '' && subGroup.rootDiskSize !== '-1') {
+        diskValues.push(`${subGroup.rootDiskSize} GB`);
+      }
+    });
+
+    // Extract OS and Architecture from targetVmOsImageList
+    const osValues: string[] = [];
+    const archValues: string[] = [];
+    
+    recommendedModel.targetVmInfra.subGroups?.forEach(subGroup => {
+      // Find matching image
+      const matchingImage = recommendedModel.targetVmOsImageList?.find(
+        image => image.cspImageName === subGroup.imageId
+      );
+      
+      if (matchingImage) {
+        // Extract OS from description (e.g., "Canonical, Ubuntu, 22.04, amd64 jammy image")
+        if (matchingImage.description) {
+          // Try to parse OS name from description
+          const desc = matchingImage.description;
+          // Common patterns: "Ubuntu 22.04", "Canonical, Ubuntu, 22.04", etc.
+          const osMatch = desc.match(/Ubuntu\s+[\d.]+|Windows\s+Server\s+[\d]+|CentOS\s+[\d.]+|RHEL\s+[\d.]+|Amazon\s+Linux\s+[\d]+/i);
+          if (osMatch) {
+            osValues.push(osMatch[0]);
+          } else {
+            // Fallback: use first part of description
+            const parts = desc.split(',').map(p => p.trim());
+            if (parts.length >= 2) {
+              osValues.push(`${parts[1]} ${parts[2] || ''}`.trim());
+            } else {
+              osValues.push(parts[0] || 'Unknown');
+            }
+          }
+        }
+        
+        // Extract Architecture from details
+        if (matchingImage.details && Array.isArray(matchingImage.details)) {
+          const archDetail = matchingImage.details.find(
+            (detail: any) => detail.key === 'Architecture'
+          );
+          if (archDetail && archDetail.value) {
+            archValues.push(archDetail.value);
+          }
+        }
+      }
+    });
+
     const organizedDatum: Partial<
       Record<RecommendedModelTableType | 'originalData', any>
     > = {
@@ -123,6 +210,9 @@ export function useRecommendedInfraModel() {
             return `${acc}${specValue} / `;
           }, '')
           .replace(/\/\s$/g, '') || 'n/a',
+      vCpu: vCpuValues.length > 0 ? vCpuValues.join(' / ') : 'n/a',
+      memory: memoryValues.length > 0 ? memoryValues.join(' / ') : 'n/a',
+      disk: diskValues.length > 0 ? diskValues.join(' / ') : 'n/a',
       image:
         recommendedModel.targetVmInfra.subGroups
           ?.reduce((acc, cur) => {
@@ -139,6 +229,8 @@ export function useRecommendedInfraModel() {
             return `${acc}${imageValue} / `;
           }, '')
           .replace(/\/\s$/g, '') || 'n/a',
+      os: osValues.length > 0 ? osValues.join(' / ') : 'n/a',
+      architecture: archValues.length > 0 ? archValues.join(' / ') : 'n/a',
       estimateCost: estimateCost || 'n/a',
       originalData: recommendedModel,
     };
@@ -207,5 +299,6 @@ export function useRecommendedInfraModel() {
     setTargetRecommendInfraModel,
     generateProviderSelectMenu,
     generateRegionSelectMenu,
+    organizeRecommendedModelTableItem,
   };
 }
