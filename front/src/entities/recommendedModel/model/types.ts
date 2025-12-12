@@ -1,9 +1,15 @@
 export type RecommendedModelTableType =
+  | 'index'
   | 'name'
   | 'id'
   | 'description'
   | 'spec'
+  | 'vCpu'
+  | 'memory'
+  | 'disk'
   | 'image'
+  | 'os'
+  | 'architecture'
   | 'estimateCost';
 
 export interface IRecommendedModel {
@@ -20,13 +26,14 @@ export interface IRecommendedModel {
   estimateCost: string;
 }
 
-interface Vm {
+export interface Vm {
   imageId: string;
   specId: string;
   description: string;
   label: string | null;
   name: string;
   subGroupSize: string;
+  rootDiskSize?: string;
 }
 
 interface TargetVmInfra {
