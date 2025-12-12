@@ -14,6 +14,7 @@ import { createTargetModel } from '@/entities';
 import {
   getRecommendCost,
   useGetRecommendModelListBySourceModel,
+  useGetRecommendModelCandidates,
 } from '@/entities/recommendedModel/api';
 import { showErrorMessage } from '@/shared/utils';
 import { IRecommendModelResponse } from '@/entities/recommendedModel/model/types';
@@ -108,11 +109,10 @@ const targetSourceModel = computed(() =>
   recommendInfraModel.sourceModelStore.getSourceModelById(props.sourceModelId),
 );
 
-const getRecommendModel = useGetRecommendModelListBySourceModel(
-  null,
-  null,
-  null,
-);
+// Query parameter 입력값
+const candidateLimit = ref<number>(3);
+const minimumMatchRateMin = ref<number | null>(null);
+const minimumMatchRateMax = ref<number>(100);  // 기본값 100
 
 const modalState = reactive({
   targetModal: false,
@@ -128,170 +128,160 @@ async function getRecommendModelList() {
   recommendInfraModel.initToolBoxTableModel();
 
   try {
-    const res = await getRecommendModel.execute({
-      request: {
-        desiredCspAndRegionPair: {
-          csp: provider.selected,
-          region: region.selected,
-        },
-        onpremiseInfraModel: targetSourceModel.value
-          ? targetSourceModel.value.onpremiseInfraModel
-          : null,
-      },
-    });
-
-    const recommendModel = res.data.responseData;
-    
-    console.log('=== Recommend Model Response ===');
-    console.log('Full response:', recommendModel);
-    
-    if (recommendModel) {
-      console.log('Response keys:', Object.keys(recommendModel));
-      console.log('targetVmInfra:', recommendModel.targetVmInfra);
-      console.log('targetVmInfra type:', typeof recommendModel.targetVmInfra);
-      
-      if (recommendModel.targetVmInfra) {
-        console.log('targetVmInfra keys:', Object.keys(recommendModel.targetVmInfra));
-        
-        if ('subGroups' in recommendModel.targetVmInfra && recommendModel.targetVmInfra.subGroups) {
-          console.log('targetVmInfra.subGroups:', recommendModel.targetVmInfra.subGroups);
-          console.log('VM count:', recommendModel.targetVmInfra.subGroups.length);
-          
-          // VM 객체의 상세 구조 확인
-          recommendModel.targetVmInfra.subGroups.forEach((vm, index) => {
-            console.log(`VM[${index}]:`, vm);
-            console.log(`VM[${index}].specId:`, vm.specId);
-            console.log(`VM[${index}].specId type:`, typeof vm.specId);
-          });
-        }
-      }
-      
-      if ('vm' in recommendModel && recommendModel.vm && Array.isArray(recommendModel.vm)) {
-        console.log('direct vm:', recommendModel.vm);
-        console.log('Direct VM count:', recommendModel.vm.length);
-      }
+    // minimumMatchRate 파라미터 조합
+    let minimumMatchRateParam: string | number | null = null;
+    if (minimumMatchRateMin.value !== null && minimumMatchRateMax.value !== null) {
+      minimumMatchRateParam = `${minimumMatchRateMin.value}-${minimumMatchRateMax.value}`;
+    } else if (minimumMatchRateMin.value !== null) {
+      minimumMatchRateParam = minimumMatchRateMin.value;
+    } else if (minimumMatchRateMax.value !== null) {
+      minimumMatchRateParam = minimumMatchRateMax.value;
     }
     
-    console.log('=== End Response Log ===');
+    // Candidates API 호출 (복수 후보 조회)
+    const getRecommendCandidates = useGetRecommendModelCandidates(
+      targetSourceModel.value?.onpremiseInfraModel || null,
+      provider.selected,
+      region.selected,
+      candidateLimit.value,
+      minimumMatchRateParam,
+    );
 
-    if (recommendModel) {
-      // API 응답 데이터 검증 및 정리
-      if (recommendModel.targetVmInfra?.subGroups) {
-        const originalLength = recommendModel.targetVmInfra.subGroups.length;
+    const res = await getRecommendCandidates.execute();
+    
+    console.log('=== Recommend Candidates Response ===');
+    console.log('Type of res:', typeof res);
+    console.log('Keys of res:', Object.keys(res));
+    console.log('res.data type:', typeof res.data);
+    console.log('res.data keys:', res.data ? Object.keys(res.data) : 'null');
+    
+    // API 응답 구조: { responseData: { data: [...] } }
+    if (res.data?.responseData?.data && Array.isArray(res.data.responseData.data)) {
+      const candidates = res.data.responseData.data;
+      console.log(`Found ${candidates.length} candidate(s)`);
+      
+      // 각 후보에 대해 비용 계산 및 데이터 정제
+      const processedCandidates = candidates.map((candidate, index) => {
+        console.log(`Processing candidate ${index + 1}:`, JSON.stringify(candidate, null, 2));
         
-        // 오류가 있는 항목들을 먼저 로깅
-        const invalidVms = recommendModel.targetVmInfra.subGroups.filter(vm => !isValidVmData(vm));
-        if (invalidVms.length > 0) {
-          console.warn('=== Invalid VMs Found ===');
-          console.warn(`Total invalid VMs: ${invalidVms.length}`);
-          invalidVms.forEach((vm, index) => {
-            console.warn(`Invalid VM [${index}]:`, {
-              name: vm.name,
-              specId: vm.specId,
-              imageId: vm.imageId,
-              description: vm.description,
-              sourceMachineId: (vm.label as any)?.sourceMachineId,
-              reason: !vm.specId || vm.specId.trim() === '' ? 'specId is empty' : 'imageId is empty'
-            });
+        // API 응답 데이터 검증 및 정리
+        if (candidate.targetVmInfra?.subGroups) {
+          const originalLength = candidate.targetVmInfra.subGroups.length;
+          
+          // 무효한 데이터 로깅
+          const invalidVms = candidate.targetVmInfra.subGroups.filter(vm => 
+            !vm || !vm.specId || vm.specId.trim() === '' || !vm.imageId || vm.imageId.trim() === ''
+          );
+          
+          if (invalidVms.length > 0) {
+            console.warn(`Candidate ${index + 1}: Found ${invalidVms.length} invalid VMs`);
+          }
+          
+          // 무효한 데이터의 빈 필드를 "empty"로 대체
+          candidate.targetVmInfra.subGroups = candidate.targetVmInfra.subGroups.map(vm => {
+            const updatedVm = { ...vm };
+            if (!vm.specId || vm.specId.trim() === '') {
+              updatedVm.specId = 'empty';
+            }
+            if (!vm.imageId || vm.imageId.trim() === '') {
+              updatedVm.imageId = 'empty';
+            }
+            return updatedVm;
           });
-          console.warn('=== End Invalid VMs ===');
         }
-        
-        // 무효한 데이터의 빈 필드를 "empty"로 대체
-        recommendModel.targetVmInfra.subGroups = recommendModel.targetVmInfra.subGroups.map(vm => {
-          const updatedVm = { ...vm };
-          if (!vm.specId || vm.specId.trim() === '') {
-            updatedVm.specId = 'empty';
-          }
-          if (!vm.imageId || vm.imageId.trim() === '') {
-            updatedVm.imageId = 'empty';
-          }
-          return updatedVm;
-        });
-        
-        console.log('Processed VMs after validation:', recommendModel.targetVmInfra.subGroups);
-        console.log(`Found ${invalidVms.length} invalid VMs (replaced empty values with "empty")`)
-      }
 
-      // GET_RECOMMEND_COST API 호출 대신 targetVmSpecList에서 비용 계산
-      try {
-        let totalCostPerHour = 0;
-        let currency = '';
-        let skippedVms: Array<{ vmName: string; specId: string; costPerHour: number }> = [];
-        
-        // targetVmSpecList에서 각 VM의 비용을 계산
-        recommendModel.targetVmInfra.subGroups?.forEach(vm => {
-          const matchingSpec = recommendModel.targetVmSpecList?.find(spec => spec.id === vm.specId);
-          if (matchingSpec && matchingSpec.costPerHour !== undefined && matchingSpec.costPerHour !== null) {
-            // 0보다 작은 값은 skip
-            if (matchingSpec.costPerHour < 0) {
-              skippedVms.push({
-                vmName: vm.name,
-                specId: vm.specId,
-                costPerHour: matchingSpec.costPerHour
-              });
-              console.warn(`Skipping VM with negative cost: ${vm.name} (${vm.specId}), costPerHour: ${matchingSpec.costPerHour}`);
+        // 비용 계산 (targetVmSpecList 기반)
+        try {
+          let totalCostPerHour = 0;
+          let currency = '';
+          let skippedVms: Array<{ vmName: string; specId: string; costPerHour: number }> = [];
+          
+          candidate.targetVmInfra.subGroups?.forEach(vm => {
+            const matchingSpec = candidate.targetVmSpecList?.find(spec => spec.id === vm.specId);
+            if (matchingSpec && matchingSpec.costPerHour !== undefined && matchingSpec.costPerHour !== null) {
+              if (matchingSpec.costPerHour < 0) {
+                skippedVms.push({
+                  vmName: vm.name,
+                  specId: vm.specId,
+                  costPerHour: matchingSpec.costPerHour
+                });
+                console.warn(`Skipping VM with negative cost: ${vm.name} (${vm.specId})`);
+              } else {
+                totalCostPerHour += matchingSpec.costPerHour;
+                currency = matchingSpec.currency || 'USD';
+              }
             } else {
-              totalCostPerHour += matchingSpec.costPerHour;
-              currency = matchingSpec.currency || 'USD'; // 통화 정보가 있다면 사용
+              console.warn(`No cost information found for VM: ${vm.name} (${vm.specId})`);
             }
-          } else {
-            console.warn(`No cost information found for VM: ${vm.name} (${vm.specId})`);
+          });
+          
+          if (skippedVms.length > 0) {
+            console.warn(`Candidate ${index + 1}: Skipped ${skippedVms.length} VMs due to invalid cost`);
           }
+
+          const totalCostPerMonth = totalCostPerHour * 24 * 30;
+
+          return {
+            ...candidate,
+            estimateResponse: {
+              result: {
+                esimateCostSpecResults: [{
+                  estimateForecastCostSpecDetailResults: [{
+                    calculatedMonthlyPrice: totalCostPerMonth,
+                    calculatedHourlyPrice: totalCostPerHour,
+                    currency: currency
+                  }]
+                }]
+              }
+            }
+          };
+        } catch (e) {
+          console.error(`Error calculating cost for candidate ${index + 1}:`, e);
+          return {
+            ...candidate,
+            estimateResponse: {
+              result: {
+                esimateCostSpecResults: [{
+                  estimateForecastCostSpecDetailResults: [{
+                    calculatedMonthlyPrice: 0,
+                    calculatedHourlyPrice: 0,
+                    currency: 'USD'
+                  }]
+                }]
+              }
+            }
+          };
+        }
+      });
+
+      console.log('Processed candidates:', processedCandidates);
+      console.log('=== End Response Log ===');
+
+      // n개의 후보를 모두 테이블에 표시
+      try {
+        const tableItems = processedCandidates.map((candidate, index) => {
+          console.log(`Organizing table item ${index + 1}:`, candidate);
+          const item = recommendInfraModel.organizeRecommendedModelTableItem(candidate);
+          item.index = index + 1; // 순번 추가
+          console.log(`Organized item ${index + 1}:`, item);
+          return item;
         });
         
-        if (skippedVms.length > 0) {
-          console.warn(`=== Cost Calculation Summary ===`);
-          console.warn(`Total VMs skipped due to invalid cost: ${skippedVms.length}`);
-          console.warn(`Skipped VMs:`, skippedVms);
-          console.warn(`=== End Cost Calculation Summary ===`);
-        }
-
-        const totalCostPerMonth = totalCostPerHour * 24 * 30; // 시간당 비용을 월 비용으로 변환
-
-        // estimateResponse 구조에 맞게 설정 (시간당과 월 비용 모두 포함)
-        const estimateResponse = {
-          result: {
-            esimateCostSpecResults: [{
-              estimateForecastCostSpecDetailResults: [{
-                calculatedMonthlyPrice: totalCostPerMonth,
-                calculatedHourlyPrice: totalCostPerHour, // 시간당 비용 추가
-                currency: currency
-              }]
-            }]
-          }
-        };
-
-        Object.assign(recommendModel, {
-          estimateResponse: estimateResponse,
-        });
-
-      } catch (e) {
-        console.error('Error calculating cost from targetVmSpecList:', e);
-        // 에러가 발생해도 기본값으로 설정
-        Object.assign(recommendModel, {
-          estimateResponse: {
-            result: {
-              esimateCostSpecResults: [{
-                estimateForecastCostSpecDetailResults: [{
-                  calculatedMonthlyPrice: 0,
-                  calculatedHourlyPrice: 0,
-                  currency: 'USD'
-                }]
-              }]
-            }
-          }
-        });
-      } finally {
-        recommendInfraModel.setTargetRecommendInfraModel(recommendModel);
+        console.log('Setting table items:', tableItems);
+        recommendInfraModel.tableModel.tableState.items = tableItems;
+        console.log('Table items set successfully');
+      } catch (tableError) {
+        console.error('Error organizing table items:', tableError);
+        throw tableError;
       }
+      
+    } else {
+      showErrorMessage('error', 'No candidates found');
+      recommendInfraModel.initToolBoxTableModel();
     }
   } catch (err: any) {
-    showErrorMessage('error', err?.errorMsg || 'An error occurred');
-    recommendInfraModel.targetRecommendModel.value = null;
+    showErrorMessage('error', err?.errorMsg || 'Failed to get recommendations');
     recommendInfraModel.initToolBoxTableModel();
-  } finally {
-    recommendInfraModel.setTableStateItem();
   }
 }
 
@@ -397,8 +387,9 @@ function handleSave(e: { name: string; description: string }) {
     >
       <template #add-info>
         <div class="flex gap-4 flex-col w-full">
-          <section class="select-service-box flex w-full">
-            <p class="text-label-lg font-bold m-2">Provider</p>
+          <!-- Provider, Region, Search 버튼을 같은 라인에 배치 -->
+          <section class="select-service-box flex w-full items-center gap-4">
+            <p class="text-label-lg font-bold">Provider</p>
             <p-select-dropdown
               :menu="provider.menu"
               :loading="provider.loading"
@@ -410,7 +401,7 @@ function handleSave(e: { name: string; description: string }) {
                 }
               "
             ></p-select-dropdown>
-            <p class="text-label-lg font-bold m-2">Region</p>
+            <p class="text-label-lg font-bold">Region</p>
             <p-select-dropdown
               :menu="region.menu"
               :loading="region.loading"
@@ -422,13 +413,56 @@ function handleSave(e: { name: string; description: string }) {
                 }
               "
             ></p-select-dropdown>
+            
+            <!-- Search 버튼을 오른쪽 끝으로 -->
+            <div class="flex-grow"></div>
             <p-button
-              class="ml-2"
               :disabled="!provider.selected || !region.selected"
               @click="getRecommendModelList"
             >
-              조회
+              Search
             </p-button>
+          </section>
+          <!-- Query Parameters를 가로로 배치 -->
+          <section class="select-service-box flex w-full items-center gap-4">
+            <!-- Candidate Limit with tooltip -->
+            <p class="text-label-lg font-bold" title="Maximum number of recommended infrastructures to return (default: 3)">Candidate Limit</p>
+            <input
+              v-model.number="candidateLimit"
+              type="number"
+              :min="1"
+              :max="10"
+              class="p-2 border rounded"
+              style="width: 80px"
+              placeholder="3"
+              title="Maximum number of recommended infrastructures to return (default: 3)"
+            />
+            
+            <!-- Minimum Match Rate with tooltip -->
+            <p class="text-label-lg font-bold" title="Minimum match rate threshold for highly-matched classification (default: 90.0, range: 0-100)">Minimum Match Rate(%)</p>
+            <input
+              v-model.number="minimumMatchRateMin"
+              type="number"
+              :min="1"
+              :max="100"
+              step="1"
+              class="p-2 border rounded"
+              style="width: 80px"
+              placeholder="Min"
+              title="Minimum match rate threshold for highly-matched classification (default: 90.0, range: 0-100)"
+            />
+            <span class="text-label-lg">~</span>
+            <input
+              v-model.number="minimumMatchRateMax"
+              type="number"
+              :min="1"
+              :max="100"
+              step="1"
+              class="p-2 border rounded"
+              style="width: 80px"
+              placeholder="Max"
+              title="Maximum match rate threshold for highly-matched classification (default: 100, range: 0-100)"
+            />
           </section>
           <p-toolbox-table
             ref="toolboxTable"
@@ -441,14 +475,12 @@ function handleSave(e: { name: string; description: string }) {
             :selectable="
               recommendInfraModel.tableModel.tableOptions.selectable
             "
-            :loading="
-              getRecommendModel.isLoading.value ||
-              resGetRecommendCost.isLoading.value
-            "
+            :loading="resGetRecommendCost.isLoading.value"
             :select-index.sync="
               recommendInfraModel.tableModel.tableState.selectIndex
             "
             :multi-select="false"
+            @change="recommendInfraModel.tableModel.handleChange"
           >
             <template #col-spec-format="{ item }">
               <span v-html="formatEmptyValue(item.spec)"></span>
@@ -512,5 +544,15 @@ function handleSave(e: { name: string; description: string }) {
 :deep(.menu-container) {
   max-height: 190px;
   overflow-y: auto;
+}
+
+.parameters-section {
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.parameter-input input {
+  width: 120px;
 }
 </style>
