@@ -2,6 +2,19 @@ import { insertDynamicComponent } from '@/shared/utils';
 import { getSequencePath } from '@/features/sequential/designer/editor/model/utils';
 import TaskComponentEditor from '@/features/sequential/designer/editor/ui/TaskComponentEditor.vue';
 import ContainerNameEditor from '@/features/sequential/designer/editor/ui/ContainerNameEditor.vue';
+import BashTaskEditor from '@/features/sequential/designer/editor/ui/BashTaskEditor.vue';
+import SshTaskEditor from '@/features/sequential/designer/editor/ui/SshTaskEditor.vue';
+import HttpXcomTaskEditor from '@/features/sequential/designer/editor/ui/HttpXcomTaskEditor.vue';
+import TriggerWorkflowTaskEditor from '@/features/sequential/designer/editor/ui/TriggerWorkflowTaskEditor.vue';
+
+// cm-cicada task type → dedicated editor component. http (and unknown) falls
+// back to the schema-driven TaskComponentEditor.
+const TASK_TYPE_EDITOR: Record<string, any> = {
+  bash: BashTaskEditor,
+  ssh: SshTaskEditor,
+  http_xcom: HttpXcomTaskEditor,
+  trigger_workflow: TriggerWorkflowTaskEditor,
+};
 
 export function editorProviders() {
   const editor = document.createElement('div');
@@ -62,20 +75,17 @@ export function editorProviders() {
         );
       }
       if (step.componentType === 'task') {
-        // 🎯 모든 task에 대해 범용 TaskComponentEditor 사용
-        const TaskEditorComponent: any = TaskComponentEditor;
-        
-        // 디버깅을 위한 로그 추가
-        console.log('=== Task Editor Selection Debug ===');
+        // cm-cicada task type에 따라 전용 에디터 선택 (없으면 범용 TaskComponentEditor)
+        const taskType = step.properties?.taskType;
+        const TaskEditorComponent: any =
+          (taskType && TASK_TYPE_EDITOR[taskType]) || TaskComponentEditor;
+
+        console.log('=== Task Editor Selection ===');
         console.log('Step name:', step.name);
-        console.log('Step type:', step.type);
-        console.log('Step properties:', step.properties);
-        console.log('Step fixedModel:', step.properties?.fixedModel);
-        console.log('Task component from fixedModel:', step.properties?.fixedModel?.task_component);
-        console.log('Selected TaskComponentEditor for', step.name || step.type);
-        console.log('Final TaskEditorComponent:', TaskEditorComponent.name || TaskEditorComponent);
-        console.log('=====================================');
-        
+        console.log('Task type:', taskType);
+        console.log('Selected editor:', TaskEditorComponent?.name || 'TaskComponentEditor');
+        console.log('=============================');
+
         //toolboxModel에서 가공하는곳 참고
         insertDynamicComponent(
           TaskEditorComponent,

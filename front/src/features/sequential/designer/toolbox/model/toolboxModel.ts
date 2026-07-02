@@ -64,6 +64,8 @@ export function useSequentialToolboxModel() {
             model: modelData,
             originalData: mappingTaskInfoResponseITaskResponse(res),
             fixedModel: getFixedModel(res),
+            taskType: res.type ?? 'http', // cm-cicada task type (per-type editor 선택용)
+            taskComponentData: { ...res.data, spec: res.spec, type: res.type },
           },
         ),
       );
@@ -86,6 +88,8 @@ export function useSequentialToolboxModel() {
       request_body: taskInfoResponse.data.options.request_body,
       query_params: '',
       task_component: taskInfoResponse.name,
+      type: taskInfoResponse.type ?? 'http',
+      spec: taskInfoResponse.spec,
     };
   }
 

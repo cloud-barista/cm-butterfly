@@ -18,6 +18,11 @@ import { isNullOrUndefined } from '@/shared/utils';
 import { reactive } from 'vue';
 import { useSequentialToolboxModel } from '@/features/sequential/designer/toolbox/model/toolboxModel';
 import { encodeBase64, decodeBase64 } from '@/shared/utils/base64';
+import {
+  buildStepModelFromTaskSpec,
+  buildTaskSpecFromStep,
+  normalizeWorkflowTaskInPlace,
+} from '@/entities/workflow/lib/schemaAdapter';
 
 type dropDownType = {
   name: string;
@@ -97,7 +102,10 @@ export function useWorkflowToolModel() {
         console.log(`  🔓 Unwrapping virtual group: ${taskGroup.name}`);
         
         if (taskGroup.tasks && taskGroup.tasks.length === 1) {
-          const task = taskGroup.tasks[0];
+          const task = normalizeWorkflowTaskInPlace(
+            taskGroup.tasks[0],
+            taskComponentList,
+          );
           const requestBody = getMappingWorkflowTaskComponentRequestBody(
             task,
             taskComponentList,
@@ -112,7 +120,8 @@ export function useWorkflowToolModel() {
         const designerTaskGroup = convertToDesignerTaskGroup(taskGroup);
         
         if (taskGroup.tasks) {
-          for (const task of taskGroup.tasks) {
+          for (const rawTask of taskGroup.tasks) {
+            const task = normalizeWorkflowTaskInPlace(rawTask, taskComponentList);
             const requestBody = getMappingWorkflowTaskComponentRequestBody(
               task,
               taskComponentList,
@@ -171,52 +180,61 @@ export function useWorkflowToolModel() {
     task: ITaskResponse,
     requestBody: string,
   ): Step {
-    const parsedString: any = parseRequestBody(requestBody);
-    
-    // Base64 decode content field for cicada_task_run_script
-    // cicada_task_run_script 태스크의 content 필드를 base64로 디코딩
-    if (task.task_component === 'cicada_task_run_script' && parsedString.content) {
-      console.log('🔓 Decoding content field for cicada_task_run_script');
-      console.log('   Encoded content:', parsedString.content);
-      parsedString.content = decodeBase64(parsedString.content);
-      console.log('   Decoded content:', parsedString.content);
-    }
-    
     // Task component 정보 찾기
     const taskComponent = taskComponentList.find(
-      tc => tc.name === task.task_component
+      tc => tc.name === task.task_component,
     );
-    
-    // Task component를 캔버스에 추가할 때 모델 정보를 콘솔에 출력
-    console.log('=== Task Component Added to Canvas ===');
-    console.log(`Task Name: ${task.name}`);
-    console.log(`Task Component: ${task.task_component}`);
-    console.log('Task Component Found:', !!taskComponent);
-    if (taskComponent) {
-      console.log('Task Component Schema (body_params):', taskComponent.data.body_params);
+
+    // cm-cicada task type 결정 (per-type editor 및 저장 spec 생성에 사용)
+    const taskType = task.type ?? taskComponent?.type ?? 'http';
+
+    // http 이외 타입(bash/ssh/http_xcom/trigger_workflow)은 spec에서 직접 model 구성
+    const customModel = buildStepModelFromTaskSpec(
+      taskType,
+      task.spec,
+      taskComponent,
+    );
+
+    let model: any;
+    let fixedModel: fixedModel;
+
+    if (customModel !== null) {
+      model = customModel;
+      fixedModel = { path_params: {}, query_params: {} };
+    } else {
+      // http: 기존 request_body → model 흐름 유지
+      model = parseRequestBody(requestBody);
+
+      // Base64 decode content field for cicada_task_run_script
+      if (task.task_component === 'cicada_task_run_script' && model.content) {
+        model.content = decodeBase64(model.content);
+      }
+
+      fixedModel = createFixedModel(task);
     }
-    console.log('Model Information:', {
-      requestBody: requestBody,
-      parsedModel: parsedString,
-      pathParams: task.path_params,
-      queryParams: task.query_params,
-      dependencies: task.dependencies
-    });
-    console.log('=====================================');
-    
-    // Step properties에 taskComponentData 추가
+
     const stepProperties: any = {
-      model: parsedString,
+      model,
       originalData: task,
-      fixedModel: createFixedModel(task),
+      fixedModel,
+      taskType,
     };
-    
-    // Task component data 추가 (schema 정보)
+
+    // Task component data 추가 (schema 정보 — http 폼 렌더링용 + 타입별 고정 필드 표시용)
     if (taskComponent) {
-      stepProperties.taskComponentData = taskComponent.data;
+      stepProperties.taskComponentData = {
+        ...taskComponent.data,
+        spec: taskComponent.spec,
+        type: taskComponent.type,
+      };
     }
-    
-    return defineBettleTaskStep(getRandomId(), task.name, task.task_component, stepProperties);
+
+    return defineBettleTaskStep(
+      getRandomId(),
+      task.name,
+      task.task_component,
+      stepProperties,
+    );
   }
 
   function convertToDesignerTaskGroup(taskGroup: ITaskGroupResponse): Step {
@@ -323,31 +341,40 @@ export function useWorkflowToolModel() {
     return result;
   }
 
-  function convertToCicadaTaskWithDependencies(step: Step, dependencies: string[]) {
+  function convertToCicadaTaskWithDependencies(
+    step: Step,
+    dependencies: string[],
+  ): any {
     if (step.componentType === 'task') {
-      // Base64 encode content field for cicada_task_run_script
-      const modelToSend: any = { ...step.properties.model };
       const taskComponent = step.properties.originalData?.task_component;
-      
+      const taskType =
+        step.properties.taskType ??
+        step.properties.originalData?.type ??
+        'http';
+
+      // Base64 encode content field for cicada_task_run_script (http only)
+      const modelToSend: any = { ...step.properties.model };
       if (taskComponent === 'cicada_task_run_script' && modelToSend.content) {
         modelToSend.content = encodeBase64(modelToSend.content);
       }
-      
-      const currentRequestBody = JSON.stringify(modelToSend);
-      const currentPathParams = step.properties.fixedModel?.path_params;
-      const currentQueryParams = step.properties.fixedModel?.query_params;
-      
+
+      // cm-cicada Type/Spec 스키마로 task spec 생성 (타입별 task-level 필드)
+      const spec = buildTaskSpecFromStep(
+        taskType,
+        modelToSend,
+        step.properties.fixedModel,
+      );
+
       console.log('\n=== Task Conversion ===');
       console.log('Task:', step.name);
+      console.log('Type:', taskType);
       console.log('Dependencies:', dependencies);
       console.log('Task Component:', taskComponent);
-      
+
       return {
         name: step.name,
-        request_body: currentRequestBody,
-        path_params: currentPathParams,
-        query_params: currentQueryParams,
-        task_component: step.properties.originalData?.task_component,
+        task_component: taskComponent,
+        spec,
         dependencies: dependencies,
       };
     }

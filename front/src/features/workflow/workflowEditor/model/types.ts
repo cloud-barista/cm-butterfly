@@ -17,6 +17,11 @@ export interface Step extends _Step {
     model?: object;
     originalData?: ITaskResponse;
     fixedModel?: fixedModel;
+    // cm-cicada task type (http | http_xcom | bash | ssh | trigger_workflow),
+    // used to pick the per-type editor and to build the save-time spec.
+    taskType?: string;
+    // Normalized task component (`data` + `type`/`spec`) for schema-driven UI.
+    taskComponentData?: any;
   };
 }
 

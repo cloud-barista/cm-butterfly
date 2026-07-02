@@ -7,6 +7,10 @@ export interface ITaskComponentInfoResponse {
   updated_at: string;
   id: string;
   name: string;
+  // cm-cicada Type/Spec schema (kept alongside the legacy `data` shape that the
+  // adapter fills in — see entities/workflow/lib/schemaAdapter.ts).
+  type?: string;
+  spec?: Record<string, any>;
   data: {
     options: {
       request_body: string;

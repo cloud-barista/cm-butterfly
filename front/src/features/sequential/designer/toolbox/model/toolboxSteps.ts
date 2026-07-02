@@ -70,6 +70,8 @@ export function toolboxSteps() {
           query_params: Record<string, string>;
         };
         originalData: any;
+        taskType?: string;
+        taskComponentData?: any;
       },
     ): Step {
       return {

@@ -6,6 +6,7 @@
 import { ref, computed } from 'vue';
 import { getTaskComponentList } from '@/features/sequential/designer/toolbox/model/api';
 import type { ITaskComponentInfoResponse } from '@/features/sequential/designer/toolbox/model/api';
+import { normalizeTaskComponentInPlace } from '@/entities/workflow/lib/schemaAdapter';
 
 interface TaskSchema {
   name: string;
@@ -54,6 +55,8 @@ class TaskSchemaStore {
         console.log(`Found ${response.responseData.length} task components`);
         
         response.responseData.forEach((taskComponent: ITaskComponentInfoResponse) => {
+          // cm-cicada Type/Spec 응답을 legacy 형태로 정규화 (idempotent)
+          normalizeTaskComponentInPlace(taskComponent);
           console.log(`Processing task component: ${taskComponent.name}`);
           console.log(`Has body_params:`, !!taskComponent.data?.body_params);
           

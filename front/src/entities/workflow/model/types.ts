@@ -34,6 +34,10 @@ export interface ITaskResponse {
   task_component: string;
   query_params?: any;
   id?: string;
+  // cm-cicada Type/Spec schema. `type` is resolved from the referenced task
+  // component; `spec` carries the task-level values (see schemaAdapter.ts).
+  type?: string;
+  spec?: Record<string, any>;
 }
 
 export interface ITaskComponentResponse {

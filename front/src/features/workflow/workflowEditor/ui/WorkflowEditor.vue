@@ -28,6 +28,7 @@ import getRandomId from '@/shared/utils/uuid';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
 import SequentialDesigner from '@/features/sequential/designer/ui/SequentialDesigner.vue';
 import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';
+import { normalizeTaskComponentList } from '@/entities/workflow/lib/schemaAdapter';
 import { useTaskSchemaLoader } from '@/features/sequential/designer/editor/composables/useTaskSchemaLoader';
 
 interface IProps {
@@ -66,10 +67,14 @@ onBeforeMount(function () {
     resWorkflowTemplateData.execute(),
     resTaskComponentList.execute(),
   ]).then(res => {
+    // cm-cicada Type/Spec 응답을 디자이너가 소비하는 legacy 형태로 정규화 (in place).
+    // 팔레트/캔버스/템플릿 로드가 모두 이 배열을 참조하므로 여기서 한 번 변환한다.
+    normalizeTaskComponentList(res[1].data.responseData);
+
     workflowToolModel.workflowStore.setWorkflowTemplates(
       res[0].data.responseData,
     );
-    
+
     // cicada_task_run_script is now included in API response
     // cicada_task_run_script는 이제 API 응답에 포함됨
     workflowToolModel.setTaskComponent(res[1].data.responseData);
