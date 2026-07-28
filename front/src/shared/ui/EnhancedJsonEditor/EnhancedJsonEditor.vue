@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import {
+  computed,
+  ref,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+} from 'vue';
 import {
   JSONEditor,
   Mode,
   type Content,
   type OnChangeStatus,
   type JSONEditorPropsOptional,
+  type MenuItem,
 } from 'vanilla-jsoneditor';
 import JsonPropertyGrid from './JsonPropertyGrid.vue';
 
@@ -59,7 +67,14 @@ const emit = defineEmits<{
   */
   (e: 'update:model-value', value: string): void;
   (e: 'update:mode', value: string): void;
-  (e: 'change', value: { content: Content; previousContent: Content; changeStatus: OnChangeStatus }): void;
+  (
+    e: 'change',
+    value: {
+      content: Content;
+      previousContent: Content;
+      changeStatus: OnChangeStatus;
+    },
+  ): void;
   (e: 'error', value: Error): void;
   (e: 'import', value: { fileName: string; json: unknown }): void;
   (e: 'export', value: { fileName: string }): void;
@@ -77,6 +92,12 @@ const currentMode = ref<Mode>(props.mode as Mode);
   and the grid, which flattens any document to key/value rows, takes its place.
 */
 const showPropertyGrid = ref(props.mode === 'table');
+const gridRef = ref<{
+  expandAll: () => void;
+  collapseAll: () => void;
+  expandToDepth: (depth: number) => void;
+  openSearch: () => void;
+} | null>(null);
 const hasError = ref(false);
 const errorMessage = ref('');
 
@@ -99,12 +120,18 @@ function toContent(value: string | object | undefined): Content {
 function contentToString(content: Content): string {
   if ('json' in content && content.json !== undefined) {
     const result = JSON.stringify(content.json, null, 2);
-    console.log('[EnhancedJsonEditor] contentToString (JSON mode):', result.substring(0, 50));
+    console.log(
+      '[EnhancedJsonEditor] contentToString (JSON mode):',
+      result.substring(0, 50),
+    );
     return result;
   }
   if ('text' in content && content.text !== undefined) {
     const trimmed = content.text.trim();
-    console.log('[EnhancedJsonEditor] contentToString (Text mode), trimmed:', JSON.stringify(trimmed).substring(0, 50));
+    console.log(
+      '[EnhancedJsonEditor] contentToString (Text mode), trimmed:',
+      JSON.stringify(trimmed).substring(0, 50),
+    );
     // For an empty string, return the JSON of an empty object
     if (!trimmed || trimmed === '') {
       console.log('[EnhancedJsonEditor] Empty text detected, returning "{}"');
@@ -113,7 +140,7 @@ function contentToString(content: Content): string {
     return content.text;
   }
   console.log('[EnhancedJsonEditor] contentToString fallback, returning "{}"');
-  return '{}';  // default to '{}' instead of an empty string
+  return '{}'; // default to '{}' instead of an empty string
 }
 
 /* ── Import / Export ───────────────────────────────────────── */
@@ -250,18 +277,117 @@ function initEditor() {
     mainMenuBar: props.mainMenuBar,
     navigationBar: props.navigationBar,
     statusBar: props.statusBar,
-    onChange: (content: Content, previousContent: Content, changeStatus: OnChangeStatus) => {
+    onChange: (
+      content: Content,
+      previousContent: Content,
+      changeStatus: OnChangeStatus,
+    ) => {
       if (props.readOnly) {
         console.log('[EnhancedJsonEditor] onChange skipped - readOnly mode');
         return;
       }
-      console.log('[EnhancedJsonEditor] onChange triggered, readOnly:', props.readOnly);
+      console.log(
+        '[EnhancedJsonEditor] onChange triggered, readOnly:',
+        props.readOnly,
+      );
       hasError.value = false;
       errorMessage.value = '';
       const strValue = contentToString(content);
-      console.log('[EnhancedJsonEditor] Emitting update:modelValue:', JSON.stringify(strValue).substring(0, 100), 'type:', typeof strValue);
+      console.log(
+        '[EnhancedJsonEditor] Emitting update:modelValue:',
+        JSON.stringify(strValue).substring(0, 100),
+        'type:',
+        typeof strValue,
+      );
       emitModelValue(strValue);
       emit('change', { content, previousContent, changeStatus });
+    },
+    /*
+      The grid used to carry its own row of controls under the editor's, which
+      read as two toolbars for one document. The editor offers this hook to put
+      items in its own menu, so the grid's controls go there - in the same place
+      the tree view keeps expand and collapse, so the row does not rearrange
+      itself when you change view.
+
+      Three of the editor's own items are dropped while the grid is showing.
+      Search reaches the view the editor is drawing, which is hidden here, so it
+      would be a second magnifier that finds nothing. Sort and transform act on
+      whatever the editor has selected, and the grid makes no selection in it -
+      there is no way to say which array to sort, which is why a nested one like
+      the network interfaces never appears as a choice.
+
+      Icons are given as the shape the menu expects; drawing our own keeps
+      another icon set out of this project's dependencies.
+    */
+    onRenderMenu: (items, context) => {
+      if (context.mode !== Mode.table) return items;
+
+      const icon = (path: string) => ({
+        prefix: 'cm',
+        iconName: 'grid',
+        icon: [16, 16, [], '', path],
+      });
+
+      const titleOf = (item: MenuItem) =>
+        'title' in item ? (item.title ?? '') : '';
+      const isMode = (item: MenuItem) => /current mode/i.test(titleOf(item));
+      const unusableHere = (item: MenuItem) =>
+        /^(Search|Sort|Transform)/i.test(titleOf(item));
+
+      const kept = items.filter(item => !unusableHere(item));
+      const lastMode = kept.map(isMode).lastIndexOf(true);
+
+      const ours: MenuItem[] = [
+        {
+          type: 'button',
+          title: 'Expand all',
+          icon: icon(
+            'M2 3h12v1.5H2V3Zm0 4.25h12v1.5H2v-1.5ZM8 15l-3-3.5h6L8 15Z',
+          ),
+          onClick: () => gridRef.value?.expandAll(),
+        },
+        {
+          type: 'button',
+          title: 'Collapse all',
+          icon: icon(
+            'M2 7.25h12v1.5H2v-1.5ZM2 11.5h12V13H2v-1.5ZM8 1l3 3.5H5L8 1Z',
+          ),
+          onClick: () => gridRef.value?.expandToDepth(1),
+        },
+        {
+          type: 'button',
+          text: 'D3',
+          title: 'Expand 3 levels',
+          onClick: () => gridRef.value?.expandToDepth(3),
+        },
+        {
+          type: 'button',
+          text: 'D5',
+          title: 'Expand 5 levels',
+          onClick: () => gridRef.value?.expandToDepth(5),
+        },
+        {
+          type: 'button',
+          text: 'D7',
+          title: 'Expand 7 levels',
+          onClick: () => gridRef.value?.expandToDepth(7),
+        },
+        {
+          type: 'button',
+          title: 'Search (Ctrl+F)',
+          icon: icon(
+            'M6.75 1.5a5.25 5.25 0 0 1 4.14 8.48l3.57 3.56-1.06 1.06-3.56-3.57A5.25 5.25 0 1 1 6.75 1.5Zm0 1.5a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5Z',
+          ),
+          onClick: () => gridRef.value?.openSearch(),
+        },
+      ];
+
+      return [
+        ...kept.slice(0, lastMode + 1),
+        { type: 'separator' },
+        ...ours,
+        ...kept.slice(lastMode + 1),
+      ];
     },
     onChangeMode: (mode: Mode) => {
       currentMode.value = mode;
@@ -309,19 +435,29 @@ onBeforeUnmount(() => {
 // Watch for external modelValue changes
 watch(
   () => props.modelValue,
-  (newValue) => {
-    console.log('[EnhancedJsonEditor] modelValue changed:', typeof newValue, newValue?.length || Object.keys(newValue || {}).length);
+  newValue => {
+    console.log(
+      '[EnhancedJsonEditor] modelValue changed:',
+      typeof newValue,
+      newValue?.length || Object.keys(newValue || {}).length,
+    );
     if (!editorInstance) {
       console.warn('[EnhancedJsonEditor] Editor instance not ready');
       return;
     }
     try {
       const newContent = toContent(newValue);
-      console.log('[EnhancedJsonEditor] Updating editor with content:', 'json' in newContent ? 'JSON mode' : 'Text mode');
+      console.log(
+        '[EnhancedJsonEditor] Updating editor with content:',
+        'json' in newContent ? 'JSON mode' : 'Text mode',
+      );
       editorInstance.update(newContent);
       console.log('[EnhancedJsonEditor] Editor updated successfully');
     } catch (err) {
-      console.error('[EnhancedJsonEditor] Failed to update editor content:', err);
+      console.error(
+        '[EnhancedJsonEditor] Failed to update editor content:',
+        err,
+      );
     }
   },
 );
@@ -329,7 +465,7 @@ watch(
 // Watch for readOnly changes
 watch(
   () => props.readOnly,
-  (newReadOnly) => {
+  newReadOnly => {
     if (!editorInstance) return;
     editorInstance.updateProps({ readOnly: newReadOnly });
     // Force menu to show after readOnly change if mainMenuBar is true
@@ -360,7 +496,8 @@ function handlePropertyGridUpdate(value: string) {
 defineExpose({
   getEditor: () => editorInstance,
   exportJson: handleExport,
-  importJson: (text: string) => applyImportedText(text, `${props.fileName}.json`),
+  importJson: (text: string) =>
+    applyImportedText(text, `${props.fileName}.json`),
   refresh: () => {
     if (!editorInstance) return;
     editorInstance.update(toContent(props.modelValue));
@@ -394,7 +531,10 @@ defineExpose({
 
       // Expand is only possible in tree mode
       if (currentMode.value !== Mode.tree) {
-        console.log('expandAll: Skipping - not in tree mode, current mode:', currentMode.value);
+        console.log(
+          'expandAll: Skipping - not in tree mode, current mode:',
+          currentMode.value,
+        );
         return;
       }
 
@@ -414,7 +554,10 @@ defineExpose({
       }
 
       if (currentMode.value !== Mode.tree) {
-        console.log('collapseAll: Skipping - not in tree mode, current mode:', currentMode.value);
+        console.log(
+          'collapseAll: Skipping - not in tree mode, current mode:',
+          currentMode.value,
+        );
         return;
       }
 
@@ -472,6 +615,7 @@ defineExpose({
     -->
     <div v-show="showPropertyGrid" class="property-grid-wrapper">
       <JsonPropertyGrid
+        ref="gridRef"
         :data="modelValue"
         :read-only="readOnly"
         :active="showPropertyGrid"
