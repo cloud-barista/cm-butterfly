@@ -135,40 +135,144 @@ const flatRows = computed(() => {
 });
 
 /*
-  Search moves through the rows rather than hiding the others, the way the tree
-  does. Filtering left people unsure whether a value was missing or merely out
-  of view, and the surrounding keys are what make a value readable.
+  Every row in the document, whether or not its parent is open. Search reads
+  this, so a value buried under a closed branch is still found and counted.
 */
-const filteredRows = computed(() => flatRows.value);
+const allRows = computed(() =>
+  flattenAll(parsedData.value, '$', 0, Array.isArray(parsedData.value)),
+);
+
+function flattenAll(
+  data: any,
+  parentPath: string,
+  depth: number,
+  isArrayParent: boolean,
+  parentKeys: string[] = [],
+): FlatRow[] {
+  const rows: FlatRow[] = [];
+  if (data === null || data === undefined || typeof data !== 'object')
+    return rows;
+
+  const entries: [string, any][] = Array.isArray(data)
+    ? data.map((v, i) => [String(i), v])
+    : Object.entries(data);
+
+  for (const [key, value] of entries) {
+    const path = `${parentPath}.${key}`;
+    const keys = [...parentKeys, key];
+    const isExpandable = value !== null && typeof value === 'object';
+
+    rows.push({
+      key,
+      displayKey: isArrayParent ? `[${key}]` : key,
+      value,
+      depth,
+      path,
+      keys,
+      isExpandable,
+      isExpanded: expandedPaths.value.has(path),
+      valueType: getValueType(value),
+      childCount: isExpandable
+        ? Array.isArray(value)
+          ? value.length
+          : Object.keys(value).length
+        : undefined,
+      isArrayItem: isArrayParent,
+    });
+
+    if (isExpandable)
+      rows.push(
+        ...flattenAll(value, path, depth + 1, Array.isArray(value), keys),
+      );
+  }
+
+  return rows;
+}
 
 const searchOpen = ref(false);
 const matchIndex = ref(0);
 
+/*
+  Two ways to use a search, and both have their place.
+
+  Stepping through the matches keeps the neighbouring keys in view, and those
+  keys are often what make a value readable. Filtering throws them away but
+  answers a different question - when the same name runs through a hundred rows
+  and every one of them has to change, seeing only those rows is the shorter
+  road.
+*/
+const filterMode = ref(false);
+
+function matchesQuery(row: FlatRow, q: string): boolean {
+  return (
+    row.displayKey.toLowerCase().includes(q) ||
+    (!row.isExpandable && getValueDisplay(row).toLowerCase().includes(q))
+  );
+}
+
 const matches = computed(() => {
   const q = searchQuery.value.trim().toLowerCase();
   if (!q) return [] as string[];
-  return flatRows.value
-    .filter(
-      row =>
-        row.displayKey.toLowerCase().includes(q) ||
-        (!row.isExpandable && getValueDisplay(row).toLowerCase().includes(q)),
-    )
-    .map(row => row.path);
+  return allRows.value.filter(row => matchesQuery(row, q)).map(row => row.path);
 });
+
+/** Path of every branch above a row, so a match can be shown in place. */
+function ancestorsOf(path: string): string[] {
+  const parts = path.split('.');
+  const out: string[] = [];
+  for (let i = 2; i < parts.length; i += 1)
+    out.push(parts.slice(0, i).join('.'));
+  return out;
+}
+
+const filteredRows = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase();
+  if (!filterMode.value || !q) return flatRows.value;
+
+  const keep = new Set<string>();
+  for (const path of matches.value) {
+    keep.add(path);
+    for (const a of ancestorsOf(path)) keep.add(a);
+  }
+  // Branches are shown open, since what is under them is the reason they are here.
+  return allRows.value
+    .filter(row => keep.has(row.path))
+    .map(row => (row.isExpandable ? { ...row, isExpanded: true } : row));
+});
+
+/** True only while the filter is actually narrowing the rows down. */
+const isFiltering = computed(
+  () => filterMode.value && !!searchQuery.value.trim(),
+);
+
+function toggleFilterMode() {
+  filterMode.value = !filterMode.value;
+  if (!filterMode.value && currentMatch.value) revealPath(currentMatch.value);
+}
 
 const matchLabel = computed(() => {
   if (!searchQuery.value.trim()) return '';
   if (!matches.value.length) return 'no match';
+  if (filterMode.value) return `${matches.value.length} rows`;
   return `${matchIndex.value + 1} / ${matches.value.length}`;
 });
 
 const currentMatch = computed(() => matches.value[matchIndex.value] ?? null);
+
+/** Open every branch above a path so the row itself can be seen. */
+function revealPath(path: string) {
+  const next = new Set(expandedPaths.value);
+  for (const a of ancestorsOf(path)) next.add(a);
+  expandedPaths.value = next;
+}
 
 /** Step to the next or previous match and bring it into view. */
 function goToMatch(step: number) {
   if (!matches.value.length) return;
   matchIndex.value =
     (matchIndex.value + step + matches.value.length) % matches.value.length;
+  const target = matches.value[matchIndex.value];
+  if (target) revealPath(target);
   scrollToCurrent();
 }
 
@@ -181,7 +285,10 @@ function scrollToCurrent() {
 
 watch(searchQuery, () => {
   matchIndex.value = 0;
-  if (matches.value.length) scrollToCurrent();
+  const first = matches.value[0];
+  if (!first) return;
+  if (!filterMode.value) revealPath(first);
+  scrollToCurrent();
 });
 
 function openSearch() {
@@ -505,21 +612,36 @@ function cancelEdit() {
       />
       <span class="pg-search-count">{{ matchLabel }}</span>
       <button
-        class="pg-search-btn"
-        title="Previous match"
-        data-testid="json-grid-search-prev"
-        @click="goToMatch(-1)"
+        :class="['pg-search-toggle', { 'is-on': filterMode }]"
+        data-testid="json-grid-search-filter"
+        title="Filter - leave only the rows that match, instead of stepping through them"
+        @click="toggleFilterMode"
       >
-        &#8593;
+        <svg class="pg-search-icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path
+            d="M1.5 2.5h13a.5.5 0 0 1 .38.83L10 9.06V13a.5.5 0 0 1-.72.45l-2.5-1.25A.5.5 0 0 1 6.5 11.8V9.06L1.12 3.33a.5.5 0 0 1 .38-.83Zm1.15 1L7.4 8.6a.5.5 0 0 1 .1.3v2.59l1.5.75V8.9a.5.5 0 0 1 .13-.3l4.75-5.1H2.65Z"
+          />
+        </svg>
+        Filter
       </button>
-      <button
-        class="pg-search-btn"
-        title="Next match"
-        data-testid="json-grid-search-next"
-        @click="goToMatch(1)"
-      >
-        &#8595;
-      </button>
+      <template v-if="!isFiltering">
+        <button
+          class="pg-search-btn"
+          title="Previous match"
+          data-testid="json-grid-search-prev"
+          @click="goToMatch(-1)"
+        >
+          &#8593;
+        </button>
+        <button
+          class="pg-search-btn"
+          title="Next match"
+          data-testid="json-grid-search-next"
+          @click="goToMatch(1)"
+        >
+          &#8595;
+        </button>
+      </template>
       <button
         class="pg-search-btn"
         title="Close search"
@@ -559,7 +681,8 @@ function cancelEdit() {
               <span
                 v-if="row.isExpandable"
                 class="pg-toggle"
-                @click="toggleExpand(row.path)"
+                :class="{ 'is-static': isFiltering }"
+                @click="isFiltering ? null : toggleExpand(row.path)"
               >
                 {{ row.isExpanded ? '&#9660;' : '&#9654;' }}
               </span>
@@ -802,6 +925,42 @@ function cancelEdit() {
     background: #eef2ff;
     color: #4f46e5;
   }
+}
+
+.pg-search-toggle {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  padding: 1px 6px;
+  font-size: 11px;
+  color: #4b5563;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 3px;
+  cursor: pointer;
+
+  &:hover {
+    background: #eef2ff;
+    color: #4f46e5;
+  }
+
+  &.is-on {
+    color: #4f46e5;
+    background: #e0e7ff;
+    border-color: #c7d2fe;
+  }
+}
+
+.pg-search-icon {
+  width: 11px;
+  height: 11px;
+  fill: currentcolor;
+}
+
+/* While filtering, the branches are held open and the arrow is only a marker. */
+.pg-toggle.is-static {
+  cursor: default;
+  opacity: 0.45;
 }
 
 /* The row the search is sitting on. */
