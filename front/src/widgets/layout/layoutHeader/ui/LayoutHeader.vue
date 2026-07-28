@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { TopBarToolset } from '@/features/topbar';
+import { HelpPanel } from '@/widgets/layout/helpPanel';
 import { reactive } from 'vue';
 
 const state = reactive({
@@ -27,19 +28,28 @@ const imgName =
     <div class="top-bar-workspacc">
       <span class="logo-name">{{ imgName }}</span>
     </div>
-    <top-bar-toolset
-      ref="topBarToolsetRef"
-      class="toolset"
-      :opened-menu="state.openedMenu"
-      @open-menu="handleOpenMenu"
-      @hide-menu="hideMenu"
-    />
+    <div class="top-bar-right">
+      <help-panel />
+      <top-bar-toolset
+        ref="topBarToolsetRef"
+        class="toolset"
+        :opened-menu="state.openedMenu"
+        @open-menu="handleOpenMenu"
+        @hide-menu="hideMenu"
+      />
+    </div>
   </div>
 </template>
 
 <style lang="postcss" scoped>
 .logo-name {
   @apply text-xl font-medium pl-[18px];
+}
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 8px;
 }
 .top-bar {
   @apply bg-white items-center justify-between border-b border-gray-200;

@@ -9,8 +9,10 @@ const DOCS_BASE =
   'https://github.com/cloud-barista/cm-butterfly/blob/main/docs/guide';
 
 export const DOC_LINKS = {
+  quickStartMigration: `${DOCS_BASE}/quick-start-migration.md`,
   sourceConnectionBulkImport: `${DOCS_BASE}/source-connection-bulk-import.md`,
   workflowParallelSteps: `${DOCS_BASE}/workflow-parallel-steps.md`,
+  workflowRunStatus: `${DOCS_BASE}/workflow-run-status.md`,
 } as const;
 
 /**
