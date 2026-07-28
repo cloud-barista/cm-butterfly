@@ -16,6 +16,7 @@ import {
   type MenuItem,
 } from 'vanilla-jsoneditor';
 import JsonPropertyGrid from './JsonPropertyGrid.vue';
+import { registerJsonEditor, unregisterJsonEditor } from './editorPresence';
 
 interface Props {
   /** JSON data - string or object */
@@ -420,12 +421,15 @@ function initEditor() {
 }
 
 onMounted(() => {
+  // The help panel leads with the editor while the editor is on screen.
+  registerJsonEditor();
   nextTick(() => {
     initEditor();
   });
 });
 
 onBeforeUnmount(() => {
+  unregisterJsonEditor();
   if (editorInstance) {
     editorInstance.destroy();
     editorInstance = null;
