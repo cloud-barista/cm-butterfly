@@ -8,6 +8,34 @@ import { useRoute } from 'vue-router/composables';
 import { useGetMenuTree } from '@/entities/menu/api';
 import { useMigratorMenuStore } from '@/entities/menu/model/stores';
 
+/*
+  Menus the console can actually open. Anything else is drawn greyed out and
+  cannot be clicked.
+
+  The Migration Guide was missing from this list, so its sidebar entry looked
+  like a menu but refused every click. The page and the guide links it carries
+  were fine all along - the only way in was to type the address.
+
+  Listing identifiers rather than raw strings so that a menu added later shows up
+  here as a name, not as one more quoted word to overlook.
+*/
+const REACHABLE_MENU_IDS: string[] = [
+  MENU_ID.MIGRATION_GUIDE,
+  MENU_ID.SOURCE_SERVICES,
+  MENU_ID.SOURCE_MODELS,
+  MENU_ID.TARGET_MODELS,
+  MENU_ID.WORKFLOWS,
+  MENU_ID.WORKFLOW_TEMPLATES,
+  MENU_ID.TASK_COMPONENTS,
+  MENU_ID.WORKLOADS,
+  MENU_ID.CLOUD_CREDENTIALS,
+  'apis',
+];
+
+function isReachable(menuId: string): boolean {
+  return REACHABLE_MENU_IDS.includes(menuId);
+}
+
 const migratorMenuStore = useMigratorMenuStore();
 const { migratorMenu } = storeToRefs(migratorMenuStore);
 
@@ -71,17 +99,7 @@ async function fetchMenuTree() {
         :to="{ name: n.id }"
         :class="{
           'is-selected': selectedMenuId === n.id,
-          'is-disabled': !(
-            n.id === 'sourceservices' ||
-            n.id === 'sourcemodels' ||
-            n.id === 'targetmodels' ||
-            n.id === 'workflows' ||
-            n.id === 'workflowtemplates' ||
-            n.id === 'taskcomponents' ||
-            n.id === 'workloads' ||
-            n.id === 'cloudcredentials' ||
-            n.id === 'apis'
-          ),
+          'is-disabled': !isReachable(n.id),
         }"
       >
         <div class="menu-wrapper">
