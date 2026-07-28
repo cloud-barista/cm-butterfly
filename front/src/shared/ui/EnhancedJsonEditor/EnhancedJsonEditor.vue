@@ -13,6 +13,7 @@ import {
   type Content,
   type OnChangeStatus,
   type JSONEditorPropsOptional,
+  type MenuItem,
 } from 'vanilla-jsoneditor';
 import JsonPropertyGrid from './JsonPropertyGrid.vue';
 
@@ -304,11 +305,19 @@ function initEditor() {
     /*
       The grid used to carry its own row of controls under the editor's, which
       read as two toolbars for one document. The editor offers this hook to put
-      items in its menu, so the grid's controls go there and only while the grid
-      is the view being shown.
+      items in its own menu, so the grid's controls go there - in the same place
+      the tree view keeps expand and collapse, so the row does not rearrange
+      itself when you change view.
 
-      Icons are given as the shape the menu expects; drawing our own keeps the
-      icon set out of this project's dependencies.
+      Three of the editor's own items are dropped while the grid is showing.
+      Search reaches the view the editor is drawing, which is hidden here, so it
+      would be a second magnifier that finds nothing. Sort and transform act on
+      whatever the editor has selected, and the grid makes no selection in it -
+      there is no way to say which array to sort, which is why a nested one like
+      the network interfaces never appears as a choice.
+
+      Icons are given as the shape the menu expects; drawing our own keeps
+      another icon set out of this project's dependencies.
     */
     onRenderMenu: (items, context) => {
       if (context.mode !== Mode.table) return items;
@@ -319,9 +328,16 @@ function initEditor() {
         icon: [16, 16, [], '', path],
       });
 
-      return [
-        ...items,
-        { type: 'separator' },
+      const titleOf = (item: MenuItem) =>
+        'title' in item ? (item.title ?? '') : '';
+      const isMode = (item: MenuItem) => /current mode/i.test(titleOf(item));
+      const unusableHere = (item: MenuItem) =>
+        /^(Search|Sort|Transform)/i.test(titleOf(item));
+
+      const kept = items.filter(item => !unusableHere(item));
+      const lastMode = kept.map(isMode).lastIndexOf(true);
+
+      const ours: MenuItem[] = [
         {
           type: 'button',
           title: 'Expand all',
@@ -336,7 +352,7 @@ function initEditor() {
           icon: icon(
             'M2 7.25h12v1.5H2v-1.5ZM2 11.5h12V13H2v-1.5ZM8 1l3 3.5H5L8 1Z',
           ),
-          onClick: () => gridRef.value?.collapseAll(),
+          onClick: () => gridRef.value?.expandToDepth(1),
         },
         {
           type: 'button',
@@ -364,6 +380,13 @@ function initEditor() {
           ),
           onClick: () => gridRef.value?.openSearch(),
         },
+      ];
+
+      return [
+        ...kept.slice(0, lastMode + 1),
+        { type: 'separator' },
+        ...ours,
+        ...kept.slice(lastMode + 1),
       ];
     },
     onChangeMode: (mode: Mode) => {
