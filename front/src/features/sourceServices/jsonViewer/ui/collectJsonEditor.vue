@@ -51,7 +51,7 @@ function handleUpdate(value: string) {
         :status-bar="false"
         height="100%"
         file-name="collected-source"
-        @update:model-value="handleUpdate"
+        @update:modelValue="handleUpdate"
       />
     </div>
   </p-pane-layout>

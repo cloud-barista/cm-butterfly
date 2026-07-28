@@ -215,7 +215,7 @@ function handleCodeUpdate(value: string) {
             :status-bar="true"
             height="600px"
             file-name="source-model"
-            @update:model-value="handleCodeUpdate"
+            @update:modelValue="handleCodeUpdate"
           />
         </div>
       </template>

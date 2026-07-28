@@ -50,6 +50,14 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void;
+  /*
+    Vue 2 matches event names literally, so a parent listening on the hyphenated
+    "@update:model-value" never hears "update:modelValue". Three screens were
+    written that way and silently dropped every edit made in this editor. They
+    are fixed, and this alias is emitted alongside so the next one cannot break
+    the same way without anyone noticing.
+  */
+  (e: 'update:model-value', value: string): void;
   (e: 'update:mode', value: string): void;
   (e: 'change', value: { content: Content; previousContent: Content; changeStatus: OnChangeStatus }): void;
   (e: 'error', value: Error): void;
@@ -61,6 +69,13 @@ const editorRef = ref<HTMLElement | null>(null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 let editorInstance: JSONEditor | null = null;
 const currentMode = ref<Mode>(props.mode as Mode);
+/*
+  The menu's "table" button opens the Property Grid, not the library table mode.
+  The library lays out one row per array entry and refuses anything else, while
+  every document these editors handle - infra model, software model, workflow
+  definition - is an object at the root. So table mode has no table to draw here,
+  and the grid, which flattens any document to key/value rows, takes its place.
+*/
 const showPropertyGrid = ref(props.mode === 'table');
 const hasError = ref(false);
 const errorMessage = ref('');
@@ -107,6 +122,12 @@ function contentToString(content: Content): string {
 const showImport = computed(() => props.allowImport && !props.readOnly);
 const showExport = computed(() => props.allowExport);
 const showToolbar = computed(() => showImport.value || showExport.value);
+
+// Emit both spellings - see the note on the alias in defineEmits.
+function emitModelValue(value: string) {
+  emit('update:modelValue', value);
+  emit('update:model-value', value);
+}
 
 function setError(message: string) {
   hasError.value = true;
@@ -190,7 +211,7 @@ function applyImportedText(text: string, sourceName: string) {
   if (editorInstance) {
     editorInstance.update({ json } as Content);
   }
-  emit('update:modelValue', JSON.stringify(json, null, 2));
+  emitModelValue(JSON.stringify(json, null, 2));
   emit('import', { fileName: sourceName, json });
 }
 
@@ -223,7 +244,7 @@ function initEditor() {
 
   const editorProps: JSONEditorPropsOptional = {
     content: toContent(props.modelValue),
-    mode: currentMode.value === Mode.table ? Mode.tree : currentMode.value,
+    mode: currentMode.value,
     readOnly: props.readOnly,
     // Force mainMenuBar to show even when readOnly is true
     mainMenuBar: props.mainMenuBar,
@@ -239,23 +260,13 @@ function initEditor() {
       errorMessage.value = '';
       const strValue = contentToString(content);
       console.log('[EnhancedJsonEditor] Emitting update:modelValue:', JSON.stringify(strValue).substring(0, 100), 'type:', typeof strValue);
-      emit('update:modelValue', strValue);
+      emitModelValue(strValue);
       emit('change', { content, previousContent, changeStatus });
     },
     onChangeMode: (mode: Mode) => {
       currentMode.value = mode;
-      // When user clicks "table" in vanilla-jsoneditor menu, show Property Grid instead
-      if (mode === Mode.table) {
-        showPropertyGrid.value = true;
-        // Switch vanilla-jsoneditor back to tree (so it's ready when user switches back)
-        nextTick(() => {
-          if (editorInstance) {
-            editorInstance.updateProps({ mode: Mode.tree });
-          }
-        });
-      } else {
-        showPropertyGrid.value = false;
-      }
+      // The grid stands in for table mode - see the note by showPropertyGrid.
+      showPropertyGrid.value = mode === Mode.table;
       emit('update:mode', mode);
     },
     onError: (err: Error) => {
@@ -334,7 +345,7 @@ watch(
 );
 
 function handlePropertyGridUpdate(value: string) {
-  emit('update:modelValue', value);
+  emitModelValue(value);
   // Also sync to vanilla-jsoneditor
   if (editorInstance) {
     try {
@@ -343,18 +354,6 @@ function handlePropertyGridUpdate(value: string) {
       // ignore
     }
   }
-}
-
-function switchToEditor() {
-  showPropertyGrid.value = false;
-  currentMode.value = Mode.tree;
-
-  // Expand all when switching back to Tree mode
-  nextTick(() => {
-    if (editorInstance) {
-      editorInstance.expand(() => true);
-    }
-  });
 }
 
 // Expose methods for parent component
@@ -369,10 +368,10 @@ defineExpose({
   setMode: (mode: 'tree' | 'text' | 'table') => {
     if (!editorInstance) return;
     try {
-      // Property Grid is our custom mode
       if (mode === 'table' || mode === Mode.table) {
         showPropertyGrid.value = true;
-        editorInstance.updateProps({ mode: Mode.tree });
+        editorInstance.updateProps({ mode: Mode.table });
+        currentMode.value = Mode.table;
       } else {
         showPropertyGrid.value = false;
         const editorMode = mode === 'tree' ? Mode.tree : Mode.text;
@@ -458,23 +457,27 @@ defineExpose({
       />
     </div>
 
+    <!-- vanilla-jsoneditor - keeps the menu bar visible in every mode -->
+    <div
+      ref="editorRef"
+      class="editor-container"
+      :class="{ 'menu-only': showPropertyGrid }"
+    />
+
     <!-- Property Grid view (replaces vanilla-jsoneditor table mode) -->
-    <div v-if="showPropertyGrid" class="property-grid-wrapper">
-      <div class="pg-header">
-        <span class="pg-header-title">Property Grid</span>
-        <button class="pg-back-btn" @click="switchToEditor">
-          ← Back to Tree / Code
-        </button>
-      </div>
+    <!--
+      Kept mounted and merely hidden. Tearing it down on every mode change threw
+      inside Vue's own teardown and left the editor unable to open the grid again;
+      keeping it also preserves what the user had expanded and their undo history.
+    -->
+    <div v-show="showPropertyGrid" class="property-grid-wrapper">
       <JsonPropertyGrid
         :data="modelValue"
         :read-only="readOnly"
+        :active="showPropertyGrid"
         @update:data="handlePropertyGridUpdate"
       />
     </div>
-
-    <!-- vanilla-jsoneditor (tree / text modes) -->
-    <div v-show="!showPropertyGrid" ref="editorRef" class="editor-container" />
 
     <!-- Error indicator - also carries Import/Export failures, so it must show in Property Grid mode as well -->
     <div v-if="hasError" class="error-bar">
@@ -573,33 +576,27 @@ defineExpose({
   overflow: hidden;
 }
 
-.pg-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 12px;
-  background: #f3f4f6;
-  border-bottom: 1px solid #e5e7eb;
-  flex-shrink: 0;
-}
+/*
+  While the grid is showing, the library keeps its menu bar - that bar is how the
+  user moves between text, tree and table, and it marks which one they are on. Only
+  the editor's own content is hidden, and the grid takes that space.
+*/
+.editor-container.menu-only {
+  flex: 0 0 auto;
+  min-height: 0;
+  overflow: visible;
 
-.pg-header-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: #4b5563;
-}
+  :deep(.jse-main) {
+    min-height: 0 !important;
+  }
 
-.pg-back-btn {
-  padding: 3px 10px;
-  font-size: 11px;
-  color: #6366f1;
-  background: #ffffff;
-  border: 1px solid #c7d2fe;
-  border-radius: 3px;
-  cursor: pointer;
-
-  &:hover {
-    background: #eef2ff;
+  /*
+    The menu bar is not a direct child of .jse-main - it sits inside the wrapper
+    for the current mode (.jse-table-mode and friends). Hiding that wrapper takes
+    the menu with it, so hide what is beside the menu instead.
+  */
+  :deep(.jse-main > * > *:not(.jse-menu)) {
+    display: none !important;
   }
 }
 
