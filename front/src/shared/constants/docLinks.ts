@@ -13,6 +13,7 @@ export const DOC_LINKS = {
   sourceConnectionBulkImport: `${DOCS_BASE}/source-connection-bulk-import.md`,
   workflowParallelSteps: `${DOCS_BASE}/workflow-parallel-steps.md`,
   workflowRunStatus: `${DOCS_BASE}/workflow-run-status.md`,
+  jsonEditor: `${DOCS_BASE}/json-editor.md`,
 } as const;
 
 /**

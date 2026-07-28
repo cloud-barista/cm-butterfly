@@ -9,11 +9,17 @@
  * The text here is a short orientation. The written guides stay in the
  * repository as the single source, and each entry links to its own.
  */
-import { computed, ref, onBeforeUnmount, getCurrentInstance } from 'vue';
+import { computed, ref, watch, onBeforeUnmount, getCurrentInstance } from 'vue';
 import { useRoute } from 'vue-router/composables';
 import { DOC_LINKS, openDocLink } from '@/shared/constants/docLinks';
+import { isJsonEditorOpen } from '@/shared/ui/EnhancedJsonEditor/editorPresence';
 
-type Section = { heading: string; steps: string[] };
+type Section = {
+  heading: string;
+  steps: string[];
+  /** A guide that belongs to this way of doing it, rather than to the whole job. */
+  guide?: { label: string; url: string };
+};
 
 /**
  * What this menu lets you do, as one job with its own explanation and the ways
@@ -40,6 +46,11 @@ type Help = {
   terms?: Array<{ term: string; meaning: string }>;
   /** The written guides worth reading for this screen. */
   guides?: Array<{ label: string; url: string }>;
+  /**
+   * Help for the menu underneath, when something is open over it. Folded away by
+   * default - it is background to what is in front of you, not the answer to it.
+   */
+  deferred?: { label: string; groups: Group[] };
 };
 
 /** The same words on every screen - defined once, shown at the end of each entry. */
@@ -171,10 +182,14 @@ const HELP: Array<{ path: string; help: Help }> = [
             },
             {
               heading: 'Collect and save',
+              guide: {
+                label: 'Editing a model as JSON',
+                url: DOC_LINKS.jsonEditor,
+              },
               steps: [
                 'Press Refresh first. It re-checks that each server can still be reached and updates Agent Status and Connection Status on the Detail tab.',
                 'Run Collect Infra for machines, or Collect SW for the software on them.',
-                'The result opens in a viewer. Check it, and for software press Convert.',
+                'The result opens in the JSON editor. Check it, and for software press Convert.',
                 'Save it as a source model. It then appears under Models.',
               ],
             },
@@ -183,6 +198,8 @@ const HELP: Array<{ path: string; help: Help }> = [
       ],
       terms: TERMS,
       guides: [
+        { label: 'Editing a model as JSON', url: DOC_LINKS.jsonEditor },
+
         {
           label: 'Bulk import of source connections',
           url: DOC_LINKS.sourceConnectionBulkImport,
@@ -201,6 +218,10 @@ const HELP: Array<{ path: string; help: Help }> = [
       groups: [
         {
           id: 'manage-source-models',
+          guide: {
+            label: 'Editing a model as JSON',
+            url: DOC_LINKS.jsonEditor,
+          },
           title: 'Managing source models',
           intro:
             'A source model describes the servers you are migrating from. If collection got something wrong, or you want to try a variation, change it here - saving under a new name gives you a custom copy and leaves the original alone.',
@@ -208,7 +229,7 @@ const HELP: Array<{ path: string; help: Help }> = [
             {
               heading: 'Review and adjust',
               steps: [
-                'Open a model to review what was collected, and adjust anything that is wrong.',
+                'Open Custom & View to see the model as JSON, and adjust anything the collection got wrong.',
                 'Saving under a new name gives you a custom copy.',
                 'Models can be renamed and removed here.',
               ],
@@ -242,7 +263,10 @@ const HELP: Array<{ path: string; help: Help }> = [
         },
       ],
       terms: TERMS,
-      guides: [{ label: 'Quick start', url: DOC_LINKS.quickStartMigration }],
+      guides: [
+        { label: 'Editing a model as JSON', url: DOC_LINKS.jsonEditor },
+        { label: 'Quick start', url: DOC_LINKS.quickStartMigration },
+      ],
     },
   },
   {
@@ -255,6 +279,10 @@ const HELP: Array<{ path: string; help: Help }> = [
       groups: [
         {
           id: 'manage-target-models',
+          guide: {
+            label: 'Editing a model as JSON',
+            url: DOC_LINKS.jsonEditor,
+          },
           title: 'Managing target models',
           intro:
             'A target model describes the workload the way the destination expects it, which makes this a good place to adjust values. The list marks each one as Basic or Custom, and as a CloudModel or a SoftwareModel. A model can be exported and imported, so one that works can be kept and reused.',
@@ -263,7 +291,7 @@ const HELP: Array<{ path: string; help: Help }> = [
               heading: 'Adjust and save',
               steps: [
                 'Open Custom & View to see the model as JSON.',
-                'The table view edits values and adds or removes list entries; the tree and text views are the same document in another shape.',
+                'The table view edits values and adds or removes list entries; the tree and text views are the same document in another shape, where an array can be filtered or reshaped.',
                 'Saving asks for a name and creates a custom model - the original is left as it was.',
               ],
             },
@@ -295,7 +323,10 @@ const HELP: Array<{ path: string; help: Help }> = [
         },
       ],
       terms: TERMS,
-      guides: [{ label: 'Quick start', url: DOC_LINKS.quickStartMigration }],
+      guides: [
+        { label: 'Editing a model as JSON', url: DOC_LINKS.jsonEditor },
+        { label: 'Quick start', url: DOC_LINKS.quickStartMigration },
+      ],
     },
   },
   {
@@ -318,6 +349,10 @@ const HELP: Array<{ path: string; help: Help }> = [
           sections: [
             {
               heading: 'Create, copy and check',
+              guide: {
+                label: 'Editing a model as JSON',
+                url: DOC_LINKS.jsonEditor,
+              },
               steps: [
                 'Create one from a target model, build it in the editor, or copy an existing workflow and change its values.',
                 'Select the migration task on the canvas. Task Configuration opens on the right with the values carried over from the target model - path and query parameters and the request body.',
@@ -358,6 +393,7 @@ const HELP: Array<{ path: string; help: Help }> = [
       ],
       terms: TERMS,
       guides: [
+        { label: 'Editing a model as JSON', url: DOC_LINKS.jsonEditor },
         {
           label: 'Reading the run status screen',
           url: DOC_LINKS.workflowRunStatus,
@@ -390,6 +426,10 @@ const HELP: Array<{ path: string; help: Help }> = [
           sections: [
             {
               heading: 'Start from a template',
+              guide: {
+                label: 'Editing a model as JSON',
+                url: DOC_LINKS.jsonEditor,
+              },
               steps: [
                 'Open a template to see the tasks it contains and how they are ordered.',
                 'Create a workflow from it, then adjust the task values for this migration.',
@@ -400,6 +440,7 @@ const HELP: Array<{ path: string; help: Help }> = [
       ],
       terms: TERMS,
       guides: [
+        { label: 'Editing a model as JSON', url: DOC_LINKS.jsonEditor },
         {
           label: 'Running workflow tasks in parallel',
           url: DOC_LINKS.workflowParallelSteps,
@@ -428,6 +469,10 @@ const HELP: Array<{ path: string; help: Help }> = [
           sections: [
             {
               heading: 'Read a component',
+              guide: {
+                label: 'Editing a model as JSON',
+                url: DOC_LINKS.jsonEditor,
+              },
               steps: [
                 'Open a component to see the values it takes and the result it produces.',
                 'Its JSON can be viewed and edited the same way a model can.',
@@ -445,6 +490,7 @@ const HELP: Array<{ path: string; help: Help }> = [
       ],
       terms: TERMS,
       guides: [
+        { label: 'Editing a model as JSON', url: DOC_LINKS.jsonEditor },
         {
           label: 'Running workflow tasks in parallel',
           url: DOC_LINKS.workflowParallelSteps,
@@ -666,12 +712,158 @@ const panelStyle = computed(() => {
   return style;
 });
 
+/*
+  The editor opens over the screen it belongs to, so the address stays the same
+  and the help would otherwise describe the list behind it. While it is open the
+  panel answers the screen in front of you: what you are looking at, enough of
+  the editor to work with, and the guide for the rest. The menu underneath is
+  folded away rather than mixed in.
+*/
+type EditorContext = {
+  /** What this screen is, said the way a person would say it. */
+  lead: string;
+  /** What the document holds and why you would change it. */
+  detail: string;
+  /** What pressing save does - the overlay makes it easy to assume the wrong thing. */
+  saving: string;
+};
+
+const EDITOR_CONTEXT: Array<{ path: string; ctx: EditorContext }> = [
+  {
+    path: '/main/models/source-models',
+    ctx: {
+      lead: 'This screen shows a source model in the JSON editor, where you can read it and change it.',
+      detail:
+        'A source model is what was collected from the servers you are migrating from - each machine with its CPU, disks and network interfaces. Collection reads what it can reach, and it does not always come back complete, so this is where you correct what it got wrong and fill in what it could not see. What you leave here is what the recommendation works from.',
+      saving:
+        'Saving asks for a name and creates a custom model; the model you opened stays as it was.',
+    },
+  },
+  {
+    path: '/main/models/target-models',
+    ctx: {
+      lead: 'This screen shows a target model in the JSON editor, where you can read it and change it.',
+      detail:
+        'A target model describes the same workload the way the destination expects it - the infrastructure to create, with its images, specs, security groups and network. It comes from a recommendation, and a recommendation is a best match rather than a certainty: a spec or an image can come back missing, and the machine it suggests may be larger or smaller than you want. This is where you settle those - fill in what is missing, change a spec up or down, add anything the destination needs. Whatever is left unsettled here has to be dealt with in the workflow instead, which is a harder place to find it.',
+      saving:
+        'Saving asks for a name and creates a custom model; the model you opened stays as it was.',
+    },
+  },
+  {
+    path: '/main/workflow-management/workflows',
+    ctx: {
+      lead: 'This screen shows a workflow in the JSON editor, where you can read it and change it.',
+      detail:
+        'A workflow is the tasks the migration runs and the values each one needs. What you change here is what the next run uses.',
+      saving: 'Saving updates this workflow.',
+    },
+  },
+  {
+    path: '/main/workflow-management/workflow-templates',
+    ctx: {
+      lead: 'This screen shows a workflow template in the JSON editor, where you can read it and change it.',
+      detail:
+        'A template is the shape a workflow is built from - which tasks it has and in what order, without the values of any one migration.',
+      saving: 'Saving updates this template.',
+    },
+  },
+  {
+    path: '/main/workflow-management/task-components',
+    ctx: {
+      lead: 'This screen shows a task component in the JSON editor, where you can read it and change it.',
+      detail:
+        'A component is one step a workflow can take. Its JSON says what the step needs and what it gives back, which is what the workflow editor asks you to fill in.',
+      saving: 'Saving updates this component.',
+    },
+  },
+  {
+    path: '/main/source-computing/source-services',
+    ctx: {
+      lead: 'This screen shows what was collected from your servers, in the JSON editor.',
+      detail:
+        'This is the reading taken from each server before it becomes a source model. Check it here, and correct anything that came back wrong.',
+      saving: 'What you keep here is what gets saved as the source model.',
+    },
+  },
+];
+
+function editorContextFor(path: string): EditorContext {
+  const hit = EDITOR_CONTEXT.filter(e => path.startsWith(e.path)).sort(
+    (a, b) => b.path.length - a.path.length,
+  )[0];
+  return (
+    hit?.ctx ?? {
+      lead: 'This screen shows a document in the JSON editor, where you can read it and change it.',
+      detail: '',
+      saving: 'Nothing is written until you save.',
+    }
+  );
+}
+
+function jsonEditorGroup(): Group {
+  return {
+    id: 'json-editor',
+    title: 'Using the editor',
+    guide: { label: 'Editing a model as JSON', url: DOC_LINKS.jsonEditor },
+    intro:
+      'The same document is offered three ways - table, tree and text - and nothing is lost by moving between them. The table is the one to start from: it lists every value with its name beside it.',
+    sections: [
+      {
+        heading: 'Change a value, add an entry',
+        steps: [
+          'In the table view, double-click a value to edit it and press Enter to keep it.',
+          'To add an entry to a list, copy one that already exists - the copy lands below it with every field filled in, so only the differences need changing.',
+          'Undo takes back anything, including edits made in the table.',
+        ],
+      },
+      {
+        heading: 'Find something in a large document',
+        steps: [
+          'Press the magnifier, or Ctrl+F, and type.',
+          'The arrows move between matches and open the branches on the way.',
+          'The Filter toggle leaves only the rows that match - useful when one name runs through the document and all of it has to change.',
+        ],
+      },
+      {
+        heading: 'Filter or reshape an array',
+        steps: [
+          'Switch to the tree view, click the array so it is selected, then right-click it.',
+          'Sort and Transform act on what is selected. With nothing selected they act on the whole document, which is an object - that is why the wizard stays empty and the fields you expected never appear.',
+          'Transform replaces the array with the result, so check the document before saving.',
+        ],
+      },
+    ],
+  };
+}
+
 const help = computed<Help>(() => {
   const path = route.path;
   const hit = HELP.filter(e => path.startsWith(e.path)).sort(
     (a, b) => b.path.length - a.path.length,
   )[0];
-  return hit ? hit.help : fallbackFor(screenNameFrom(path));
+  const base = hit ? hit.help : fallbackFor(screenNameFrom(path));
+  if (!isJsonEditorOpen.value) return base;
+
+  const ctx = editorContextFor(path);
+  return {
+    ...base,
+    title: `${base.title} - JSON`,
+    paragraphs: [`${ctx.lead} ${ctx.saving}`, ctx.detail].filter(Boolean),
+    groups: [jsonEditorGroup()],
+    deferred: base.groups?.length
+      ? { label: base.title, groups: base.groups }
+      : undefined,
+    guides: [
+      { label: 'Editing a model as JSON', url: DOC_LINKS.jsonEditor },
+      ...(base.guides ?? []).filter(g => g.url !== DOC_LINKS.jsonEditor),
+    ],
+  };
+});
+
+/* Folded by default, and folded again whenever the panel changes what it shows. */
+const showDeferred = ref(false);
+watch(help, () => {
+  showDeferred.value = false;
 });
 
 /* The index at the top scrolls to the job it names. */
@@ -860,14 +1052,28 @@ onBeforeUnmount(() => {
           <h2 class="help-group-title">{{ group.title }}</h2>
           <p class="help-group-intro">{{ group.intro }}</p>
           <section
-            v-for="(section, x) in group.sections"
+            v-for="(sec, x) in group.sections"
             :key="`s${x}`"
             class="help-section"
           >
-            <h3 class="help-heading">{{ section.heading }}</h3>
+            <h3 class="help-heading">{{ sec.heading }}</h3>
             <ol class="help-steps">
-              <li v-for="(step, t) in section.steps" :key="t">{{ step }}</li>
+              <li v-for="(step, t) in sec.steps" :key="t">{{ step }}</li>
             </ol>
+            <button
+              v-if="sec.guide"
+              class="help-guide help-guide-inline"
+              :data-testid="`help-section-guide-${group.id}-${x}`"
+              @click="openDocLink(sec.guide.url)"
+            >
+              <svg class="help-doc-icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M4 1.5h5.2L13 5.3V14a.5.5 0 0 1-.5.5h-8A.5.5 0 0 1 4 14V1.5Zm1 1V13.5h7V6H8.7V2.5H5Zm4.7.7V5H12L9.7 3.2ZM6 7.5h5v1H6v-1Zm0 2.5h5v1H6v-1Z"
+                />
+              </svg>
+              <span class="help-guide-text">Guide: {{ sec.guide.label }}</span>
+              <span class="help-guide-out">&#8599;</span>
+            </button>
           </section>
           <button
             v-if="group.guide"
@@ -884,6 +1090,43 @@ onBeforeUnmount(() => {
             <span class="help-guide-out">&#8599;</span>
           </button>
         </section>
+
+        <!-- The menu underneath, when something is open over it. Behind a line and
+             folded away, so it reads as background rather than as the answer. -->
+        <div v-if="help.deferred" class="help-more">
+          <hr class="help-rule" />
+          <button
+            class="help-more-toggle"
+            data-testid="help-more-toggle"
+            :aria-expanded="showDeferred ? 'true' : 'false'"
+            @click="showDeferred = !showDeferred"
+          >
+            <span class="help-more-caret">{{
+              showDeferred ? '&#9662;' : '&#9656;'
+            }}</span>
+            About the menu underneath: {{ help.deferred.label }}
+          </button>
+          <template v-if="showDeferred">
+            <section
+              v-for="group in help.deferred.groups"
+              :key="`d-${group.id}`"
+              class="help-group"
+            >
+              <h2 class="help-group-title">{{ group.title }}</h2>
+              <p class="help-group-intro">{{ group.intro }}</p>
+              <section
+                v-for="(sec, x) in group.sections"
+                :key="`ds${x}`"
+                class="help-section"
+              >
+                <h3 class="help-heading">{{ sec.heading }}</h3>
+                <ol class="help-steps">
+                  <li v-for="(step, t) in sec.steps" :key="t">{{ step }}</li>
+                </ol>
+              </section>
+            </section>
+          </template>
+        </div>
 
         <!-- Set apart: the same words on every screen, for when one is unfamiliar. -->
         <section v-if="help.terms" class="help-glossary">
@@ -1100,6 +1343,40 @@ onBeforeUnmount(() => {
   padding-top: 18px;
   margin-top: 8px;
   border-top: 2px solid #e5e7eb;
+}
+
+/* The line that says the screen's own help has ended. */
+.help-rule {
+  margin: 4px 0 10px;
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.help-more-toggle {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  font-size: 12px;
+  color: #6b7280;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+
+  &:hover {
+    color: #374151;
+  }
+}
+
+.help-more-caret {
+  font-size: 10px;
+}
+
+/* A guide that sits inside a section rather than at the foot of the job. */
+.help-guide-inline {
+  margin-top: 6px;
 }
 
 .help-section {
