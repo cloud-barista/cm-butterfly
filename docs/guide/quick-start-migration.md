@@ -10,11 +10,11 @@ A migration runs through five steps, in order. Each one is a screen in the conso
 
 ```mermaid
 flowchart TD
-    A["<b>1 · Register Source Service</b><br/><small>connect to your source servers</small>"]
-    B["<b>2 · Create Source Model</b><br/><small>collect what is running there</small>"]
-    C["<b>3 · Create Target Model</b><br/><small>get a cloud spec recommendation, with cost</small>"]
-    D["<b>4 · Create Workflow</b><br/><small>generated from the target model</small>"]
-    E["<b>5 · Edit and Run Workflow</b><br/><small>the migration actually happens here</small>"]
+    A["1 · Register Source Service"]
+    B["2 · Create Source Model"]
+    C["3 · Create Target Model"]
+    D["4 · Create Workflow"]
+    E["5 · Edit and Run Workflow"]
 
     A --> B --> C --> D --> E
 
