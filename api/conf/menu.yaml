@@ -54,12 +54,23 @@ menus:
     isaction: "false"
     priority: 5
   
-  - id: cloudresources
-    parentid: migrations
-    displayname: Cloud Resources
-    restype: menu
-    isaction: "false"
-    priority: 6
+  # Cloud Resources is hidden until credential management can be offered safely.
+  #
+  # Registering a credential fans out into one connection config per region, and
+  # there is no way to remove it again - the upstream framework has no delete
+  # route - so a mistaken entry cannot be undone from the console, and those
+  # connections are what later provisioning and spec recommendation run on.
+  # Credentials are registered through the setup procedure in the meantime.
+  #
+  # The screens themselves are untouched; only the menu, the reachable list and
+  # the routes are disconnected. Restore all three together.
+  #
+  # - id: cloudresources
+  #   parentid: migrations
+  #   displayname: Cloud Resources
+  #   restype: menu
+  #   isaction: "false"
+  #   priority: 6
 
   ################## step3 : menu : migrations > sourcecomputing ################
   - id: sourceservices
@@ -122,19 +133,21 @@ menus:
     priority: 0
   
   ################## step3 : menu : migrations > workloadoperations ################
-  - id: cloudcredentials
-    parentid: cloudresources
-    displayname: Cloud Credentials
-    restype: menu
-    isaction: "true"
-    priority: 0
-
-  - id: apis
-    parentid: cloudresources
-    displayname: APIs
-    restype: menu
-    isaction: "true"
-    priority: 1
+  # Hidden along with their Cloud Resources parent - see the note there.
+  #
+  # - id: cloudcredentials
+  #   parentid: cloudresources
+  #   displayname: Cloud Credentials
+  #   restype: menu
+  #   isaction: "true"
+  #   priority: 0
+  #
+  # - id: apis
+  #   parentid: cloudresources
+  #   displayname: APIs
+  #   restype: menu
+  #   isaction: "true"
+  #   priority: 1
 
   ###################### step4 : submenu : migrations > workloadoperations > workloads ################
   - id: mciwls
