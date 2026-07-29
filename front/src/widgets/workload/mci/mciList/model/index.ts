@@ -5,6 +5,8 @@ import { IMci, McisTableType, useMCIStore } from '@/entities/mci/model';
 import { useGetMciList } from '@/entities/mci/api';
 import { getCloudProvidersInVms } from '@/shared/hooks/vm';
 import { showErrorMessage, toErrorMessage } from '@/shared/utils';
+import { isTransitioning } from '@/features/workload/lifecycleControl/model';
+import { registerPoller } from '@/shared/libs/polling';
 
 interface IProps {
   nsId: string;
@@ -86,9 +88,16 @@ export function useMciListModel(props: IProps) {
     return organizedDatum;
   }
 
-  function fetchMciList() {
-    loading.value = true;
-    resMciList
+  /**
+   * Fetch the list.
+   *
+   * `quiet` leaves the loading flag alone. The flag swaps the table for a spinner, which is right
+   * for the first load and wrong for a background re-check — the table would blink away every few
+   * seconds while a workload is suspending.
+   */
+  function fetchMciList(options?: { quiet?: boolean }) {
+    if (!options?.quiet) loading.value = true;
+    return resMciList
       .execute()
       .then(res => {
         if (res.data.responseData) {
@@ -112,6 +121,13 @@ export function useMciListModel(props: IProps) {
         }
       })
       .catch(e => {
+        // A background re-check that fails leaves the previous rows and the status the user is
+        // already looking at. Raising a toast for it every few seconds would bury the notifications
+        // that matter, so it is logged and the watch below gives up on its own deadline.
+        if (options?.quiet) {
+          console.warn('background refresh of the infra list failed', e);
+          return;
+        }
         // The lookup is shared: the rate limit is counted per caller, and to cb-tumblebug the
         // caller is always cm-beetle — so other users and other tabs draw from the same budget.
         // Being turned away is not a broken list, and saying so keeps the user from hunting a
@@ -124,8 +140,67 @@ export function useMciListModel(props: IProps) {
         );
       })
       .finally(() => {
-        loading.value = false;
+        if (!options?.quiet) loading.value = false;
       });
+  }
+
+  // ── Following a lifecycle action ───────────────────────────────────────────
+  //
+  // A control request is answered before the work is done — cb-tumblebug says "Suspending the Infra"
+  // while the provider is still stopping the servers. Left alone, the list would keep showing the
+  // status from before the action and the screen would look as though nothing had happened.
+  //
+  // ★ The list, and only the list. Asking each workload for its own detail is exactly the fan-out
+  //   that broke this screen once: cb-tumblebug allows two infra lookups at a time, so
+  //   from the third workload on the extra calls came back 429 and took the whole list with them.
+  //   One list call already carries every status shown here.
+  const FOLLOW_INTERVAL_MS = 5_000;
+  const FOLLOW_TIMEOUT_MS = 3 * 60_000;
+  let followTimer: ReturnType<typeof setTimeout> | null = null;
+  let unregisterFollowPoller: (() => void) | null = null;
+
+  function stopFollowing() {
+    if (followTimer) {
+      clearTimeout(followTimer);
+      followTimer = null;
+    }
+    unregisterFollowPoller?.();
+    unregisterFollowPoller = null;
+  }
+
+  /** Whether any of the named workloads is still mid-transition, per the list we last received. */
+  function anyTransitioning(infraIds: string[]): boolean {
+    return mcis.value.some(
+      mci =>
+        infraIds.includes(mci.id) &&
+        isTransitioning(mci.status, mci.targetAction),
+    );
+  }
+
+  /**
+   * Re-read the list until the given workloads have settled, or until the deadline.
+   *
+   * The deadline is there because a transition can also end by getting stuck; polling for ever would
+   * keep calling the API long after anyone stopped watching. Registering with the poller registry is
+   * what makes a session ending stop this too — otherwise it keeps calling after logout, gets a 401,
+   * and drops the user back onto the "session expired" path.
+   */
+  function followTransition(infraIds: string[]) {
+    if (!infraIds.length) return;
+    stopFollowing();
+    unregisterFollowPoller = registerPoller(stopFollowing);
+    const deadline = Date.now() + FOLLOW_TIMEOUT_MS;
+
+    const tick = async () => {
+      await fetchMciList({ quiet: true });
+      if (Date.now() > deadline || !anyTransitioning(infraIds)) {
+        stopFollowing();
+        return;
+      }
+      followTimer = setTimeout(() => void tick(), FOLLOW_INTERVAL_MS);
+    };
+
+    followTimer = setTimeout(() => void tick(), FOLLOW_INTERVAL_MS);
   }
 
   watch(
@@ -144,6 +219,8 @@ export function useMciListModel(props: IProps) {
     initToolBoxTableModel,
     mciStore,
     fetchMciList,
+    followTransition,
+    stopFollowing,
     resMciList,
     loading,
   };
