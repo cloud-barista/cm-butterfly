@@ -2,6 +2,7 @@
 import {
   PButton,
   PSelectCard,
+  PSelectDropdown,
   PToolbox,
   PDataLoader,
   PButtonTab,
@@ -30,7 +31,15 @@ import {
   useGetLoadTestInfo,
 } from '@/entities/vm/api/api';
 import { useGetMciInfo } from '@/entities/mci/api';
+import type { LifecycleAction } from '@/entities/mci/api';
 import { ILoadConfigInitialValues } from '@/features/workload/actionLoadConfig/model';
+import LifecycleControlModal from '@/features/workload/lifecycleControl/ui/LifecycleControlModal.vue';
+import {
+  LIFECYCLE_ACTIONS,
+  LIFECYCLE_ACTION_ORDER,
+  isTransitioning,
+  type ILifecycleTarget,
+} from '@/features/workload/lifecycleControl/model';
 
 interface IProps {
   nsId: string;
@@ -273,6 +282,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   stopLoadStatusPolling();
+  stopNodeFollow();
   unregisterPoller?.();
 });
 
@@ -443,6 +453,119 @@ function handleLoadConfigRequestSuccess(
   setVmLoadTestResult();
 }
 
+// ── Server lifecycle control (Suspend / Resume / Reboot / Terminate) ────────
+//
+// The same four actions the workload list offers, aimed at one server instead of all of them. The
+// action menu is disabled until a server is selected — with nothing selected there is no target, and
+// acting on "whichever one is first" is not something a console should decide for the user.
+
+const lifecycleModalState = reactive({
+  visible: false,
+  action: null as LifecycleAction | null,
+});
+
+// Holds which menu entry is highlighted; the work is driven by the select event, not by this.
+const nodeActionState = reactive({
+  selectedActionItem: '',
+});
+
+const isNodeActionDisabled = computed(() => !selectedVm.value);
+
+const nodeActionMenus = computed(() =>
+  LIFECYCLE_ACTION_ORDER.map(action => ({
+    name: action,
+    label: LIFECYCLE_ACTIONS[action].label,
+    disabled: isNodeActionDisabled.value,
+  })),
+);
+
+const nodeLifecycleTargets = computed<ILifecycleTarget[]>(() =>
+  selectedVm.value
+    ? [
+        {
+          id: selectedVm.value.id,
+          name: selectedVm.value.name || selectedVm.value.id,
+          status: selectedVm.value.status,
+        },
+      ]
+    : [],
+);
+
+function handleNodeAction(item: string) {
+  if (!selectedVm.value) return;
+  if (!LIFECYCLE_ACTION_ORDER.includes(item as LifecycleAction)) return;
+  lifecycleModalState.action = item as LifecycleAction;
+  lifecycleModalState.visible = true;
+}
+
+// Bumped to remount the node detail, which reads its values on mount. Without it the detail keeps
+// showing the status from before the action even after the infra has been re-read.
+const nodeDetailKey = ref(0);
+
+let nodeFollowTimer: ReturnType<typeof setTimeout> | null = null;
+let unregisterNodeFollowPoller: (() => void) | null = null;
+
+function stopNodeFollow() {
+  if (nodeFollowTimer) {
+    clearTimeout(nodeFollowTimer);
+    nodeFollowTimer = null;
+  }
+  unregisterNodeFollowPoller?.();
+  unregisterNodeFollowPoller = null;
+}
+
+/**
+ * Re-read the workload and point the screen at the *fresh* copy of the selected server.
+ *
+ * Re-reading alone is not enough. The store merges the new workload over the old one, which replaces
+ * its server array, so the object this screen is holding is left behind — detached from the store
+ * and frozen at the status it had before the action. Looking the server up again by id is what keeps
+ * the detail showing the truth.
+ */
+async function refreshSelectedNode() {
+  const nodeId = selectedVm.value?.id;
+  if (!nodeId) return;
+  await getMciInfo();
+  const fresh = mciStore
+    .getMciById(props.mciId)
+    ?.vm?.find(vm => vm.id === nodeId);
+  if (fresh) selectedVm.value = fresh;
+  nodeDetailKey.value++;
+}
+
+/**
+ * Watch the selected server until it settles.
+ *
+ * cb-tumblebug answers the control call while the provider is still working, so a single refresh
+ * would only ever catch `Suspending`. Registering with the poller registry is what stops this when
+ * the session ends — a poll left running after logout gets a 401 and throws the user back onto the
+ * "session expired" path.
+ */
+function followNodeTransition() {
+  stopNodeFollow();
+  unregisterNodeFollowPoller = registerPoller(stopNodeFollow);
+  const deadline = Date.now() + 3 * 60_000;
+
+  const tick = async () => {
+    await refreshSelectedNode();
+    if (
+      Date.now() > deadline ||
+      !isTransitioning(selectedVm.value?.status, selectedVm.value?.targetAction)
+    ) {
+      stopNodeFollow();
+      return;
+    }
+    nodeFollowTimer = setTimeout(() => void tick(), 5_000);
+  };
+
+  nodeFollowTimer = setTimeout(() => void tick(), 5_000);
+}
+
+async function handleNodeLifecycleRequested() {
+  await refreshSelectedNode();
+  followNodeTransition();
+}
+
 function handleTemplateManagerOpen() {
   modalState.templateManagerRequest.open = true;
 }
@@ -470,6 +593,27 @@ function handleTemplateManagerClose() {
         @refresh="handleMciIdChange"
       >
         <template #left-area>
+          <p-select-dropdown
+            data-testid="vm-action-dropdown"
+            placeholder="Action"
+            :menu="nodeActionMenus"
+            :selected.sync="nodeActionState.selectedActionItem"
+            reset-selected-on-unmounted
+            class="mr-2"
+            @select="handleNodeAction"
+          >
+            <!--
+              mirinae's PContextMenu copies only the props it knows from each menu entry, so a
+              data-testid put on the entry object is dropped without a word. Drawing the label
+              through this slot is the way to attach one, and the slot must always render an
+              element (DESIGN-MIRINAE §1.7).
+            -->
+            <template #menu-item--format="{ item }">
+              <span :data-testid="`vm-action-${item.name}`">{{
+                item.label
+              }}</span>
+            </template>
+          </p-select-dropdown>
           <p-button
             style-type="tertiary"
             icon-left="ic_plus_bold"
@@ -516,6 +660,7 @@ function handleTemplateManagerClose() {
       >
         <template #information>
           <VmInformation
+            :key="nodeDetailKey"
             :mci-id="props.mciId"
             :ns-id="props.nsId"
             :vm-id="selectedVm.id"
@@ -587,6 +732,15 @@ function handleTemplateManagerClose() {
       :vm-id="selectedVm?.id ?? ''"
       :ip="selectedVm?.publicIP ?? ''"
       @close="handleTemplateManagerClose"
+    />
+    <lifecycle-control-modal
+      :visible.sync="lifecycleModalState.visible"
+      :action="lifecycleModalState.action"
+      scope="node"
+      :ns-id="props.nsId"
+      :infra-id="props.mciId"
+      :targets="nodeLifecycleTargets"
+      @requested="handleNodeLifecycleRequested"
     />
   </div>
 </template>

@@ -10,13 +10,20 @@ import {
 import {
   onBeforeMount,
   onMounted,
-  onUnmounted,
+  onBeforeUnmount,
   reactive,
   computed,
   ref,
   watch,
 } from 'vue';
 import MciDeleteModal from './MciDeleteModal.vue';
+import LifecycleControlModal from '@/features/workload/lifecycleControl/ui/LifecycleControlModal.vue';
+import {
+  LIFECYCLE_ACTIONS,
+  LIFECYCLE_ACTION_ORDER,
+  type ILifecycleTarget,
+} from '@/features/workload/lifecycleControl/model';
+import type { LifecycleAction } from '@/entities/mci/api';
 import TableLoadingSpinner from '@/shared/ui/LoadingSpinner/TableLoadingSpinner.vue';
 import { useDynamicTableHeight } from '@/shared/hooks/table/useDynamicTableHeight';
 import { useToolboxTableHeight } from '@/shared/hooks/table/useToolboxTableHeight';
@@ -33,8 +40,14 @@ interface IProps {
 const props = defineProps<IProps>();
 const emit = defineEmits(['selectRow']);
 
-const { mciTableModel, initToolBoxTableModel, fetchMciList, loading } =
-  useMciListModel(props);
+const {
+  mciTableModel,
+  initToolBoxTableModel,
+  fetchMciList,
+  followTransition,
+  stopFollowing,
+  loading,
+} = useMciListModel(props);
 
 const { dynamicHeight, minHeight, maxHeight } = useDynamicTableHeight(
   computed(() => mciTableModel.tableState.items.length),
@@ -56,8 +69,16 @@ const isActionDisabled = computed(() => {
   return mciTableModel.tableState.selectIndex.length === 0;
 });
 
+// Lifecycle first, then a rule, then Delete. Delete is the one that cannot be undone and the one
+// that was here before, so it keeps its place at the bottom rather than sitting among the others.
 const actionState = reactive({
   actionMenus: computed(() => [
+    ...LIFECYCLE_ACTION_ORDER.map(action => ({
+      name: action,
+      label: LIFECYCLE_ACTIONS[action].label,
+      disabled: isActionDisabled.value,
+    })),
+    { type: 'divider' },
     { name: 'delete', label: 'Delete', disabled: isActionDisabled.value },
   ]),
   selectedActionItem: '',
@@ -67,15 +88,39 @@ const deleteModalState = reactive({
   visible: false,
 });
 
+const lifecycleModalState = reactive({
+  visible: false,
+  action: null as LifecycleAction | null,
+});
+
 const selectedMciList = computed(() => {
   return mciTableModel.tableState.selectIndex.map(index => {
     return mciTableModel.tableState.displayItems[index];
   });
 });
 
-function handleDelete(item: string) {
+/**
+ * The selected rows as lifecycle targets.
+ *
+ * In cb-tumblebug an infra's id *is* its name, but the two are read from different fields and the
+ * one the API needs is the id — falling back to the name only when the row has no id.
+ */
+const lifecycleTargets = computed<ILifecycleTarget[]>(() =>
+  selectedMciList.value.map(item => ({
+    id: item?.id ?? item?.name ?? '',
+    name: item?.name ?? '',
+    status: item?.status,
+  })),
+);
+
+function handleAction(item: string) {
   if (item === 'delete') {
     deleteModalState.visible = true;
+    return;
+  }
+  if (LIFECYCLE_ACTION_ORDER.includes(item as LifecycleAction)) {
+    lifecycleModalState.action = item as LifecycleAction;
+    lifecycleModalState.visible = true;
   }
 }
 
@@ -83,6 +128,20 @@ async function handleDeleted() {
   await fetchMciList();
   // re-render once the data has loaded
   tableKey.value++;
+}
+
+/**
+ * The action was accepted — now show it happening.
+ *
+ * Refresh once so the workload flips to Suspending/Rebooting straight away, then keep re-reading
+ * the list until it settles. Without that second part the row would sit on the transitional status
+ * for ever and read as stuck.
+ */
+async function handleLifecycleRequested() {
+  const ids = lifecycleTargets.value.map(t => t.id).filter(Boolean);
+  await fetchMciList();
+  tableKey.value++;
+  followTransition(ids);
 }
 
 function handleSelectedIndex(index: number[]) {
@@ -145,6 +204,11 @@ onMounted(async () => {
   // re-render after the initial data load
   tableKey.value++;
 });
+
+// Leaving the screen ends the transition watch. It only exists to keep *this* list honest.
+onBeforeUnmount(() => {
+  stopFollowing();
+});
 </script>
 
 <template>
@@ -178,7 +242,7 @@ onMounted(async () => {
           :select-index.sync="mciTableModel.tableState.selectIndex"
           :page-size="mciTableModel.tableOptions.pageSize"
           @change="mciTableModel.handleChange"
-          @refresh="fetchMciList"
+          @refresh="() => fetchMciList()"
           @select="handleSelectedIndex"
         >
           <template #toolbox-left>
@@ -189,8 +253,22 @@ onMounted(async () => {
               :selected.sync="actionState.selectedActionItem"
               reset-selected-on-unmounted
               class="mr-2"
-              @select="handleDelete"
-            />
+              @select="handleAction"
+            >
+              <!--
+                Identifiers for the menu items.
+
+                mirinae's PContextMenu copies only the props it knows from each menu entry, so a
+                data-testid put on the entry object is dropped without a word. Drawing the label
+                through this slot is the way to attach one. The slot must always render an element
+                (DESIGN-MIRINAE §1.7).
+              -->
+              <template #menu-item--format="{ item }">
+                <span :data-testid="`mci-action-${item.name}`">{{
+                  item.label
+                }}</span>
+              </template>
+            </p-select-dropdown>
             <p-button
               style-type="primary"
               icon-left="ic_plus_bold"
@@ -249,6 +327,14 @@ onMounted(async () => {
       :selected-mci-list="selectedMciList"
       :ns-id="nsId"
       @deleted="handleDeleted"
+    />
+    <lifecycle-control-modal
+      :visible.sync="lifecycleModalState.visible"
+      :action="lifecycleModalState.action"
+      scope="infra"
+      :ns-id="nsId"
+      :targets="lifecycleTargets"
+      @requested="handleLifecycleRequested"
     />
   </div>
 </template>
