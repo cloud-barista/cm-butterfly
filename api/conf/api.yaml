@@ -2537,6 +2537,10 @@ serviceActions:
       method: get
       resourcePath: /httpVersion
       description: "Checks and returns the HTTP protocol version of the incoming request.\n\n[Note]\n- The X-Request-Id header value (auto-generated if not provided) is propagated to Tumblebug when Beetle calls its APIs for distributed tracing."
+    CheckSSHReady:
+      method: get
+      resourcePath: /migration/ns/{nsId}/infra/{infraId}/ssh-ready
+      description: "Check if all nodes in the migrated infrastructure are SSH-accessible.\n\n\"Running\" status doesn't mean cloud-init (SSH user setup) is done; timing varies by\nCSP (IBM Cloud VPC: up to ~3 min in testing). Works for any CSP.\n\n**Rate Limiting**: To prevent SSH server abuse, this API can only be called\nonce every 3 minutes for the same infrastructure. If called too soon, it returns\nHTTP 429 with the time to wait before the next check is allowed.\n\n**Check Method**: This API runs a lightweight command on each node via Tumblebug's\nremote command API (not a direct connection from CM-Beetle), so it reuses Tumblebug's\nexisting SSH/bastion setup for the node's CSP.\n\n**Response Options**:\n- Default (no option): Returns summary information (ready, totalNodes, readyNodes, message)\n- option=detail: Returns summary + detailed node status array (nodeStatus) for troubleshooting (per-node SSH readiness)"
     CreateMigratedSSHKey:
       method: post
       resourcePath: /migration/ns/{nsId}/resources/sshKey
@@ -2649,6 +2653,10 @@ serviceActions:
       method: get
       resourcePath: /migration/middleware/ns/{nsId}/objectStorage/{osId}
       description: "Get details of a specific object storage (bucket)"
+    GetObjectStorageSupport:
+      method: get
+      resourcePath: /recommendation/middleware/objectStorage/support
+      description: "Forward object storage support request to CB-Tumblebug via Proxy (Returns ObjectStorageSupportResponse)"
     GetReadyz:
       method: get
       resourcePath: /readyz
@@ -2657,10 +2665,18 @@ serviceActions:
       method: get
       resourcePath: /request/{reqId}
       description: "Retrieves the details of a specific API request tracked by Beetle.\n\n[Note]\n- Request tracking is managed independently by Beetle (not shared with Tumblebug).\n- The reqId corresponds to the X-Request-Id header value from a previous API call.\n- Do NOT call Tumblebug's /request/{reqId} API with this reqId; each system manages its own request tracking.\n\n[Status Values]\n- Handling: Request is currently being processed\n- Success: Request completed successfully\n- Error: Request failed with an error"
+    GetSecurityPublicKey:
+      method: get
+      resourcePath: /migration/security/publicKey
+      description: "Generate and return a one-time RSA public key bundle for encrypting sensitive CSP access credentials (accessKey, secretKey, tokens) before scanning or sending across web clients."
     GetStorageObject:
       method: head
       resourcePath: /migration/middleware/ns/{nsId}/objectStorage/{osId}/object/{objectKey}
       description: "Retrieve metadata (key, size, ETag, last-modified, storage class) of a specific object\nby proxying Tumblebug HEAD /ns/{nsId}/resources/objectStorage/{osId}/object/{objectKey}.\nNote: URL-encode the objectKey if it contains slashes (e.g., folder%2Ffile.txt)."
+    InspectObjectStorage:
+      method: post
+      resourcePath: /migration/middleware/objectStorage/inspect
+      description: "Deeply inspect and extract feature/usage metadata (totalSizeBytes, objectCount, versioning, encryption, CORS, policy, tags, creationDate) from selected cloud object storage buckets.\n\n[Note] Extracted fields strictly conform to Beetle's Recommendation API input specification (`SourceObjectStorage`).\n- Versioning: Extracted via `GetBucketVersioning`. If versioning is disabled or error occurs, `versioningEnabled` is false.\n- Encryption: Extracted via `GetBucketEncryption`. If encryption rules are absent or error occurs, `encryptionEnabled` is false.\n- CORS: Extracted via `GetBucketCors`. If CORS rules are absent or error occurs, `corsEnabled` is false and `corsRule` is nil.\n- Public Access: Extracted via `GetBucketPolicy`. If wildcard public policy statement is detected, `isPublic` is true, otherwise false.\n- Tags: Extracted via `GetBucketTagging`. If tags are not set, `tags` is nil/empty map.\n- CreationDate: Extracted via bucket listing creation timestamp formatted in RFC 3339 format.\n- AccessFrequency: Defaults to `\"frequent\"` (Standard storage tier baseline for recommendation)."
     ListInfra:
       method: get
       resourcePath: /migration/ns/{nsId}/infra
@@ -2753,6 +2769,10 @@ serviceActions:
       method: post
       resourcePath: /recommendation/resources/specs
       description: "Recommend an appropriate VM specification for cloud migration\n\n[Note] `desiredProvider` and `desiredRegion` are required.\n- `desiredProvider` and `desiredRegion` can set on the query parameter or the request body.\n\n- If desiredProvider and desiredRegion are set on request body, the values in the query parameter will be ignored.\n- If `targetMachineId` is provided, only that specific machine will be processed."
+    ScanObjectStorage:
+      method: post
+      resourcePath: /migration/middleware/objectStorage/scan
+      description: "Scan and list all object storage buckets in the specified cloud provider account using provided CSP access credentials via MinIO S3 SDK."
     TestAuth:
       method: get
       resourcePath: /test/auth
@@ -2773,6 +2793,10 @@ serviceActions:
       method: get
       resourcePath: /test/tracing
       description: "Tests distributed tracing by calling Tumblebug's readyz endpoint.\n\n[Note]\n- The 'traceparent' header (W3C Trace Context) is propagated to Tumblebug for distributed tracing.\n- The 'X-Request-Id' header is propagated for log correlation.\n- Use this API to verify that tracing works correctly between Beetle and Tumblebug."
+    ValidateInfra:
+      method: post
+      resourcePath: /validation/ns/{nsId}/infra
+      description: "Runs, without creating or modifying any resource, the same checks\nmigration execution performs immediately before provisioning:\n\n- **Naming & referential integrity**: names must be 3-63 alphanumeric/hyphen\ncharacters, and internal references must resolve within the submitted model\n(e.g. a NodeGroup's `securityGroupIds` must match a `name` in `targetSecurityGroupList`).\n- **Required fields**, which differ by `useExisting`:\n- `true`: each NodeGroup's `vNetId`, `sshKeyId`, `securityGroupIds` must be set.\n- `false`: `targetVNet.name`, `targetSshKey.name`, and each security group's `name` must be set.\n- **Resource name collision / availability** against Tumblebug, which also differs by `useExisting`:\n- `false`: the VNet/SSH key/security groups to be created must NOT already exist in the\nnamespace (e.g. `targetVNet.name: \"vnet-01\"` fails if a VNet named `vnet-01` already exists).\n- `true`: an existing resource must be under the same CSP/region connection the NodeGroup\nrequests (e.g. reusing a VNet provisioned under connection `aws-ap-northeast-2` while the\nNodeGroup's `connectionName` is `gcp-asia-northeast3` fails); a resource that doesn't exist\nyet must have enough data alongside it to create it instead (e.g. `targetVNet.cidrBlock`).\n- **VM spec/image compatibility** per NodeGroup: `specId`, `imageId`, and `connectionName` must\nbe set, `connectionName` must be in `csp-region` format (e.g. `aws-ap-northeast-2`), and the\nresolved spec/image pair must be compatible for that CSP (e.g. an `x86_64` spec paired with\nan `arm64` image fails).\n- **Infra (MCI) name collision**: `targetInfra.name` must not already exist in the namespace.\n\nAlways returns HTTP 200: the response body's `valid` field and\n`issues` list carry the outcome, since a failed check is a normal,\nsuccessfully-answered result rather than a malformed request.\n400 is reserved for request body/parameter errors.\n\nBecause Tumblebug/CSP state can change afterward, a `valid: true`\nresult is a best-effort snapshot, not a guarantee - the migration\nAPI re-runs this same validation immediately before provisioning."
     ValidateNames:
       method: post
       resourcePath: /naming/validation
