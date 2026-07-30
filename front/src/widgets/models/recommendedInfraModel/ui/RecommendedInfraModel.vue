@@ -125,7 +125,7 @@ const candidateLimit = ref<number>(3);
 /*
  * Minimum Match Rate — cm-beetle takes ONE number (query `minMatchRate`, 0-100, default 90.0).
  * There is no "max" counterpart, so this is a single field: a range string such as "90-100"
- * fails ParseFloat on the server, which then silently falls back to 90.0 (BAR-1634).
+ * fails ParseFloat on the server, which then silently falls back to 90.0.
  *
  * Empty means "send nothing" so the server default applies. The slider therefore rests at
  * MATCH_RATE_DEFAULT while the field is empty, and the hint under the field says which one is in effect.
@@ -549,7 +549,7 @@ function handleSave(e: { name: string; description: string }) {
             Provider sits in the same fixed-width cell as Candidate Limit on the row below, so
             "Region" and "Minimum Match Rate (%)" start at the same x. Aligning to whatever width
             the Provider dropdown happens to take does not work — its width follows the selected
-            value, so the column shifts between runs. (BAR-1634)
+            value, so the column shifts between runs.
           -->
           <section class="select-service-box params-section__row w-full">
             <div class="param-group">
@@ -626,7 +626,7 @@ function handleSave(e: { name: string; description: string }) {
                 Minimum Match Rate — one value only. cm-beetle exposes a single `minMatchRate`
                 (0-100, default 90) and answers anything it cannot parse by silently using 90,
                 so the screen must not invent a range. The '?' badge sits at the label's
-                bottom-right and opens the detailed explanation on hover/focus. (BAR-1634)
+                bottom-right and opens the detailed explanation on hover/focus.
               -->
               <span class="match-rate-label">
                 <span class="text-label-lg font-bold"
@@ -800,7 +800,7 @@ function handleSave(e: { name: string; description: string }) {
         data-testid cannot reach it otherwise. The replacement mirrors the default exactly —
         same style-type (tertiary), same label, and the `margin-top` the default carries via
         PIconModal's scoped `.button` rule (which does not reach parent-provided slot content)
-        is restored inline so the render is unchanged. (BAR-1595 / CLAUDE.md §12)
+        is restored inline so the render is unchanged.
       -->
       <template #custom-button>
         <p-button
