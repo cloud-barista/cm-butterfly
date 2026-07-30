@@ -206,6 +206,10 @@ const handleFileChange = async (event: Event) => {
   if (!file) return;
 
   clearPreview();
+  // Name the file straight away. Until now it only appeared once the preview had been built, so
+  // choosing a file and the rows arriving looked like one event - there was no moment on screen
+  // that said which file had been picked, or that one had been picked at all.
+  importedFileName.value = file.name;
   isParsing.value = true;
 
   try {
@@ -383,12 +387,24 @@ watch(
           How to prepare the file
         </a>
       </p>
+      <!--
+        The chosen file, on its own line. It stays put through reading, preview and problem, so the
+        sequence reads as three steps rather than as a list that appeared by itself.
+      -->
+      <p
+        v-if="importedFileName"
+        class="import-selected"
+        data-testid="source-import-filename"
+      >
+        Selected file: <strong>{{ importedFileName }}</strong>
+      </p>
+
       <div
         v-if="isParsing"
         class="import-status"
         data-testid="source-import-parsing"
       >
-        Reading the file…
+        Reading {{ importedFileName }}…
       </div>
 
       <div
@@ -396,7 +412,7 @@ watch(
         class="import-problem"
         data-testid="source-import-problem"
       >
-        <strong>{{ importedFileName }}</strong> — {{ importFileProblem }}
+        {{ importFileProblem }}
       </div>
 
       <div
@@ -409,7 +425,7 @@ watch(
             <strong data-testid="source-import-count">
               {{ previewRows.length }} connection(s)
             </strong>
-            from {{ importedFileName }}
+
             <span
               v-if="invalidRowCount > 0"
               class="preview-invalid"
@@ -535,6 +551,9 @@ watch(
         height: 1px;
         background-color: #e5e5e5;
       }
+    }
+    .import-selected {
+      @apply text-[0.8125rem] text-gray-700 mt-[0.5rem];
     }
     .import-status {
       @apply text-[0.8125rem] text-gray-600 py-[0.75rem];

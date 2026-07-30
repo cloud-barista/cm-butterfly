@@ -21,7 +21,9 @@ const { targetModelStore, setTargetModelId, initTable, tableModel } =
 
 // Computed that decides whether this is a Software model
 const isSoftwareModel = computed(() => {
-  const targetModel = targetModelStore.getTargetModelById(props.selectedTargetModelId);
+  const targetModel = targetModelStore.getTargetModelById(
+    props.selectedTargetModelId,
+  );
 
   // Treat as a Software model if modelType is 'SoftwareModel'
   if (targetModel?.modelType === 'SoftwareModel') {
@@ -88,30 +90,37 @@ watch(
 function handleJsonModal() {
   emit('update:custom-view-json-modal', true);
   emit('update:target-model-name', targetModelName.value);
-  
+
   // For a Software model, pass along the targetSoftwareModel info
   if (isSoftwareModel.value) {
-    const targetModel = targetModelStore.getTargetModelById(props.selectedTargetModelId);
+    const targetModel = targetModelStore.getTargetModelById(
+      props.selectedTargetModelId,
+    );
     if (targetModel?.targetSoftwareModel) {
       // Pass the targetSoftwareModel info to the parent component
       // This info is used by CustomViewTargetModel
-      console.log('Software model detected, targetSoftwareModel:', targetModel.targetSoftwareModel);
+      console.log(
+        'Software model detected, targetSoftwareModel:',
+        targetModel.targetSoftwareModel,
+      );
     }
   }
 }
 
 function handleOpenWorkflowEditor() {
-  const targetModel = targetModelStore.getTargetModelById(props.selectedTargetModelId);
-  
+  const targetModel = targetModelStore.getTargetModelById(
+    props.selectedTargetModelId,
+  );
+
   console.log('TargetModelDetail - handleOpenWorkflowEditor called:', {
     selectedTargetModelId: props.selectedTargetModelId,
     targetModelName: targetModelName.value,
     targetModelDescription: targetModelDescription.value,
     targetModel: targetModel,
     isSoftwareModel: isSoftwareModel.value,
-    targetSoftwareModel: targetModel?.targetSoftwareModel
+    targetSoftwareModel: targetModel?.targetSoftwareModel,
   });
-  
+
   emit('update:workflow-edit-modal', true);
 }
 </script>
@@ -125,7 +134,11 @@ function handleOpenWorkflowEditor() {
       :block="true"
     >
       <template #data-customAndViewJSON>
-        <p class="link-button-text" @click="handleJsonModal">
+        <p
+          class="link-button-text"
+          data-testid="target-detail-custom-view"
+          @click="handleJsonModal"
+        >
           Custom & View Target Model
         </p>
       </template>

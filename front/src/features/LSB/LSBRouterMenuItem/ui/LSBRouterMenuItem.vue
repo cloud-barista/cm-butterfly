@@ -44,6 +44,7 @@ const isSelectedMenu = (selectedMenuRoute: string): boolean => {
         ref="itemEl"
         class="l-s-b-router-menu-item"
         :class="{ selected: isSelectedMenu(it.id) }"
+        :data-testid="`lsb-${it.id}`"
         :to="{ name: it.id }"
         @mouseenter.native="state.hoveredItem = it.id"
         @mouseleave.native="state.hoveredItem = ''"

@@ -100,6 +100,7 @@ async function fetchMenuTree() {
         v-for="(n, i) in m.menu"
         :key="i"
         class="service-menu"
+        :data-testid="`menu-${n.id}`"
         :to="{ name: n.id }"
         :class="{
           'is-selected': selectedMenuId === n.id,
