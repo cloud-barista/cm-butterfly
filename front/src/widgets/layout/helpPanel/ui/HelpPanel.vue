@@ -827,8 +827,8 @@ function jsonEditorGroup(): Group {
       {
         heading: 'Filter or reshape an array',
         steps: [
-          'Switch to the tree view, click the array so it is selected, then right-click it.',
-          'Sort and Transform act on what is selected. With nothing selected they act on the whole document, which is an object - that is why the wizard stays empty and the fields you expected never appear.',
+          'Switch to the tree view and click the array you want to work on - targetSpecList, nodeGroups, firewallRules - so the row is highlighted.',
+          'Right-click it, or press Ctrl+Q, and choose Sort or Transform. Both work on one array at a time, so pick the array first and the wizard will offer its fields.',
           'Transform replaces the array with the result, so check the document before saving.',
         ],
       },
@@ -968,6 +968,7 @@ onBeforeUnmount(() => {
       :class="docked ? 'is-docked' : 'is-float'"
       :style="panelStyle"
       data-testid="help-panel"
+      :data-docked="docked ? 'true' : 'false'"
     >
       <span
         class="help-resizer"
@@ -981,7 +982,9 @@ onBeforeUnmount(() => {
         data-testid="help-header"
         @mousedown="startMove"
       >
-        <span class="help-title">{{ help.title }}</span>
+        <span class="help-title" data-testid="help-title">{{
+          help.title
+        }}</span>
         <span class="help-actions">
           <button
             v-if="docked"
@@ -1027,7 +1030,7 @@ onBeforeUnmount(() => {
           </button>
         </span>
       </header>
-      <div class="help-body">
+      <div class="help-body" data-testid="help-body">
         <p v-for="(line, i) in help.paragraphs" :key="i">{{ line }}</p>
 
         <!-- What this menu does, as a list you can jump from. -->

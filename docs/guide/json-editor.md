@@ -98,14 +98,8 @@ document back.
 
 ## Filtering and reshaping an array
 
-The tree view has two more tools — **sort** and **transform**. They are powerful and they
-are also where people get stuck, because of one rule:
-
-> **They act on what you have selected.** Select nothing and they act on the whole
-> document, which is an object — and their wizard only works on arrays.
-
-That is why the fields you expected are missing: the editor is not looking at the array
-you had in mind.
+The tree view has two more tools — **sort** and **transform**. Both work on one array at a
+time, so **choose the array before you use them.**
 
 ### Select the array first
 
@@ -114,16 +108,17 @@ is highlighted. Then right-click it (or press `Ctrl+Q`).
 
 ![Selecting an array and opening its menu](images/json-05-select-context.png)
 
-**Sort** and **Transform** are now enabled, and they will act on that array.
+**Sort** and **Transform** are now enabled, and they act on the array you picked. The
+wizard offers that array's fields to filter, sort and pick by.
 
 ### The transform window
 
 ![The transform window with the wizard](images/json-06-transform-wizard.png)
 
-* **Path** shows what will be transformed. If it says `(document root)`, you did not
-  select an array — close the window, select one, and open it from the right-click menu
+* **Path** shows which array will be transformed. To work on a different one, close the
+  window, select that array, and open it from its right-click menu
 * **Wizard** builds the query for you: filter by a field, sort by a field, pick fields to
-  keep. It appears only when Path is an array
+  keep
 * **Query** is the same thing written out. The language is
   [JSON Query](https://jsonquerylang.org) — `filter`, `sort`, `pick`, `get`, `groupBy`,
   `uniq`

@@ -278,6 +278,27 @@ onBeforeUnmount(() => {
               Create
             </p-button>
           </template>
+          <!--
+            The infrastructure's own id, marked so it can be addressed directly.
+
+            A migration names what it creates from the prefix it was given, so a test that goes
+            looking for a name is relying on a naming rule holding - and cannot tell this run's
+            infrastructure from one left behind by an earlier run. The id is the thing that is
+            actually unique, so it is carried on the cell as well as shown in it.
+
+            Both identifiers go on: the id is what the APIs are addressed by, and the uid is what
+            the platform assigns and what other records point at. Which one is to hand depends on
+            where you came from, so neither is left out.
+          -->
+          <template #col-id-format="{ item }">
+            <span
+              :data-testid="`mci-row-${item.id}`"
+              :data-infra-id="item.id"
+              :data-infra-uid="item.uid"
+            >
+              {{ item.id }}
+            </span>
+          </template>
           <template #col-provider-format="{ item, field }">
             <p-badge
               v-for="(provider, index) in item.provider"

@@ -20,7 +20,11 @@ interface IProps {
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(['update:close-modal', 'update:trigger', 'update:close-target-model-detail']);
+const emit = defineEmits([
+  'update:close-modal',
+  'update:trigger',
+  'update:close-target-model-detail',
+]);
 
 const modalState = reactive({
   open: false,
@@ -42,12 +46,12 @@ const modelData = computed(() => {
   if (props.migrationData) {
     return props.migrationData;
   }
-  
+
   // For a Software model, return targetSoftwareModel
   if (isSoftwareModel.value && targetModel.value?.targetSoftwareModel) {
     return targetModel.value.targetSoftwareModel;
   }
-  
+
   // For an Infra model, return cloudInfraModel
   return targetModel.value?.cloudInfraModel;
 });
@@ -58,17 +62,17 @@ const isSoftwareModel = computed(() => {
   if (props.migrationData) {
     return true;
   }
-  
+
   // Treat as a Software model when targetSoftwareModel is present
   if (targetModel.value?.targetSoftwareModel) {
     return true;
   }
-  
+
   // Treat as a Software model when migrationType is 'software'
   if (targetModel.value?.migrationType === 'software') {
     return true;
   }
-  
+
   // Default to an Infra model (preserves compatibility with existing logic)
   return false;
 });
@@ -81,17 +85,25 @@ watch(
         props.selectedTargetId,
       );
     }
-    
+
     // Stringify migration data with JSON.stringify if present, otherwise use the existing logic
     if (props.migrationData) {
       cloudInfraModelCode.value = JSON.stringify(props.migrationData, null, 2);
     } else {
       // For a Software model, display targetSoftwareModel
       if (isSoftwareModel.value && targetModel.value?.targetSoftwareModel) {
-        cloudInfraModelCode.value = JSON.stringify(targetModel.value.targetSoftwareModel, null, 2);
+        cloudInfraModelCode.value = JSON.stringify(
+          targetModel.value.targetSoftwareModel,
+          null,
+          2,
+        );
       } else {
         // For an Infra model, display cloudInfraModel
-        cloudInfraModelCode.value = JSON.stringify(targetModel.value?.cloudInfraModel || {}, null, 2);
+        cloudInfraModelCode.value = JSON.stringify(
+          targetModel.value?.cloudInfraModel || {},
+          null,
+          2,
+        );
       }
     }
   },
@@ -125,7 +137,10 @@ function handleCreateSoftwareTargetModel(e) {
       userModelVersion: targetModel.value?.userModelVersion ?? 'v0.1',
     };
   } catch (error) {
-    showErrorMessage('error', error instanceof Error ? error.message : 'Invalid JSON format');
+    showErrorMessage(
+      'error',
+      error instanceof Error ? error.message : 'Invalid JSON format',
+    );
     return;
   }
 
@@ -134,7 +149,10 @@ function handleCreateSoftwareTargetModel(e) {
       request: requestBody,
     })
     .then(res => {
-      showSuccessMessage('success', 'Successfully created software target model');
+      showSuccessMessage(
+        'success',
+        'Successfully created software target model',
+      );
       modalState.open = false;
       emit('update:close-modal', false);
       emit('update:trigger', false);
@@ -163,7 +181,10 @@ function handleCreateInfraTargetModel(e) {
       zone: targetModel.value?.zone ?? '',
     };
   } catch (error) {
-    showErrorMessage('error', error instanceof Error ? error.message : 'Invalid JSON format');
+    showErrorMessage(
+      'error',
+      error instanceof Error ? error.message : 'Invalid JSON format',
+    );
     return;
   }
 
@@ -194,7 +215,11 @@ function handleCodeUpdate(value: string) {
       class="page-modal-layout"
       :badge-title="selectedTargetName"
       :need-widget-layout="true"
-      :title="isSoftwareModel ? 'Save Software Migration as Target Model' : 'Custom & View Target Model'"
+      :title="
+        isSoftwareModel
+          ? 'Save Software Migration as Target Model'
+          : 'Custom & View Target Model'
+      "
       first-title="JSON Viewer"
       @update:modal-state="$emit('update:close-modal', false)"
     >
@@ -216,16 +241,26 @@ function handleCodeUpdate(value: string) {
       <template #buttons>
         <p-button
           style-type="tertiary"
+          data-testid="target-custom-cancel"
           @click="$emit('update:close-modal', false)"
         >
           Cancel
         </p-button>
-        <p-button @click="modalState.open = true"> Save</p-button>
+        <p-button
+          data-testid="target-custom-save"
+          @click="modalState.open = true"
+        >
+          Save</p-button
+        >
       </template>
     </create-form>
     <simple-edit-form
       v-if="modalState.open"
-      :header-title="isSoftwareModel ? 'Save software migration as target model' : 'Save new custom target model'"
+      :header-title="
+        isSoftwareModel
+          ? 'Save software migration as target model'
+          : 'Save new custom target model'
+      "
       :name="modalState.context.name"
       :description="modalState.context.description"
       name-label="Name"
