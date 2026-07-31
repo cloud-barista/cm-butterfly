@@ -32,10 +32,11 @@
 cm-butterfly is a framework that provides a GUI environment for a multi-cloud migration platform. It provides a GUI that can be used in a user-friendly and consistent manner to migrate infrastructure, applications, and data from on-premise or cloud source environments to the cloud environments.
 
 
-## Prerequisition
-### Recommend Envionment (Test Finished)
-  - Ubuntu 22.04
-  - Go 1.23.0
+## Prerequisites
+### Recommended Environment (Test Finished)
+  - Ubuntu 22.04 or later
+  - Go 1.26.5 (api)
+  - Node 20 (front — see `front/.nvmrc`)
   - Docker engine 25.0.0
 
 
@@ -48,7 +49,7 @@ git clone https://github.com/cloud-barista/cm-butterfly.git
 or if you need specific version with minimize the size
 
 ```bash
-git clone --depth 1 --branch v0.3.0 https://github.com/cloud-barista/cm-butterfly.git
+git clone --depth 1 --branch v0.6.0 https://github.com/cloud-barista/cm-butterfly.git
 ```
 
 ### 2. Create the api environment file ⭐
@@ -110,31 +111,27 @@ You can call all the APIs configured in api.yaml through the same request format
 
 Modify the value of services.{subsystem-name}.baseurl. The host currently in use by default is set to the service DNS of the Docker container. If changes are necessary (if there is a IP address or domain), you need to change the corresponding value. Requests will be sent to the URL defined in api.yaml.
    
-  ```yaml
-  ```yaml
-
 ```yaml
-
   cb-spider: #service name
-    version: 0.10.0
+    version: 0.12.35
     baseurl: http://cb-spider:1024/spider  ## change this end with /spider
-    auth: 
+    auth:
       type: basic
-      username: 
-      password: 
-  
+      username:
+      password:
+
   cb-tumblebug:
-    version: 0.10.3
+    version: 0.12.25
     baseurl: http://cb-tumblebug:1323/tumblebug ## change this end with /tumblebug
-    auth: 
+    auth:
       type: basic
       username: default
       password: default
 
   cm-beetle:
-    version: 0.3.0
+    version: 0.6.0
     baseurl: http://cm-beetle:8056/beetle  ## change this end with /beetle
-    auth: 
+    auth:
 
   # others ...
 ```
