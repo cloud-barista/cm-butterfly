@@ -759,7 +759,24 @@ function handleSave(e: { name: string; description: string }) {
               <span v-html="formatEmptyValue(item.spec)" />
             </template>
             <template #col-image-format="{ item }">
-              <span v-html="formatEmptyValue(item.image)" />
+              <span data-testid="recommend-image" v-html="formatEmptyValue(item.image)" />
+            </template>
+            <!--
+              OS and Architecture carry an identifier so a test can read the cell itself.
+              Reading them by column position breaks the moment a column moves, and these
+              two are exactly what regressed before: they showed "n/a" on every provider
+              except AWS because the values were taken from provider-supplied fields
+              instead of the normalized ones.
+
+              The slot always renders a span, even when the value is empty — a slot that
+              renders nothing makes the table fall back to its own default rendering
+              (DESIGN-MIRINAE §1.7).
+            -->
+            <template #col-os-format="{ item }">
+              <span data-testid="recommend-os">{{ item.os }}</span>
+            </template>
+            <template #col-architecture-format="{ item }">
+              <span data-testid="recommend-architecture">{{ item.architecture }}</span>
             </template>
           </p-toolbox-table>
         </div>
