@@ -216,44 +216,36 @@ export function useRecommendedInfraModel() {
       }
     });
 
-    // Extract OS and Architecture from targetOsImageList
+    // OS and Architecture come from the image entry's own normalized fields.
+    //
+    // The image list carries two layers. `osType`/`osArchitecture` are normalized by
+    // cb-tumblebug so every provider reports them the same way, while `description` and
+    // `details[]` are whatever the provider itself returned — their shape differs per
+    // provider and is not something to parse. This used to read the provider-supplied
+    // layer, so it only worked where that layer happened to look like AWS: `description`
+    // is empty on NCP, and the architecture key is named `CpuArchitectureType` there
+    // rather than `Architecture`. Both columns then showed "n/a" even though the
+    // normalized fields held the right values all along.
+    //
+    // `imageId` on a nodeGroup refers to the image entry's `id`, so match on that.
+    // Nothing is guessed when a value is absent — the column stays empty and the table
+    // renders "n/a", which is the honest answer.
     const osValues: string[] = [];
     const archValues: string[] = [];
-    
+
     recommendedModel.targetInfra.nodeGroups?.forEach(subGroup => {
-      // Find matching image
       const matchingImage = recommendedModel.targetOsImageList?.find(
-        image => image.cspImageName === subGroup.imageId
+        image => image.id === subGroup.imageId,
       );
-      
+
       if (matchingImage) {
-        // Extract OS from description (e.g., "Canonical, Ubuntu, 22.04, amd64 jammy image")
-        if (matchingImage.description) {
-          // Try to parse OS name from description
-          const desc = matchingImage.description;
-          // Common patterns: "Ubuntu 22.04", "Canonical, Ubuntu, 22.04", etc.
-          const osMatch = desc.match(/Ubuntu\s+[\d.]+|Windows\s+Server\s+[\d]+|CentOS\s+[\d.]+|RHEL\s+[\d.]+|Amazon\s+Linux\s+[\d]+/i);
-          if (osMatch) {
-            osValues.push(osMatch[0]);
-          } else {
-            // Fallback: use first part of description
-            const parts = desc.split(',').map(p => p.trim());
-            if (parts.length >= 2) {
-              osValues.push(`${parts[1]} ${parts[2] || ''}`.trim());
-            } else {
-              osValues.push(parts[0] || 'Unknown');
-            }
-          }
+        if (matchingImage.osType) {
+          osValues.push(matchingImage.osType);
         }
-        
-        // Extract Architecture from details
-        if (matchingImage.details && Array.isArray(matchingImage.details)) {
-          const archDetail = matchingImage.details.find(
-            (detail: any) => detail.key === 'Architecture'
-          );
-          if (archDetail && archDetail.value) {
-            archValues.push(archDetail.value);
-          }
+        // 'NA' is the image list's way of saying the architecture is unknown, so it is
+        // not shown as if it were an answer.
+        if (matchingImage.osArchitecture && matchingImage.osArchitecture !== 'NA') {
+          archValues.push(matchingImage.osArchitecture);
         }
       }
     });

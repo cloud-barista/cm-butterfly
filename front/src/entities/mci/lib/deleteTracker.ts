@@ -7,9 +7,10 @@ import {
   type DeleteRequestRecord,
   type DeleteRequestStatus,
 } from '@/entities/mci/api/deleteRequest';
-import { useGetBeetleRequest, useGetMciList } from '@/entities/mci/api';
+import { useGetBeetleRequest } from '@/entities/mci/api';
 import { notify } from '@/entities/notification/lib/notificationStore';
 import { registerTracker } from '@/shared/libs/tracking/runner';
+import { toErrorMessage } from '@/shared/utils';
 
 /**
  * Tracking for workload (infra) deletes.
@@ -202,20 +203,27 @@ export async function loadDeleteRecords(): Promise<void> {
 // judged finished by querying cm-beetle, while a load test and a workflow each look at
 // something different. Folding those together would grow a switch, not a shared mechanism.
 
-/** Whether the infra is still listed — the tie-breaker when the outcome is unclear. */
-async function infraStillListed(rec: DeleteRecord): Promise<boolean> {
-  try {
-    const res: any = await useGetMciList(rec.nsId, '').execute();
-    const data =
-      res?.data?.responseData?.data ?? res?.data?.data ?? res?.data ?? {};
-    const list = data?.infra ?? data?.mci ?? [];
-    return (Array.isArray(list) ? list : []).some(
-      (m: any) => m?.uid === rec.uid,
-    );
-  } catch {
-    // If listing itself failed, decide nothing and look again on the next pass.
-    return true;
-  }
+/**
+ * The HTTP status behind a failed lookup, when there is one.
+ *
+ * The backend proxy passes cm-beetle's status through as-is when cm-beetle answered, and
+ * substitutes 500 when it could not reach cm-beetle at all. So the code tells the two apart:
+ * 404 means cm-beetle is up and does not know this request id, anything else means the
+ * outcome is still unknown.
+ */
+export function statusCodeOf(e: any): number | undefined {
+  // The api wrapper rejects with `{ error, errorMsg, status }`, all of them refs — the axios
+  // error sits at `error.value`, and `status` here is the wrapper's own 'error' | 'cancel'
+  // string, not an HTTP code. Reading that one first is what silently defeated this: it is
+  // never null, so it swallowed the lookup and every rejection came back without a code.
+  const fromWrapper = e?.error?.value?.response?.status;
+  if (typeof fromWrapper === 'number') return fromWrapper;
+
+  // A plain axios error, for callers that pass one through unwrapped.
+  const fromAxios = e?.response?.status;
+  if (typeof fromAxios === 'number') return fromAxios;
+
+  return typeof e?.status === 'number' ? e.status : undefined;
 }
 
 async function notifyDone(rec: DeleteRecord): Promise<void> {
@@ -256,12 +264,43 @@ async function notifyUnknown(rec: DeleteRecord): Promise<void> {
     level: 'Error',
     message: `Could not confirm the deletion of infra "${rec.infraId}".`,
     detail:
-      'The request record is gone but the infra is still listed, so the outcome is unknown. Check the workload list.',
+      'The request is no longer on record, so the outcome cannot be confirmed. Check the workload list to see whether it is gone.',
     dedupKey: `delete:${rec.reqId}:unknown`,
   });
 }
 
-/** Checks the outcome of one in-flight delete. */
+/**
+ * Says the status could not be read right now — the work itself is untouched.
+ *
+ * Holding off on a verdict is right, but staying silent about it is not: with nothing on
+ * screen the wait looks normal and nobody learns the server is unreachable. The key is per
+ * request rather than per attempt, so this is said once and not on every pass.
+ */
+async function notifyCheckUnavailable(
+  rec: DeleteRecord,
+  reason?: string,
+): Promise<void> {
+  await notify({
+    category: 'Workload',
+    level: 'Error',
+    message: `Cannot check the deletion status of infra "${rec.infraId}".`,
+    detail: reason
+      ? `${reason}\n\nThe delete itself is unaffected — checking resumes on its own once the server responds.`
+      : 'The server did not respond. The delete itself is unaffected — checking resumes on its own once the server responds.',
+    dedupKey: `delete:${rec.reqId}:check-unavailable`,
+  });
+}
+
+/**
+ * Checks the outcome of one in-flight delete.
+ *
+ * Everything here rests on cm-beetle's own request tracking, which has no rate limit. It
+ * used to fall back to listing the infras when that lookup failed — a listing that *is*
+ * rate limited (2/s), asked once per record, so deleting several at once put the later ones
+ * over the limit and their answers came back as failures. The fallback existed because a
+ * single `catch` treated "no such request" and "server unreachable" as the same thing; once
+ * those are told apart, there is nothing left for it to do.
+ */
 async function checkOne(rec: DeleteRecord): Promise<void> {
   try {
     const res: any = await useGetBeetleRequest(rec.reqId).execute();
@@ -284,20 +323,25 @@ async function checkOne(rec: DeleteRecord): Promise<void> {
       await notifyFailed(rec, reason);
     }
     // Still Handling: leave it and look again on the next pass.
-  } catch {
-    // The lookup failed. cm-beetle's request records do not survive its restart, so a
-    // request that completed normally can land here. Rather than calling it failed, decide
-    // by whether the infra is still there.
-    const listed = await infraStillListed(rec);
-    if (!listed) {
-      // No infra means it is gone by some route. Nothing to keep.
-      await notifyDone(rec);
-      await clearDeleteRecord(rec.uid);
-    } else {
-      // The infra is there but the request record is not — the outcome is unknown.
+  } catch (e) {
+    if (statusCodeOf(e) === 404) {
+      // cm-beetle answered and does not know this request id. Its records are kept for a
+      // week and restored on restart, so this is either an old request or one lost to a
+      // crash — and in the last case the request may never have reached cm-beetle at all.
+      // Either way the outcome can no longer be learned from here.
+      //
+      // Leaving it in `Handling` would be worse than saying so: that status is what blocks
+      // a second delete, so the workload could never be deleted again. Move it out and say
+      // the outcome is unknown.
       await markStatus(rec.uid, 'Unknown');
       await notifyUnknown(rec);
+      return;
     }
+
+    // Anything else — 500, a network failure — means the answer did not arrive, not that
+    // the delete failed. Do not pretend to have one. Say the check is unavailable and look
+    // again next pass.
+    await notifyCheckUnavailable(rec, toErrorMessage(e, ''));
   }
 }
 
