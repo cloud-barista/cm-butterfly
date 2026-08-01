@@ -15,6 +15,7 @@ import {
   computed,
   ref,
   watch,
+  nextTick,
 } from 'vue';
 import MciDeleteModal from './MciDeleteModal.vue';
 import LifecycleControlModal from '@/features/workload/lifecycleControl/ui/LifecycleControlModal.vue';
@@ -25,6 +26,8 @@ import {
 } from '@/features/workload/lifecycleControl/model';
 import type { LifecycleAction } from '@/entities/mci/api';
 import TableLoadingSpinner from '@/shared/ui/LoadingSpinner/TableLoadingSpinner.vue';
+import DynamicTableIconButton from '@/shared/ui/Button/dynamicIconButton/DynamicTableIconButton.vue';
+import { insertDynamicComponent } from '@/shared/utils';
 import { useDynamicTableHeight } from '@/shared/hooks/table/useDynamicTableHeight';
 import { useToolboxTableHeight } from '@/shared/hooks/table/useToolboxTableHeight';
 import {
@@ -69,18 +72,16 @@ const isActionDisabled = computed(() => {
   return mciTableModel.tableState.selectIndex.length === 0;
 });
 
-// Lifecycle first, then a rule, then Delete. Delete is the one that cannot be undone and the one
-// that was here before, so it keeps its place at the bottom rather than sitting among the others.
+// Lifecycle actions only. Delete sits in the toolbar as an icon next to refresh, where every
+// other list in the console keeps it.
 const actionState = reactive({
-  actionMenus: computed(() => [
-    ...LIFECYCLE_ACTION_ORDER.map(action => ({
+  actionMenus: computed(() =>
+    LIFECYCLE_ACTION_ORDER.map(action => ({
       name: action,
       label: LIFECYCLE_ACTIONS[action].label,
       disabled: isActionDisabled.value,
     })),
-    { type: 'divider' },
-    { name: 'delete', label: 'Delete', disabled: isActionDisabled.value },
-  ]),
+  ),
   selectedActionItem: '',
 });
 
@@ -114,14 +115,43 @@ const lifecycleTargets = computed<ILifecycleTarget[]>(() =>
 );
 
 function handleAction(item: string) {
-  if (item === 'delete') {
-    deleteModalState.visible = true;
-    return;
-  }
   if (LIFECYCLE_ACTION_ORDER.includes(item as LifecycleAction)) {
     lifecycleModalState.action = item as LifecycleAction;
     lifecycleModalState.visible = true;
   }
+}
+
+/**
+ * Puts the delete button in the table's toolbar, beside refresh.
+ *
+ * Every other list in the console carries delete there, so this one did not belong in the
+ * action dropdown. The toolbar is drawn by the table component and has no slot for that spot,
+ * so the button is mounted into it — the same way the other lists do it.
+ *
+ * The table is re-rendered on every load (`tableKey`), which throws the mounted node away, so
+ * this runs after each load and checks whether the node is still there.
+ */
+function mountDeleteButton() {
+  const table = toolboxTableRef.value?.$el as HTMLElement | undefined;
+  const toolGroup = table?.querySelector('.right-tool-group');
+  if (!toolGroup || toolGroup.querySelector('[data-testid="mci-delete-action"]')) return;
+
+  insertDynamicComponent(
+    DynamicTableIconButton,
+    { name: 'ic_delete', testid: 'mci-delete-action' },
+    {
+      // Same behaviour the dropdown item had: open the dialog for whatever is selected.
+      // Deciding what can actually be deleted is the dialog's job — a workload already being
+      // deleted is left out there rather than being kept out of the dialog.
+      click: () => {
+        if (mciTableModel.tableState.selectIndex.length > 0) {
+          deleteModalState.visible = true;
+        }
+      },
+    },
+    toolGroup as HTMLElement,
+    'prepend',
+  );
 }
 
 async function handleDeleted() {
@@ -204,6 +234,17 @@ onMounted(async () => {
   // re-render after the initial data load
   tableKey.value++;
 });
+
+// The table is thrown away and drawn again on every load, taking the mounted delete button with
+// it, so it is put back once the table is on screen again.
+watch(
+  [loading, tableKey],
+  () => {
+    if (loading.value) return;
+    nextTick(mountDeleteButton);
+  },
+  { immediate: true },
+);
 
 // Leaving the screen ends the transition watch. It only exists to keep *this* list honest.
 onBeforeUnmount(() => {
