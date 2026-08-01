@@ -33,6 +33,10 @@ import {
 } from '@/features/sequential/designer/toolbox/model/api';
 import getRandomId from '@/shared/utils/uuid';
 import { parseRequestBody } from '@/shared/utils/stringToObject';
+import {
+  mapModelToTaskBody,
+  unwrapModel,
+} from '@/features/workflow/workflowEditor/lib/mapModelToTaskBody';
 import SequentialDesigner from '@/features/sequential/designer/ui/SequentialDesigner.vue';
 import { DEFAULT_NAMESPACE } from '@/shared/constants/namespace';
 import { normalizeTaskComponentList } from '@/entities/workflow/lib/schemaAdapter';
@@ -372,84 +376,128 @@ function mapTargetModelToTaskComponent(
 
   const parseString = parseRequestBody(taskComponent.data.options.request_body);
 
-  if (isInfraModel && targetModel?.cloudInfraModel?.targetInfra) {
-    // Handle infra model data - use targetInfra from cloudInfraModel
-    console.log(
-      'Processing infra model with targetInfra:',
-      targetModel.cloudInfraModel.targetInfra,
-    );
+  // ── Filling the body: matched by path, not by name ─────────────────────
+  //
+  // The body's shape comes from the other system's swagger; the model holds the values. Both use
+  // the same names for the same things, so the body is filled by looking up **the same path** in
+  // the model — not by matching leaf names, which collide (see mapModelToTaskBody).
+  //
+  // What this replaces is below, kept as a comment on purpose: it named every key in code, and a
+  // field the other side added was simply never carried — with nothing said about it.
+  const unwrapped = unwrapModel(targetModel);
+  const mapped = mapModelToTaskBody(
+    taskComponent?.data?.body_params,
+    unwrapped,
+    parseString ?? {},
+  );
+  Object.assign(parseString, mapped.body);
 
-    if (parseString) {
-      // Set the targetInfra data directly
-      parseString['targetInfra'] = targetModel.cloudInfraModel.targetInfra;
-
-      // Also set other related infra data if available
-      if (targetModel.cloudInfraModel.targetSecurityGroupList) {
-        parseString['targetSecurityGroupList'] =
-          targetModel.cloudInfraModel.targetSecurityGroupList;
-      }
-      if (targetModel.cloudInfraModel.targetSshKey) {
-        parseString['targetSshKey'] = targetModel.cloudInfraModel.targetSshKey;
-      }
-      if (targetModel.cloudInfraModel.targetVNet) {
-        parseString['targetVNet'] = targetModel.cloudInfraModel.targetVNet;
-      }
-      if (targetModel.cloudInfraModel.targetOsImageList) {
-        parseString['targetOsImageList'] =
-          targetModel.cloudInfraModel.targetOsImageList;
-      }
-      if (targetModel.cloudInfraModel.targetSpecList) {
-        parseString['targetSpecList'] =
-          targetModel.cloudInfraModel.targetSpecList;
-      }
-    }
-    console.log('Processed infra model data:', parseString);
-  } else if (isSoftwareModel && (targetModel as any)?.targetSoftwareModel) {
-    // Handle software model data - use targetSoftwareModel
-    const targetSoftwareModel = (targetModel as any).targetSoftwareModel;
-    console.log(
-      'Processing software model with targetSoftwareModel:',
-      targetSoftwareModel,
-    );
-
-    if (parseString) {
-      // Set the targetSoftwareModel data directly
-      parseString['targetSoftwareModel'] = targetSoftwareModel;
-
-      // Also set other related software data if available
-      if (targetSoftwareModel.softwareList) {
-        parseString['softwareList'] = targetSoftwareModel.softwareList;
-      }
-      if (targetSoftwareModel.targetSpecList) {
-        parseString['targetSpecList'] = targetSoftwareModel.targetSpecList;
-      }
-      if (targetSoftwareModel.targetOsImageList) {
-        parseString['targetOsImageList'] =
-          targetSoftwareModel.targetOsImageList;
-      }
-      if (targetSoftwareModel.targetSecurityGroupList) {
-        parseString['targetSecurityGroupList'] =
-          targetSoftwareModel.targetSecurityGroupList;
-      }
-      if (targetSoftwareModel.targetSshKey) {
-        parseString['targetSshKey'] = targetSoftwareModel.targetSshKey;
-      }
-      if (targetSoftwareModel.targetVNet) {
-        parseString['targetVNet'] = targetSoftwareModel.targetVNet;
-      }
-
-      // Set basic model information
-      parseString['softwareModel'] = {
-        id: targetModel.id,
-        name: targetModel.userModelName,
-        description: targetModel.description,
-        csp: targetModel.csp,
-        region: targetModel.region,
-        zone: targetModel.zone,
-      };
-    }
-    console.log('Processed software model data:', parseString);
+  // Software migration also names the model itself in the body; it is not part of the recommended
+  // infra shape, so it is set here rather than being looked up.
+  if (isSoftwareModel) {
+    parseString['softwareModel'] = {
+      id: targetModel.id,
+      name: targetModel.userModelName,
+      description: targetModel.description,
+      csp: targetModel.csp,
+      region: targetModel.region,
+      zone: targetModel.zone,
+    };
   }
+
+  // **Say what could not be carried.** A body that asks for something the model has nothing for is
+  // the failure this whole change exists to surface — before, it left no trace at all.
+  if (mapped.missingRequired.length > 0) {
+    showErrorMessage(
+      'Some required values could not be filled',
+      `The workflow asks for ${mapped.missingRequired.join(', ')}, and the selected target model has no value for them. Check the task before running it.`,
+    );
+  }
+  console.log('[task body] filled:', mapped.filled);
+  console.log('[task body] not filled:', mapped.missing);
+  if (mapped.mismatched.length > 0) {
+    console.warn('[task body] shape did not agree:', mapped.mismatched);
+  }
+
+  // ── What this replaced, kept so the change is legible: every key named in code ──
+  // if (isInfraModel && targetModel?.cloudInfraModel?.targetInfra) {
+  //   // Handle infra model data - use targetInfra from cloudInfraModel
+  //   console.log(
+  //     'Processing infra model with targetInfra:',
+  //     targetModel.cloudInfraModel.targetInfra,
+  //   );
+  //
+  //   if (parseString) {
+  //     // Set the targetInfra data directly
+  //     parseString['targetInfra'] = targetModel.cloudInfraModel.targetInfra;
+  //
+  //     // Also set other related infra data if available
+  //     if (targetModel.cloudInfraModel.targetSecurityGroupList) {
+  //       parseString['targetSecurityGroupList'] =
+  //         targetModel.cloudInfraModel.targetSecurityGroupList;
+  //     }
+  //     if (targetModel.cloudInfraModel.targetSshKey) {
+  //       parseString['targetSshKey'] = targetModel.cloudInfraModel.targetSshKey;
+  //     }
+  //     if (targetModel.cloudInfraModel.targetVNet) {
+  //       parseString['targetVNet'] = targetModel.cloudInfraModel.targetVNet;
+  //     }
+  //     if (targetModel.cloudInfraModel.targetOsImageList) {
+  //       parseString['targetOsImageList'] =
+  //         targetModel.cloudInfraModel.targetOsImageList;
+  //     }
+  //     if (targetModel.cloudInfraModel.targetSpecList) {
+  //       parseString['targetSpecList'] =
+  //         targetModel.cloudInfraModel.targetSpecList;
+  //     }
+  //   }
+  //   console.log('Processed infra model data:', parseString);
+  // } else if (isSoftwareModel && (targetModel as any)?.targetSoftwareModel) {
+  //   // Handle software model data - use targetSoftwareModel
+  //   const targetSoftwareModel = (targetModel as any).targetSoftwareModel;
+  //   console.log(
+  //     'Processing software model with targetSoftwareModel:',
+  //     targetSoftwareModel,
+  //   );
+  //
+  //   if (parseString) {
+  //     // Set the targetSoftwareModel data directly
+  //     parseString['targetSoftwareModel'] = targetSoftwareModel;
+  //
+  //     // Also set other related software data if available
+  //     if (targetSoftwareModel.softwareList) {
+  //       parseString['softwareList'] = targetSoftwareModel.softwareList;
+  //     }
+  //     if (targetSoftwareModel.targetSpecList) {
+  //       parseString['targetSpecList'] = targetSoftwareModel.targetSpecList;
+  //     }
+  //     if (targetSoftwareModel.targetOsImageList) {
+  //       parseString['targetOsImageList'] =
+  //         targetSoftwareModel.targetOsImageList;
+  //     }
+  //     if (targetSoftwareModel.targetSecurityGroupList) {
+  //       parseString['targetSecurityGroupList'] =
+  //         targetSoftwareModel.targetSecurityGroupList;
+  //     }
+  //     if (targetSoftwareModel.targetSshKey) {
+  //       parseString['targetSshKey'] = targetSoftwareModel.targetSshKey;
+  //     }
+  //     if (targetSoftwareModel.targetVNet) {
+  //       parseString['targetVNet'] = targetSoftwareModel.targetVNet;
+  //     }
+  //
+  //     // Set basic model information
+  //     parseString['softwareModel'] = {
+  //       id: targetModel.id,
+  //       name: targetModel.userModelName,
+  //       description: targetModel.description,
+  //       csp: targetModel.csp,
+  //       region: targetModel.region,
+  //       zone: targetModel.zone,
+  //     };
+  //   }
+  //   console.log('Processed software model data:', parseString);
+  // }
 
   // Set path_params and query_params from task component with nsId default value.
   // ★ A schema property's description is *explanatory text (a placeholder)*, not a value. Leave the
