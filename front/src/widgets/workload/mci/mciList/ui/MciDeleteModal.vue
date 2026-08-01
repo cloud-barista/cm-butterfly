@@ -7,7 +7,7 @@ import {
   PRadioGroup,
   PTextInput,
 } from '@cloudforet-test/mirinae';
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { useDeleteMci } from '@/entities/mci/api';
 import {
   putDeleteRecord,
@@ -35,9 +35,10 @@ interface IEmits {
 const props = defineProps<IProps>();
 const emit = defineEmits<IEmits>();
 
-// The modal has two steps.
-//   confirm  — choose the method (Normal/Force) and type the name to confirm
-//   progress — shows how the delete is going, from request until it finishes.
+// The modal has three steps.
+//   confirm  — choose the method (Normal/Force) and type the phrase to confirm
+//   progress — shows how the delete is going, from request until it finishes
+//   error    — reopened after an earlier delete failed: the reason, and what to do about it
 // The delete is *asynchronous*: the request is tracked by reqId (deleteTracker), so
 // closing this modal and coming back later still shows the same state in the list.
 const state = reactive({
@@ -48,14 +49,90 @@ const state = reactive({
   // error    — reopened after an earlier delete failed: reason, plus force delete or cancel
   phase: 'confirm' as 'confirm' | 'progress' | 'error',
   alreadyInProgress: false,
+  // Set for a few seconds after the requests go out; see lockClose below.
+  closeLocked: false,
 });
 
 const trackedIds = ref<string[]>([]);
 
+/**
+ * What is about to happen to each selected workload.
+ *
+ *   new      — nothing has been requested for it yet
+ *   retry    — an earlier delete failed; this run asks again
+ *   inflight — a delete is already running, so no second request is sent for it
+ */
+type TargetKind = 'new' | 'retry' | 'inflight';
+
+interface DeleteTarget {
+  uid: string;
+  name: string;
+  kind: TargetKind;
+}
+
+/**
+ * The targets, worked out once when the modal opens rather than on every render.
+ *
+ * A record can change under the modal — the tracker polls in the background — and the
+ * confirm keyword is derived from this list. Recomputing would move the keyword while it is
+ * being typed, so what the user is answering about is fixed at the moment they are asked.
+ */
+const targets = ref<DeleteTarget[]>([]);
+
+function classifyTargets(mciList: any[]): DeleteTarget[] {
+  return mciList
+    .map(mci => ({ uid: mci?.uid as string, name: (mci?.name as string) ?? '' }))
+    // Without a uid there is nothing to track — a name is reused and cannot be the key.
+    .filter(t => !!t.uid)
+    .map(t => {
+      const status = getDeleteRecord(t.uid)?.status;
+      const kind: TargetKind =
+        status === 'Handling' ? 'inflight' : status === 'Error' ? 'retry' : 'new';
+      return { ...t, kind };
+    });
+}
+
+// The ones a confirm actually sends a request for — everything except those already running.
+const requestTargets = computed(() =>
+  targets.value.filter(t => t.kind !== 'inflight'),
+);
+const inflightTargets = computed(() =>
+  targets.value.filter(t => t.kind === 'inflight'),
+);
+const retryTargets = computed(() => targets.value.filter(t => t.kind === 'retry'));
+
+/**
+ * What has to be typed to confirm.
+ *
+ * It follows how much is being deleted, because that is the thing the user has to be sure
+ * of. One target asks for its name; a few ask for all of their names; beyond that the names
+ * are too long to type, so the phrase carries the count instead.
+ *
+ * The count is of what is *about to be requested*, not of what is selected — a workload
+ * already being deleted is not part of this delete.
+ */
 const checkKeyword = computed(() => {
-  return props.selectedMciList.length === 1
-    ? props.selectedMciList[0].name
-    : 'Delete All';
+  const names = requestTargets.value.map(t => t.name).filter(Boolean);
+  if (names.length === 0) return 'Delete';
+  if (names.length === 1) return names[0];
+  if (names.length <= 3) return names.join(', ');
+  return `Delete ${names.length} Workloads`;
+});
+
+// Said before the request goes out: some of what was selected is not part of it.
+const exclusionNotice = computed(() => {
+  const excluded = inflightTargets.value.length;
+  if (!excluded) return '';
+  const verb = excluded === 1 ? 'is' : 'are';
+  return `${excluded} of the ${targets.value.length} selected workloads ${verb} already being deleted and ${verb} not part of this request.`;
+});
+
+const retryNotice = computed(() => {
+  const retries = retryTargets.value.length;
+  if (!retries) return '';
+  const subject = retries === 1 ? 'One workload' : `${retries} workloads`;
+  const verb = retries === 1 ? 'has' : 'have';
+  return `${subject} ${verb} failed a delete before and will be requested again.`;
 });
 
 // In confirm the name must match exactly; in progress the confirm button is blocked so the
@@ -169,12 +246,47 @@ function fireDeletes(mciList: any[], option: string): string[] {
   return uids;
 }
 
+/**
+ * Holds the dialog open for a moment after the requests go out.
+ *
+ * The delete is a synchronous call that runs for minutes, so there is no reply to say the
+ * request was accepted. What there is: cm-beetle writes the request down the instant it
+ * arrives, before the handler runs. Once that has had time to happen the outcome can be
+ * fetched by reqId from anywhere, so leaving is safe — but leaving *before* it means the
+ * request may never have landed and nothing is left to look it up with.
+ */
+const CLOSE_LOCK_MS = 5000;
+let closeLockTimer: ReturnType<typeof setTimeout> | undefined;
+
+function lockClose() {
+  state.closeLocked = true;
+  if (closeLockTimer) clearTimeout(closeLockTimer);
+  closeLockTimer = setTimeout(() => {
+    state.closeLocked = false;
+    closeLockTimer = undefined;
+  }, CLOSE_LOCK_MS);
+}
+
+function unlockClose() {
+  if (closeLockTimer) {
+    clearTimeout(closeLockTimer);
+    closeLockTimer = undefined;
+  }
+  state.closeLocked = false;
+}
+
+onBeforeUnmount(unlockClose);
+
 // Runs the delete from confirm: issue the request and move to progress rather than closing.
+// Everything selected is passed on — fireDeletes skips the ones already running, so they are
+// tracked and shown without a second request going out for them.
 function handleConfirm() {
   if (state.phase !== 'confirm') return;
   const option = state.deleteMethod === 'force' ? 'force' : 'terminate';
-  trackedIds.value = fireDeletes(props.selectedMciList, option);
+  state.alreadyInProgress = inflightTargets.value.length > 0;
+  trackedIds.value = fireDeletes(targets.value, option);
   state.phase = 'progress';
+  lockClose();
   emit('deleted'); // refresh so the list brings up the Delete Status column at once
 }
 
@@ -182,12 +294,13 @@ function handleConfirm() {
 // Force leaves the CSP resources and removes only the internal records, as the banner says.
 // The records are in Error rather than in flight, so fireDeletes issues fresh reqIds.
 function handleForceDelete() {
-  const targets = erroredRecords.value.map(r => ({
+  const forceTargets = erroredRecords.value.map(r => ({
     uid: r.uid,
     name: r.infraId,
   }));
-  trackedIds.value = fireDeletes(targets, 'force');
+  trackedIds.value = fireDeletes(forceTargets, 'force');
   state.phase = 'progress';
+  lockClose();
   emit('deleted');
 }
 
@@ -197,6 +310,7 @@ function handleForceDelete() {
 function handleRetry() {
   state.deleteMethod = 'normal';
   state.confirmKeyword = '';
+  targets.value = classifyTargets(props.selectedMciList);
   state.phase = 'confirm';
 }
 
@@ -219,20 +333,38 @@ function resetState() {
   state.confirmKeyword = '';
   state.phase = 'confirm';
   state.alreadyInProgress = false;
+  unlockClose();
   trackedIds.value = [];
+  targets.value = [];
 }
 
 // Close — the delete carries on and the list keeps showing its state.
 // The list is what is behind this modal, so refresh on close to bring up Delete Status.
 function handleClose() {
+  if (state.closeLocked) return;
   emit('deleted');
   closeAndReset();
 }
 
-// The step is chosen from the targets' current delete records when the modal opens.
-//   Handling → progress (says one is already running, and shows its state)
-//   Error    → error (the earlier failure, its reason, and force delete or cancel)
-//   none     → confirm (choose the method and type the name)
+// The dialog's own close paths (the X, the backdrop) go through here so the hold after a
+// request applies to them as well; refusing to emit leaves `visible` as it was.
+function handleVisibleUpdate(value: boolean) {
+  if (!value && state.closeLocked) return;
+  emit('update:visible', value);
+}
+
+/**
+ * Picks the step from what the selected workloads are currently up to.
+ *
+ *   anything not yet requested → confirm (choose the method and type the name)
+ *   otherwise, some failed     → error (the reasons, and force delete or retry)
+ *   otherwise                  → progress (they are all already running)
+ *
+ * The first line is the important one. Opening on progress whenever *one* of the selection
+ * was already running left the rest unrequested — that step has no delete button, so there
+ * was no way to ask for them and nothing on screen said they had been left out. Reaching
+ * confirm is what gets them sent; the request loop already skips the ones in flight.
+ */
 watch(
   () => props.visible,
   visible => {
@@ -240,23 +372,21 @@ watch(
       resetState();
       return;
     }
-    const uids = props.selectedMciList
-      .map(m => m.uid as string)
-      .filter(Boolean);
-    const inProgress = uids.filter(uid => isDeleteInProgress(uid));
-    const errored = uids.filter(
-      uid => getDeleteRecord(uid)?.status === 'Error',
-    );
-    if (inProgress.length > 0) {
-      trackedIds.value = inProgress;
-      state.phase = 'progress';
-      state.alreadyInProgress = true;
-    } else if (errored.length > 0) {
-      trackedIds.value = errored;
-      state.phase = 'error';
-    } else {
+    targets.value = classifyTargets(props.selectedMciList);
+    const pending = targets.value.filter(t => t.kind === 'new');
+    const errored = targets.value.filter(t => t.kind === 'retry');
+    const inProgress = targets.value.filter(t => t.kind === 'inflight');
+
+    if (pending.length > 0 || targets.value.length === 0) {
       state.phase = 'confirm';
       state.alreadyInProgress = false;
+    } else if (errored.length > 0) {
+      trackedIds.value = errored.map(t => t.uid);
+      state.phase = 'error';
+    } else {
+      trackedIds.value = inProgress.map(t => t.uid);
+      state.phase = 'progress';
+      state.alreadyInProgress = true;
     }
   },
 );
@@ -270,7 +400,7 @@ watch(
     size="sm"
     hide-footer
     @close="handleClose"
-    @update:visible="$emit('update:visible', $event)"
+    @update:visible="handleVisibleUpdate"
   >
     <template #body>
       <!-- error step — reopened after a failure: the reason (scrolls if long), force delete or cancel -->
@@ -308,9 +438,13 @@ watch(
         class="delete-modal-content"
         data-testid="mci-delete-progress"
       >
-        <div v-if="state.alreadyInProgress" class="warning-banner">
-          A delete is already in progress. Showing its current state instead of
-          starting a new one.
+        <div
+          v-if="state.alreadyInProgress"
+          class="warning-banner"
+          data-testid="mci-delete-already-running"
+        >
+          Some of these were already being deleted. Their current state is shown
+          and no second request was sent for them.
         </div>
         <p class="description">Deleting</p>
         <div class="mci-list">
@@ -339,14 +473,22 @@ watch(
             <span v-else class="progress-status done">Deleted</span>
           </div>
         </div>
-        <p v-if="anyHandling" class="hint">
+        <p
+          v-if="state.closeLocked"
+          class="hint"
+          data-testid="mci-delete-accepting"
+        >
+          Handing the request over. This takes a moment — once it is done you can
+          leave and the result will still find its way back.
+        </p>
+        <p v-else-if="anyHandling" class="hint">
           Closing this dialog does not stop the delete. You can follow it in the
           <b>Delete Status</b> column of the list.
         </p>
       </div>
 
       <!-- confirm step — choose the method and type the name -->
-      <div v-else class="delete-modal-content">
+      <div v-else class="delete-modal-content" data-testid="mci-delete-confirm">
         <div class="warning-banner">
           ⚠️ Deleting workloads will also delete
           <span class="keyword-highlight"
@@ -357,12 +499,38 @@ watch(
             >from a few minutes to several hours</span
           >
         </div>
-        <p class="description">The following workloads will be deleted</p>
+        <p class="description" data-testid="mci-delete-target-count">
+          {{ requestTargets.length === 1 ? '1 workload' : `${requestTargets.length} workloads` }}
+          will be deleted
+        </p>
         <div class="mci-list">
-          <div v-for="mci in selectedMciList" :key="mci.name" class="mci-item">
-            {{ mci.name }}
+          <div
+            v-for="target in targets"
+            :key="target.uid"
+            class="mci-item"
+            :class="{ excluded: target.kind === 'inflight' }"
+            :data-testid="`mci-delete-target-${target.kind}`"
+          >
+            <span class="target-name">{{ target.name }}</span>
+            <span v-if="target.kind === 'inflight'" class="target-note"
+              >already deleting — not included</span
+            >
+            <span v-else-if="target.kind === 'retry'" class="target-note"
+              >failed before — will be requested again</span
+            >
+            <span v-else />
           </div>
         </div>
+        <p
+          v-if="exclusionNotice"
+          class="warning-note"
+          data-testid="mci-delete-excluded-notice"
+        >
+          {{ exclusionNotice }}
+        </p>
+        <p v-if="retryNotice" class="hint" data-testid="mci-delete-retry-notice">
+          {{ retryNotice }}
+        </p>
 
         <p-field-group label="Delete Method" required class="mt-8">
           <div
@@ -443,6 +611,7 @@ watch(
           <p-button
             style-type="transparent"
             data-testid="wl-delete-close"
+            :disabled="state.closeLocked"
             @click="handleClose"
           >
             Close
@@ -497,9 +666,25 @@ watch(
     overflow-y: auto;
 
     .mci-item {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
       padding: 4px 0;
       font-size: 14px;
+    }
+    .mci-item .target-name {
       font-family: monospace;
+    }
+    /* Struck through so a row left out of this request reads as left out at a glance. */
+    .mci-item.excluded .target-name {
+      color: #9ca3af;
+      text-decoration: line-through;
+    }
+    .mci-item .target-note {
+      font-size: 0.75rem;
+      color: #6b7280;
+      white-space: nowrap;
     }
 
     .progress-item {
@@ -543,6 +728,13 @@ watch(
     margin-top: 10px;
     font-size: 12px;
     color: #6b7280;
+    line-height: 1.5;
+  }
+
+  .warning-note {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #92400e;
     line-height: 1.5;
   }
 
