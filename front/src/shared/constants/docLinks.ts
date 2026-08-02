@@ -11,6 +11,7 @@ const DOCS_BASE =
 export const DOC_LINKS = {
   quickStartMigration: `${DOCS_BASE}/quick-start-migration.md`,
   sourceConnectionBulkImport: `${DOCS_BASE}/source-connection-bulk-import.md`,
+  sourceConnectionStatus: `${DOCS_BASE}/source-connection-status.md`,
   workflowParallelSteps: `${DOCS_BASE}/workflow-parallel-steps.md`,
   workflowRunStatus: `${DOCS_BASE}/workflow-run-status.md`,
   jsonEditor: `${DOCS_BASE}/json-editor.md`,

@@ -50,7 +50,10 @@ export function useSourceServiceDetailModel() {
         name: sourceService.name,
         id: sourceService.id,
         description: sourceService.description,
-        status: setServiceStatus(sourceService.status),
+        status: {
+          ...setServiceStatus(sourceService.status),
+          outcomes: sourceService.connectionOutcomes ?? [],
+        },
         viewInfra: {
           isShow: !!sourceService.infraModel,
         },
