@@ -6,6 +6,23 @@ export interface ISourceGroup {
   connections: SourceConnection[];
 }
 
+/**
+ * What the server said about one connection, kept as it said it.
+ *
+ * A source service that cannot be reached is shown as failed, but "failed" alone does
+ * not say whether the machine refused the SSH connection or answered and then failed to
+ * take the agent. The server distinguishes the two and explains each in its own message;
+ * nothing in the console was reading them.
+ */
+export interface ISourceConnectionOutcome {
+  name: string;
+  ipAddress: string;
+  connectionStatus: string;
+  connectionMessage: string;
+  agentStatus: string;
+  agentMessage: string;
+}
+
 export interface ISourceService {
   id: string;
   name: string;
@@ -14,6 +31,8 @@ export interface ISourceService {
   connectionIds: string[];
   // status: SourceServiceStatusType;
   status?: string;
+  /** Per-connection outcome behind the aggregated status, for the reader who asks why. */
+  connectionOutcomes?: ISourceConnectionOutcome[];
   infraModel?: IInfraSourceGroupResponse;
   softwareModel?: any;
 }
