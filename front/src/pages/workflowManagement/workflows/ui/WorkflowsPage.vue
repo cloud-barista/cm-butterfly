@@ -73,9 +73,24 @@ function handleEditJson(workflowId: string) {
 function handleSavedWorkflow(workflowId: string) {
   if (workflowId) selectedWorkflowId.value = workflowId;
   mainTabState.activeTab = 'runViewer';
+  markDefinitionSaved();
+}
+
+/**
+ * Tell the run status screen that the definition it is showing is no longer the current one.
+ *
+ * ★ The id is not enough to notice a save. Clone & Edit selects the clone up front, so the id is
+ *   already the clone's while it is being edited and does not move when it is saved — the screen
+ *   then keeps the definition it read before the edit and shows the old values under the words
+ *   "Values from the current definition". Saying it plainly is what this does.
+ */
+function markDefinitionSaved() {
+  runViewerReloadToken.value += 1;
 }
 
 const selectedWorkflowId = ref<string>('');
+/** Goes up by one on every save — the run status screen reads it as "read the definition again". */
+const runViewerReloadToken = ref<number>(0);
 
 /**
  * When arriving after creating a workflow on another screen (the target model).
@@ -209,6 +224,8 @@ async function handleUpdateWorkflow(updatedData: object) {
     // This used to throw and fall into the catch, which then showed a hardcoded, unrelated message.
     if (data.responseData?.data?.task_groups != null) {
       modalState.addWorkflow.trigger = true;
+      // Same event: saving from the JSON editor dates the definition on screen just as much.
+      markDefinitionSaved();
       showSuccessMessage('Success', 'Workflow data updated successfully.');
     } else {
       modalState.addWorkflow.trigger = true;
@@ -273,6 +290,7 @@ async function handleUpdateWorkflow(updatedData: object) {
             </div>
             <workflow-run-viewer
               :workflow-id="selectedWorkflowId"
+              :reload-token="runViewerReloadToken"
               @edit-json="handleEditJson"
               @view-json="handleEditJson"
               @edit-clone="handleEditClone"
