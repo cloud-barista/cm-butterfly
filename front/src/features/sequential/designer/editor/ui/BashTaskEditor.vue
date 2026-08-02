@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-task-editor">
+  <div class="custom-task-editor" data-testid="wf-task-editor">
     <div class="section-header"><h4>Bash Task</h4></div>
 
     <div class="field">
@@ -8,6 +8,7 @@
         class="text-input"
         type="text"
         :value="name"
+        data-testid="wf-task-name"
         placeholder="Enter task name"
         @input="onName"
       />
@@ -20,6 +21,7 @@
       <textarea
         class="text-area"
         rows="6"
+        data-testid="wf-task-spec-bash_command"
         :value="model.bash_command"
         placeholder="e.g. echo 'hello world'"
         @input="onCommand"

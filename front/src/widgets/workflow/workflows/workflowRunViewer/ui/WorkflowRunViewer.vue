@@ -23,6 +23,17 @@ interface Props {
   workflowId: string | null;
   /** If empty, open the most recent run */
   runId?: string | null;
+  /**
+   * Bumped by the page whenever the definition is saved.
+   *
+   * ★ Reloading used to hang on the id changing, and that is not enough. Editing a clone sets the
+   *   id to the clone *before* the editor opens, so by the time it is saved the id is already what
+   *   it will be — nothing changes, nothing reloads, and the panel keeps showing the definition it
+   *   read before the edit. It says "Values from the current definition" while showing the values
+   *   the clone was made from; the saved definition and the machine that gets built use the new
+   *   ones. Saving is its own event, so it gets its own trigger.
+   */
+  reloadToken?: number;
 }
 
 const props = defineProps<Props>();
@@ -443,7 +454,7 @@ function formatDuration(seconds?: number): string {
 }
 
 watch(
-  () => [props.workflowId, props.runId],
+  () => [props.workflowId, props.runId, props.reloadToken],
   async () => {
     if (props.workflowId) await open(props.workflowId, props.runId);
   },
