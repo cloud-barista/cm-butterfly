@@ -5,7 +5,15 @@ import {
   PButton,
   PButtonModal,
 } from '@cloudforet-test/mirinae';
-import { onBeforeMount, onMounted, reactive, watch, computed, ref, nextTick } from 'vue';
+import {
+  onBeforeMount,
+  onMounted,
+  reactive,
+  watch,
+  computed,
+  ref,
+  nextTick,
+} from 'vue';
 import TableLoadingSpinner from '@/shared/ui/LoadingSpinner/TableLoadingSpinner.vue';
 import {
   insertDynamicComponent,
@@ -65,13 +73,38 @@ onMounted(function () {
   getSourceServiceList();
 });
 
-watch(isDataLoaded, (nv) => {
-  if (nv && toolboxTableRef.value) {
-    nextTick(() => {
-      addDeleteIconAtTable.call({ $refs: { toolboxTable: toolboxTableRef.value } });
-    });
-  }
-});
+/**
+ * Put the delete icon back after every load.
+ *
+ * Loading the list bumps `tableKey`, which re-creates the table and takes the
+ * injected icon with it. Watching only the load flag meant the icon went in just
+ * before that re-render threw it away: it was there when the screen first opened
+ * and gone after any refresh - including the one that follows saving - so there
+ * was no way to delete a row without reloading the page.
+ *
+ * Both signals are watched and the injection is skipped when the icon is already
+ * there, so a repeated call cannot stack a second icon.
+ */
+const ensureDeleteIcon = () => {
+  const tableEl = toolboxTableRef.value?.$el as HTMLElement | undefined;
+  const target = tableEl?.querySelector('.right-tool-group');
+  if (!target) return;
+  if (target.querySelector('[data-testid="source-group-delete"]')) return;
+  addDeleteIconAtTable.call({
+    $refs: { toolboxTable: toolboxTableRef.value },
+  });
+};
+
+watch(
+  [isDataLoaded, tableKey],
+  async ([loaded]) => {
+    if (!loaded || !toolboxTableRef.value) return;
+    await nextTick();
+    await nextTick();
+    ensureDeleteIcon();
+  },
+  { immediate: true },
+);
 
 function addDeleteIconAtTable() {
   const toolboxTable = this.$refs.toolboxTable.$el;
@@ -117,14 +150,14 @@ function handleDeleteSourceServices() {
 
 function getSourceServiceList() {
   isDataLoaded.value = false;
-  
+
   resSourceServiceList
     .execute()
     .then(res => {
       if (res.data.responseData) {
         sourceServicesStore.setService(res.data.responseData);
       }
-      
+
       nextTick(() => {
         isDataLoaded.value = true;
         // Re-render the component after the data loads
@@ -132,7 +165,10 @@ function getSourceServiceList() {
       });
     })
     .catch(e => {
-      showErrorMessage('Error', toErrorMessage(e, 'Failed to load the source group list.'));
+      showErrorMessage(
+        'Error',
+        toErrorMessage(e, 'Failed to load the source group list.'),
+      );
       isDataLoaded.value = true;
     });
 }
@@ -178,7 +214,7 @@ watch(
           :height="height"
           message="Loading source services..."
         />
-        
+
         <!-- Show the table once loading completes -->
         <p-toolbox-table
           data-testid="source-group-list-table"
@@ -236,7 +272,11 @@ watch(
           handleDeleteSourceServices();
         }
       "
-    />
+    >
+      <template #confirm-button>
+        <span data-testid="source-group-delete-confirm">OK</span>
+      </template>
+    </p-button-modal>
   </div>
 </template>
 

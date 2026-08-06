@@ -103,6 +103,7 @@ watch(
       <p-field-group label="Source Service Name" invalid required>
         <p-text-input
           v-model="state.sourceServiceName"
+          data-testid="source-service-name"
           placeholder="Source Service Name"
           :invalid="!state.sourceServiceName"
           :disabled="false"
@@ -112,6 +113,7 @@ watch(
         <p-textarea
           v-if="state.description !== null"
           v-model="state.description"
+          data-testid="source-service-description"
           :disabled="false"
         />
       </p-field-group>
@@ -128,6 +130,7 @@ watch(
       <p-divider />
       <p-button
         style-type="tertiary"
+        data-testid="source-service-go-add-connection"
         :disabled="!isAddDisabled"
         @click="handleLink"
       >
@@ -137,6 +140,7 @@ watch(
         <p-text-input
           v-model="sourceConnectionNames"
           class="source-connection"
+          data-testid="source-service-connection-names"
           :disabled="true"
         />
       </p-field-group>

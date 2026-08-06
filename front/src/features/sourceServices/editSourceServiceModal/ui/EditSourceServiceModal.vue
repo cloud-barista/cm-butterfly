@@ -96,7 +96,9 @@ function handleSourceServiceInfo(value: {
       <span>{{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}</span>
     </template>
     <template #confirm-button>
-      <span>{{ i18n.t('COMPONENT.BUTTON_MODAL.EDIT') }}</span>
+      <span data-testid="source-service-edit-confirm">{{
+        i18n.t('COMPONENT.BUTTON_MODAL.EDIT')
+      }}</span>
     </template>
   </p-button-modal>
 </template>

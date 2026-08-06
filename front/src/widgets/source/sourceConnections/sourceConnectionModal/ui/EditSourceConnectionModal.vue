@@ -7,6 +7,14 @@ import { ref, watchEffect, computed } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
 import { useCreateConnectionInfo } from '@/entities/sourceConnection/api';
 import { showErrorMessage, showSuccessMessage } from '@/shared/utils';
+import {
+  connectionRowKey,
+  newConnectionRowId,
+} from '@/shared/utils/connectionRows';
+import {
+  DEFAULT_SSH_PORT,
+  isConnectionRowValid,
+} from '@/shared/utils/connectionValidation';
 import { useUpdateConnectionInfo } from '@/entities/sourceConnection/api';
 
 const sourceConnectionStore = useSourceConnectionStore();
@@ -24,18 +32,6 @@ const createConnectionInfo = useCreateConnectionInfo(
   props.sourceServiceId,
   sourceConnectionStore.editConnections[0],
 );
-
-const isDisabled = ref<boolean>(false);
-const validStates = ref<Map<number | string, boolean>>(new Map());
-
-const handleValidChange = (id: number | string, valid: boolean) => {
-  validStates.value.set(id, valid);
-  // Check whether every connection is valid
-  const allValid = Array.from(validStates.value.values()).every(v => v);
-  isDisabled.value =
-    allValid &&
-    validStates.value.size === uniqueSourceConnectionsByIds.value.length;
-};
 
 const connectionInfoData = ref<any[]>([]);
 const emit = defineEmits([
@@ -62,41 +58,51 @@ const isAddMode = computed(
     props.selectedConnectionId.length === 0,
 );
 
-let connectionIdCounter = 0;
+const emptyConnection = () => ({
+  _id: newConnectionRowId(),
+  name: '',
+  description: '',
+  ip_address: '',
+  // A string, like the other registration screen. The linked system declares
+  // ssh_port as a string and rejects a number outright ("expected=string,
+  // got=number"), so a row whose port was never retyped could not be saved.
+  ssh_port: DEFAULT_SSH_PORT,
+  user: '',
+  password: '',
+  private_key: '',
+});
 
+// Rows are added to the source list, not to the de-duplicated copy — the copy is
+// rebuilt from the source list, so a row pushed straight into it disappears the
+// next time that happens.
 const addSourceConnection = () => {
-  const newId = connectionIdCounter++;
-  uniqueSourceConnectionsByIds.value.push({
-    _id: newId,
-    name: '',
-    ip_address: '',
-    ssh_port: 22,
-    user: '',
-    password: '',
-    private_key: '',
-  });
-  validStates.value.set(newId, false);
+  sourceConnectionsByIds.value.push(emptyConnection());
 };
 
-const deleteSourceConnection = (id: number | string) => {
-  const index = uniqueSourceConnectionsByIds.value.findIndex(
-    (conn: any) => (conn._id || conn.id) === id,
+const deleteSourceConnection = (id: string) => {
+  const index = sourceConnectionsByIds.value.findIndex(
+    (conn: any) => connectionRowKey(conn) === id,
   );
   if (index !== -1) {
-    uniqueSourceConnectionsByIds.value.splice(index, 1);
-    validStates.value.delete(id);
-    // Recompute the validation state after deletion
-    const allValid = Array.from(validStates.value.values()).every(v => v);
-    isDisabled.value =
-      allValid &&
-      validStates.value.size === uniqueSourceConnectionsByIds.value.length;
+    sourceConnectionsByIds.value.splice(index, 1);
   }
 };
 
 // Consolidated EditSourceConnectionInfo logic
 const sourceConnectionsByIds = ref<any[]>([]);
 const uniqueSourceConnectionsByIds = ref<any[]>([]);
-let isInitialized = false;
+
+// Every row must be ready to save. Asked of the rows themselves, so nothing
+// depends on which form reported last or on any per-row bookkeeping. A row for an
+// already-registered connection opens empty and only sends what was typed, so the
+// blank-means-keep rule applies to it.
+const isSaveEnabled = computed(
+  () =>
+    uniqueSourceConnectionsByIds.value.length > 0 &&
+    uniqueSourceConnectionsByIds.value.every((conn: any) =>
+      isConnectionRowValid(conn, { existing: !!conn._original }),
+    ),
+);
 
 // An already-registered connection opens with all input fields empty. Existing values are
 // shown only as placeholders, and only fields the user actually enters are validated and sent.
@@ -106,7 +112,7 @@ let isInitialized = false;
 const toEditableRow = (connId: string) => {
   const stored = sourceConnectionStore.getConnectionById(connId) as any;
   return {
-    _id: connectionIdCounter++,
+    _id: newConnectionRowId(),
     id: stored?.id,
     _original: stored,
     name: '',
@@ -133,17 +139,7 @@ watchEffect(() => {
     props.selectedConnectionId.length === 0
   ) {
     // Adding a new Connection
-    sourceConnectionsByIds.value = [
-      {
-        _id: connectionIdCounter++,
-        name: '',
-        ip_address: '',
-        ssh_port: 22,
-        user: '',
-        password: '',
-        private_key: '',
-      },
-    ];
+    sourceConnectionsByIds.value = [emptyConnection()];
   }
 });
 
@@ -151,39 +147,15 @@ watchEffect(() => {
 watchEffect(() => {
   uniqueSourceConnectionsByIds.value = Array.from(
     new Map(
-      sourceConnectionsByIds.value.map((item, index) => [
-        item.id || `new-${index}`,
-        item,
-      ]),
+      sourceConnectionsByIds.value.map(item => [connectionRowKey(item), item]),
     ).values(),
   );
 });
 
-// Update connectionInfoData and initialize validStates (only once)
-watchEffect(
-  () => {
-    if (uniqueSourceConnectionsByIds.value.length > 0) {
-      // Keep connectionInfoData in sync with uniqueSourceConnectionsByIds
-      connectionInfoData.value = uniqueSourceConnectionsByIds.value;
-
-      // Initialize only when validStates isn't initialized yet or the size differs
-      if (
-        !isInitialized ||
-        validStates.value.size !== uniqueSourceConnectionsByIds.value.length
-      ) {
-        validStates.value.clear();
-        uniqueSourceConnectionsByIds.value.forEach(conn => {
-          const connId = conn._id || conn.id;
-          if (!validStates.value.has(connId)) {
-            validStates.value.set(connId, false);
-          }
-        });
-        isInitialized = true;
-      }
-    }
-  },
-  { flush: 'sync' },
-);
+// Keep connectionInfoData in sync with uniqueSourceConnectionsByIds
+watchEffect(() => {
+  connectionInfoData.value = uniqueSourceConnectionsByIds.value;
+});
 
 // An empty input field means "leave it as-is," so it's not included in the request.
 //
@@ -265,7 +237,8 @@ const handleAddSourceConnection = async () => {
           name: info.name,
           password: info.password,
           private_key: info.private_key,
-          ssh_port: info.ssh_port,
+          // Always a string — see emptyConnection above.
+          ssh_port: String(info.ssh_port ?? DEFAULT_SSH_PORT),
           user: info.user,
         },
       });
@@ -319,7 +292,7 @@ const handleAddSourceConnection = async () => {
       <template #add-info>
         <div
           v-for="(info, i) in uniqueSourceConnectionsByIds"
-          :key="info._id || info.id || i"
+          :key="connectionRowKey(info)"
         >
           <source-connection-form
             :source-connection="uniqueSourceConnectionsByIds[i]"
@@ -327,10 +300,7 @@ const handleAddSourceConnection = async () => {
             :existing="info._original ?? null"
             :show-delete-button="uniqueSourceConnectionsByIds.length > 1"
             :readonly="getReadonlyFields(info)"
-            @delete="deleteSourceConnection(info._id || info.id)"
-            @update:valid="
-              valid => handleValidChange(info._id || info.id, valid)
-            "
+            @delete="deleteSourceConnection(connectionRowKey(info))"
           />
         </div>
       </template>
@@ -343,7 +313,8 @@ const handleAddSourceConnection = async () => {
           {{ i18n.t('COMPONENT.BUTTON_MODAL.CANCEL') }}
         </p-button>
         <p-button
-          :disabled="!isDisabled"
+          data-testid="source-connection-save"
+          :disabled="!isSaveEnabled"
           :loading="saveLoading"
           @click="handleAddSourceConnection"
         >

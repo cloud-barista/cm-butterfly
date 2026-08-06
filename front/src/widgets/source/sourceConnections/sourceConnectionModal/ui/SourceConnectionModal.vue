@@ -3,8 +3,13 @@ import { PButton } from '@cloudforet-test/mirinae';
 import { CreateForm } from '@/widgets/layout';
 import { i18n } from '@/app/i18n';
 import SourceConnectionForm from '@/features/sourceServices/sourceConnection/ui/SourceConnectionForm.vue';
-import { ref, watchEffect, onBeforeMount } from 'vue';
+import { ref, computed, onBeforeMount } from 'vue';
 import { useSourceConnectionStore } from '@/entities/sourceConnection/model/stores';
+import {
+  connectionRowKey,
+  newConnectionRowId,
+} from '@/shared/utils/connectionRows';
+import { isConnectionRowValid } from '@/shared/utils/connectionValidation';
 
 const sourceConnectionStore = useSourceConnectionStore();
 interface iProps {
@@ -13,77 +18,55 @@ interface iProps {
 
 const props = defineProps<iProps>();
 
-const isDisabled = ref<boolean>(false);
-const validStates = ref<Map<number, boolean>>(new Map());
-let connectionIdCounter = 0;
+const emptyConnection = () => ({
+  _id: newConnectionRowId(),
+  name: '',
+  description: '',
+  ip_address: '',
+  user: '',
+  private_key: '',
+  ssh_port: '22',
+  password: '',
+});
 
 // Add one connection if there are none when the modal opens
 onBeforeMount(() => {
   if (sourceConnectionStore.editConnections.length === 0) {
-    sourceConnectionStore.editConnections.push({
-      _id: connectionIdCounter++,
-      name: '',
-      description: '',
-      ip_address: '',
-      user: '',
-      private_key: '',
-      ssh_port: '22',
-      password: '',
-    });
-  } else {
-    // Assign IDs to existing connections
-    sourceConnectionStore.editConnections.forEach((conn: any) => {
-      if (!conn._id) {
-        conn._id = connectionIdCounter++;
-      }
-    });
+    sourceConnectionStore.editConnections.push(emptyConnection());
+    return;
   }
+  // Rows kept in the store from an earlier visit, or produced by a file import,
+  // may be missing an id or a field. Rebuilding each one gives it both — a field
+  // added to an existing object afterwards would not be reactive, and the save
+  // button below would then miss what the user types into it.
+  sourceConnectionStore.editConnections =
+    sourceConnectionStore.editConnections.map((conn: any) => ({
+      ...emptyConnection(),
+      ...conn,
+      _id: connectionRowKey(conn) || newConnectionRowId(),
+    }));
 });
 
-const handleValidChange = (id: number, valid: boolean) => {
-  console.log('[SourceConnectionModal] handleValidChange called:', {
-    id,
-    valid,
-  });
-  validStates.value.set(id, valid);
-  // Check whether every connection is valid
-  const allValid = Array.from(validStates.value.values()).every(v => v);
-  isDisabled.value =
-    allValid &&
-    validStates.value.size === sourceConnectionStore.editConnections.length;
-  console.log(
-    '[SourceConnectionModal] isDisabled updated:',
-    isDisabled.value,
-    'editConnections:',
-    sourceConnectionStore.editConnections,
-  );
-};
+// Every row must be ready to save. Asked of the rows themselves, so nothing
+// depends on which form reported last or on any per-row bookkeeping.
+const isSaveEnabled = computed(
+  () =>
+    sourceConnectionStore.editConnections.length > 0 &&
+    sourceConnectionStore.editConnections.every((conn: any) =>
+      isConnectionRowValid(conn),
+    ),
+);
 
 const addSourceConnection = () => {
-  sourceConnectionStore.editConnections.push({
-    _id: connectionIdCounter++,
-    name: '',
-    description: '',
-    ip_address: '',
-    user: '',
-    private_key: '',
-    ssh_port: '22',
-    password: '',
-  });
+  sourceConnectionStore.editConnections.push(emptyConnection());
 };
 
-const deleteSourceConnection = (id: number) => {
+const deleteSourceConnection = (id: string) => {
   const index = sourceConnectionStore.editConnections.findIndex(
-    (conn: any) => conn._id === id,
+    (conn: any) => connectionRowKey(conn) === id,
   );
   if (index !== -1) {
     sourceConnectionStore.editConnections.splice(index, 1);
-    validStates.value.delete(id);
-    // Recompute validation state after deletion
-    const allValid = Array.from(validStates.value.values()).every(v => v);
-    isDisabled.value =
-      allValid &&
-      validStates.value.size === sourceConnectionStore.editConnections.length;
   }
 };
 
@@ -100,7 +83,6 @@ const handleAddSourceConnection = () => {
   emit('update:is-connection-modal-opened', false);
   emit('update:is-service-modal-opened', true);
 };
-
 </script>
 
 <template>
@@ -122,7 +104,7 @@ const handleAddSourceConnection = () => {
       <template #add-info>
         <div
           v-for="(value, i) in sourceConnectionStore.editConnections"
-          :key="value._id"
+          :key="connectionRowKey(value)"
         >
           <source-connection-form
             v-if="sourceConnectionStore.editConnections[i]"
@@ -131,8 +113,7 @@ const handleAddSourceConnection = () => {
             :show-delete-button="
               sourceConnectionStore.editConnections.length > 1
             "
-            @delete="deleteSourceConnection(value._id)"
-            @update:valid="valid => handleValidChange(value._id, valid)"
+            @delete="deleteSourceConnection(connectionRowKey(value))"
           />
         </div>
       </template>
@@ -142,7 +123,7 @@ const handleAddSourceConnection = () => {
         </p-button>
         <p-button
           data-testid="source-connection-apply"
-          :disabled="!isDisabled"
+          :disabled="!isSaveEnabled"
           @click="handleAddSourceConnection"
         >
           {{ i18n.t('COMPONENT.BUTTON_MODAL.APPLY') }}
