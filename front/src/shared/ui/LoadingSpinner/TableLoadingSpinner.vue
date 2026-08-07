@@ -1,11 +1,11 @@
 <script setup lang="ts">
 /**
  * TableLoadingSpinner
- * 
+ *
  * Shared spinner component shown while table data is loading
  *
  * @example
- * <table-loading-spinner 
+ * <table-loading-spinner
  *   :loading="apiInstance.isLoading.value"
  *   :height="height"
  *   message="Loading data..."
@@ -15,7 +15,7 @@
  *   :items="tableModel.tableState.displayItems"
  *   @refresh="fetchData"
  * />
- * 
+ *
  * @prop {boolean} loading - loading state (required)
  * @prop {string} message - message to display (optional, default: 'Loading...')
  * @prop {string|number} height - height of the spinner area (optional)
@@ -35,9 +35,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const computedStyle = computed(() => {
   if (props.height) {
-    const heightValue = typeof props.height === 'number' 
-      ? `${props.height}px` 
-      : props.height;
+    const heightValue =
+      typeof props.height === 'number' ? `${props.height}px` : props.height;
     return { height: heightValue };
   }
   return {};
@@ -48,6 +47,15 @@ const computedStyle = computed(() => {
   <div v-if="loading" class="table-loading-spinner" :style="computedStyle">
     <p-spinner size="xl" />
     <p>{{ message }}</p>
+    <!--
+      Room for a line about *why* the wait is taking as long as it is.
+
+      A spinner on its own says only that something is happening. When the wait has a reason
+      the caller knows — the server asked us to come back in a moment, say — saying it here
+      keeps that with the spinner instead of putting a separate notice somewhere else on the
+      screen, which would read as an error beside a screen that is still working.
+    -->
+    <slot name="detail" />
   </div>
 </template>
 
@@ -69,4 +77,3 @@ const computedStyle = computed(() => {
   color: #6b7280;
 }
 </style>
-

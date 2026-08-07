@@ -169,7 +169,12 @@ func SubsystemAnyCaller(c echo.Context, subsystemName, operationId string, commo
 	// an empty string and simply ignored.
 	reqID := c.Request().Header.Get(echo.HeaderXRequestID)
 
-	commonResponse, err := CommonCaller(strings.ToUpper(targetApiSpec.Method), targetFrameworkInfo.BaseURL, targetApiSpec.ResourcePath, commonRequest, authString, reqID)
+	// Forwarded the same way, and for the same reason: only the caller knows whether it wants
+	// to wait for the work or take a request id and follow it. A delete that takes minutes is
+	// the case this exists for — see the Prefer handling in CommonHttpToCommonResponse.
+	prefer := c.Request().Header.Get("Prefer")
+
+	commonResponse, err := CommonCaller(strings.ToUpper(targetApiSpec.Method), targetFrameworkInfo.BaseURL, targetApiSpec.ResourcePath, commonRequest, authString, reqID, prefer)
 	if err != nil {
 		return commonResponse, err
 	}
@@ -214,7 +219,7 @@ func getAuth(c echo.Context, service Service) (string, error) {
 }
 
 // CommonCaller makes HTTP calls to subsystems
-func CommonCaller(callMethod string, targetFwUrl string, endPoint string, commonRequest *CommonRequest, auth string, reqID string) (*response.CommonResponse, error) {
+func CommonCaller(callMethod string, targetFwUrl string, endPoint string, commonRequest *CommonRequest, auth string, reqID string, prefer string) (*response.CommonResponse, error) {
 	log.Printf("DEBUG: CommonCaller called")
 	log.Printf("DEBUG: - callMethod: %s", callMethod)
 	log.Printf("DEBUG: - targetFwUrl: %s", targetFwUrl)
@@ -232,7 +237,7 @@ func CommonCaller(callMethod string, targetFwUrl string, endPoint string, common
 	log.Printf("DEBUG: - final requestUrl: %s", requestUrl)
 
 	log.Printf("DEBUG: About to call CommonHttpToCommonResponse")
-	commonResponse, err := CommonHttpToCommonResponse(requestUrl, commonRequest.Request, callMethod, auth, reqID)
+	commonResponse, err := CommonHttpToCommonResponse(requestUrl, commonRequest.Request, callMethod, auth, reqID, prefer)
 
 	if err != nil {
 		log.Printf("ERROR: CommonHttpToCommonResponse failed: %v", err)
@@ -251,7 +256,7 @@ func CommonCallerWithoutToken(callMethod string, targetFwUrl string, endPoint st
 	pathParamsUrl := mappingUrlPathParams(endPoint, commonRequest)
 	queryParamsUrl := mappingQueryParams(pathParamsUrl, commonRequest)
 	requestUrl := targetFwUrl + queryParamsUrl
-	commonResponse, err := CommonHttpToCommonResponse(requestUrl, commonRequest.Request, callMethod, "", "")
+	commonResponse, err := CommonHttpToCommonResponse(requestUrl, commonRequest.Request, callMethod, "", "", "")
 	return commonResponse, err
 }
 
@@ -277,7 +282,7 @@ func mappingQueryParams(targeturl string, commonRequest *CommonRequest) string {
 }
 
 // CommonHttpToCommonResponse makes HTTP request and converts response
-func CommonHttpToCommonResponse(url string, s interface{}, httpMethod string, auth string, reqID string) (*response.CommonResponse, error) {
+func CommonHttpToCommonResponse(url string, s interface{}, httpMethod string, auth string, reqID string, prefer string) (*response.CommonResponse, error) {
 	log.Printf("DEBUG: CommonHttpToCommonResponse called")
 	log.Printf("DEBUG: - METHOD: %s", httpMethod)
 	log.Printf("DEBUG: - URL: %s", url)
@@ -305,6 +310,14 @@ func CommonHttpToCommonResponse(url string, s interface{}, httpMethod string, au
 	if reqID != "" {
 		req.Header.Set(echo.HeaderXRequestID, reqID)
 		log.Printf("DEBUG: - X-Request-Id forwarded: %s", reqID)
+	}
+	// Pass Prefer through so a caller can ask the subsystem to answer without finishing the
+	// work first (RFC 7240 "respond-async": cm-beetle replies 202 with a request id and runs
+	// the job behind it). Only forwarded when the browser asked for it; absent, the subsystem
+	// behaves exactly as before.
+	if prefer != "" {
+		req.Header.Set("Prefer", prefer)
+		log.Printf("DEBUG: - Prefer forwarded: %s", prefer)
 	}
 
 	log.Printf("DEBUG: - Request Headers:")
@@ -355,6 +368,10 @@ func CommonHttpToCommonResponse(url string, s interface{}, httpMethod string, au
 	commonResponse := &response.CommonResponse{}
 	commonResponse.Status.Message = resp.Status
 	commonResponse.Status.StatusCode = resp.StatusCode
+	// Carry Retry-After back out. A subsystem that turns a request away because it is briefly
+	// at capacity says how long to wait, and that value is dropped if we only copy the status
+	// and the body — leaving the caller to guess. The handler puts it on our own response too.
+	commonResponse.Status.RetryAfter = resp.Header.Get("Retry-After")
 
 	jsonerr := json.Unmarshal(respBody, &commonResponse.ResponseData)
 	if jsonerr != nil {

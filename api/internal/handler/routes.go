@@ -54,7 +54,24 @@ func SubsystemAnyController(c echo.Context) error {
 	log.Printf("==subsystemName\t:[ %s ]\n== operationId\t:[ %s ]\n== commonRequest\t:\n%+v\n==\n", subsystemName, operationId, commonRequest)
 	commonResponse, _ := SubsystemAnyCaller(c, subsystemName, operationId, commonRequest, true)
 
+	relayRetryAfter(c, commonResponse)
 	return c.JSON(commonResponse.Status.StatusCode, commonResponse)
+}
+
+// relayRetryAfter puts the subsystem's Retry-After on our own response.
+//
+// A subsystem that declines a request because it is momentarily at capacity says how long to
+// wait. That is the only number the caller has; without it the wait is a guess, and guessing
+// short turns one refusal into several. The value is in the body as well — this sets the
+// header so anything reading the response the standard way finds it where it expects.
+//
+// Only Retry-After is relayed. Passing the subsystem's headers through wholesale would carry
+// its Set-Cookie and auth headers to the browser along with them.
+func relayRetryAfter(c echo.Context, commonResponse *response.CommonResponse) {
+	if commonResponse == nil || commonResponse.Status.RetryAfter == "" {
+		return
+	}
+	c.Response().Header().Set("Retry-After", commonResponse.Status.RetryAfter)
 }
 
 // ApiTestRequest represents the request structure for API testing

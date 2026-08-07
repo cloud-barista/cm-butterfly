@@ -11,15 +11,12 @@ import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { useDeleteMci } from '@/entities/mci/api';
 import {
   putDeleteRecord,
-  markDeleteSucceeded,
-  markDeleteFailed,
-  noteDeleteRequestError,
+  recordDeleteRejected,
   getDeleteRecord,
   isDeleteInProgress,
-  statusCodeOf,
   type DeleteRecord,
 } from '@/entities/mci/lib/deleteTracker';
-import { extractErrorMessage } from '@/shared/libs';
+import { extractErrorMessage, withRefusalRetry } from '@/shared/libs';
 import { McmpRouter } from '@/app/providers/router';
 
 interface IProps {
@@ -52,10 +49,18 @@ const state = reactive({
   // error    — reopened after an earlier delete failed: reason, plus force delete or cancel
   phase: 'confirm' as 'confirm' | 'notice' | 'dispatch' | 'progress' | 'error',
   alreadyInProgress: false,
-  // How many requests have gone out during dispatch.
+  // How many requests the server has taken during dispatch. Counted from the 202s, so it is
+  // what has actually landed rather than how far the loop has got.
   dispatched: 0,
   // True while the requests are being handed over; see holdScreen below.
   closeLocked: false,
+  // Set while a request is waiting to go out again after being turned away. Shown so the
+  // pause reads as "waiting its turn" rather than as a screen that has stopped.
+  retry: null as {
+    attempt: number;
+    maxRetries: number;
+    seconds: number;
+  } | null,
 });
 
 const trackedIds = ref<string[]>([]);
@@ -85,16 +90,25 @@ interface DeleteTarget {
 const targets = ref<DeleteTarget[]>([]);
 
 function classifyTargets(mciList: any[]): DeleteTarget[] {
-  return mciList
-    .map(mci => ({ uid: mci?.uid as string, name: (mci?.name as string) ?? '' }))
-    // Without a uid there is nothing to track — a name is reused and cannot be the key.
-    .filter(t => !!t.uid)
-    .map(t => {
-      const status = getDeleteRecord(t.uid)?.status;
-      const kind: TargetKind =
-        status === 'Handling' ? 'inflight' : status === 'Error' ? 'retry' : 'new';
-      return { ...t, kind };
-    });
+  return (
+    mciList
+      .map(mci => ({
+        uid: mci?.uid as string,
+        name: (mci?.name as string) ?? '',
+      }))
+      // Without a uid there is nothing to track — a name is reused and cannot be the key.
+      .filter(t => !!t.uid)
+      .map(t => {
+        const status = getDeleteRecord(t.uid)?.status;
+        const kind: TargetKind =
+          status === 'Handling'
+            ? 'inflight'
+            : status === 'Error'
+              ? 'retry'
+              : 'new';
+        return { ...t, kind };
+      })
+  );
 }
 
 // The ones a confirm actually sends a request for — everything except those already running.
@@ -104,7 +118,9 @@ const requestTargets = computed(() =>
 const inflightTargets = computed(() =>
   targets.value.filter(t => t.kind === 'inflight'),
 );
-const retryTargets = computed(() => targets.value.filter(t => t.kind === 'retry'));
+const retryTargets = computed(() =>
+  targets.value.filter(t => t.kind === 'retry'),
+);
 
 /**
  * What has to be typed to confirm.
@@ -139,7 +155,6 @@ const dispatchPercent = computed(() =>
     ? 100
     : Math.round((state.dispatched / dispatchTotal.value) * 100),
 );
-const submitEstimateSeconds = computed(() => submitSeconds(dispatchTotal.value));
 
 const retryNotice = computed(() => {
   const retries = retryTargets.value.length;
@@ -207,80 +222,89 @@ function reasonFrom(rejected: any): string | null {
 }
 
 /**
- * Issues one delete request and starts tracking it.
+ * Hands one delete over and, once the server has taken it, starts following it.
  *
- * Nothing is awaited here on purpose: the call answers only when the delete finishes, and the
- * caller spaces the sends out rather than queueing behind each answer.
+ * The request asks to be answered on acceptance rather than on completion, so what comes back
+ * is a 202 and a request id — in a moment, not in minutes. Two things follow from that.
+ *
+ * **The record is written after the answer, not before.** Writing it first meant a request the
+ * server never received still left the workload marked as deleting, and that mark is what
+ * blocks a second attempt — so a workload nothing had happened to could not be deleted again.
+ * An acceptance is now something we are told about, so there is no reason to assume it.
+ *
+ * **Nothing here concludes the delete.** The 202 says taken, not done. The outcome arrives
+ * through the request record and the tracker is what reads it.
+ *
+ * A request turned away because the far side is momentarily full is sent again — see
+ * `withRefusalRetry`. Each attempt carries a fresh request id: cm-beetle writes the id down
+ * when the request arrives, even for one it then declines, and refuses a repeat of it.
  */
-function fireDelete(target: DeleteTarget, option: string): void {
+async function fireDelete(target: DeleteTarget, option: string): Promise<void> {
   // Already running: do not issue another request. The existing record is what is shown.
   if (isDeleteInProgress(target.uid)) return;
 
-  const reqId = newReqId();
-  putDeleteRecord({
-    uid: target.uid,
-    infraId: target.name,
-    nsId: props.nsId,
-    reqId,
-    option,
-    status: 'Handling',
-  });
-  useDeleteMci({ nsId: props.nsId, infraId: target.name, option }, reqId)
-    .execute()
-    // A success keeps no record — the infra leaves the list, so there is nothing to show.
-    // Announce the success from here. The tracker cannot: clearing on success would take
-    // the record out of what it inspects, so nothing would ever report the completion.
-    .then(() => markDeleteSucceeded(target.uid))
-    .catch((rejected: any) => {
-      const reason = reasonFrom(rejected) ?? undefined;
-      const code = statusCodeOf(rejected);
+  let reqId = '';
+  try {
+    await withRefusalRetry(
+      () => {
+        reqId = newReqId();
+        return useDeleteMci(
+          { nsId: props.nsId, infraId: target.name, option },
+          reqId,
+        ).execute();
+      },
+      {
+        onRetry: (info, remainingMs) => {
+          state.retry = {
+            attempt: info.attempt,
+            maxRetries: info.maxRetries,
+            seconds: Math.ceil(remainingMs / 1000),
+          };
+        },
+      },
+    );
+    state.retry = null;
 
-      // **A timeout is not a failed delete.** This call runs for minutes and the proxy
-      // gives up at 504 long before the server does; the delete carries on and usually
-      // succeeds. Marking Error here told the user it had failed while the infra was in
-      // fact being removed — observed on the dev server, where the infra was gone and the
-      // screen said it had failed. Leave it in Handling and let the tracker conclude.
-      if (code === undefined || code === 504 || code >= 500) {
-        noteDeleteRequestError(target.uid, reason);
-        return;
-      }
-
-      // Anything else the server rejected outright (400, 401, 403, …) means the delete
-      // never started. Leaving it in Handling would be the worst outcome: that status is
-      // what blocks a second attempt, so the workload could never be deleted again even
-      // though nothing had happened to it. Close it out as a failure, with the reason.
-      markDeleteFailed(target.uid, reason);
+    await putDeleteRecord({
+      uid: target.uid,
+      infraId: target.name,
+      nsId: props.nsId,
+      reqId,
+      option,
+      status: 'Handling',
     });
+    state.dispatched += 1;
+  } catch (rejected: any) {
+    state.retry = null;
+    // Never taken — by outright rejection, or by refusals that outlasted the retries. Either
+    // way nothing is running, so it is written down as failed rather than left looking as
+    // though it were under way.
+    await recordDeleteRejected(
+      {
+        uid: target.uid,
+        infraId: target.name,
+        nsId: props.nsId,
+        reqId: reqId || newReqId(),
+        option,
+        status: 'Error',
+      },
+      reasonFrom(rejected) ?? undefined,
+    );
+  }
 }
 
 /**
- * How far apart the requests go out, and how long to wait after the last one.
+ * Above this many targets, say what the wait is for before sending anything.
  *
- * Deleting a workload begins, on the other side, with a lookup — and that lookup is capped at
- * two a second. Sending everything at once put the third onward over the cap, and a lookup
- * turned away is not retried: that delete ended there and came back as a failure. Deleting
- * them one at a time always worked, which is the same thing said from the other end.
+ * The requests themselves are no longer what takes the time. They used to go out one at a
+ * time, 800ms apart, because a delete began with a lookup that was capped at two a second and
+ * a lookup turned away failed the whole delete. Both of those are handled where they belong
+ * now — the server keeps to the cap itself, and answers as soon as it has taken the request
+ * rather than when the deleting is done — so the handing over is a moment.
  *
- * So they are spaced out. 800ms leaves room under the cap for the list refresh, which draws
- * from the same allowance while workloads are in transition — exactly when a delete is running.
- *
- * The settle at the end is for the last request to land. The request is written down the moment
- * it arrives, and from then on its outcome can be fetched from anywhere; before that there is
- * nothing to fetch it with.
+ * The deleting is still minutes, and that is what a large selection needs to be told.
  */
-const SEND_INTERVAL_MS = 800;
-const SETTLE_MS = 1500;
-
-/** Above this many targets, say what the wait is for before sending anything. */
 const NOTICE_THRESHOLD = 5;
-
-/** Roughly how long the handing over will take, in whole seconds. */
-function submitSeconds(count: number): number {
-  if (count <= 0) return 0;
-  return Math.max(1, Math.round(((count - 1) * SEND_INTERVAL_MS + SETTLE_MS) / 1000));
-}
-
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * Holds the screen while the requests are being handed over.
@@ -302,9 +326,11 @@ function warnBeforeUnload(event: BeforeUnloadEvent) {
 function holdScreen() {
   state.closeLocked = true;
   if (!releaseRouterGuard) {
-    releaseRouterGuard = McmpRouter.getRouter().beforeEach((_to, _from, next) => {
-      next(false);
-    });
+    releaseRouterGuard = McmpRouter.getRouter().beforeEach(
+      (_to, _from, next) => {
+        next(false);
+      },
+    );
   }
   window.addEventListener('beforeunload', warnBeforeUnload);
 }
@@ -350,14 +376,15 @@ async function startDispatch() {
   holdScreen();
   emit('deleted'); // refresh so the list brings up the Delete Status column at once
 
-  for (const [index, target] of sending.entries()) {
-    if (index > 0) await sleep(SEND_INTERVAL_MS);
-    fireDelete(target, option);
-    state.dispatched = index + 1;
-  }
+  // Sent together and waited on together. Each answers as soon as the server has taken it, so
+  // there is nothing to gain by going one at a time — and the server, not this screen, is what
+  // keeps to the rate the far side allows.
+  //
+  // The count moves as the answers arrive rather than as the loop advances, which is why it
+  // reaches the end only when every request really has been taken. There is no settle to wait
+  // out afterwards: an answer *is* the confirmation that used to be guessed at.
+  await Promise.all(sending.map(target => fireDelete(target, option)));
 
-  // Let the last one land before anyone can walk away from it.
-  await sleep(SETTLE_MS);
   releaseScreen();
   state.phase = 'progress';
 }
@@ -406,6 +433,7 @@ function resetState() {
   state.phase = 'confirm';
   state.alreadyInProgress = false;
   state.dispatched = 0;
+  state.retry = null;
   releaseScreen();
   trackedIds.value = [];
   targets.value = [];
@@ -522,25 +550,21 @@ watch(
           <b>{{ dispatchTotal }} workloads selected.</b>
         </p>
         <p class="notice-body">
-          Requests are submitted one at a time — about one per second — because only so
-          many can be handled at once. Submitting all {{ dispatchTotal }} takes about
-          <b>{{ submitEstimateSeconds }} seconds</b>, and you cannot leave this screen
-          until that is done.
+          Submitting all {{ dispatchTotal }} takes a moment, and you cannot
+          leave this screen until it is done. If the server is busy, a request
+          waits its turn and is sent again on its own.
         </p>
         <p class="notice-body">
-          That is the submitting, not the deleting. Once the requests are in, the
-          deletions continue on their own and take considerably longer. You can leave
-          this screen at that point and follow them in the <b>Delete Status</b> column
-          of the list.
-        </p>
-        <p class="notice-body">
-          Selecting fewer at a time gets the submitting done sooner.
+          That is the submitting, not the deleting. Once the requests are in,
+          the deletions continue on their own and take considerably longer. You
+          can leave this screen at that point and follow them in the
+          <b>Delete Status</b> column of the list.
         </p>
       </div>
 
       <!--
-        dispatch step — the requests going out, one at a time. There is no button here: the
-        screen is held until the last one has landed, and saying so is the only thing to do.
+        dispatch step — the requests being handed over. There is no button here: the screen is
+        held until every one has been taken, and saying so is the only thing to do.
       -->
       <div
         v-else-if="state.phase === 'dispatch'"
@@ -554,11 +578,43 @@ watch(
           >
         </p>
         <div class="dispatch-bar">
-          <div class="dispatch-bar-fill" :style="{ width: `${dispatchPercent}%` }" />
+          <div
+            class="dispatch-bar-fill"
+            :style="{ width: `${dispatchPercent}%` }"
+          />
         </div>
+        <!--
+          Shown only while a request is waiting to go out again. A pause with nothing on
+          screen is indistinguishable from one that has stopped, and this one resolves
+          itself — so it says what it is waiting for and for how long, and asks nothing of
+          the user.
+        -->
+        <p
+          v-if="state.retry"
+          class="retry-notice"
+          data-testid="mci-delete-retry-notice"
+        >
+          The server is handling as many requests as it can.
+          <!--
+            The count and its unit are held together. Left to wrap on their own they were
+            split across the line — the number ending one line and "seconds" beginning the
+            next — which reads as two separate things rather than as a time.
+          -->
+          <span class="retry-wait"
+            >Retrying in
+            <b data-testid="mci-delete-retry-seconds">{{
+              state.retry.seconds
+            }}</b>
+            {{ state.retry.seconds === 1 ? 'second' : 'seconds' }}</span
+          >
+          <span class="retry-count" data-testid="mci-delete-retry-count"
+            >Retry {{ state.retry.attempt }}/{{ state.retry.maxRetries }}</span
+          >
+        </p>
         <p class="hint">
-          Please stay on this screen until this finishes. Each delete begins as its
-          request goes out and continues in the background afterwards.
+          Please stay on this screen until this finishes. Each delete begins
+          once its request has been taken and continues in the background
+          afterwards.
         </p>
       </div>
 
@@ -622,7 +678,11 @@ watch(
           >
         </div>
         <p class="description" data-testid="mci-delete-target-count">
-          {{ requestTargets.length === 1 ? '1 workload' : `${requestTargets.length} workloads` }}
+          {{
+            requestTargets.length === 1
+              ? '1 workload'
+              : `${requestTargets.length} workloads`
+          }}
           will be deleted
         </p>
         <div class="mci-list">
@@ -650,7 +710,18 @@ watch(
         >
           {{ exclusionNotice }}
         </p>
-        <p v-if="retryNotice" class="hint" data-testid="mci-delete-retry-notice">
+        <!--
+          Named apart from the dispatch step's retry notice. Both said `mci-delete-retry-notice`
+          while meaning different things — this one that a target failed before and is being
+          asked for again, the other that a request is waiting to go out. They belong to
+          different steps so only ever one is drawn, which is precisely why the collision would
+          have gone unnoticed until a test picked up the wrong one.
+        -->
+        <p
+          v-if="retryNotice"
+          class="hint"
+          data-testid="mci-delete-retry-target-notice"
+        >
           {{ retryNotice }}
         </p>
 
@@ -899,6 +970,22 @@ watch(
     height: 100%;
     background-color: #6b7280;
     transition: width 200ms linear;
+  }
+
+  /* Waiting to send again. Amber rather than red: nothing has failed. */
+  .retry-notice {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #92400e;
+    line-height: 1.5;
+  }
+  .retry-wait {
+    white-space: nowrap;
+  }
+  .retry-count {
+    margin-left: 8px;
+    font-family: monospace;
+    color: #6b7280;
   }
 
   .warning-note {

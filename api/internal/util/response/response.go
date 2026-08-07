@@ -23,6 +23,16 @@ type CommonResponse struct {
 type WebStatus struct {
 	StatusCode int    `json:"code"`
 	Message    string `json:"message"`
+	// How long to wait before trying again, in seconds, when the subsystem said so.
+	//
+	// A subsystem that declines a request because it is momentarily at capacity answers with
+	// Retry-After (cm-beetle does this on 503 when its async job pool is full, and on 429 for
+	// its own cooldowns). That value is the only thing that tells a caller how long to wait,
+	// and without it the wait is a guess.
+	//
+	// It is carried in the body rather than only as a header because the browser reads this
+	// envelope, not the raw response. The header is set as well — see the proxy handler.
+	RetryAfter string `json:"retryAfter,omitempty"`
 }
 
 // JSON sends a JSON response with the given status code
