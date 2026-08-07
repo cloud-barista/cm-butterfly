@@ -85,9 +85,17 @@ export function isDeleteInProgress(uid: string): boolean {
   return state.records[uid]?.status === 'Handling';
 }
 
-/** Records a delete request on the server; an earlier record for the same infra is replaced. */
+/**
+ * Records a delete request on the server; an earlier record for the same infra is replaced.
+ *
+ * ★ The map is replaced rather than written into. Vue 2 cannot see a key being *added* to a
+ *   plain object, so writing one in leaves anything reading it — the list's `Delete Status`
+ *   column — showing what it read last. It happened to look right because the list refreshes
+ *   right after a delete goes out and re-renders for that reason; nothing was relying on the
+ *   record itself. Replacing the map means it no longer has to be a coincidence.
+ */
 export async function putDeleteRecord(rec: DeleteRecord): Promise<void> {
-  state.records[rec.uid] = rec;
+  state.records = { ...state.records, [rec.uid]: rec };
   try {
     await useSaveDeleteRequest({
       uid: rec.uid,
@@ -119,9 +127,16 @@ export async function markDeleteSucceeded(uid: string): Promise<void> {
   await clearDeleteRecord(uid);
 }
 
-/** Drops the record — the delete succeeded, or the infra is gone from the list. */
+/**
+ * Drops the record — the delete succeeded, or the infra is gone from the list.
+ *
+ * ★ Rebuilt without the key rather than `delete`d out of. Vue 2 cannot see a key being removed
+ *   either, and this is the side that showed: a finished delete left `In progress` on the row
+ *   for as long as the screen stayed open, because nothing told it to look again.
+ */
 export async function clearDeleteRecord(uid: string): Promise<void> {
-  delete state.records[uid];
+  const { [uid]: _removed, ...rest } = state.records;
+  state.records = rest;
   try {
     await useRemoveDeleteRequest(uid).execute();
   } catch (e) {
@@ -178,6 +193,26 @@ export async function markDeleteFailed(
   await markStatus(uid, 'Error', errorReason);
   const rec = state.records[uid];
   if (rec) await notifyFailed(rec, errorReason);
+}
+
+/**
+ * Records a delete that was never taken.
+ *
+ * `markDeleteFailed` updates a record that already exists, and until the request has been
+ * accepted there is none — the record is written from the 202, so that the thing being
+ * followed is a request the server has actually acknowledged.
+ *
+ * A refusal still has to be visible. Without a record the list shows nothing in `Delete
+ * Status` and the only sign is a modal the user may already have closed, which reads as
+ * though the delete were quietly under way. So one is written, already in `Error`.
+ */
+export async function recordDeleteRejected(
+  rec: DeleteRecord,
+  errorReason?: string,
+): Promise<void> {
+  await putDeleteRecord({ ...rec, status: 'Error', errorReason });
+  const stored = state.records[rec.uid];
+  if (stored) await notifyFailed(stored, errorReason);
 }
 
 /** Loads the tracking records kept on the server (on app start and on login). */
@@ -243,16 +278,46 @@ async function notifyDone(rec: DeleteRecord): Promise<void> {
   });
 }
 
-async function notifyFailed(rec: DeleteRecord, reason?: string): Promise<void> {
+/**
+ * What the server says about a finished request, as one sentence.
+ *
+ * Two fields carry it, and they are not the same thing. `retryReason` is the cause in a few
+ * words — short enough to head a message — while `errorResponse` is the sentence describing
+ * what happened. Read together they say "this, because of that"; read alone, either is thinner
+ * than it needs to be.
+ */
+function reasonFromDetails(details: any): string | undefined {
+  const cause = details?.retry?.retryReason || '';
+  const detail = details?.errorResponse || '';
+  if (cause && detail) return `${cause}: ${detail}`;
+  return cause || detail || undefined;
+}
+
+async function notifyFailed(
+  rec: DeleteRecord,
+  reason?: string,
+  retry?: { retryable?: boolean; retryAfter?: number },
+): Promise<void> {
   // Carry the reason in the notification. The status cell is narrow and shows only the
   // start of it, and this notification is often where the failure is first noticed. When no
   // reason came back, say where one can be obtained instead.
+  //
+  // When the server says the request can simply be sent again, say that instead of leaving the
+  // user to guess from the wording. Nothing was started in that case, so deleting again is not
+  // a second attempt at a half-done job — it is the first one.
+  const wait = retry?.retryAfter;
+  const again = retry?.retryable
+    ? wait
+      ? `\n\nNothing was started. It can be deleted again in about ${wait} seconds.`
+      : '\n\nNothing was started. It can simply be deleted again.'
+    : '\n\nDeleting it again shows the same reason before it starts.';
+
   await notify({
     category: 'Workload',
     level: 'Error',
     message: `Failed to delete infra "${rec.infraId}".`,
     detail: reason
-      ? `${reason}\n\nDeleting it again shows the same reason before it starts.`
+      ? `${reason}${again}`
       : 'No reason was returned. Deleting it again shows the reason before it starts.',
     dedupKey: `delete:${rec.reqId}:error`,
   });
@@ -318,9 +383,8 @@ async function checkOne(rec: DeleteRecord): Promise<void> {
       // nothing left to show it against.
       await clearDeleteRecord(rec.uid);
     } else if (status === 'error') {
-      const reason = details?.errorResponse || undefined;
-      await markStatus(rec.uid, 'Error', reason);
-      await notifyFailed(rec, reason);
+      await markStatus(rec.uid, 'Error', reasonFromDetails(details));
+      await notifyFailed(rec, reasonFromDetails(details), details?.retry);
     }
     // Still Handling: leave it and look again on the next pass.
   } catch (e) {

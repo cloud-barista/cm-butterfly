@@ -164,12 +164,23 @@ export function useDeleteMci(params: IDeleteMciParams, reqId?: string) {
 
   // Sending reqId as X-Request-Id makes the backend proxy forward it as-is to cm-beetle.
   // Progress can then be polled with useGetBeetleRequest(reqId).
-  const config = reqId ? { headers: { 'X-Request-Id': reqId } } : undefined;
+  //
+  // `Prefer: respond-async` (RFC 7240) asks cm-beetle to answer as soon as it has taken the
+  // request — 202 with the request id — and do the deleting behind it. Without it the call
+  // does not answer until the delete finishes, minutes later, which is what forced the screen
+  // to hold on while requests went out one at a time.
+  //
+  // ★ The 202 means **taken**, not **done**. Whatever runs on success must not sit on this
+  //   promise; the outcome arrives through the request record, which the tracker follows.
+  const headers: Record<string, string> = { Prefer: 'respond-async' };
+  if (reqId) headers['X-Request-Id'] = reqId;
 
   return useAxiosPost<IAxiosResponse<any>, any>(
     DELETE_INFRA,
     requestBodyWrapper,
-    config,
+    {
+      headers,
+    },
   );
 }
 
