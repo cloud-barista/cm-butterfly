@@ -211,36 +211,50 @@ const data = computed(() => {
               @select:multi-row="e => (multiSelectedConnectionIds = e)"
             >
               <template v-if="selectedConnectionId" #sourceConnectionDetail>
+                <!-- mirinae PButtonTab renders the tab buttons itself and takes no
+                     attributes for them, so the anchors live on this wrapper and on
+                     each panel. Tests assert the panel, not the button. -->
                 <p-button-tab
                   v-model="sourceConnectionDetailTabState.activeTab"
+                  data-testid="source-connection-detail"
                   :tabs="sourceConnectionDetailTabState.tabs"
                 >
                   <template #information>
-                    <SourceInformation :connection-id="selectedConnectionId" />
+                    <div data-testid="source-connection-detail-information">
+                      <SourceInformation
+                        :connection-id="selectedConnectionId"
+                      />
+                    </div>
                   </template>
                   <template #infraCollect>
-                    <SourceInfraCollect
-                      :source-group-id="selectedServiceId"
-                      :connection-id="selectedConnectionId"
-                      :meta-viewer-modal-state="
-                        modalStates.addInfraMetaViewer.open
-                      "
-                      @update:metaViewerModalState="
-                        e => (modalStates.addInfraMetaViewer.open = e)
-                      "
-                    />
+                    <div data-testid="source-connection-detail-infra-collect">
+                      <SourceInfraCollect
+                        :source-group-id="selectedServiceId"
+                        :connection-id="selectedConnectionId"
+                        :meta-viewer-modal-state="
+                          modalStates.addInfraMetaViewer.open
+                        "
+                        @update:metaViewerModalState="
+                          e => (modalStates.addInfraMetaViewer.open = e)
+                        "
+                      />
+                    </div>
                   </template>
                   <template #softwareCollect>
-                    <SourceSoftwareCollect
-                      :source-group-id="selectedServiceId"
-                      :connection-id="selectedConnectionId"
-                      :meta-viewer-modal-state="
-                        modalStates.addSoftwareMetaViewer.open
-                      "
-                      @update:metaViewerModalState="
-                        e => (modalStates.addSoftwareMetaViewer.open = e)
-                      "
-                    />
+                    <div
+                      data-testid="source-connection-detail-software-collect"
+                    >
+                      <SourceSoftwareCollect
+                        :source-group-id="selectedServiceId"
+                        :connection-id="selectedConnectionId"
+                        :meta-viewer-modal-state="
+                          modalStates.addSoftwareMetaViewer.open
+                        "
+                        @update:metaViewerModalState="
+                          e => (modalStates.addSoftwareMetaViewer.open = e)
+                        "
+                      />
+                    </div>
                   </template>
                 </p-button-tab>
               </template>

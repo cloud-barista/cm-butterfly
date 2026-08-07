@@ -53,7 +53,7 @@ const props = withDefaults(defineProps<Props>(), {
   }),
 });
 
-const emit = defineEmits(['delete', 'update:valid']);
+const emit = defineEmits(['delete']);
 
 // Whether this is editing an already-registered connection. In that case the
 // inputs open empty, and only the fields the user actually types are validated
@@ -78,36 +78,19 @@ const invalidState = reactive({
   isPortValid: false,
 });
 
+// Only what this form shows. Whether the whole screen can be saved is decided by
+// the screen holding the rows, with `isConnectionRowValid` over each of them —
+// this form used to report its own answer from inside this watcher, and the
+// handler receiving it ran within the watcher's tracking scope, which tied every
+// form on screen to the collected result.
 watchEffect(() => {
   const conn = props.sourceConnection;
   if (!conn) return;
 
-  const ipFilled = isFilled(conn.ip_address);
-  const portFilled = isFilled(conn.ssh_port);
-
-  invalidState.isIpAddressValid = ipFilled && isIpValid(conn.ip_address);
-  invalidState.isPortValid = portFilled && isPortValid(conn.ssh_port);
-
-  let isValid: boolean;
-
-  if (isExistingEdit.value) {
-    // Only look at the fields the user typed. If nothing was entered there's
-    // nothing to change, so it's valid, and on save this row sends no request at all.
-    isValid =
-      (!ipFilled || invalidState.isIpAddressValid) &&
-      (!portFilled || invalidState.isPortValid);
-  } else {
-    // New registration keeps the existing rules — username required + either a password or a private key.
-    isValid = Boolean(
-      isFilled(conn.name) &&
-        invalidState.isIpAddressValid &&
-        invalidState.isPortValid &&
-        isFilled(conn.user) &&
-        (isFilled(conn.password) || isFilled(conn.private_key)),
-    );
-  }
-
-  emit('update:valid', isValid);
+  invalidState.isIpAddressValid =
+    isFilled(conn.ip_address) && isIpValid(conn.ip_address);
+  invalidState.isPortValid =
+    isFilled(conn.ssh_port) && isPortValid(conn.ssh_port);
 });
 
 // So untouched fields don't turn red, only show an error when a value is present.
@@ -154,7 +137,7 @@ const handleDelete = () => {
 </script>
 
 <template>
-  <div class="source-connection-layout">
+  <div class="source-connection-layout" data-testid="source-connection-row">
     <p-pane-layout class="source-connection-info">
       <div class="left-layer">
         <p-field-group

@@ -56,6 +56,35 @@ export const hasValidCredentials = (fields: ConnectionFields): boolean =>
 export const CREDENTIAL_HINT = 'Enter User + Password or User + Private Key.';
 
 /**
+ * Whether one row of a connection form is ready to be saved.
+ *
+ * `existing` marks a row for a connection that is already registered. Such a row
+ * opens with empty inputs and only what the user typed is sent, so a blank field
+ * means "keep the stored value" rather than a missing one.
+ *
+ * The screens ask this about every row they hold instead of collecting answers
+ * the row forms report. Collecting them needed a per-row key, and a duplicated
+ * key silently blocked saving.
+ */
+export const isConnectionRowValid = (
+  fields: ConnectionFields,
+  { existing = false }: { existing?: boolean } = {},
+): boolean => {
+  if (existing) {
+    return (
+      (!isFilled(fields.ip_address) || isIpValid(fields.ip_address)) &&
+      (!isFilled(fields.ssh_port) || isPortValid(fields.ssh_port))
+    );
+  }
+  return (
+    isFilled(fields.name) &&
+    isIpValid(fields.ip_address) &&
+    isPortValid(fields.ssh_port) &&
+    hasValidCredentials(fields)
+  );
+};
+
+/**
  * Every problem with one connection, rather than the first one found, so a user
  * fixing an imported file sees the whole picture at once.
  */

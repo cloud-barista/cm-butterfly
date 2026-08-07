@@ -89,6 +89,7 @@ function afterLeave() {
           <p-button
             v-if="addButtonText"
             class="icon-plus"
+            data-testid="create-form-add-row"
             icon-left="ic_plus"
             style-type="secondary"
             @click="handleAddSourceConnection"
